@@ -714,7 +714,7 @@ tbody td{padding:10px 13px;vertical-align:middle;}
 .hub-status-dot{width:6px;height:6px;border-radius:50%;background:var(--module);}
 .hub-arrow{width:27px;height:27px;border-radius:9px;background:#fafbfc;border:1px solid #eef0f4;display:flex;align-items:center;justify-content:center;color:#8d97a8;font-size:14px;transition:.18s ease;}
 .hub-module:hover .hub-arrow{background:var(--module-soft);color:var(--module);border-color:transparent;transform:translateX(2px);}
-.hub-invest{--module:#7668f5;--module-soft:#f0efff}.hub-money{--module:#27a884;--module-soft:#eaf9f5}.hub-planner{--module:#4d82f3;--module-soft:#edf4ff}.hub-driving{--module:#ef7464;--module-soft:#fff0ed}.hub-goals{--module:#e6a23c;--module-soft:#fff7e8}.hub-admin{--module:#d868a6;--module-soft:#fff0f8}
+.hub-invest{--module:#7668f5;--module-soft:#f0efff}.hub-money{--module:#27a884;--module-soft:#eaf9f5}.hub-planner{--module:#4d82f3;--module-soft:#edf4ff}.hub-driving{--module:#ef7464;--module-soft:#fff0ed}.hub-goals{--module:#e6a23c;--module-soft:#fff7e8}.hub-diary{--module:#d868a6;--module-soft:#fff0f8}
 .hub-lower-grid{display:grid;grid-template-columns:1.3fr .85fr .85fr;gap:14px;margin-top:14px;}
 .hub-panel{background:#fff;border:1px solid #eaedf3;border-radius:21px;box-shadow:0 6px 18px rgba(33,43,65,.04);overflow:hidden;}
 .hub-panel-head{padding:18px 19px 13px;display:flex;justify-content:space-between;align-items:center;}
@@ -1352,6 +1352,79 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
   .hub-hero-side{grid-template-columns:1fr}
 }
 
+
+/* Dayframe Diary + Home glance refresh */
+.home-glance-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.home-glance-panel{min-height:230px;display:flex;flex-direction:column;position:relative}
+.home-glance-panel .hub-panel-head{padding:21px 22px 15px}
+.home-glance-panel .hub-panel-body{padding:0 22px 22px;min-height:150px;display:flex;flex:1;flex-direction:column;justify-content:center}
+.hub-panel-heading{display:flex;align-items:center;gap:11px}
+.home-panel-icon{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:16px;font-weight:850}
+.home-panel-sub{font-size:10.5px;color:#929cad;margin-top:3px}
+.home-coming-panel{background:linear-gradient(145deg,#fff 42%,#eef5ff)}
+.home-coming-panel .home-panel-icon{background:#e8f1ff;color:#4d82f3}
+.home-goal-panel{background:linear-gradient(145deg,#fff 42%,#fff7e6)}
+.home-goal-panel .home-panel-icon{background:#fff0cf;color:#d38a1e}
+.home-diary-panel{background:linear-gradient(145deg,#fff 38%,#fff0f8)}
+.home-diary-panel .home-panel-icon{background:#ffe2f1;color:#c65394}
+.home-coming-dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 5px rgba(77,130,243,.09);background:#4d82f3}
+.home-coming-dot.bill{background:#21a17e;box-shadow:0 0 0 5px rgba(33,161,126,.09)}
+.home-coming-dot.car{background:#ee7160;box-shadow:0 0 0 5px rgba(238,113,96,.09)}
+.home-rich-empty{min-height:125px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-color:rgba(121,132,154,.22);background:rgba(255,255,255,.54);font-size:11.5px}
+.home-rich-empty strong{font-size:13px}.home-rich-empty span:not(.home-empty-emoji){color:#9aa3b2}
+.home-empty-emoji{font-size:24px;margin-bottom:3px}
+.home-rich-empty button,.home-journal-prompt button{margin-top:9px;border:0;border-radius:10px;background:#fff;padding:8px 11px;color:#6d61df;font-family:var(--ff);font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 5px 14px rgba(45,52,75,.08)}
+.home-goal-glance{display:grid;grid-template-columns:82px 1fr;align-items:center;gap:17px}
+.home-goal-orb{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at center,#fff 55%,transparent 56%),conic-gradient(#e3a23c var(--goal-pct,65%),#f5ead3 0);box-shadow:0 10px 24px rgba(188,127,34,.12);font-size:10px;color:#a16d21}
+.home-goal-orb span{font-family:var(--fd);font-size:24px;font-weight:850;color:#805514}
+.home-goal-copy strong{display:block;font-family:var(--fd);font-size:15px;color:#4b4338}
+.home-goal-copy span{display:block;font-size:10.5px;color:#9a8a71;margin:4px 0 12px}
+.home-journal-entry,.home-journal-prompt{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:flex-start}
+.home-journal-mood{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:rgba(255,255,255,.8);font-size:23px;box-shadow:0 8px 18px rgba(75,45,65,.08)}
+.home-journal-label,.home-journal-prompt span:not(.home-journal-quote){display:block;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.8px;color:#c06b9c;margin-bottom:5px}
+.home-journal-entry strong,.home-journal-prompt strong{display:block;font-family:var(--fd);font-size:15px;line-height:1.35;color:#543f4c}
+.home-journal-entry p{font-size:11px;line-height:1.65;color:#8e7886;margin-top:5px}
+.home-journal-quote{font-family:Georgia,serif;font-size:58px;line-height:.8;color:#e6a8c9;text-align:center}
+
+/* Diary */
+.diary-page{--diary-ink:#4d3b49;--diary-pink:#ca679c;--diary-soft:#fff0f7;--diary-lilac:#8c79dc}
+.diary-hero{position:relative;overflow:hidden;min-height:255px;border-radius:30px;padding:29px 38px 38px;margin-bottom:18px;background:linear-gradient(125deg,#fff4f7 0%,#f8efff 48%,#edf4ff 100%);border:1px solid #eee2ec;box-shadow:0 20px 48px rgba(91,66,91,.11)}
+.diary-hero-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
+.diary-back{margin:0;color:#8c7585}
+.diary-private{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.62);border:1px solid rgba(201,126,166,.2);font-size:9.5px;font-weight:800;color:#a15c82}
+.diary-hero-copy{position:relative;z-index:2;max-width:720px;margin-top:34px}
+.diary-eyebrow{font-size:9.5px;font-weight:850;letter-spacing:1.2px;text-transform:uppercase;color:#b96995;margin-bottom:9px}
+.diary-hero h1{font-family:var(--fd);font-size:clamp(32px,2.4vw,48px);line-height:1.05;letter-spacing:-1.1px;color:var(--diary-ink)}
+.diary-hero p{font-size:13px;line-height:1.7;color:#8d7887;max-width:620px;margin-top:12px}
+.diary-hero-orbit{position:absolute;border-radius:50%;pointer-events:none}
+.diary-orbit-one{width:290px;height:290px;right:-75px;top:-100px;background:radial-gradient(circle,rgba(239,165,199,.45),rgba(239,165,199,0) 68%)}
+.diary-orbit-two{width:190px;height:190px;right:220px;bottom:-125px;border:30px solid rgba(137,120,215,.07)}
+.diary-metrics .life-metric:nth-child(1){--df-widget:#ca679c;--df-widget-soft:#fff0f7}.diary-metrics .life-metric:nth-child(2){--df-widget:#8c79dc;--df-widget-soft:#f3efff}.diary-metrics .life-metric:nth-child(3){--df-widget:#5c91da;--df-widget-soft:#edf5ff}.diary-metrics .life-metric:nth-child(4){--df-widget:#62aa8e;--df-widget-soft:#ecf9f4}
+.diary-latest-mood{font-size:clamp(19px,1.2vw,25px)}
+.diary-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(310px,.55fr);gap:18px;align-items:start}
+.diary-composer{box-shadow:inset 0 3px 0 #d783af,var(--df-shadow)}
+.diary-new-btn{height:34px;padding:0 11px;border-radius:10px;border:1px solid #eadde6;background:#fff;color:#a45f86;font-size:10px;font-weight:800;font-family:var(--ff);cursor:pointer}
+.diary-form-top{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}.diary-form-top .life-field{width:180px}
+.diary-word-note{font-size:10px;color:#ad9aa7;padding-bottom:9px}
+.diary-feeling-label{font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.7px;color:#9d8997;margin:19px 0 8px}
+.diary-moods{display:flex;flex-wrap:wrap;gap:8px}
+.diary-mood{min-height:42px;padding:0 13px;border-radius:13px;border:1px solid #ebe1e8;background:#fff;color:#83717e;font-family:var(--ff);font-size:10.5px;font-weight:750;cursor:pointer;transition:.16s ease}
+.diary-mood span{font-size:17px;margin-right:5px}.diary-mood:hover{transform:translateY(-1px);border-color:#dcb8cc}.diary-mood.on{background:linear-gradient(135deg,#fff0f7,#f1ecff);border-color:#d9a4c2;color:#8f4c72;box-shadow:0 7px 17px rgba(151,79,119,.1)}
+.diary-prompt{margin:18px 0;padding:15px 17px;border-radius:16px;background:linear-gradient(135deg,#fff5fa,#f7f2ff);border:1px dashed #e3c8d8}
+.diary-prompt span{display:block;font-size:8.5px;font-weight:850;text-transform:uppercase;letter-spacing:.9px;color:#bd779e;margin-bottom:4px}.diary-prompt strong{font-family:var(--fd);font-size:14px;color:#624b5b}
+.diary-title-field{margin-bottom:12px}.diary-title-field em{font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;color:#b0a2ac;margin-left:3px}
+.diary-textarea{width:100%;min-height:230px;resize:vertical;border:1px solid #e3d9e1;background:#fffdfd;border-radius:16px;padding:16px;outline:none;color:#51434d;font-family:var(--ff);font-size:13px;line-height:1.8}
+.diary-textarea:focus{border-color:#d69ab9;box-shadow:0 0 0 4px rgba(202,103,156,.08)}
+.diary-composer-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px}.diary-save-note{font-size:9.5px;color:#aa9da6}.diary-save-btn{height:42px;padding:0 18px;border:0;border-radius:13px;background:linear-gradient(135deg,#c8659a,#8d79dc);color:#fff;font-family:var(--ff);font-size:11px;font-weight:850;cursor:pointer;box-shadow:0 10px 22px rgba(163,91,143,.2)}
+.diary-history-head{align-items:center}.diary-search-wrap{height:36px;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid #e8e1e6;border-radius:11px;background:#fff}.diary-search-wrap span{color:#b0a4ac}.diary-search-wrap input{width:150px;border:0;outline:0;font-family:var(--ff);font-size:10.5px;color:#5e5059}
+.diary-entry{padding:18px;border:1px solid #eee5eb;border-radius:17px;background:linear-gradient(145deg,#fff,#fff9fc);margin-bottom:11px;box-shadow:0 6px 16px rgba(70,48,64,.035)}
+.diary-entry:last-child{margin-bottom:0}.diary-entry-top{display:flex;align-items:flex-start;gap:11px}.diary-entry-mood{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:#fff1f7;font-size:20px;flex:0 0 auto}.diary-entry-heading{min-width:0;flex:1}.diary-entry-heading span{display:block;font-size:9px;color:#ac9ba6;margin-bottom:3px}.diary-entry-heading strong{font-family:var(--fd);font-size:14px;color:#58434f}.diary-entry-actions{display:flex;gap:5px}.diary-entry-actions button{height:29px;padding:0 9px;border:1px solid #e8dfe5;border-radius:9px;background:#fff;color:#987c8d;font-family:var(--ff);font-size:9.5px;font-weight:750;cursor:pointer}.diary-entry-actions .delete{width:29px;padding:0;color:#c77787}.diary-entry-body{font-size:12px;line-height:1.78;color:#76636f;margin-top:13px}.diary-entry-foot{display:flex;gap:12px;padding-top:12px;margin-top:12px;border-top:1px solid #f1eaee;font-size:9px;color:#b09da8}
+.diary-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.diary-day{min-width:0;padding:9px 3px;border-radius:12px;background:#faf7f9;text-align:center}.diary-day.today{background:#fff0f7;box-shadow:inset 0 0 0 1px #ecc9dc}.diary-day span,.diary-day small{display:block;font-size:8px;color:#aa99a4}.diary-day i{display:block;font-style:normal;font-size:18px;line-height:1;margin:7px 0}
+.diary-inspiration{position:relative;overflow:hidden;border-radius:22px;padding:23px;background:linear-gradient(145deg,#4e4359,#716087 58%,#a86f91);color:#fff;box-shadow:0 16px 34px rgba(68,50,77,.17)}.diary-inspiration:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-70px;bottom:-85px;border:25px solid rgba(255,255,255,.05)}.diary-inspiration-kicker{font-size:8.5px;font-weight:850;letter-spacing:1px;text-transform:uppercase;color:#e7bdd4}.diary-inspiration h3{font-family:var(--fd);font-size:20px;margin:6px 0 15px}.diary-inspiration button{position:relative;z-index:1;width:100%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);color:rgba(255,255,255,.82);border-radius:12px;padding:10px 11px;margin-top:7px;text-align:left;font-family:var(--ff);font-size:10px;line-height:1.45;cursor:pointer}.diary-inspiration button:hover{background:rgba(255,255,255,.14)}
+.diary-side{display:flex;flex-direction:column;gap:14px}
+@media(max-width:1100px){.home-glance-grid{grid-template-columns:1fr 1fr}.home-diary-panel{grid-column:1/-1}.diary-layout{grid-template-columns:1fr}.diary-side{display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.home-glance-grid{grid-template-columns:1fr}.home-diary-panel{grid-column:auto}.home-glance-panel{min-height:215px}.diary-hero{padding:22px 20px 27px;min-height:255px;border-radius:23px}.diary-private{font-size:8.5px}.diary-hero-copy{margin-top:31px}.diary-hero h1{font-size:31px}.diary-layout{gap:12px}.diary-side{display:flex}.diary-form-top,.diary-composer-actions,.diary-history-head{align-items:flex-start;flex-direction:column}.diary-form-top .life-field{width:100%}.diary-save-btn{width:100%}.diary-search-wrap{width:100%}.diary-search-wrap input{width:100%}.diary-mood{flex:1 1 calc(33.333% - 8px);padding:0 9px}.diary-textarea{min-height:200px}.diary-entry-actions button:first-child{display:none}}
+
 </style>
 </head>
 <body>
@@ -1415,7 +1488,7 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
     <button class="ni" onclick="go('planner',this)"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1.5v3M11 1.5v3M2 6.5h12M5 9h2M9 9h2M5 11.5h2"/></svg>Planner</button>
     <button class="ni" onclick="go('driving',this)"><svg viewBox="0 0 16 16"><path d="M3 9l1.2-3.5A1.5 1.5 0 015.6 4.5h4.8a1.5 1.5 0 011.4 1L13 9"/><rect x="2" y="8" width="12" height="4.5" rx="1.5"/><path d="M4 12.5v1.5M12 12.5v1.5M4.5 10.2h.1M11.4 10.2h.1"/></svg>Driving</button>
     <button class="ni" onclick="go('goals',this)"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3"/><path d="M8 2v2M14 8h-2"/></svg>Goals</button>
-    <button class="ni" onclick="go('lifeadmin',this)"><svg viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="2"/><path d="M6 2.5V1h4v1.5M5.5 6h5M5.5 9h5M5.5 12h3"/></svg>Life Admin</button>
+    <button class="ni" onclick="go('diary',this)"><svg viewBox="0 0 16 16"><path d="M3 2.5h8.5A1.5 1.5 0 0113 4v9.5H4.5A1.5 1.5 0 013 12V2.5z"/><path d="M5.5 6h5M5.5 9h4M4.5 13.5V4A1.5 1.5 0 016 2.5"/></svg>Diary</button>
 
     <div class="sb-life-divider"></div>
     <div class="sb-sec">Investing</div>
@@ -1469,7 +1542,7 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
   <div class="df-nav-left">
     <div class="df-nav-brand" onclick="go('home')"><i>D</i><span>Dayframe</span></div>
     <div class="df-nav-links">
-      <button class="df-nav-btn on" data-main-page="home" onclick="go('home')">Home</button><button class="df-nav-btn" data-main-page="money" onclick="go('money')">Money</button><button class="df-nav-btn" data-main-page="planner" onclick="go('planner')">Planner</button><button class="df-nav-btn" data-main-page="driving" onclick="go('driving')">Driving</button><button class="df-nav-btn" data-main-page="goals" onclick="go('goals')">Goals</button><button class="df-nav-btn" data-main-page="lifeadmin" onclick="go('lifeadmin')">Life Admin</button><button class="df-nav-btn" data-main-page="investing" onclick="go('dashboard')">Investing</button>
+      <button class="df-nav-btn on" data-main-page="home" onclick="go('home')">Home</button><button class="df-nav-btn" data-main-page="money" onclick="go('money')">Money</button><button class="df-nav-btn" data-main-page="planner" onclick="go('planner')">Planner</button><button class="df-nav-btn" data-main-page="driving" onclick="go('driving')">Driving</button><button class="df-nav-btn" data-main-page="goals" onclick="go('goals')">Goals</button><button class="df-nav-btn" data-main-page="diary" onclick="go('diary')">Diary</button><button class="df-nav-btn" data-main-page="investing" onclick="go('dashboard')">Investing</button>
     </div>
   </div>
   <div class="df-nav-right"><div class="df-user-pill"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></div><button class="df-logout" onclick="doLogout()">Log out</button></div>
@@ -1523,7 +1596,7 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
         <div class="hub-mini-stat"><div class="hub-mini-label">Tasks</div><div class="hub-mini-value" id="home-task-count">0</div><div class="hub-mini-sub">still to do</div></div>
         <div class="hub-mini-stat"><div class="hub-mini-label">This month</div><div class="hub-mini-value" id="home-spent">£0</div><div class="hub-mini-sub">tracked spending</div></div>
         <div class="hub-mini-stat"><div class="hub-mini-label">Goals</div><div class="hub-mini-value" id="home-goal-count">0</div><div class="hub-mini-sub">in progress</div></div>
-        <div class="hub-mini-stat"><div class="hub-mini-label">Upcoming</div><div class="hub-mini-value" id="home-admin-count">0</div><div class="hub-mini-sub">dates to watch</div></div>
+        <div class="hub-mini-stat"><div class="hub-mini-label">Journal</div><div class="hub-mini-value" id="home-diary-count">0</div><div class="hub-mini-sub">entries captured</div></div>
       </div>
     </section>
 
@@ -1554,17 +1627,26 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
         <div class="hub-module-title">Goals</div><div class="hub-module-desc">Make the things you're working towards visible, measurable and motivating.</div>
         <div class="hub-module-foot"><span class="hub-module-status"><i class="hub-status-dot"></i><span id="home-goals-status">Set your first goal</span></span><span class="hub-arrow">→</span></div>
       </article>
-      <article class="hub-module hub-admin" onclick="go('lifeadmin')">
-        <div class="hub-module-icon"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 3V1.5h6V3M8.5 9h7M8.5 13h7M8.5 17h4"/></svg></div>
-        <div class="hub-module-title">Life Admin</div><div class="hub-module-desc">Appointments, renewals and those small important things that are easy to forget.</div>
-        <div class="hub-module-foot"><span class="hub-module-status"><i class="hub-status-dot"></i><span id="home-admin-status">All clear</span></span><span class="hub-arrow">→</span></div>
+      <article class="hub-module hub-diary" onclick="go('diary')">
+        <div class="hub-module-icon"><svg viewBox="0 0 24 24"><path d="M5 3.5h11a3 3 0 013 3V20H7.5A2.5 2.5 0 015 17.5v-14z"/><path d="M8 8.5h7M8 12h5"/><path d="M8.5 16.2c1.2-1.3 2.8-.4 2.8.8 0-1.2 1.6-2.1 2.8-.8 1.1 1.2-.2 2.6-2.8 4-2.6-1.4-3.9-2.8-2.8-4z"/></svg></div>
+        <div class="hub-module-title">Diary</div><div class="hub-module-desc">A private, gentle space to check in with yourself, notice your mood and keep the thoughts that matter.</div>
+        <div class="hub-module-foot"><span class="hub-module-status"><i class="hub-status-dot"></i><span id="home-diary-status">Start with one thought</span></span><span class="hub-arrow">→</span></div>
       </article>
     </div>
 
-    <div class="hub-lower-grid">
-      <section class="hub-panel"><div class="hub-panel-head"><div class="hub-panel-title">Coming up</div><button class="hub-panel-link" onclick="go('planner')">Open planner →</button></div><div class="hub-panel-body" id="home-coming-up"></div></section>
-      <section class="hub-panel"><div class="hub-panel-head"><div class="hub-panel-title">Goal progress</div><button class="hub-panel-link" onclick="go('goals')">View goals →</button></div><div class="hub-panel-body" id="home-goal-progress"></div></section>
-      <section class="hub-panel"><div class="hub-panel-head"><div class="hub-panel-title">Next life admin</div><button class="hub-panel-link" onclick="go('lifeadmin')">View all →</button></div><div class="hub-panel-body" id="home-next-admin"></div></section>
+    <div class="hub-lower-grid home-glance-grid">
+      <section class="hub-panel home-glance-panel home-coming-panel">
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">✓</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">The next few things on your radar</div></div></div><button class="hub-panel-link" onclick="go('planner')">Open planner →</button></div>
+        <div class="hub-panel-body" id="home-coming-up"></div>
+      </section>
+      <section class="hub-panel home-glance-panel home-goal-panel">
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">◎</span><div><div class="hub-panel-title">Goal progress</div><div class="home-panel-sub">A little closer, one step at a time</div></div></div><button class="hub-panel-link" onclick="go('goals')">View goals →</button></div>
+        <div class="hub-panel-body" id="home-goal-progress"></div>
+      </section>
+      <section class="hub-panel home-glance-panel home-diary-panel">
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">♡</span><div><div class="hub-panel-title">A moment for you</div><div class="home-panel-sub">Pause, notice, write it down</div></div></div><button class="hub-panel-link" onclick="go('diary')">Open diary →</button></div>
+        <div class="hub-panel-body" id="home-journal-glance"></div>
+      </section>
     </div>
   </div>
 </div>
@@ -1875,11 +1957,55 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
   <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Your goals</div><div class="life-card-sub">Visible progress is easier to keep moving</div></div></div><div class="life-card-body"><div class="life-form" id="goal-form"><div class="life-form-grid"><div class="life-field"><label>Goal</label><input class="life-input" id="goal-name" placeholder="e.g. Holiday fund"></div><div class="life-field"><label>Type</label><select class="life-select" id="goal-type"><option value="money">Money</option><option value="progress">Progress</option></select></div><div class="life-field"><label>Target</label><input class="life-input" id="goal-target" type="number" step="0.01" placeholder="1000"></div><div class="life-field"><label>Current</label><input class="life-input" id="goal-current" type="number" step="0.01" placeholder="0"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('goal-form',false)">Cancel</button><button class="life-btn-primary" onclick="addGoal()">Save goal</button></div></div><div id="goals-list"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Why this is here</div></div></div><div class="life-card-body"><div class="hub-empty"><strong>Not every goal is a task</strong>Keep bigger targets here, while Planner handles the day-to-day steps.</div></div></section></div></div>
 </div></div>
 
-<!-- LIFE ADMIN -->
-<div class="pg life-page" id="pg-lifeadmin"><div class="life-wrap">
-  <div class="life-header"><div><button class="life-back" onclick="go('home')">← Home</button><div class="life-title-row"><div class="life-title-icon admin-accent"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 3V1.5h6V3M8.5 9h7M8.5 13h7M8.5 17h4"/></svg></div><div><div class="life-title">Life Admin</div><div class="life-sub">Important appointments, renewals and dates that don't belong anywhere else.</div></div></div></div><button class="life-add" onclick="toggleLifeForm('admin-form')">＋ Add item</button></div>
-  <div class="life-metrics"><div class="life-metric"><div class="life-metric-label">Upcoming</div><div class="life-metric-value" id="admin-upcoming">0</div><div class="life-metric-sub">Future dates saved</div></div><div class="life-metric"><div class="life-metric-label">Next 30 days</div><div class="life-metric-value" id="admin-month">0</div><div class="life-metric-sub">Needs attention soon</div></div><div class="life-metric"><div class="life-metric-label">Appointments</div><div class="life-metric-value" id="admin-appointments">0</div><div class="life-metric-sub">Saved appointments</div></div><div class="life-metric"><div class="life-metric-label">Renewals</div><div class="life-metric-value" id="admin-renewals">0</div><div class="life-metric-sub">Saved renewals</div></div></div>
-  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Upcoming life admin</div><div class="life-card-sub">Sorted by what happens next</div></div></div><div class="life-card-body"><div class="life-form" id="admin-form"><div class="life-form-grid"><div class="life-field"><label>What is it?</label><input class="life-input" id="admin-title" placeholder="e.g. Dentist appointment"></div><div class="life-field"><label>Date</label><input class="life-input" id="admin-date" type="date"></div><div class="life-field"><label>Type</label><select class="life-select" id="admin-type"><option>Appointment</option><option>Renewal</option><option>Deadline</option><option>Document</option><option>Other</option></select></div><div class="life-field"><label>Note</label><input class="life-input" id="admin-note" placeholder="Optional detail"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('admin-form',false)">Cancel</button><button class="life-btn-primary" onclick="addAdminItem()">Save item</button></div></div><div id="admin-list"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">What belongs here?</div></div></div><div class="life-card-body"><div style="display:flex;flex-wrap:wrap;gap:7px"><span class="life-tag">Appointments</span><span class="life-tag">Passport renewals</span><span class="life-tag">Memberships</span><span class="life-tag">Important deadlines</span><span class="life-tag">Documents</span><span class="life-tag">Anything easy to forget</span></div></div></section></div></div>
+<!-- DIARY -->
+<div class="pg life-page diary-page" id="pg-diary"><div class="life-wrap">
+  <section class="diary-hero">
+    <div class="diary-hero-top"><button class="life-back diary-back" onclick="go('home')">← Home</button><span class="diary-private">♡ Private to your account</span></div>
+    <div class="diary-hero-copy"><div class="diary-eyebrow">Your quiet corner</div><h1>A little space for your thoughts.</h1><p>Check in with how you feel, untangle what is on your mind, or save a moment you do not want to forget.</p></div>
+    <div class="diary-hero-orbit diary-orbit-one"></div><div class="diary-hero-orbit diary-orbit-two"></div>
+  </section>
+
+  <div class="life-metrics diary-metrics">
+    <div class="life-metric"><div class="life-metric-label">Entries</div><div class="life-metric-value" id="diary-total">0</div><div class="life-metric-sub">Thoughts saved</div></div>
+    <div class="life-metric"><div class="life-metric-label">Writing streak</div><div class="life-metric-value" id="diary-streak">0 days</div><div class="life-metric-sub">Gentle consistency</div></div>
+    <div class="life-metric"><div class="life-metric-label">This month</div><div class="life-metric-value" id="diary-month">0</div><div class="life-metric-sub">Moments captured</div></div>
+    <div class="life-metric"><div class="life-metric-label">Latest mood</div><div class="life-metric-value diary-latest-mood" id="diary-latest-mood">—</div><div class="life-metric-sub">Your most recent check-in</div></div>
+  </div>
+
+  <div class="diary-layout">
+    <div class="diary-main">
+      <section class="life-card diary-composer">
+        <div class="life-card-head"><div><div class="life-card-title">Write an entry</div><div class="life-card-sub">There is no right way to do this. A sentence is enough.</div></div><button class="diary-new-btn" onclick="diaryResetComposer()">New entry</button></div>
+        <div class="life-card-body">
+          <input type="hidden" id="diary-edit-id">
+          <div class="diary-form-top"><div class="life-field"><label>Date</label><input class="life-input" type="date" id="diary-date" onchange="diaryRefreshPrompt()"></div><div class="diary-word-note" id="diary-word-note">Take your time</div></div>
+          <div class="diary-feeling-label">How are you feeling?</div>
+          <div class="diary-moods" id="diary-moods">
+            <button class="diary-mood" data-mood="bright" onclick="diarySelectMood('bright',this)"><span>☀️</span>Bright</button>
+            <button class="diary-mood" data-mood="calm" onclick="diarySelectMood('calm',this)"><span>🌿</span>Calm</button>
+            <button class="diary-mood on" data-mood="okay" onclick="diarySelectMood('okay',this)"><span>🌤️</span>Okay</button>
+            <button class="diary-mood" data-mood="low" onclick="diarySelectMood('low',this)"><span>🌧️</span>Low</button>
+            <button class="diary-mood" data-mood="anxious" onclick="diarySelectMood('anxious',this)"><span>🌊</span>Anxious</button>
+          </div>
+          <input type="hidden" id="diary-mood" value="okay">
+          <div class="diary-prompt"><span>Today’s gentle prompt</span><strong id="diary-prompt"></strong></div>
+          <div class="life-field diary-title-field"><label>Title <em>optional</em></label><input class="life-input" id="diary-title" placeholder="Give this moment a name"></div>
+          <div class="life-field"><label>Your thoughts</label><textarea class="diary-textarea" id="diary-body" placeholder="Write whatever is here..." oninput="diaryCountWords()"></textarea></div>
+          <div class="diary-composer-actions"><span class="diary-save-note">Saved entries sync securely to your Dayframe account.</span><button class="diary-save-btn" onclick="diarySaveEntry()">Save entry</button></div>
+        </div>
+      </section>
+
+      <section class="life-card diary-history-card">
+        <div class="life-card-head diary-history-head"><div><div class="life-card-title">Your entries</div><div class="life-card-sub">A soft record of where you have been.</div></div><div class="diary-search-wrap"><span>⌕</span><input id="diary-search" placeholder="Search entries" oninput="diarySearch(this.value)"></div></div>
+        <div class="life-card-body"><div id="diary-list"></div></div>
+      </section>
+    </div>
+
+    <aside class="diary-side">
+      <section class="life-card diary-week-card"><div class="life-card-head"><div><div class="life-card-title">Your week in feelings</div><div class="life-card-sub">No judgement, just noticing.</div></div></div><div class="life-card-body"><div class="diary-week" id="diary-week"></div></div></section>
+      <section class="diary-inspiration"><div class="diary-inspiration-kicker">If you need a place to begin</div><h3>Pick a prompt</h3><button onclick="diaryUsePrompt(0)">What felt lighter today?</button><button onclick="diaryUsePrompt(3)">What do I need more of right now?</button><button onclick="diaryUsePrompt(6)">What would I tell my future self?</button></section>
+    </aside>
+  </div>
 </div></div>
 
 <div class="hub-toast" id="hub-toast"></div>
@@ -4119,7 +4245,7 @@ async function loadVIX(tk, sector, trend){
 
 // ── PERSONAL HUB DATA & RENDERING ──
 const HUB_STORE_KEY='dayframe_personal_hub_v1';
-const hubDefault=()=>({money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,savings:0,buffer:0},tasks:[],goals:[],admin:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
+const hubDefault=()=>({money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,savings:0,buffer:0},tasks:[],goals:[],admin:[],diary:[],learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
 function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage.getItem(dfKey(HUB_STORE_KEY))||'{}'));}catch(e){return hubDefault();}}
 let _hubSyncTimer=null,_hubSyncBusy=false;
 function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
@@ -4147,21 +4273,29 @@ function toggleInvestConnections(){document.querySelector('.sb-foot')?.classList
 function hubUserName(){try{const s=JSON.parse(localStorage.getItem('dayframe_session')||'{}');return s.name||s.email?.split('@')[0]||'there'}catch(e){return 'there'}}
 function personalHubInit(name){const nm=name||hubUserName();const hour=new Date().getHours();const greet=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';const g=document.getElementById('hub-greeting');if(g)g.innerHTML=greet+', <span>'+hubEsc(nm.split(' ')[0])+'</span>';const av=document.getElementById('hub-avatar');if(av)av.textContent=(nm||'V')[0].toUpperCase();const dt=document.getElementById('hub-date');if(dt)dt.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});renderHome();}
 function renderHome(){
- const d=hubLoad(),today=hubDateISO(),now=new Date();
+ const d=hubLoad(),today=hubDateISO(),now=new Date(),diary=(d.diary||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.id)-Number(a.id));
  const open=d.tasks.filter(t=>!t.done),todayTasks=open.filter(t=>t.date===today);
  const month=now.toISOString().slice(0,7),monthTx=d.money.filter(x=>(x.date||'').slice(0,7)===month),spent=monthTx.filter(x=>x.type==='expense').reduce((a,x)=>a+Number(x.amount||0),0);
- const futureAdmin=d.admin.filter(x=>x.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
  const drivingDates=Object.entries(d.vehicle?.dates||{}).filter(([,v])=>v&&v>=today).sort((a,b)=>a[1].localeCompare(b[1]));
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
- set('home-task-count',open.length);set('home-spent',hubMoney(spent,0));set('home-goal-count',d.goals.length);set('home-admin-count',futureAdmin.length+drivingDates.length);
- const dueBills=(d.bills||[]).map(b=>moneyBillMeta(b)).filter(x=>x.status!=='paid'&&x.days<=14).length;
- set('home-money-status',dueBills?dueBills+' bill'+(dueBills===1?'':'s')+' due soon':spent?hubMoney(spent,0)+' spent this month':'Ready to track');set('home-planner-status',todayTasks.length?todayTasks.length+' due today':open.length?open.length+' open task'+(open.length===1?'':'s'):'Nothing due today');
- set('home-goals-status',d.goals.length?d.goals.length+' goal'+(d.goals.length===1?'':'s')+' in progress':'Set your first goal');set('home-admin-status',futureAdmin.length?futureAdmin.length+' upcoming':'All clear');
+ set('home-task-count',open.length);set('home-spent',hubMoney(spent,0));set('home-goal-count',d.goals.length);set('home-diary-count',diary.length);
+ const dueBillItems=(d.bills||[]).map(b=>({bill:b,meta:moneyBillMeta(b)})).filter(x=>x.meta.status!=='paid'&&x.meta.days<=30);
+ set('home-money-status',dueBillItems.length?dueBillItems.length+' bill'+(dueBillItems.length===1?'':'s')+' due soon':spent?hubMoney(spent,0)+' spent this month':'Ready to track');
+ set('home-planner-status',todayTasks.length?todayTasks.length+' due today':open.length?open.length+' open task'+(open.length===1?'':'s'):'Nothing due today');
+ set('home-goals-status',d.goals.length?d.goals.length+' goal'+(d.goals.length===1?'':'s')+' in progress':'Set your first goal');
+ set('home-diary-status',diary.some(x=>x.date===today)?'Checked in today':diary.length?diary.length+' entr'+(diary.length===1?'y':'ies')+' saved':'Start with one thought');
  set('home-driving-status',drivingDates.length?drivingDates[0][0].toUpperCase()+' · '+hubPrettyDate(drivingDates[0][1]):'Add your vehicle dates');
- const upcoming=[...open.filter(t=>t.date).map(t=>({title:t.title,date:t.date,type:t.area||'Task'})),...futureAdmin.map(x=>({title:x.title,date:x.date,type:x.type}))].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
- const cu=document.getElementById('home-coming-up');if(cu)cu.innerHTML=upcoming.length?upcoming.map(x=>`<div class="hub-today-item"><div class="hub-check"></div><div class="hub-today-copy"><div class="hub-today-title">${hubEsc(x.title)}</div><div class="hub-today-meta">${hubPrettyDate(x.date)}</div></div><span class="hub-pill">${hubEsc(x.type)}</span></div>`).join(''):'<div class="hub-empty"><strong>Your schedule is clear</strong>Add a task or important date and it will appear here.</div>';
- const gp=document.getElementById('home-goal-progress');if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty"><strong>Nothing tracked yet</strong>Add a goal and watch your progress build here.</div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML=`<div class="hub-progress-wrap"><div class="hub-progress-top"><span class="hub-progress-name">${hubEsc(x.name)}</span><span class="hub-progress-pct">${Math.round(pct)}%</span></div><div class="hub-progress"><div class="hub-progress-fill" style="width:${pct}%"></div></div><div style="font-size:9px;color:#a0a9b8;margin-top:7px">${x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0)}</div></div>`}}
- const na=document.getElementById('home-next-admin');if(na){const next=futureAdmin[0]|| (drivingDates[0]?{title:drivingDates[0][0].toUpperCase()+' renewal',date:drivingDates[0][1],type:'Driving'}:null);na.innerHTML=next?`<div class="hub-today-item" style="padding-top:3px"><div class="life-list-icon" style="background:#fff0f8;color:#d868a6">◷</div><div class="hub-today-copy"><div class="hub-today-title">${hubEsc(next.title)}</div><div class="hub-today-meta">${hubPrettyDate(next.date)} · ${hubEsc(next.type||'')}</div></div></div>`:'<div class="hub-empty"><strong>Nothing coming up</strong>Add important dates in Life Admin.</div>'}
+ const upcoming=[
+  ...open.filter(t=>t.date).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
+  ...drivingDates.map(x=>({title:x[0].toUpperCase()+' renewal',date:x[1],type:'My Car',kind:'car'})),
+  ...dueBillItems.map(x=>({title:x.bill.name||'Bill due',date:x.meta.dateISO,type:'Money',kind:'bill'}))
+ ].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
+ const cu=document.getElementById('home-coming-up');
+ if(cu)cu.innerHTML=upcoming.length?upcoming.map(x=>'<div class="hub-today-item"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta">'+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>').join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Your schedule is clear</strong><span>Nothing urgent is asking for your attention.</span></div>';
+ const gp=document.getElementById('home-goal-progress');
+ if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="go(\'goals\')">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span><div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
+ const jg=document.getElementById('home-journal-glance');
+ if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong><p>'+hubEsc((todayEntry.body||'').slice(0,125))+(String(todayEntry.body||'').length>125?'…':'')+'</p></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}}
 }
 
 
@@ -4394,10 +4528,87 @@ function addGoal(){const name=document.getElementById('goal-name').value.trim(),
 function updateGoal(id){const d=hubLoad(),g=d.goals.find(x=>x.id===id);if(!g)return;const v=prompt('Current progress',g.current);if(v===null)return;const n=Number(v);if(!Number.isFinite(n)||n<0)return hubToast('Enter a valid number');g.current=n;hubSave(d);renderGoals();renderHome()}
 function deleteGoal(id){const d=hubLoad();d.goals=d.goals.filter(x=>x.id!==id);hubSave(d);renderGoals();renderHome()}
 function renderGoals(){const d=hubLoad(),moneyGoals=d.goals.filter(x=>x.type==='money'),target=moneyGoals.reduce((a,x)=>a+Number(x.target),0),current=moneyGoals.reduce((a,x)=>a+Number(x.current),0),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('goals-count',d.goals.length);set('goals-target',hubMoney(target,0));set('goals-current',hubMoney(current,0));set('goals-progress',target?Math.round(current/target*100)+'%':'0%');const list=document.getElementById('goals-list');if(list)list.innerHTML=d.goals.length?d.goals.map(g=>{const pct=Math.max(0,Math.min(100,g.target?g.current/g.target*100:0));return `<div class="goal-card"><div class="goal-head"><div class="goal-name">${hubEsc(g.name)}</div><div style="display:flex;align-items:center;gap:3px"><button class="renewal-edit" onclick="updateGoal(${g.id})">✎</button><button class="life-row-delete" onclick="deleteGoal(${g.id})">×</button></div></div><div class="goal-amount">${g.type==='money'?hubMoney(g.current,0)+' of '+hubMoney(g.target,0):hubEsc(g.current)+' of '+hubEsc(g.target)}</div><div class="life-progress"><i style="width:${pct}%"></i></div><div class="goal-pct">${Math.round(pct)}%</div></div>`}).join(''):'<div class="life-empty"><div class="life-empty-icon">◎</div><strong>No goals yet</strong>Add something you want to work towards.</div>'}
-function addAdminItem(){const title=document.getElementById('admin-title').value.trim(),date=document.getElementById('admin-date').value,type=document.getElementById('admin-type').value,note=document.getElementById('admin-note').value.trim();if(!title||!date)return hubToast('Add a name and date');const d=hubLoad();d.admin.push({id:Date.now(),title,date,type,note});hubSave(d);document.getElementById('admin-title').value='';document.getElementById('admin-date').value='';document.getElementById('admin-note').value='';toggleLifeForm('admin-form',false);renderAdmin();renderHome();hubToast('Life admin item saved')}
-function deleteAdmin(id){const d=hubLoad();d.admin=d.admin.filter(x=>x.id!==id);hubSave(d);renderAdmin();renderHome()}
-function renderAdmin(){const d=hubLoad(),today=hubDateISO(),end=new Date();end.setDate(end.getDate()+30);const endISO=hubDateISO(end),future=d.admin.filter(x=>x.date>=today).sort((a,b)=>a.date.localeCompare(b.date)),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('admin-upcoming',future.length);set('admin-month',future.filter(x=>x.date<=endISO).length);set('admin-appointments',future.filter(x=>x.type==='Appointment').length);set('admin-renewals',future.filter(x=>x.type==='Renewal').length);const list=document.getElementById('admin-list');if(list)list.innerHTML=future.length?future.map(x=>`<div class="life-list-row"><div class="life-list-icon" style="background:#fff0f8;color:#d868a6">${x.type==='Appointment'?'◷':x.type==='Renewal'?'↻':'•'}</div><div class="life-list-main"><div class="life-list-title">${hubEsc(x.title)}</div><div class="life-list-meta">${hubPrettyDate(x.date)} · ${hubEsc(x.type)}${x.note?' · '+hubEsc(x.note):''}</div></div><div class="life-list-value">${(()=>{const n=hubDaysUntil(x.date);return n===0?'Today':n===1?'Tomorrow':n+' days'})()}</div><button class="life-row-delete" onclick="deleteAdmin(${x.id})">×</button></div>`).join(''):'<div class="life-empty"><div class="life-empty-icon">◷</div><strong>Nothing upcoming</strong>Add appointments, renewals or deadlines you want Dayframe to remember.</div>'}
-function renderLifePage(name){if(name==='home')renderHome();if(name==='money')renderMoney();if(name==='planner')renderPlanner();if(name==='driving-car')renderDriving();if(name==='goals')renderGoals();if(name==='lifeadmin')renderAdmin();}
+const DIARY_PROMPTS=[
+ 'What felt lighter today?',
+ 'What is taking up the most space in my mind?',
+ 'What am I quietly proud of?',
+ 'What do I need more of right now?',
+ 'What made me feel most like myself today?',
+ 'What can I be gentler with myself about?',
+ 'What would I tell my future self?',
+ 'What am I ready to let go of?',
+ 'What small moment do I want to remember?',
+ 'What would make tomorrow feel a little softer?'
+];
+const DIARY_MOODS={
+ bright:{emoji:'☀️',label:'Bright',score:5},
+ calm:{emoji:'🌿',label:'Calm',score:4},
+ okay:{emoji:'🌤️',label:'Okay',score:3},
+ low:{emoji:'🌧️',label:'Low',score:2},
+ anxious:{emoji:'🌊',label:'Anxious',score:1}
+};
+let _diarySearch='';
+function diaryMoodMeta(key){return DIARY_MOODS[key]||DIARY_MOODS.okay}
+function diaryPromptFor(date){
+ const d=new Date((date||hubDateISO())+'T12:00:00'),start=new Date(d.getFullYear(),0,0);
+ const day=Math.floor((d-start)/86400000);
+ return DIARY_PROMPTS[Math.abs(day)%DIARY_PROMPTS.length]
+}
+function diarySelectMood(key,btn){
+ const input=document.getElementById('diary-mood');if(input)input.value=key;
+ document.querySelectorAll('.diary-mood').forEach(b=>b.classList.toggle('on',b.dataset.mood===key));
+ if(btn)btn.blur()
+}
+function diaryRefreshPrompt(){const e=document.getElementById('diary-prompt'),date=document.getElementById('diary-date')?.value||hubDateISO();if(e)e.textContent=diaryPromptFor(date)}
+function diaryUsePrompt(index){const e=document.getElementById('diary-prompt');if(e)e.textContent=DIARY_PROMPTS[index]||diaryPromptFor();document.getElementById('diary-body')?.focus()}
+function diaryCountWords(){const body=document.getElementById('diary-body')?.value.trim()||'',count=body?body.split(/\s+/).length:0,note=document.getElementById('diary-word-note');if(note)note.textContent=count?count+' word'+(count===1?'':'s'):'Take your time'}
+function diaryResetComposer(){
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v};
+ set('diary-edit-id','');set('diary-date',hubDateISO());set('diary-title','');set('diary-body','');set('diary-mood','okay');
+ diarySelectMood('okay');diaryRefreshPrompt();diaryCountWords();document.getElementById('diary-title')?.focus()
+}
+function diarySaveEntry(){
+ const body=document.getElementById('diary-body')?.value.trim()||'',title=document.getElementById('diary-title')?.value.trim()||'',date=document.getElementById('diary-date')?.value||hubDateISO(),mood=document.getElementById('diary-mood')?.value||'okay',prompt=document.getElementById('diary-prompt')?.textContent||diaryPromptFor(date),editId=Number(document.getElementById('diary-edit-id')?.value)||null;
+ if(!body)return hubToast('Write a little something first');
+ const d=hubLoad();d.diary=Array.isArray(d.diary)?d.diary:[];
+ const entry={id:editId||Date.now(),date,title,body,mood,prompt,updatedAt:new Date().toISOString()};
+ const i=d.diary.findIndex(x=>Number(x.id)===Number(editId));
+ if(i>=0)d.diary[i]=entry;else d.diary.unshift(entry);
+ d.diary.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.id)-Number(a.id));
+ hubSave(d);diaryResetComposer();renderDiary();renderHome();hubToast(editId?'Entry updated':'Entry saved privately')
+}
+function diaryEdit(id){
+ const x=(hubLoad().diary||[]).find(e=>Number(e.id)===Number(id));if(!x)return;
+ const set=(key,v)=>{const e=document.getElementById(key);if(e)e.value=v||''};
+ set('diary-edit-id',x.id);set('diary-date',x.date);set('diary-title',x.title);set('diary-body',x.body);set('diary-mood',x.mood||'okay');
+ diarySelectMood(x.mood||'okay');const p=document.getElementById('diary-prompt');if(p)p.textContent=x.prompt||diaryPromptFor(x.date);diaryCountWords();
+ document.querySelector('.diary-composer')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('diary-body')?.focus(),250)
+}
+function diaryDelete(id){
+ if(!confirm('Delete this diary entry?'))return;
+ const d=hubLoad();d.diary=(d.diary||[]).filter(x=>Number(x.id)!==Number(id));hubSave(d);renderDiary();renderHome();hubToast('Entry deleted')
+}
+function diarySearch(value){_diarySearch=String(value||'').trim().toLowerCase();renderDiary()}
+function diaryStreak(entries){
+ const dates=new Set(entries.map(x=>x.date).filter(Boolean));let cursor=new Date(hubDateISO()+'T12:00:00'),count=0;
+ if(!dates.has(hubDateISO(cursor))){cursor.setDate(cursor.getDate()-1)}
+ while(dates.has(hubDateISO(cursor))){count++;cursor.setDate(cursor.getDate()-1)}
+ return count
+}
+function renderDiary(){
+ const d=hubLoad(),entries=(d.diary||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.id)-Number(a.id)),today=hubDateISO(),month=today.slice(0,7);
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+ set('diary-total',entries.length);const streak=diaryStreak(entries);set('diary-streak',streak+' day'+(streak===1?'':'s'));set('diary-month',entries.filter(x=>(x.date||'').slice(0,7)===month).length);
+ const latest=entries[0],latestMood=latest?diaryMoodMeta(latest.mood):null;set('diary-latest-mood',latestMood?latestMood.emoji+' '+latestMood.label:'—');
+ const dateInput=document.getElementById('diary-date');if(dateInput&&!dateInput.value)dateInput.value=today;if(document.getElementById('diary-prompt')&&!document.getElementById('diary-prompt').textContent)diaryRefreshPrompt();
+ const week=document.getElementById('diary-week');
+ if(week){let cells='';for(let i=6;i>=0;i--){const day=new Date(today+'T12:00:00');day.setDate(day.getDate()-i);const iso=hubDateISO(day),entry=entries.find(x=>x.date===iso),m=entry?diaryMoodMeta(entry.mood):null;cells+='<div class="diary-day'+(iso===today?' today':'')+'"><span>'+day.toLocaleDateString('en-GB',{weekday:'short'}).slice(0,2)+'</span><i>'+(m?m.emoji:'·')+'</i><small>'+day.getDate()+'</small></div>'}week.innerHTML=cells}
+ const list=document.getElementById('diary-list');if(!list)return;
+ const filtered=_diarySearch?entries.filter(x=>[x.title,x.body,x.mood,x.date].join(' ').toLowerCase().includes(_diarySearch)):entries;
+ if(!filtered.length){list.innerHTML='<div class="life-empty diary-empty"><div class="life-empty-icon">♡</div><strong>'+(_diarySearch?'No matching entries':'Your first page is waiting')+'</strong>'+(_diarySearch?'Try a different word.':'Write one honest sentence. That is enough.')+'</div>';return}
+ list.innerHTML=filtered.map(x=>{const m=diaryMoodMeta(x.mood),words=(x.body||'').trim()?x.body.trim().split(/\s+/).length:0;return '<article class="diary-entry"><div class="diary-entry-top"><div class="diary-entry-mood">'+m.emoji+'</div><div class="diary-entry-heading"><span>'+new Date((x.date||today)+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</span><strong>'+hubEsc(x.title||m.label+' thoughts')+'</strong></div><div class="diary-entry-actions"><button onclick="diaryEdit('+Number(x.id)+')">Edit</button><button class="delete" onclick="diaryDelete('+Number(x.id)+')">×</button></div></div><div class="diary-entry-body">'+hubEsc(x.body||'').replace(/\n/g,'<br>')+'</div><div class="diary-entry-foot"><span>'+m.label+'</span><span>'+words+' word'+(words===1?'':'s')+'</span></div></article>'}).join('')
+}
+function renderLifePage(name){if(name==='home')renderHome();if(name==='money')renderMoney();if(name==='planner')renderPlanner();if(name==='driving-car')renderDriving();if(name==='goals')renderGoals();if(name==='diary')renderDiary();}
 setTimeout(()=>personalHubInit(),0);
 
 let _currentPage = 'home';
