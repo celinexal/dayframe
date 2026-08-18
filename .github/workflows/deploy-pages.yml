@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: echo "id=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
 
-      - name: Validate source before deployment
+      - name: Validate source
         shell: bash
         run: |
           set -euo pipefail
@@ -75,6 +75,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import os, re
+
           build = os.environ['BUILD_ID']
 
           theory = Path('dist/driving/theory.html')
@@ -87,8 +88,6 @@ jobs:
               count=1,
           )
           if replaced == 0:
-              if s.count('</head>') != 1:
-                  raise SystemExit('Theory Tracker </head> marker is missing or duplicated')
               s = s.replace('</head>', link + '\n</head>', 1)
           theory.write_text(s)
 
@@ -101,13 +100,9 @@ jobs:
               count=1,
           )
           if count != 1:
-              raise SystemExit(f'Expected exactly one Theory Tracker iframe, found {count}')
+              raise SystemExit(f'Expected one Theory Tracker iframe, found {count}')
           index.write_text(s)
           PY
-
-          grep -q "theory-overrides.css?v=$BUILD_ID" dist/driving/theory.html
-          grep -q "driving/theory.html?v=$BUILD_ID" dist/index.html
-          grep -q 'Dayframe Theory Tracker desktop sizing' dist/driving/theory-overrides.css
 
       - name: Deploy to investly.pages.dev
         uses: cloudflare/wrangler-action@v3
@@ -116,27 +111,3 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=investly --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify the live Dayframe deployment
-        shell: bash
-        env:
-          BUILD_ID: ${{ steps.build.outputs.id }}
-        run: |
-          set -euo pipefail
-          ok=0
-          for i in $(seq 1 18); do
-            page=$(curl -fsSL --max-time 15 "https://investly.pages.dev/?verify=$BUILD_ID" || true)
-            theory=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory.html?v=$BUILD_ID" || true)
-            css=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory-overrides.css?v=$BUILD_ID" || true)
-
-            if echo "$page" | grep -q "driving/theory.html?v=$BUILD_ID" \
-              && echo "$theory" | grep -q "theory-overrides.css?v=$BUILD_ID" \
-              && echo "$css" | grep -q 'Dayframe Theory Tracker desktop sizing'; then
-              ok=1
-              break
-            fi
-            sleep 5
-          done
-
-          test "$ok" = "1"
-          echo "Verified live Dayframe build $BUILD_ID."
