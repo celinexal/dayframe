@@ -11,6 +11,7 @@ on:
       - '_worker.js'
       - '_headers'
       - 'assets/**'
+      - 'driving/**'
       - '.github/workflows/deploy-pages.yml'
 
 permissions:
@@ -53,6 +54,7 @@ jobs:
           [ ! -f app.js ] || cp app.js dist/
           [ ! -f styles.css ] || cp styles.css dist/
           [ ! -d assets ] || cp -R assets dist/assets
+          [ ! -d driving ] || cp -R driving dist/driving
 
       - name: Deploy to investly.pages.dev
         if: steps.credentials.outputs.ready == 'true'
