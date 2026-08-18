@@ -989,6 +989,124 @@ body.driving-mode .main>.pg{margin-left:205px;width:calc(100% - 205px);max-width
 @media(max-width:980px){body.investing-mode .invest-sidepanel{width:185px}body.investing-mode .main>.pg{margin-left:185px;width:calc(100% - 185px)}.auth-public-main{grid-template-columns:1fr;gap:24px;padding-top:10px}.auth-public-card{justify-self:start;max-width:600px}.auth-public-title{font-size:46px}.df-nav-links{overflow-x:auto;max-width:62vw}.df-nav-btn{white-space:nowrap}.df-user-name{display:none}}
 @media(max-width:640px){body.investing-mode .invest-sidepanel{position:sticky;top:58px;width:100%;height:auto;bottom:auto;padding:7px 10px;border-right:0;border-bottom:1px solid #e8ebf2;overflow-x:auto}body.investing-mode .main>.pg{margin-left:0;width:100%}.invest-side-head{display:none}.invest-side-nav{flex-direction:row;min-width:max-content}.invest-side-nav button{width:auto;white-space:nowrap;padding:0 11px}.auth-public-nav,.auth-public-main{width:calc(100% - 28px)}.auth-public-nav{height:66px}.auth-public-title{font-size:38px;letter-spacing:-1.4px}.auth-public-grid{grid-template-columns:1fr}.auth-public-actions .ghost{display:none}.auth-public-card{padding:20px;border-radius:22px}.df-topnav{padding:0 12px;height:58px}.df-nav-brand{margin-right:2px}.df-nav-brand span{display:none}.df-nav-links{max-width:60vw}.df-nav-right{gap:4px}.pg{padding-top:14px}}
 
+
+/* Dayframe visual refresh: Driving + Planner */
+#pg-driving,#pg-planner{
+  background:
+    radial-gradient(circle at 8% 4%,rgba(255,181,163,.18),transparent 28%),
+    radial-gradient(circle at 94% 8%,rgba(143,130,255,.14),transparent 30%),
+    #f7f8fc;
+}
+#pg-driving .life-wrap,#pg-planner .life-wrap{max-width:1480px}
+
+/* Driving overview */
+.driving-hub-hero{
+  position:relative;overflow:hidden;min-height:230px;border-radius:30px;padding:36px 40px;margin-bottom:18px;
+  background:linear-gradient(125deg,#20283b 0%,#313954 58%,#51466f 100%);
+  box-shadow:0 22px 55px rgba(31,39,62,.16);color:#fff;
+}
+.driving-hub-hero:before,.driving-hub-hero:after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.driving-hub-hero:before{width:270px;height:270px;right:-65px;top:-105px;background:radial-gradient(circle,rgba(255,142,121,.52),rgba(255,142,121,0) 68%)}
+.driving-hub-hero:after{width:230px;height:230px;right:160px;bottom:-165px;border:38px solid rgba(255,255,255,.055)}
+.driving-hub-copy{position:relative;z-index:1;max-width:720px}
+.driving-hub-eyebrow{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:850;letter-spacing:1.15px;text-transform:uppercase;color:#ffc3b6;margin-bottom:14px}
+.driving-hub-eyebrow i{width:24px;height:2px;border-radius:3px;background:#ff917e}
+.driving-hub-title{font-family:var(--fd);font-size:39px;line-height:1.06;letter-spacing:-1.25px;font-weight:850;margin:0;max-width:620px}
+.driving-hub-sub{font-size:13px;line-height:1.7;color:rgba(255,255,255,.72);margin-top:13px;max-width:590px}
+.driving-hub-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:21px}
+.driving-hub-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(255,255,255,.075);font-size:9px;font-weight:750;color:rgba(255,255,255,.84);backdrop-filter:blur(8px)}
+.driving-hub-pill b{width:6px;height:6px;border-radius:50%;background:#ff9d89;box-shadow:0 0 0 4px rgba(255,157,137,.12)}
+.driving-home-grid{grid-template-columns:1.08fr .92fr!important;gap:18px!important}
+.driving-home-card{
+  min-height:285px!important;border:0!important;border-radius:26px!important;padding:28px!important;
+  box-shadow:0 16px 38px rgba(37,46,72,.09)!important;isolation:isolate;overflow:hidden;
+}
+.driving-home-card:before{content:"";position:absolute;inset:0;z-index:-2}
+.driving-home-card:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-78px;top:-86px;z-index:-1}
+.driving-home-card.theory:before{background:linear-gradient(145deg,#fff3ef 0%,#fffaf8 54%,#fff 100%)}
+.driving-home-card.theory:after{background:linear-gradient(145deg,rgba(255,149,128,.23),rgba(255,206,157,.08))}
+.driving-home-card.car:before{background:linear-gradient(145deg,#f3f1ff 0%,#f8f8ff 52%,#fff 100%)}
+.driving-home-card.car:after{background:linear-gradient(145deg,rgba(116,98,242,.2),rgba(104,167,255,.07))}
+.driving-home-card:hover{transform:translateY(-4px)!important;box-shadow:0 24px 50px rgba(37,46,72,.14)!important}
+.driving-card-top{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:36px}
+.driving-home-icon{width:54px!important;height:54px!important;border-radius:17px!important;margin:0!important;background:#fff!important;box-shadow:0 9px 22px rgba(48,54,78,.08)}
+.driving-home-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.driving-home-card.theory .driving-home-icon{color:#df6556!important}
+.driving-home-card.car .driving-home-icon{color:#695ce3!important}
+.driving-card-number{font-family:var(--fd);font-size:42px;line-height:1;font-weight:850;color:rgba(39,46,67,.07)}
+.driving-home-copy{padding-right:34px!important}
+.driving-home-kicker{font-size:9px!important;letter-spacing:1px!important;margin-bottom:7px!important}
+.driving-home-title{font-size:25px!important;letter-spacing:-.65px!important}
+.driving-home-desc{font-size:12px!important;line-height:1.7!important;color:#747f92!important;margin-top:9px!important;max-width:500px!important}
+.driving-card-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:19px}
+.driving-card-tag{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid rgba(88,95,120,.09);font-size:8.5px;font-weight:800;color:#7b8495}
+.driving-home-arrow{right:26px!important;bottom:25px!important;width:38px!important;height:38px!important;background:#fff!important;box-shadow:0 8px 20px rgba(43,49,71,.09);font-size:16px!important}
+.driving-home-card.theory .driving-home-arrow{color:#df6556!important}
+.driving-home-card.car .driving-home-arrow{color:#695ce3!important}
+
+/* Planner */
+#pg-planner .planner-hero{
+  position:relative;overflow:hidden;align-items:center;margin-bottom:18px;padding:29px 31px;border:1px solid rgba(121,135,239,.16);
+  border-radius:28px;background:linear-gradient(125deg,#eef5ff 0%,#f4f1ff 52%,#fff7f1 100%);
+  box-shadow:0 17px 42px rgba(60,75,120,.09);
+}
+#pg-planner .planner-hero:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-74px;top:-112px;background:linear-gradient(145deg,rgba(96,133,246,.16),rgba(155,118,242,.06))}
+.planner-hero-main{position:relative;z-index:1}
+#pg-planner .life-back{margin-bottom:12px;color:#75839a}
+#pg-planner .life-title{font-size:34px;letter-spacing:-1px}
+#pg-planner .life-sub{font-size:12.5px;color:#7f8a9e;max-width:560px}
+#pg-planner .planner-add{position:relative;z-index:1;min-height:43px;padding:0 17px;border-radius:14px;background:linear-gradient(135deg,#497df0,#7566e9);box-shadow:0 12px 25px rgba(79,103,224,.24)}
+#pg-planner .life-metrics{gap:14px;margin-bottom:16px}
+#pg-planner .life-metric{position:relative;overflow:hidden;padding:18px 19px 17px;border:0;border-radius:20px;box-shadow:0 11px 28px rgba(38,49,78,.075)}
+#pg-planner .life-metric:before{content:"";position:absolute;left:0;right:0;top:0;height:4px}
+#pg-planner .life-metric:nth-child(1){background:linear-gradient(145deg,#fff,#f8faff)}
+#pg-planner .life-metric:nth-child(1):before{background:#5b86ed}
+#pg-planner .life-metric:nth-child(2){background:linear-gradient(145deg,#fff,#fff8f5)}
+#pg-planner .life-metric:nth-child(2):before{background:#f28a72}
+#pg-planner .life-metric:nth-child(3){background:linear-gradient(145deg,#fff,#f8f5ff)}
+#pg-planner .life-metric:nth-child(3):before{background:#8a70e8}
+#pg-planner .life-metric:nth-child(4){background:linear-gradient(145deg,#fff,#f4fbf8)}
+#pg-planner .life-metric:nth-child(4):before{background:#50aa8d}
+#pg-planner .life-metric-label{font-size:9px;margin-bottom:9px}
+#pg-planner .life-metric-value{font-size:28px}
+#pg-planner .life-metric-sub{font-size:9.5px}
+#pg-planner .life-grid{grid-template-columns:1.28fr .72fr;gap:16px}
+#pg-planner .life-card{border:0;border-radius:22px;box-shadow:0 12px 32px rgba(38,49,78,.075)}
+#pg-planner .life-card-head{padding:19px 21px;background:linear-gradient(180deg,#fff,#fcfdff)}
+#pg-planner .life-card-title{font-size:16px}
+#pg-planner .life-card-sub{font-size:10px;margin-top:3px}
+#pg-planner .life-card-body{padding:20px 21px}
+#pg-planner .planner-task-card{min-height:310px}
+#pg-planner .planner-week-card .week-strip{gap:8px}
+#pg-planner .planner-week-card .week-day{padding:12px 4px;border:0;background:#f6f8fc}
+#pg-planner .planner-week-card .week-day.today{background:linear-gradient(145deg,#eaf2ff,#f0edff);box-shadow:inset 0 0 0 1px #cbd9ff}
+#pg-planner .planner-week-card .week-name{font-size:8.5px}
+#pg-planner .planner-week-card .week-num{font-size:17px;margin-top:4px}
+.planner-calm-card{position:relative;overflow:hidden;border-radius:22px;padding:23px;margin-bottom:14px;background:linear-gradient(135deg,#263249,#3b4661 58%,#554b70);box-shadow:0 16px 34px rgba(36,45,67,.17);color:#fff}
+.planner-calm-card:after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;right:-60px;bottom:-88px;border:28px solid rgba(255,255,255,.045)}
+.planner-calm-kicker{font-size:8.5px;font-weight:850;letter-spacing:1px;text-transform:uppercase;color:#aebcff;margin-bottom:7px}
+.planner-calm-title{font-family:var(--fd);font-size:20px;font-weight:850;letter-spacing:-.4px}
+.planner-calm-copy{font-size:10.5px;line-height:1.65;color:rgba(255,255,255,.68);margin-top:7px;max-width:360px}
+.planner-calm-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
+.planner-calm-list span{padding:6px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.065);font-size:8.5px;font-weight:750;color:rgba(255,255,255,.78)}
+#pg-planner .life-empty{padding:48px 16px}
+#pg-planner .life-empty-icon{background:linear-gradient(145deg,#edf3ff,#f3efff);color:#6e78d8}
+#pg-planner .life-list-title{font-size:12px}
+#pg-planner .life-list-meta{font-size:9.5px}
+
+@media(max-width:980px){
+  .driving-home-grid{grid-template-columns:1fr!important}
+  #pg-planner .life-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .driving-hub-hero{padding:28px 24px;min-height:250px;border-radius:24px}
+  .driving-hub-title{font-size:32px}
+  .driving-home-card{min-height:270px!important;padding:24px!important}
+  #pg-planner .planner-hero{padding:24px 21px;align-items:flex-start;flex-direction:column}
+  #pg-planner .planner-add{width:100%;justify-content:center;margin-top:10px}
+  #pg-planner .life-metrics{grid-template-columns:1fr 1fr}
+}
+
 </style>
 </head>
 <body>
@@ -1132,7 +1250,6 @@ body.driving-mode .main>.pg{margin-left:205px;width:calc(100% - 205px);max-width
     <button data-driving-page="driving" onclick="go('driving')"><span>⌂</span>Overview</button>
     <button data-driving-page="driving-theory" onclick="go('driving-theory')"><span>◇</span>Pass your theory</button>
     <button data-driving-page="driving-car" onclick="go('driving-car')"><span>▣</span>My Car</button>
-    <button data-driving-page="driving-costs" onclick="go('driving-costs')"><span>£</span>Driving Costs</button>
   </nav>
 </div>
 
@@ -1351,36 +1468,87 @@ body.driving-mode .main>.pg{margin-left:205px;width:calc(100% - 205px);max-width
 
 <!-- PLANNER -->
 
+<div class="pg life-page planner-page" id="pg-planner"><div class="life-wrap">
+  <div class="life-header planner-hero">
+    <div class="planner-hero-main">
+      <button class="life-back" onclick="go('home')">← Home</button>
+      <div class="life-title-row">
+        <div class="life-title-icon planner-accent"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M7 2v5M17 2v5M3 9h18M7 13h3M14 13h3M7 17h3"/></svg></div>
+        <div><div class="life-title">Make space for what matters.</div><div class="life-sub">A gentle weekly view for tasks, reminders and the things you want out of your head.</div></div>
+      </div>
+    </div>
+    <button class="life-add planner-add" onclick="toggleLifeForm('task-form')">＋ Add a task</button>
+  </div>
 
-<div class="pg life-page" id="pg-planner"><div class="life-wrap">
-  <div class="life-header"><div><button class="life-back" onclick="go('home')">← Home</button><div class="life-title-row"><div class="life-title-icon planner-accent"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M7 2v5M17 2v5M3 9h18M7 13h3M14 13h3M7 17h3"/></svg></div><div><div class="life-title">Planner</div><div class="life-sub">Tasks, reminders and your week — kept intentionally simple.</div></div></div></div><button class="life-add" onclick="toggleLifeForm('task-form')">＋ Add task</button></div>
-  <div class="life-metrics"><div class="life-metric"><div class="life-metric-label">Open tasks</div><div class="life-metric-value" id="planner-open">0</div><div class="life-metric-sub">Still to do</div></div><div class="life-metric"><div class="life-metric-label">Due today</div><div class="life-metric-value" id="planner-today">0</div><div class="life-metric-sub">Today's focus</div></div><div class="life-metric"><div class="life-metric-label">This week</div><div class="life-metric-value" id="planner-week">0</div><div class="life-metric-sub">Next 7 days</div></div><div class="life-metric"><div class="life-metric-label">Completed</div><div class="life-metric-value" id="planner-done">0</div><div class="life-metric-sub">All time</div></div></div>
-  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Your tasks</div><div class="life-card-sub">Tick things off as you go</div></div></div><div class="life-card-body"><div class="life-form" id="task-form"><div class="life-form-grid"><div class="life-field"><label>Task</label><input class="life-input" id="task-title" placeholder="What needs doing?"></div><div class="life-field"><label>Due date</label><input class="life-input" id="task-date" type="date"></div><div class="life-field"><label>Area</label><select class="life-select" id="task-area"><option>Personal</option><option>Work</option><option>Money</option><option>Driving</option><option>Health</option><option>Other</option></select></div><div class="life-field"><label>Priority</label><select class="life-select" id="task-priority"><option>Normal</option><option>High</option><option>Low</option></select></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('task-form',false)">Cancel</button><button class="life-btn-primary" onclick="addTask()">Add task</button></div></div><div id="task-list"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">This week</div><div class="life-card-sub" id="planner-week-label"></div></div></div><div class="life-card-body"><div class="week-strip" id="week-strip"></div></div></section><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">A calmer list</div></div></div><div class="life-card-body"><div class="hub-empty"><strong>One place for the little things</strong>Use Planner for anything you don't want to keep remembering manually.</div></div></section></div></div>
+  <div class="life-metrics">
+    <div class="life-metric"><div class="life-metric-label">Open tasks</div><div class="life-metric-value" id="planner-open">0</div><div class="life-metric-sub">Still to do</div></div>
+    <div class="life-metric"><div class="life-metric-label">Due today</div><div class="life-metric-value" id="planner-today">0</div><div class="life-metric-sub">Today's focus</div></div>
+    <div class="life-metric"><div class="life-metric-label">This week</div><div class="life-metric-value" id="planner-week">0</div><div class="life-metric-sub">Next 7 days</div></div>
+    <div class="life-metric"><div class="life-metric-label">Completed</div><div class="life-metric-value" id="planner-done">0</div><div class="life-metric-sub">All time</div></div>
+  </div>
+
+  <div class="life-grid">
+    <div>
+      <section class="life-card planner-task-card">
+        <div class="life-card-head"><div><div class="life-card-title">Your tasks</div><div class="life-card-sub">One clear list, ordered around your life</div></div></div>
+        <div class="life-card-body">
+          <div class="life-form" id="task-form">
+            <div class="life-form-grid">
+              <div class="life-field"><label>Task</label><input class="life-input" id="task-title" placeholder="What needs doing?"></div>
+              <div class="life-field"><label>Due date</label><input class="life-input" id="task-date" type="date"></div>
+              <div class="life-field"><label>Area</label><select class="life-select" id="task-area"><option>Personal</option><option>Work</option><option>Money</option><option>Driving</option><option>Health</option><option>Other</option></select></div>
+              <div class="life-field"><label>Priority</label><select class="life-select" id="task-priority"><option>Normal</option><option>High</option><option>Low</option></select></div>
+            </div>
+            <div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('task-form',false)">Cancel</button><button class="life-btn-primary" onclick="addTask()">Add task</button></div>
+          </div>
+          <div id="task-list"></div>
+        </div>
+      </section>
+    </div>
+    <div>
+      <section class="life-card planner-week-card">
+        <div class="life-card-head"><div><div class="life-card-title">This week</div><div class="life-card-sub" id="planner-week-label"></div></div></div>
+        <div class="life-card-body"><div class="week-strip" id="week-strip"></div></div>
+      </section>
+      <section class="planner-calm-card">
+        <div class="planner-calm-kicker">A calmer rhythm</div>
+        <div class="planner-calm-title">Plan lightly. Finish steadily.</div>
+        <div class="planner-calm-copy">Capture what matters, choose today's focus and let the rest wait without taking up mental space.</div>
+        <div class="planner-calm-list"><span>Today first</span><span>One week at a glance</span><span>Small wins count</span></div>
+      </section>
+    </div>
+  </div>
 </div></div>
-
 
 <!-- DRIVING -->
 <div class="pg life-page" id="pg-driving"><div class="life-wrap">
-  <div class="life-header driving-home-header">
-    <div class="life-title-row">
-      <div class="life-title-icon driving-accent"><svg viewBox="0 0 24 24"><path d="M5 13l1.8-5.1A2 2 0 018.7 6.5h6.6a2 2 0 011.9 1.4L19 13"/><rect x="3" y="12" width="18" height="6.5" rx="2"/><path d="M6 18.5V21M18 18.5V21"/></svg></div>
-      <div><div class="life-title">Driving</div><div class="life-sub">Choose what you want to work on.</div></div>
+  <section class="driving-hub-hero">
+    <div class="driving-hub-copy">
+      <div class="driving-hub-eyebrow"><i></i>Your driving space</div>
+      <h1 class="driving-hub-title">Everything for the road ahead.</h1>
+      <div class="driving-hub-sub">Build confidence for your theory test, then keep the important details for your own car organised in one calm place.</div>
+      <div class="driving-hub-pills"><span class="driving-hub-pill"><b></b>Theory progress</span><span class="driving-hub-pill"><b></b>Vehicle renewals</span><span class="driving-hub-pill"><b></b>Notes that stay with you</span></div>
     </div>
-  </div>
+  </section>
+
   <div class="driving-home-grid">
     <button class="driving-home-card theory" onclick="go('driving-theory')">
-      <div class="driving-home-icon">◇</div>
-      <div class="driving-home-copy"><div class="driving-home-kicker">Start here</div><div class="driving-home-title">Let’s pass your theory</div><div class="driving-home-desc">Open your theory tracker and keep working through your progress.</div></div>
+      <div class="driving-card-top">
+        <div class="driving-home-icon"><svg viewBox="0 0 24 24"><path d="M6 18h12M8 14l4-8 4 8M9 11h6M5 21h14"/></svg></div>
+        <div class="driving-card-number">01</div>
+      </div>
+      <div class="driving-home-copy"><div class="driving-home-kicker">Your next step</div><div class="driving-home-title">Pass your theory</div><div class="driving-home-desc">Keep your study plan, notes and quizzes together while Dayframe remembers your progress.</div></div>
+      <div class="driving-card-tags"><span class="driving-card-tag">6-week plan</span><span class="driving-card-tag">Study notes</span><span class="driving-card-tag">Quick quizzes</span></div>
       <div class="driving-home-arrow">→</div>
     </button>
-    <button class="driving-home-card" onclick="go('driving-car')">
-      <div class="driving-home-icon">▣</div>
-      <div class="driving-home-copy"><div class="driving-home-kicker">Vehicle</div><div class="driving-home-title">My Car</div><div class="driving-home-desc">Keep MOT, tax, insurance, servicing and vehicle notes together.</div></div>
-      <div class="driving-home-arrow">→</div>
-    </button>
-    <button class="driving-home-card" onclick="go('driving-costs')">
-      <div class="driving-home-icon">£</div>
-      <div class="driving-home-copy"><div class="driving-home-kicker">Money</div><div class="driving-home-title">Driving Costs</div><div class="driving-home-desc">Track fuel, parking, repairs, servicing and other driving costs.</div></div>
+
+    <button class="driving-home-card car" onclick="go('driving-car')">
+      <div class="driving-card-top">
+        <div class="driving-home-icon"><svg viewBox="0 0 24 24"><path d="M5 13l1.8-5.1A2 2 0 018.7 6.5h6.6a2 2 0 011.9 1.4L19 13"/><rect x="3" y="12" width="18" height="6.5" rx="2"/><path d="M6 18.5V21M18 18.5V21M7 15h.1M17 15h.1"/></svg></div>
+        <div class="driving-card-number">02</div>
+      </div>
+      <div class="driving-home-copy"><div class="driving-home-kicker">Your vehicle</div><div class="driving-home-title">My Car</div><div class="driving-home-desc">Store the details that matter and see every important renewal without searching through emails.</div></div>
+      <div class="driving-card-tags"><span class="driving-card-tag">MOT</span><span class="driving-card-tag">Tax</span><span class="driving-card-tag">Insurance</span><span class="driving-card-tag">Service</span></div>
       <div class="driving-home-arrow">→</div>
     </button>
   </div>
@@ -2850,7 +3018,41 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 function dfCurrentUserId(){try{const s=JSON.parse(localStorage.getItem('dayframe_session')||'{}');return s?.user?.id||s?.email||'guest'}catch(e){return 'guest'}}
 function dfKey(key){return 'df_'+dfCurrentUserId()+'_'+key}
 function dfSession(){try{return JSON.parse(localStorage.getItem('dayframe_session')||'{}')}catch(e){return {}}}
+function dfSessionExpiry(data){const raw=Number(data?.expires_at)||0;if(raw)return raw>1e12?raw:raw*1000;return Date.now()+Math.max(60,Number(data?.expires_in)||3600)*1000}
 function dfAuthHeaders(json=false){const s=dfSession();const h={};if(s.access_token)h.Authorization='Bearer '+s.access_token;if(json)h['Content-Type']='application/json';return h}
+let _dfRefreshPromise=null;
+async function dfRefreshSession(force=false){
+  const current=dfSession();
+  if(!current?.refresh_token||current.demo)return current;
+  const expiry=Number(current.expires_at)||0;
+  const legacyThirtyDayExpiry=expiry>Date.now()+24*60*60*1000;
+  if(!force&&current.access_token&&expiry>Date.now()+120000&&!legacyThirtyDayExpiry)return current;
+  if(_dfRefreshPromise)return _dfRefreshPromise;
+  _dfRefreshPromise=(async()=>{
+    try{
+      const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({refresh_token:current.refresh_token})});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok||!d.access_token)return current;
+      const next={...current,access_token:d.access_token,refresh_token:d.refresh_token||current.refresh_token,user:d.user||current.user,email:d.user?.email||current.email,expires_at:dfSessionExpiry(d)};
+      localStorage.setItem('dayframe_session',JSON.stringify(next));
+      return next;
+    }catch(e){return current}
+    finally{_dfRefreshPromise=null}
+  })();
+  return _dfRefreshPromise;
+}
+async function dfBankFetch(url,opts={}){
+  await dfRefreshSession(false);
+  const send=()=>{
+    const headers=new Headers(opts.headers||{});
+    const auth=dfAuthHeaders(Boolean(opts.body));
+    Object.entries(auth).forEach(([k,v])=>headers.set(k,v));
+    return fetch(url,{...opts,headers});
+  };
+  let response=await send();
+  if(response.status===401){await dfRefreshSession(true);response=await send()}
+  return response;
+}
 
 
 function authTab(tab){
@@ -2928,7 +3130,7 @@ async function doLogin(){
       user:d.user,
       email,
       name,
-      expires_at:Date.now()+30*24*60*60*1000
+      expires_at:dfSessionExpiry(d)
     }));
     await authSuccess(name);
   }catch(e){
@@ -2977,7 +3179,7 @@ async function doSignup(){
         return;
       }
       if(d.session){
-        localStorage.setItem('dayframe_session',JSON.stringify({access_token:d.session.access_token,refresh_token:d.session.refresh_token,user:d.user,email,name,expires_at:Date.now()+30*24*60*60*1000}));
+        localStorage.setItem('dayframe_session',JSON.stringify({access_token:d.session.access_token,refresh_token:d.session.refresh_token,user:d.user,email,name,expires_at:dfSessionExpiry(d.session)}));
         await authSuccess(name);
       }
     }catch(e){authErr('signup','Network error. Try again.');authSetLoading('signup',false);}
@@ -3021,38 +3223,17 @@ async function doLogout(){
   location.reload();
 }
 
-// Check existing session on load
+// Check existing session on load. Refresh first so saved user and bank data
+// never render against an expired access token.
 (async function checkSession(){
   const raw=localStorage.getItem('dayframe_session');
-  if(!raw){document.getElementById('auth-screen')?.classList.remove('hidden');return;}
+  if(!raw){document.getElementById('auth-screen')?.classList.remove('hidden');return}
   try{
-    const s=JSON.parse(raw);
-    if(s.expires_at && Date.now()<s.expires_at){
-      await authSuccess(s.name||s.email?.split('@')[0]||'User');
-      // If Supabase session and refresh token exists, silently refresh in background
-      if(SUPABASE_URL && SUPABASE_KEY && s.refresh_token && !s.demo){
-        try{
-          const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
-            body:JSON.stringify({refresh_token:s.refresh_token})
-          });
-          const d=await r.json();
-          if(d.access_token){
-            localStorage.setItem('dayframe_session',JSON.stringify({
-              access_token:d.access_token,
-              refresh_token:d.refresh_token||s.refresh_token,
-              user:d.user||s.user,
-              name:s.name,
-              expires_at:Date.now()+30*24*60*60*1000
-            }));
-          }
-        }catch(e){} // Silent fail — user is still logged in
-      }
-    } else {
-      localStorage.removeItem('dayframe_session');
-      document.getElementById('auth-screen')?.classList.remove('hidden');
-    }
+    const stored=JSON.parse(raw);
+    if(!stored?.access_token&&!stored?.refresh_token)throw new Error('Missing session');
+    const session=await dfRefreshSession(true);
+    if(!session?.access_token)throw new Error('Session could not be restored');
+    await authSuccess(session.name||session.email?.split('@')[0]||'User');
   }catch(e){
     localStorage.removeItem('dayframe_session');
     document.getElementById('auth-screen')?.classList.remove('hidden');
@@ -3698,11 +3879,11 @@ function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage
 let _hubSyncTimer=null,_hubSyncBusy=false;
 function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
 async function syncHubToSupabase(data){
-  const s=dfSession();if(!s?.access_token||!s?.user?.id||_hubSyncBusy)return;_hubSyncBusy=true;
+  const s=await dfRefreshSession();if(!s?.access_token||!s?.user?.id||_hubSyncBusy)return;_hubSyncBusy=true;
   try{await fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?on_conflict=user_id',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:s.user.id,hub_data:data,updated_at:new Date().toISOString()})})}catch(e){console.log('Dayframe data sync error',e)}finally{_hubSyncBusy=false}
 }
 async function loadHubFromSupabase(){
-  const s=dfSession();if(!s?.access_token||!s?.user?.id)return;
+  const s=await dfRefreshSession();if(!s?.access_token||!s?.user?.id)return;
   try{
     const r=await fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?user_id=eq.'+encodeURIComponent(s.user.id)+'&select=hub_data&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token}});
     if(!r.ok)return;const rows=await r.json();
@@ -3754,7 +3935,7 @@ async function moneyConnectBank(){
  localStorage.setItem(dfKey('dayframe_bank_profile'),JSON.stringify({name,email}));
  moneySetConnectStatus('info','<span class="spin" style="display:inline-block;margin-right:7px"></span>Preparing your secure bank connection…');
  try{
-   const r=await fetch('/api/money/connect',{method:'POST',headers:dfAuthHeaders(true),body:JSON.stringify({name,email})});
+   const r=await dfBankFetch('/api/money/connect',{method:'POST',body:JSON.stringify({name,email})});
    const d=await r.json().catch(()=>({}));
    if(!r.ok){
      if(d.code==='OPEN_BANKING_NOT_CONFIGURED') moneySetConnectStatus('error','Open Banking is not configured in Cloudflare yet.');
@@ -3769,14 +3950,21 @@ async function moneyLoadBankData(force=false){
  if(_moneyBankLoading||(_moneyBankLoaded&&!force))return;
  _moneyBankLoading=true;
  try{
-   const r=await fetch('/api/money/data',{headers:dfAuthHeaders()});
-   if(r.status===404){_moneyBankLoaded=true;return}
+   const r=await dfBankFetch('/api/money/data');
    const d=await r.json().catch(()=>({}));
-   if(r.ok){_moneyBankData={accounts:d.accounts||[],transactions:d.transactions||[],connections:d.connections||[]};_moneyBankLoaded=true;renderMoney()}
+   if(r.status===404){_moneyBankLoaded=true;return}
+   if(!r.ok){
+     _moneyBankLoaded=true;
+     if(r.status===401)hubToast('Your saved bank connection is still there. Sign in again to refresh it.');
+     return;
+   }
+   _moneyBankData={accounts:d.accounts||[],transactions:d.transactions||[],connections:d.connections||[]};
+   _moneyBankLoaded=true;
+   renderMoney();
  }catch(e){}finally{_moneyBankLoading=false}
 }
 async function moneyRefreshBankData(){_moneyBankLoaded=false;hubToast('Refreshing connected accounts…');await moneyLoadBankData(true);hubToast('Money data refreshed')}
-async function moneyDisconnectBank(connectionId){if(!confirm('Disconnect this bank connection from your Dayframe account?'))return;try{const r=await fetch('/api/money/connections/'+encodeURIComponent(connectionId),{method:'DELETE',headers:dfAuthHeaders()});if(!r.ok)throw new Error('Could not remove connection');_moneyBankLoaded=false;await moneyLoadBankData(true);hubToast('Bank connection removed')}catch(e){hubToast(e.message)}}
+async function moneyDisconnectBank(connectionId){if(!confirm('Disconnect this bank connection from your Dayframe account?'))return;try{const r=await dfBankFetch('/api/money/connections/'+encodeURIComponent(connectionId),{method:'DELETE'});if(!r.ok)throw new Error('Could not remove connection');_moneyBankLoaded=false;await moneyLoadBankData(true);hubToast('Bank connection removed')}catch(e){hubToast(e.message)}}
 function moneyHandleBankCallback(){const u=new URL(location.href);const status=u.searchParams.get('bank');if(!status)return;if(status==='connected'){setTimeout(()=>{go('money');moneyOpenTab('accounts');hubToast('Bank connection completed');moneyLoadBankData(true)},150)}else if(status==='error'){setTimeout(()=>{go('money');moneyOpenConnectModal();moneySetConnectStatus('error','The bank connection was not completed. You can try again whenever you are ready.')},150)}u.searchParams.delete('bank');history.replaceState({},'',u.pathname+(u.search?u.search:'')+u.hash)}
 
 function moneyCurrentMonth(){return new Date().toISOString().slice(0,7)}
@@ -3964,7 +4152,7 @@ function renderGoals(){const d=hubLoad(),moneyGoals=d.goals.filter(x=>x.type==='
 function addAdminItem(){const title=document.getElementById('admin-title').value.trim(),date=document.getElementById('admin-date').value,type=document.getElementById('admin-type').value,note=document.getElementById('admin-note').value.trim();if(!title||!date)return hubToast('Add a name and date');const d=hubLoad();d.admin.push({id:Date.now(),title,date,type,note});hubSave(d);document.getElementById('admin-title').value='';document.getElementById('admin-date').value='';document.getElementById('admin-note').value='';toggleLifeForm('admin-form',false);renderAdmin();renderHome();hubToast('Life admin item saved')}
 function deleteAdmin(id){const d=hubLoad();d.admin=d.admin.filter(x=>x.id!==id);hubSave(d);renderAdmin();renderHome()}
 function renderAdmin(){const d=hubLoad(),today=hubDateISO(),end=new Date();end.setDate(end.getDate()+30);const endISO=hubDateISO(end),future=d.admin.filter(x=>x.date>=today).sort((a,b)=>a.date.localeCompare(b.date)),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('admin-upcoming',future.length);set('admin-month',future.filter(x=>x.date<=endISO).length);set('admin-appointments',future.filter(x=>x.type==='Appointment').length);set('admin-renewals',future.filter(x=>x.type==='Renewal').length);const list=document.getElementById('admin-list');if(list)list.innerHTML=future.length?future.map(x=>`<div class="life-list-row"><div class="life-list-icon" style="background:#fff0f8;color:#d868a6">${x.type==='Appointment'?'◷':x.type==='Renewal'?'↻':'•'}</div><div class="life-list-main"><div class="life-list-title">${hubEsc(x.title)}</div><div class="life-list-meta">${hubPrettyDate(x.date)} · ${hubEsc(x.type)}${x.note?' · '+hubEsc(x.note):''}</div></div><div class="life-list-value">${(()=>{const n=hubDaysUntil(x.date);return n===0?'Today':n===1?'Tomorrow':n+' days'})()}</div><button class="life-row-delete" onclick="deleteAdmin(${x.id})">×</button></div>`).join(''):'<div class="life-empty"><div class="life-empty-icon">◷</div><strong>Nothing upcoming</strong>Add appointments, renewals or deadlines you want Dayframe to remember.</div>'}
-function renderLifePage(name){if(name==='home')renderHome();if(name==='money')renderMoney();if(name==='planner')renderPlanner();if(name==='driving-car')renderDriving();if(name==='driving-costs')renderDrivingCosts();if(name==='goals')renderGoals();if(name==='lifeadmin')renderAdmin();}
+function renderLifePage(name){if(name==='home')renderHome();if(name==='money')renderMoney();if(name==='planner')renderPlanner();if(name==='driving-car')renderDriving();if(name==='goals')renderGoals();if(name==='lifeadmin')renderAdmin();}
 setTimeout(()=>personalHubInit(),0);
 
 let _currentPage = 'home';
@@ -3981,7 +4169,7 @@ function go(name,btn){
   else{const nb=document.querySelector(`.ni[onclick*="'${name}'"]`);if(nb)nb.classList.add('on');}
 
   const investingPages=new Set(['dashboard','holdings','mywatchlist','signals','charts','themes-hub','education','isa-guide','intel','health','alerts','chatter']);
-  const drivingPages=new Set(['driving','driving-theory','driving-car','driving-costs']);
+  const drivingPages=new Set(['driving','driving-theory','driving-car']);
   const isInvesting=investingPages.has(name);
   const isDriving=drivingPages.has(name);
   document.body.classList.toggle('investing-mode',isInvesting);
