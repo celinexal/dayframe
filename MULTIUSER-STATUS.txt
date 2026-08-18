@@ -1,0 +1,1 @@
+Supabase multi-user protection is live: dayframe_user_data and dayframe_bank_connections_v1 both use RLS auth.uid() = user_id. Bank API endpoints require the logged-in Supabase access token. Logging out no longer disconnects the user bank connection.

@@ -1,0 +1,1 @@
+Driving profile selector removal v2: Celine/Valentina legacy labels are removed from initial HTML, dynamic DOM and open shadow DOM. Logged-in Dayframe account remains the single profile.
