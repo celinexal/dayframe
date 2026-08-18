@@ -14,6 +14,10 @@ on:
       - 'driving/**'
       - '.github/workflows/deploy-pages.yml'
 
+concurrency:
+  group: dayframe-production
+  cancel-in-progress: true
+
 permissions:
   contents: read
   deployments: write
@@ -25,28 +29,41 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out Dayframe
         uses: actions/checkout@v6
 
       - name: Check Cloudflare credentials
-        id: credentials
         shell: bash
         run: |
-          if [ -n "$CF_API_TOKEN" ] && [ -n "$CF_ACCOUNT_ID" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Cloudflare GitHub secrets have not been added yet; deployment skipped."
-          fi
+          set -euo pipefail
+          test -n "$CF_API_TOKEN"
+          test -n "$CF_ACCOUNT_ID"
 
-      - name: Prepare deployment folder
-        if: steps.credentials.outputs.ready == 'true'
+      - name: Set build ID
+        id: build
+        shell: bash
+        run: echo "id=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate source before deployment
         shell: bash
         run: |
           set -euo pipefail
           test -s index.html
           test -s _worker.js
+          test -s driving/theory.html
+          test -s driving/theory-overrides.css
+          grep -q 'src="/driving/theory.html"' index.html
+          grep -q 'max-width:1200px' driving/theory-overrides.css
+          grep -q 'font-size:17px' driving/theory-overrides.css
+
+      - name: Prepare deployment folder
+        shell: bash
+        env:
+          BUILD_ID: ${{ steps.build.outputs.id }}
+        run: |
+          set -euo pipefail
           rm -rf dist
           mkdir dist
           cp index.html _worker.js dist/
@@ -54,28 +71,48 @@ jobs:
           [ ! -f app.js ] || cp app.js dist/
           [ ! -f styles.css ] || cp styles.css dist/
           [ ! -d assets ] || cp -R assets dist/assets
-          [ ! -d driving ] || cp -R driving dist/driving
+          cp -R driving dist/driving
+
           python - <<'PY'
           from pathlib import Path
-          theory=Path('dist/driving/theory.html')
-          if theory.exists():
-              s=theory.read_text()
-              link='<link rel="stylesheet" href="/driving/theory-overrides.css?v=20260818c">'
-              if 'theory-overrides.css' not in s:
-                  s=s.replace('</head>', link+'\n</head>', 1)
-              else:
-                  import re
-                  s=re.sub(r'<link rel="stylesheet" href="/driving/theory-overrides\.css\?v=[^"]+">', link, s)
-              theory.write_text(s)
-          index=Path('dist/index.html')
-          s=index.read_text()
-          import re
-          s=re.sub(r'src="/driving/theory\.html(?:\?v=[^"]+)?"', 'src="/driving/theory.html?v=20260818c"', s, count=1)
+          import os, re
+
+          build = os.environ['BUILD_ID']
+
+          theory = Path('dist/driving/theory.html')
+          s = theory.read_text()
+          link = f'<link rel="stylesheet" href="/driving/theory-overrides.css?v={build}">'
+          s, replaced = re.subn(
+              r'<link rel="stylesheet" href="/driving/theory-overrides\.css(?:\?v=[^"]+)?">',
+              link,
+              s,
+              count=1,
+          )
+          if replaced == 0:
+              if s.count('</head>') != 1:
+                  raise SystemExit('Theory Tracker </head> marker is missing or duplicated')
+              s = s.replace('</head>', link + '\n</head>', 1)
+          theory.write_text(s)
+
+          index = Path('dist/index.html')
+          s = index.read_text()
+          s, count = re.subn(
+              r'src="/driving/theory\.html(?:\?v=[^"]+)?"',
+              f'src="/driving/theory.html?v={build}"',
+              s,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit(f'Expected exactly one Theory Tracker iframe, found {count}')
           index.write_text(s)
           PY
 
+          grep -q "theory-overrides.css?v=$BUILD_ID" dist/driving/theory.html
+          grep -q "driving/theory.html?v=$BUILD_ID" dist/index.html
+          grep -q 'max-width:1200px' dist/driving/theory-overrides.css
+          grep -q 'font-size:17px' dist/driving/theory-overrides.css
+
       - name: Deploy to investly.pages.dev
-        if: steps.credentials.outputs.ready == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -83,20 +120,27 @@ jobs:
           command: pages deploy dist --project-name=investly --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify live Theory Tracker sizing
-        if: steps.credentials.outputs.ready == 'true'
+      - name: Verify the live Dayframe deployment
         shell: bash
+        env:
+          BUILD_ID: ${{ steps.build.outputs.id }}
         run: |
           set -euo pipefail
           ok=0
-          for i in $(seq 1 12); do
-            html=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory.html?v=20260818c" || true)
-            css=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory-overrides.css?v=20260818c" || true)
-            if echo "$html" | grep -q 'theory-overrides.css?v=20260818c' && echo "$css" | grep -q 'max-width:1200px' && echo "$css" | grep -q 'font-size:17px'; then
+          for i in $(seq 1 18); do
+            page=$(curl -fsSL --max-time 15 "https://investly.pages.dev/?verify=$BUILD_ID" || true)
+            theory=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory.html?v=$BUILD_ID" || true)
+            css=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory-overrides.css?v=$BUILD_ID" || true)
+
+            if echo "$page" | grep -q "driving/theory.html?v=$BUILD_ID" \
+              && echo "$theory" | grep -q "theory-overrides.css?v=$BUILD_ID" \
+              && echo "$css" | grep -q 'max-width:1200px' \
+              && echo "$css" | grep -q 'font-size:17px'; then
               ok=1
               break
             fi
             sleep 5
           done
+
           test "$ok" = "1"
-          echo "Live Theory Tracker verified: wide layout and larger text are deployed."
+          echo "Verified live Dayframe build $BUILD_ID."
