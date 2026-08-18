@@ -55,17 +55,24 @@ jobs:
           [ ! -f styles.css ] || cp styles.css dist/
           [ ! -d assets ] || cp -R assets dist/assets
           [ ! -d driving ] || cp -R driving dist/driving
-          if [ -f dist/driving/theory.html ] && [ -f dist/driving/theory-overrides.css ]; then
-            python - <<'PY'
+          python - <<'PY'
           from pathlib import Path
-          p=Path('dist/driving/theory.html')
-          s=p.read_text()
-          link='<link rel="stylesheet" href="/driving/theory-overrides.css?v=20260818b">'
-          if link not in s:
-              s=s.replace('</head>', link+'\n</head>', 1)
-          p.write_text(s)
+          theory=Path('dist/driving/theory.html')
+          if theory.exists():
+              s=theory.read_text()
+              link='<link rel="stylesheet" href="/driving/theory-overrides.css?v=20260818c">'
+              if 'theory-overrides.css' not in s:
+                  s=s.replace('</head>', link+'\n</head>', 1)
+              else:
+                  import re
+                  s=re.sub(r'<link rel="stylesheet" href="/driving/theory-overrides\.css\?v=[^"]+">', link, s)
+              theory.write_text(s)
+          index=Path('dist/index.html')
+          s=index.read_text()
+          import re
+          s=re.sub(r'src="/driving/theory\.html(?:\?v=[^"]+)?"', 'src="/driving/theory.html?v=20260818c"', s, count=1)
+          index.write_text(s)
           PY
-          fi
 
       - name: Deploy to investly.pages.dev
         if: steps.credentials.outputs.ready == 'true'
@@ -75,3 +82,21 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=investly --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify live Theory Tracker sizing
+        if: steps.credentials.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 12); do
+            html=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory.html?v=20260818c" || true)
+            css=$(curl -fsSL --max-time 15 "https://investly.pages.dev/driving/theory-overrides.css?v=20260818c" || true)
+            if echo "$html" | grep -q 'theory-overrides.css?v=20260818c' && echo "$css" | grep -q 'max-width:1200px' && echo "$css" | grep -q 'font-size:17px'; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = "1"
+          echo "Live Theory Tracker verified: wide layout and larger text are deployed."
