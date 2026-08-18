@@ -1,90 +1,42 @@
-name: Bootstrap Dayframe source
+name: Import Dayframe source
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths:
+      - 'dayframe-source.zip'
 
 permissions:
   contents: write
 
 jobs:
-  bootstrap:
-    if: ${{ github.actor != 'github-actions[bot]' }}
+  import:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Check whether Dayframe is already imported
-        id: check
-        shell: bash
-        run: |
-          if [ -f index.html ] && [ -f _worker.js ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Import current Dayframe source
-        if: steps.check.outputs.ready != 'true'
+      - name: Import uploaded Dayframe source
         shell: bash
         run: |
           set -euo pipefail
-
-          echo "Downloading the current Dayframe site..."
-          if ! curl -fL --retry 3 --retry-delay 2 --connect-timeout 20 https://investly.pages.dev/ -o index.html; then
-            echo "curl failed; retrying with wget"
-            wget -O index.html https://investly.pages.dev/
-          fi
-
-          test -s index.html
-          grep -qi "Dayframe" index.html
-
-          echo "Restoring the current Cloudflare Worker..."
-          test -s bootstrap-worker.b64
-          base64 --decode bootstrap-worker.b64 > _worker.js
-          test -s _worker.js
-
-          cat > _headers <<'EOF'
-          /*
-            X-Content-Type-Options: nosniff
-            Referrer-Policy: strict-origin-when-cross-origin
-          EOF
-
-          cat > MULTIUSER-STATUS.txt <<'EOF'
-          Dayframe uses Supabase authentication and per-user data isolation. Bank connections are stored per authenticated user and protected by Row Level Security.
-          EOF
-
-          cat > README.md <<'EOF'
-          # Dayframe
-
-          Personal dashboard app deployed to Cloudflare Pages.
-
-          - `index.html` contains the current Dayframe front end.
-          - `_worker.js` contains the Cloudflare Pages Worker/API routes.
-          - Supabase authentication separates each user's private Dayframe data.
-
-          This repository is the source of truth for future Dayframe changes.
-          EOF
-
-          rm -f bootstrap-worker.b64
-
-      - name: Validate imported files
-        if: steps.check.outputs.ready != 'true'
-        shell: bash
-        run: |
+          test -s dayframe-source.zip
+          unzip -o dayframe-source.zip -d .
           test -s index.html
           test -s _worker.js
           node --check _worker.js
-          echo "Dayframe source imported successfully."
+          rm -f dayframe-source.zip bootstrap-worker.b64
 
       - name: Commit Dayframe source
-        if: steps.check.outputs.ready != 'true'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Import current Dayframe source"
-          git push
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+          else
+            git commit -m "Import current Dayframe source"
+            git push
+          fi
