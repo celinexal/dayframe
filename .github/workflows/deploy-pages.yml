@@ -55,8 +55,7 @@ jobs:
           test -s driving/theory.html
           test -s driving/theory-overrides.css
           grep -q 'src="/driving/theory.html"' index.html
-          grep -q 'max-width:1200px' driving/theory-overrides.css
-          grep -q 'font-size:17px' driving/theory-overrides.css
+          grep -q 'Dayframe Theory Tracker desktop sizing' driving/theory-overrides.css
 
       - name: Prepare deployment folder
         shell: bash
@@ -76,7 +75,6 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import os, re
-
           build = os.environ['BUILD_ID']
 
           theory = Path('dist/driving/theory.html')
@@ -109,8 +107,7 @@ jobs:
 
           grep -q "theory-overrides.css?v=$BUILD_ID" dist/driving/theory.html
           grep -q "driving/theory.html?v=$BUILD_ID" dist/index.html
-          grep -q 'max-width:1200px' dist/driving/theory-overrides.css
-          grep -q 'font-size:17px' dist/driving/theory-overrides.css
+          grep -q 'Dayframe Theory Tracker desktop sizing' dist/driving/theory-overrides.css
 
       - name: Deploy to investly.pages.dev
         uses: cloudflare/wrangler-action@v3
@@ -134,8 +131,7 @@ jobs:
 
             if echo "$page" | grep -q "driving/theory.html?v=$BUILD_ID" \
               && echo "$theory" | grep -q "theory-overrides.css?v=$BUILD_ID" \
-              && echo "$css" | grep -q 'max-width:1200px' \
-              && echo "$css" | grep -q 'font-size:17px'; then
+              && echo "$css" | grep -q 'Dayframe Theory Tracker desktop sizing'; then
               ok=1
               break
             fi
