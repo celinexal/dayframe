@@ -1442,6 +1442,72 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 @media(max-width:1150px){.invest-learn-bridge{grid-template-columns:1fr}.invest-learn-links{grid-template-columns:repeat(3,1fr)}.edu-hero-new{grid-template-columns:1fr}.edu-progress-card{max-width:520px}.edu-toolbar{align-items:flex-start;flex-direction:column}.edu-source-links{justify-content:flex-start}.edu-path-grid{grid-template-columns:1fr 1fr}.edu-path-card:last-child{grid-column:1/-1}}
 @media(max-width:760px){.invest-learn-bridge{padding:21px;border-radius:18px}.invest-learn-links{grid-template-columns:1fr}.edu-hero-new{padding:27px 23px;border-radius:22px}.edu-hero-new .edu-hero-title{font-size:31px}.edu-path-grid{grid-template-columns:1fr}.edu-path-card:last-child{grid-column:auto}.edu-library-head{align-items:flex-start;flex-direction:column}.education-page .edu-nav{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none}.education-page .edu-nav::-webkit-scrollbar{display:none}.education-page .edu-nav-btn{white-space:nowrap;min-height:42px}.education-page .edu-cards{grid-template-columns:1fr}.edu-checklist{grid-template-columns:1fr}.edu-checklist>strong{grid-column:auto}}
 
+
+/* Dayframe personal page hero + investing connections */
+.personal-hero{
+  --ph-ink:#fff;--ph-muted:rgba(255,255,255,.72);--ph-accent:#a9f0d0;--ph-button:#fff;--ph-button-ink:#263247;
+  position:relative;isolation:isolate;overflow:hidden;min-height:248px;border-radius:30px;padding:28px 38px 36px;margin-bottom:18px;
+  color:var(--ph-ink);box-shadow:0 22px 52px rgba(36,45,70,.14);
+}
+.personal-hero-top{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.personal-hero-back{margin:0;color:var(--ph-muted)}
+.personal-hero-back:hover{color:#fff}
+.personal-hero-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(9px);font-size:9px;font-weight:800;color:rgba(255,255,255,.84)}
+.personal-hero-badge i{width:6px;height:6px;border-radius:50%;background:var(--ph-accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--ph-accent) 18%,transparent)}
+.personal-hero-body{position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-top:32px}
+.personal-hero-copy{max-width:740px}
+.personal-hero-eyebrow{font-size:9.5px;font-weight:850;letter-spacing:1.25px;text-transform:uppercase;color:var(--ph-accent);margin-bottom:9px}
+.personal-hero h1{font-family:var(--fd);font-size:clamp(33px,2.65vw,49px);line-height:1.04;letter-spacing:-1.25px;font-weight:850;margin:0}
+.personal-hero p{max-width:650px;margin-top:12px;font-size:13px;line-height:1.7;color:var(--ph-muted)}
+.personal-hero-action{flex:0 0 auto;display:inline-flex;align-items:center;gap:9px;min-height:45px;padding:0 16px;border:0;border-radius:14px;background:var(--ph-button);color:var(--ph-button-ink);font:800 10.5px var(--ff);cursor:pointer;box-shadow:0 13px 28px rgba(9,16,31,.18);transition:transform .18s ease,box-shadow .18s ease}
+.personal-hero-action:hover{transform:translateY(-2px);box-shadow:0 17px 32px rgba(9,16,31,.22)}
+.personal-hero-action span{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:color-mix(in srgb,var(--ph-accent) 24%,white);font-size:13px}
+.personal-hero-orbit{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.personal-hero .orbit-a{width:300px;height:300px;right:-72px;top:-115px;background:radial-gradient(circle,rgba(255,255,255,.19),rgba(255,255,255,0) 68%)}
+.personal-hero .orbit-b{width:210px;height:210px;right:245px;bottom:-155px;border:35px solid rgba(255,255,255,.055)}
+.personal-hero-money{--ph-accent:#9cebc9;--ph-button-ink:#245047;background:linear-gradient(125deg,#173f3a 0%,#285f57 56%,#5f6f73 100%)}
+.personal-hero-planner{--ph-accent:#b9c8ff;--ph-button-ink:#384b8c;background:linear-gradient(125deg,#263858 0%,#405b93 55%,#6d5f9e 100%)}
+.personal-hero-goals{--ph-accent:#ffd0e5;--ph-button-ink:#7c3f69;background:linear-gradient(125deg,#553653 0%,#7c456d 56%,#745a9c 100%)}
+.personal-hero-car{--ph-accent:#ffc0b4;--ph-button-ink:#3c526a;background:linear-gradient(125deg,#213548 0%,#345a70 56%,#566787 100%)}
+#pg-money,#pg-goals,#pg-driving-car{background:radial-gradient(circle at 8% 4%,rgba(145,218,198,.1),transparent 28%),radial-gradient(circle at 94% 8%,rgba(143,130,255,.1),transparent 30%),#f7f8fc}
+#pg-money .life-wrap,#pg-goals .life-wrap,#pg-driving-car .life-wrap{max-width:1480px}
+#pg-money .money-tabs{margin-top:0}
+
+.invest-side-connect{position:sticky;bottom:0;width:100%;min-height:60px;margin-top:18px;padding:9px;border:1px solid #e6e4fb;border-radius:14px;background:linear-gradient(135deg,#f6f4ff,#f3f8ff);display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;box-shadow:0 8px 22px rgba(64,57,135,.09);font-family:var(--ff)}
+.invest-side-connect-icon{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#6e61eb,#7a92f4);color:#fff;font-size:13px}
+.invest-side-connect-copy{min-width:0;display:flex;flex:1;flex-direction:column;gap:2px}.invest-side-connect-copy strong{font-size:10px;color:#3f4960}.invest-side-connect-copy small{font-size:8px;color:#8d96a7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.invest-side-connect>i{flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:#c5cad3;box-shadow:0 0 0 4px rgba(197,202,211,.16)}.invest-side-connect>i.ready{background:#48b38c;box-shadow:0 0 0 4px rgba(72,179,140,.14)}
+.invest-connect-modal{position:fixed;inset:0;z-index:20000;display:none;align-items:stretch;justify-content:flex-end;background:rgba(23,29,45,.38);backdrop-filter:blur(8px)}
+.invest-connect-modal.open{display:flex}
+.invest-connect-drawer{width:min(470px,100%);height:100%;overflow:auto;padding:28px;background:linear-gradient(180deg,#fff 0%,#fafaff 100%);box-shadow:-25px 0 70px rgba(24,31,50,.2);animation:investDrawerIn .22s ease}
+@keyframes investDrawerIn{from{transform:translateX(28px);opacity:.5}to{transform:translateX(0);opacity:1}}
+.invest-connect-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-bottom:22px;border-bottom:1px solid #eceef4}
+.invest-connect-kicker{font-size:9px;font-weight:850;letter-spacing:1.1px;text-transform:uppercase;color:#7164e8}.invest-connect-head h2{font-family:var(--fd);font-size:28px;line-height:1.1;letter-spacing:-.7px;color:#20293b;margin:5px 0 0}.invest-connect-head p{font-size:10.5px;line-height:1.6;color:#8b95a6;margin-top:7px;max-width:340px}
+.invest-connect-close{flex:0 0 36px;width:36px;height:36px;border:1px solid #e5e8ef;border-radius:12px;background:#fff;color:#8c95a5;font-size:21px;line-height:1;cursor:pointer}
+.invest-connect-grid{display:grid;gap:14px;margin-top:20px}
+.invest-service-card{position:relative;overflow:hidden;padding:18px;border:1px solid #e8eaf1;border-radius:20px;background:#fff;box-shadow:0 10px 30px rgba(37,46,70,.055)}
+.invest-service-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}.service-t212:before{background:#38b58a}.service-groq:before{background:#7567eb}
+.invest-service-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:16px}.invest-service-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:#ecfaf5;color:#258c6c;font-size:10px;font-weight:900}.service-groq .invest-service-icon{background:#f0eeff;color:#6759df;font-size:15px}
+.invest-service-top h3{font-family:var(--fd);font-size:15px;color:#30394b}.invest-service-top p{font-size:9.5px;line-height:1.5;color:#929bab;margin-top:3px}
+.invest-key-label{display:block;font-size:8.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;color:#858fa1;margin-bottom:6px}
+.invest-key-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}.invest-key-input{width:100%;min-width:0;height:39px;border:1px solid #dfe3eb;border-radius:11px;padding:0 11px;background:#fbfcff;color:#353e50;font:600 10px var(--ff);outline:none}.invest-key-input:focus{border-color:#8c81ee;box-shadow:0 0 0 3px rgba(117,103,235,.1)}
+.invest-key-row button{height:39px;border:0;border-radius:11px;padding:0 12px;background:#2e374a;color:#fff;font:800 9px var(--ff);cursor:pointer}.service-t212 .invest-key-row button{background:#277d65}.service-groq .invest-key-row button{background:#6759df}
+.invest-key-status{min-height:15px;margin-top:7px;font-size:9px;color:#9aa3b1}.invest-key-status.ok{color:#2c9a76;font-weight:800}
+.invest-cache-clear{margin-top:8px;border:0;background:transparent;color:#929aaa;font:700 8.5px var(--ff);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.invest-connect-privacy{display:flex;align-items:flex-start;gap:10px;margin-top:17px;padding:13px;border-radius:15px;background:#f3f7ff;border:1px solid #e2e9f7;color:#66738a}.invest-connect-privacy>span{color:#6a62df}.invest-connect-privacy strong{font-size:9.5px}.invest-connect-privacy p{font-size:8.8px;line-height:1.5;margin-top:3px;color:#8d97a8}
+body.invest-drawer-open{overflow:hidden}
+
+@media(max-width:780px){
+  .personal-hero{min-height:230px;padding:24px 25px 28px;border-radius:24px}.personal-hero-body{margin-top:28px;align-items:flex-start;flex-direction:column;gap:18px}.personal-hero p{font-size:12px}.personal-hero-action{min-height:42px}.personal-hero .orbit-b{display:none}
+}
+@media(max-width:640px){
+  .personal-hero{min-height:0;padding:20px 18px 22px;border-radius:21px}.personal-hero-top{align-items:flex-start}.personal-hero-badge{max-width:58%;line-height:1.35;text-align:right}.personal-hero-body{margin-top:24px}.personal-hero h1{font-size:31px}.personal-hero p{font-size:11.5px;margin-top:9px}.personal-hero-action{width:100%;justify-content:center}
+  body.investing-mode .invest-sidepanel{display:flex;align-items:center;gap:8px;overflow-x:auto}
+  body.investing-mode .invest-side-nav{flex:0 0 auto}
+  .invest-side-connect{position:static;flex:0 0 auto;width:auto;min-height:38px;margin:0;padding:4px 8px;border-radius:10px}.invest-side-connect-icon{width:26px;height:26px;flex-basis:26px}.invest-side-connect-copy{display:none}.invest-side-connect>i{display:none}
+  .invest-connect-drawer{padding:22px 17px}.invest-connect-head h2{font-size:25px}.invest-key-row{grid-template-columns:1fr}.invest-key-row button{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -1518,40 +1584,6 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
     <button class="ni" onclick="go('education',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M8 2L2 5l6 3 6-3-6-3z"/><path d="M2 8l6 3 6-3M2 11l6 3 6-3"/></svg>Learn to Invest</button>
     <button class="ni" onclick="go('isa-guide',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M2 4h12v9a1 1 0 01-1 1H3a1 1 0 01-1-1V4z"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1"/><path d="M6 8h4M6 11h2"/></svg>Stocks vs ETFs</button>
   </nav>
-  <div class="sb-foot">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08)">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800" id="sb-user-avatar">U</div>
-        <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.8)" id="sb-user-name">User</div>
-      </div>
-      
-    </div>
-    <button class="invest-connections-toggle" onclick="toggleInvestConnections()"><span>Investing connections</span><span class="connections-chevron">⌄</span></button>
-    <div id="invest-connections">
-    <span class="klbl">Trading 212 API Key</span>
-    <input class="kinp" type="password" id="t212k" placeholder="Your T212 key..."/>
-    <button class="cxbtn" onclick="saveT212()">Connect T212</button>
-    <div class="kst" id="t212s" style="margin-bottom:10px">Not connected</div>
-    <span class="klbl">Anthropic API Key</span>
-    <input class="kinp" type="password" id="antk" placeholder="gsk_..."/>
-    <button class="cxbtn" onclick="saveAnt()">Save AI Key</button>
-    <div class="kst" id="ants">Not saved</div>
-    <button onclick="clearAICache()" style="width:100%;margin-top:6px;padding:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:var(--ff)">🗑 Clear AI cache (free up daily limit)</button>
-
-    <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)">
-      <span class="klbl">Manual Holdings (Degiro / IBKR)</span>
-      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px;line-height:1.5">Add stocks from other brokers. Enter ticker, value in £, and your gain/loss in £.</div>
-      <div id="manual-holdings-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
-      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px;margin-bottom:6px">
-        <input class="kinp" id="mh-ticker" placeholder="Ticker e.g. SIVE" style="font-size:12px;padding:6px 8px;text-transform:uppercase"/>
-        <input class="kinp" id="mh-val" placeholder="£ value" style="font-size:12px;padding:6px 8px"/>
-        <input class="kinp" id="mh-gain" placeholder="£ gain" style="font-size:12px;padding:6px 8px"/>
-      </div>
-      <button class="cxbtn" onclick="addManualHolding()">+ Add Holding</button>
-      <div class="kst" id="mh-status"></div>
-    </div>
-  </div>
-    </div>
 </aside>
 
 <main class="main">
@@ -1577,6 +1609,36 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
     <button data-invest-page="education" onclick="go('education')"><span>◇</span>Learn to Invest</button>
     <button data-invest-page="isa-guide" onclick="go('isa-guide')"><span>▤</span>Stocks vs ETFs</button>
   </nav>
+  <button class="invest-side-connect" id="invest-side-connect" type="button" onclick="toggleInvestConnections()" aria-controls="invest-connections-modal" aria-expanded="false">
+    <span class="invest-side-connect-icon">↗</span>
+    <span class="invest-side-connect-copy"><strong>Connections</strong><small id="invest-connection-summary">Add Trading 212 &amp; Groq</small></span>
+    <i id="invest-connection-dot"></i>
+  </button>
+</div>
+
+<div class="invest-connect-modal" id="invest-connections-modal" aria-hidden="true" onclick="if(event.target===this)closeInvestConnections()">
+  <section class="invest-connect-drawer" role="dialog" aria-modal="true" aria-labelledby="invest-connect-title">
+    <div class="invest-connect-head">
+      <div><span class="invest-connect-kicker">Investing settings</span><h2 id="invest-connect-title">Connect your tools</h2><p>Save them once and Dayframe keeps them linked to your signed-in account.</p></div>
+      <button class="invest-connect-close" type="button" onclick="closeInvestConnections()" aria-label="Close connections">×</button>
+    </div>
+    <div class="invest-connect-grid">
+      <section class="invest-service-card service-t212">
+        <div class="invest-service-top"><span class="invest-service-icon">212</span><div><h3>Trading 212</h3><p>Bring your live portfolio and holdings into Dayframe.</p></div></div>
+        <label class="invest-key-label" for="t212k">Trading 212 API key</label>
+        <div class="invest-key-row"><input class="invest-key-input" type="password" id="t212k" placeholder="Paste your Trading 212 key" autocomplete="off" spellcheck="false"><button type="button" onclick="saveT212()">Save &amp; connect</button></div>
+        <div class="kst invest-key-status" id="t212s">Not connected</div>
+      </section>
+      <section class="invest-service-card service-groq">
+        <div class="invest-service-top"><span class="invest-service-icon">G</span><div><h3>Groq AI</h3><p>Power the live AI summaries and research tools.</p></div></div>
+        <label class="invest-key-label" for="antk">Groq API key</label>
+        <div class="invest-key-row"><input class="invest-key-input" type="password" id="antk" placeholder="Paste your Groq key" autocomplete="off" spellcheck="false"><button type="button" onclick="saveAnt()">Save AI key</button></div>
+        <div class="kst invest-key-status" id="ants">Not saved</div>
+        <button class="invest-cache-clear" type="button" onclick="clearAICache()">Clear saved AI responses</button>
+      </section>
+    </div>
+    <div class="invest-connect-privacy"><span>◉</span><div><strong>Private to your account</strong><p>Your saved values reload when you sign back in, so you do not need to reconnect each visit.</p></div></div>
+  </section>
 </div>
 
 <div class="driving-sidepanel" id="driving-sidepanel" aria-label="Driving navigation">
@@ -1671,9 +1733,17 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 
 <!-- MONEY -->
 <div class="pg life-page money-page" id="pg-money"><div class="life-wrap">
-  <div class="life-header"><div><button class="life-back" onclick="go('home')">← Home</button><div class="life-title-row"><div class="life-title-icon money-accent"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M15 12h6.5M5 9h6M5 15h4"/></svg></div><div><div class="life-title">Money</div><div class="life-sub">Accounts, budgets, credit plans and bills — all in one clear place.</div></div></div></div><button class="life-add" onclick="moneyOpenConnectModal()">＋ Add account</button></div>
-
-  <div class="money-hero-note"><div><strong>Build this exactly around your real money life</strong><span>Add your bank accounts, credit cards, Klarna, Clearpay, PayPal and bills now. The structure is ready for deeper integrations later, but already feels like one clean Money hub.</span></div><button class="money-head-action" onclick="moneyOpenConnectModal()">Set up accounts →</button></div>
+  <section class="personal-hero personal-hero-money">
+    <div class="personal-hero-top">
+      <button class="life-back personal-hero-back" onclick="go('home')">← Home</button>
+      <span class="personal-hero-badge"><i></i>Your everyday finances</span>
+    </div>
+    <div class="personal-hero-body">
+      <div class="personal-hero-copy"><div class="personal-hero-eyebrow">Money, made clearer</div><h1>Know where you stand.</h1><p>Bring your accounts, budget, bills and credit plans into one calm view that is shaped around your real life.</p></div>
+      <button class="personal-hero-action" onclick="moneyOpenConnectModal()"><span>＋</span>Add account</button>
+    </div>
+    <div class="personal-hero-orbit orbit-a"></div><div class="personal-hero-orbit orbit-b"></div>
+  </section>
 
   <div class="money-tabs">
     <button class="money-tab on" data-money-tab="overview" onclick="moneyOpenTab('overview',this)">Overview</button>
@@ -1813,16 +1883,17 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 <!-- PLANNER -->
 
 <div class="pg life-page planner-page" id="pg-planner"><div class="life-wrap">
-  <div class="life-header planner-hero">
-    <div class="planner-hero-main">
-      <button class="life-back" onclick="go('home')">← Home</button>
-      <div class="life-title-row">
-        <div class="life-title-icon planner-accent"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M7 2v5M17 2v5M3 9h18M7 13h3M14 13h3M7 17h3"/></svg></div>
-        <div><div class="life-title">Make space for what matters.</div><div class="life-sub">A gentle weekly view for tasks, reminders and the things you want out of your head.</div></div>
-      </div>
+  <section class="personal-hero personal-hero-planner">
+    <div class="personal-hero-top">
+      <button class="life-back personal-hero-back" onclick="go('home')">← Home</button>
+      <span class="personal-hero-badge"><i></i>Your week, gently organised</span>
     </div>
-    <button class="life-add planner-add" onclick="toggleLifeForm('task-form')">＋ Add a task</button>
-  </div>
+    <div class="personal-hero-body">
+      <div class="personal-hero-copy"><div class="personal-hero-eyebrow">A calmer plan</div><h1>Make space for what matters.</h1><p>Capture tasks, see the week ahead and keep the little things from taking up all the room in your head.</p></div>
+      <button class="personal-hero-action" onclick="toggleLifeForm('task-form')"><span>＋</span>Add a task</button>
+    </div>
+    <div class="personal-hero-orbit orbit-a"></div><div class="personal-hero-orbit orbit-b"></div>
+  </section>
 
   <div class="life-metrics">
     <div class="life-metric"><div class="life-metric-label">Open tasks</div><div class="life-metric-value" id="planner-open">0</div><div class="life-metric-sub">Still to do</div></div>
@@ -1917,7 +1988,18 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 </div>
 
 <div class="pg life-page" id="pg-driving-car"><div class="life-wrap">
-  <div class="life-header"><div><button class="life-back" onclick="go('driving')">← Driving</button><div class="life-title-row"><div class="life-title-icon driving-accent"><svg viewBox="0 0 24 24"><path d="M5 13l1.8-5.1A2 2 0 018.7 6.5h6.6a2 2 0 011.9 1.4L19 13"/><rect x="3" y="12" width="18" height="6.5" rx="2"/><path d="M6 18.5V21M18 18.5V21M7 15h.1M17 15h.1"/></svg></div><div><div class="life-title">My Car</div><div class="life-sub">Vehicle details, MOT, tax, insurance and servicing in one place.</div></div></div></div><button class="life-add" onclick="toggleLifeForm('vehicle-form')">✎ Edit vehicle</button></div>
+  <section class="personal-hero personal-hero-car">
+    <div class="personal-hero-top">
+      <button class="life-back personal-hero-back" onclick="go('driving')">← Driving</button>
+      <span class="personal-hero-badge"><i></i>Your vehicle space</span>
+    </div>
+    <div class="personal-hero-body">
+      <div class="personal-hero-copy"><div class="personal-hero-eyebrow">My Car</div><h1>Keep the road admin simple.</h1><p>Save your vehicle details, renewal dates and important notes once, then let Dayframe keep them ready when you need them.</p></div>
+      <button class="personal-hero-action" onclick="toggleLifeForm('vehicle-form')"><span>✎</span>Edit vehicle</button>
+    </div>
+    <div class="personal-hero-orbit orbit-a"></div><div class="personal-hero-orbit orbit-b"></div>
+  </section>
+
   <div class="life-metrics"><div class="life-metric"><div class="life-metric-label">Vehicle</div><div class="life-metric-value" id="vehicle-name">Not set</div><div class="life-metric-sub" id="vehicle-reg">Add your car details</div></div><div class="life-metric"><div class="life-metric-label">Next renewal</div><div class="life-metric-value" id="driving-next">—</div><div class="life-metric-sub" id="driving-next-label">No dates added</div></div><div class="life-metric"><div class="life-metric-label">Dates saved</div><div class="life-metric-value" id="driving-count">0</div><div class="life-metric-sub">MOT, tax, insurance, service</div></div><div class="life-metric"><div class="life-metric-label">Status</div><div class="life-metric-value" id="driving-status">Clear</div><div class="life-metric-sub">Based on your saved dates</div></div></div>
   <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Renewals & servicing</div><div class="life-card-sub">Tap edit to save each date</div></div></div><div class="life-card-body"><div class="life-form" id="vehicle-form"><div class="life-form-grid"><div class="life-field"><label>Vehicle name</label><input class="life-input" id="vehicle-name-input" placeholder="e.g. My car"></div><div class="life-field"><label>Registration</label><input class="life-input" id="vehicle-reg-input" placeholder="e.g. AB12 CDE"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('vehicle-form',false)">Cancel</button><button class="life-btn-primary" onclick="saveVehicle()">Save vehicle</button></div></div><div class="renewal-grid" id="renewal-grid"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Driving notes</div><div class="life-card-sub">A handy place for small reminders</div></div></div><div class="life-card-body"><textarea class="life-input" id="driving-notes" style="height:125px;padding:10px 11px;resize:vertical;line-height:1.55" placeholder="Garage details, tyre size, parking permit notes…" oninput="saveDrivingNotes(this.value)"></textarea></div></section><section class="life-card"><div class="life-card-head"><div class="life-card-title">Useful rhythm</div></div><div class="life-card-body"><div class="hub-empty"><strong>Put the date in once</strong>Dayframe will surface the nearest saved renewal back on your Home page.</div></div></section></div></div>
 </div></div>
@@ -1969,7 +2051,18 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 
 <!-- GOALS -->
 <div class="pg life-page" id="pg-goals"><div class="life-wrap">
-  <div class="life-header"><div><button class="life-back" onclick="go('home')">← Home</button><div class="life-title-row"><div class="life-title-icon goals-accent"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 3v4M21 12h-4"/></svg></div><div><div class="life-title">Goals</div><div class="life-sub">Track what you're building towards, financially or otherwise.</div></div></div></div><button class="life-add" onclick="toggleLifeForm('goal-form')">＋ New goal</button></div>
+  <section class="personal-hero personal-hero-goals">
+    <div class="personal-hero-top">
+      <button class="life-back personal-hero-back" onclick="go('home')">← Home</button>
+      <span class="personal-hero-badge"><i></i>Big dreams, visible progress</span>
+    </div>
+    <div class="personal-hero-body">
+      <div class="personal-hero-copy"><div class="personal-hero-eyebrow">Your goals</div><h1>Turn someday into something real.</h1><p>Give the things you care about a home, notice every bit of progress and keep moving at your own pace.</p></div>
+      <button class="personal-hero-action" onclick="toggleLifeForm('goal-form')"><span>＋</span>New goal</button>
+    </div>
+    <div class="personal-hero-orbit orbit-a"></div><div class="personal-hero-orbit orbit-b"></div>
+  </section>
+
   <div class="life-metrics"><div class="life-metric"><div class="life-metric-label">Active goals</div><div class="life-metric-value" id="goals-count">0</div><div class="life-metric-sub">In progress</div></div><div class="life-metric"><div class="life-metric-label">Target total</div><div class="life-metric-value" id="goals-target">£0</div><div class="life-metric-sub">Across money goals</div></div><div class="life-metric"><div class="life-metric-label">Progress saved</div><div class="life-metric-value" id="goals-current">£0</div><div class="life-metric-sub">Across money goals</div></div><div class="life-metric"><div class="life-metric-label">Overall</div><div class="life-metric-value" id="goals-progress">0%</div><div class="life-metric-sub">Combined progress</div></div></div>
   <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Your goals</div><div class="life-card-sub">Visible progress is easier to keep moving</div></div></div><div class="life-card-body"><div class="life-form" id="goal-form"><div class="life-form-grid"><div class="life-field"><label>Goal</label><input class="life-input" id="goal-name" placeholder="e.g. Holiday fund"></div><div class="life-field"><label>Type</label><select class="life-select" id="goal-type"><option value="money">Money</option><option value="progress">Progress</option></select></div><div class="life-field"><label>Target</label><input class="life-input" id="goal-target" type="number" step="0.01" placeholder="1000"></div><div class="life-field"><label>Current</label><input class="life-input" id="goal-current" type="number" step="0.01" placeholder="0"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('goal-form',false)">Cancel</button><button class="life-btn-primary" onclick="addGoal()">Save goal</button></div></div><div id="goals-list"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Why this is here</div></div></div><div class="life-card-body"><div class="hub-empty"><strong>Not every goal is a task</strong>Keep bigger targets here, while Planner handles the day-to-day steps.</div></div></section></div></div>
 </div></div>
@@ -3941,6 +4034,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const wl=localStorage.getItem(dfKey("p_wl"));if(wl)WL=JSON.parse(wl);
   // Then try to load from Supabase (overrides localStorage with latest saved)
   await loadSettingsFromSupabase();
+  refreshInvestConnectionSummary();
   // If we got a T212 key from Supabase, sync immediately
   if(t212Key) syncT212();
   renderManualHoldingsList();
@@ -3961,8 +4055,8 @@ function clearAICache() {
   } catch(e) {}
 }
 
-function saveAnt(){aiKey=document.getElementById("antk").value.trim();if(aiKey){localStorage.setItem(dfKey("p_groq"),aiKey);st("ants","✓ Key saved",true);saveSettingsToSupabase();}}
-function saveT212(){t212Key=document.getElementById("t212k").value.trim();if(t212Key){localStorage.setItem(dfKey("p_t212"),t212Key);st("t212s","✓ Connected",true);document.getElementById("dbanner").style.display="none";saveSettingsToSupabase();syncT212();}}
+function saveAnt(){aiKey=document.getElementById("antk").value.trim();if(aiKey){localStorage.setItem(dfKey("p_groq"),aiKey);st("ants","✓ Key saved to your account",true);saveSettingsToSupabase();refreshInvestConnectionSummary();}}
+function saveT212(){t212Key=document.getElementById("t212k").value.trim();if(t212Key){localStorage.setItem(dfKey("p_t212"),t212Key);st("t212s","✓ Connected and saved",true);const banner=document.getElementById("dbanner");if(banner)banner.style.display="none";saveSettingsToSupabase();refreshInvestConnectionSummary();syncT212();}}
 function st(id,msg,ok){const e=document.getElementById(id);e.textContent=msg;e.className="kst"+(ok?" ok":"");}
 
 // ── MANUAL HOLDINGS (Degiro / IBKR) ────────────────────────────────────
@@ -4315,7 +4409,30 @@ function hubPrettyDate(v){if(!v)return 'No date';const d=new Date(v+'T12:00:00')
 function hubDaysUntil(v){if(!v)return null;const a=new Date(hubDateISO()+'T00:00:00'),b=new Date(v+'T00:00:00');return Math.round((b-a)/86400000)}
 function hubToast(msg){const el=document.getElementById('hub-toast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(window._hubToastT);window._hubToastT=setTimeout(()=>el.classList.remove('show'),1800)}
 function toggleLifeForm(id,force){const el=document.getElementById(id);if(!el)return;const open=force===undefined?!el.classList.contains('open'):force;el.classList.toggle('open',open);if(open){const input=el.querySelector('input');if(input)setTimeout(()=>input.focus(),50)}}
-function toggleInvestConnections(){document.querySelector('.sb-foot')?.classList.toggle('connections-open')}
+function refreshInvestConnectionSummary(){
+  const summary=document.getElementById('invest-connection-summary'),dot=document.getElementById('invest-connection-dot');
+  const connected=Number(!!t212Key)+Number(!!aiKey);
+  if(summary)summary.textContent=connected===2?'Trading 212 & Groq ready':connected===1?(t212Key?'Trading 212 connected':'Groq AI ready'):'Add Trading 212 & Groq';
+  if(dot)dot.classList.toggle('ready',connected>0);
+}
+function toggleInvestConnections(){
+  const modal=document.getElementById('invest-connections-modal');
+  if(!modal)return;
+  const shouldOpen=!modal.classList.contains('open');
+  modal.classList.toggle('open',shouldOpen);
+  modal.setAttribute('aria-hidden',String(!shouldOpen));
+  document.getElementById('invest-side-connect')?.setAttribute('aria-expanded',String(shouldOpen));
+  document.body.classList.toggle('invest-drawer-open',shouldOpen);
+  refreshInvestConnectionSummary();
+  if(shouldOpen)setTimeout(()=>document.getElementById(t212Key?'antk':'t212k')?.focus(),120);
+}
+function closeInvestConnections(){
+  const modal=document.getElementById('invest-connections-modal');
+  if(modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
+  document.getElementById('invest-side-connect')?.setAttribute('aria-expanded','false');
+  document.body.classList.remove('invest-drawer-open');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInvestConnections()});
 function hubUserName(){try{const s=JSON.parse(localStorage.getItem('dayframe_session')||'{}');return s.name||s.email?.split('@')[0]||'there'}catch(e){return 'there'}}
 function personalHubInit(name){const nm=name||hubUserName();const hour=new Date().getHours();const greet=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';const g=document.getElementById('hub-greeting');if(g)g.innerHTML=greet+', <span>'+hubEsc(nm.split(' ')[0])+'</span>';const av=document.getElementById('hub-avatar');if(av)av.textContent=(nm||'V')[0].toUpperCase();const dt=document.getElementById('hub-date');if(dt)dt.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});renderHome();}
 function renderHome(){
