@@ -1,0 +1,44 @@
+name: Apply theory account fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/fix_theory_profile.py'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Dayframe
+        uses: actions/checkout@v6
+
+      - name: Apply theory account fix
+        run: python scripts/fix_theory_profile.py
+
+      - name: Validate Worker and injected tracker script
+        shell: bash
+        run: |
+          node --check _worker.js
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('_worker.js').read_text()
+          m=re.search(r"const bridge=`<script>\n(.*?)\n  <\\/script>`;",s,re.S)
+          if not m: raise SystemExit('Injected tracker bridge not found')
+          Path('/tmp/theory-bridge.js').write_text(m.group(1))
+          PY
+          node --check /tmp/theory-bridge.js
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f scripts/fix_theory_profile.py .github/workflows/apply-theory-profile-fix.yml
+          git add -A
+          git commit -m "Use Dayframe account for theory tracker"
+          git push
