@@ -103,6 +103,7 @@ async function proxyTheoryTracker(request){
       try{return JSON.parse(localStorage.getItem('dayframe_session')||'{}')}catch(e){return {}}
     }
     let df=getDayframeSession();
+    let legacyProfileActivated=false;
 
     // Expose one authenticated identity to the embedded app.
     window.__DAYFRAME_EMBED__=true;
@@ -170,6 +171,22 @@ async function proxyTheoryTracker(request){
       };
     }catch(e){}
 
+    function activateLegacyProfileForDayframe(){
+      if(legacyProfileActivated||!df?.user?.id)return;
+      try{
+        const candidates=[...document.querySelectorAll('button,[role="button"],[onclick],div')].filter(el=>{
+          const txt=(el.textContent||'').trim().toLowerCase().replace(/\s+/g,' ');
+          if(txt.length<3||txt.length>180)return false;
+          return /\b(ci|vi)\b/.test(txt) && /\d+%/.test(txt) && txt.includes('streak');
+        }).sort((a,b)=>(a.textContent||'').length-(b.textContent||'').length);
+        const card=candidates[0];
+        if(card){
+          legacyProfileActivated=true;
+          card.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+        }
+      }catch(e){}
+    }
+
     function removeLegacyProfileSwitcher(){
       const names=['celine','valentina'];
       const loggedName=(df?.name||df?.user?.user_metadata?.name||'').trim();
@@ -232,40 +249,32 @@ async function proxyTheoryTracker(request){
         }catch(e){}
       }
 
+      // Use one old profile card only to unlock the old tracker interface.
+      // Requests from it are tied to the logged-in Dayframe account by the SSO bridge.
+      activateLegacyProfileForDayframe();
       scrubRoot(document);
+
+      try{
+        const chooser=[...document.querySelectorAll('div,section,main')].filter(el=>{
+          const txt=(el.textContent||'').trim().toLowerCase().replace(/\s+/g,' ');
+          const streaks=(txt.match(/streak/g)||[]).length;
+          return txt.length<700 && streaks>=2 && /\bci\b/.test(txt) && /\bvi\b/.test(txt);
+        }).sort((a,b)=>(a.textContent||'').length-(b.textContent||'').length);
+        if(chooser[0])chooser[0].style.setProperty('display','none','important');
+
+        document.querySelectorAll('div,p,span,h1,h2,h3,h4').forEach(el=>{
+          const txt=(el.textContent||'').trim().toLowerCase().replace(/\s+/g,' ');
+          if(txt.length<180 && (txt.includes('select your name above')||txt.includes('choose your name above'))){
+            el.style.setProperty('display','none','important');
+          }
+        });
+      }catch(e){}
 
       // The logged-in Dayframe account is the only active profile.
       document.documentElement.setAttribute('data-dayframe-profile',df?.user?.id||'');
       if(loggedName)document.documentElement.setAttribute('data-dayframe-profile-name',loggedName);
     }
 
-      // Hide exact legacy user buttons/options.
-      document.querySelectorAll('button,a,[role="button"],label,span,div,select').forEach(el=>{
-        const txt=(el.textContent||'').trim().toLowerCase().replace(/\s+/g,' ');
-        if(names.includes(txt)){
-          el.style.setProperty('display','none','important');
-        }
-      });
-
-      // Hide the small container that held both Celine and Valentina,
-      // without removing large sections of the tracker.
-      document.querySelectorAll('div,nav,section,header').forEach(el=>{
-        const txt=(el.textContent||'').trim().toLowerCase().replace(/\s+/g,' ');
-        if(txt.length>0 && txt.length<80 && txt.includes('celine') && txt.includes('valentina')){
-          el.style.setProperty('display','none','important');
-        }
-      });
-
-      // Hide selects whose options are the two old profiles.
-      document.querySelectorAll('select').forEach(sel=>{
-        const opts=[...sel.options].map(o=>(o.textContent||'').trim().toLowerCase());
-        if(opts.includes('celine') || opts.includes('valentina')){
-          sel.style.setProperty('display','none','important');
-          const wrap=sel.closest('div,label');
-          if(wrap && (wrap.textContent||'').length<100)wrap.style.setProperty('display','none','important');
-        }
-      });
-    }
 
     function applySingleSignOn(){
       df=getDayframeSession();
@@ -281,7 +290,8 @@ async function proxyTheoryTracker(request){
         [
           'theory_user_id','theory_profile_id','currentUser','current_user',
           'activeUser','active_user','selectedUser','selected_user',
-          'selectedProfile','selected_profile'
+          'selectedProfile','selected_profile','selectedName','selected_name',
+          'currentProfile','current_profile','student','learner'
         ].forEach(k=>localStorage.setItem(k,profileId));
         localStorage.setItem('theory_user_name',profileName);
       }catch(e){}
