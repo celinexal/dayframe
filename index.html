@@ -1508,6 +1508,7 @@ body.invest-drawer-open{overflow:hidden}
   .invest-connect-drawer{padding:22px 17px}.invest-connect-head h2{font-size:25px}.invest-key-row{grid-template-columns:1fr}.invest-key-row button{width:100%}
 }
 
+.invest-key-status.pending{color:#6e66d8;font-weight:750}.invest-key-status.warn{color:#a86e28;font-weight:750}
 </style>
 </head>
 <body>
@@ -3947,69 +3948,102 @@ let hFilt="all",hSort="val",hDir=-1;
 let activeTk=null,chartInst=null;
 
 // ── SUPABASE SETTINGS SYNC ──
+function settingsSyncMessage(payload,fallback){
+  if(!payload)return fallback;
+  return String(payload.message||payload.error_description||payload.error||payload.hint||fallback);
+}
+
 async function loadSettingsFromSupabase() {
+  const localGroq=aiKey,localT212=t212Key;
   try {
-    const sess = getSession();
-    if (!sess || !sess.access_token) return;
-    const r = await fetch(SUPABASE_URL + '/rest/v1/user_settings?select=t212_key,groq_key,watchlist,finance_seed', {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + sess.access_token }
-    });
-    const data = await r.json();
-    if (data && data[0]) {
-      if (data[0].t212_key) {
-        t212Key = data[0].t212_key;
-        localStorage.setItem(dfKey('p_t212'), t212Key);
-        const el = document.getElementById('t212k');
-        if (el) el.value = t212Key;
-        st('t212s', '✓ Connected', true);
-        const banner = document.getElementById('dbanner');
-        if (banner) banner.style.display = 'none';
-      }
-      if (data[0].groq_key) {
-        aiKey = data[0].groq_key;
-        localStorage.setItem(dfKey('p_groq'), aiKey);
-        const el = document.getElementById('antk');
-        if (el) el.value = aiKey;
-        st('ants', '✓ Key saved', true);
-      }
-      if (data[0].watchlist) {
-        try { WL = JSON.parse(data[0].watchlist); localStorage.setItem(dfKey('p_wl'), data[0].watchlist); } catch(e) {}
-      }
-
-      if (data[0].finance_seed && Array.isArray(data[0].finance_seed.creditPlans)) {
-        const hd=hubLoad();
-        if (!Array.isArray(hd.creditPlans) || hd.creditPlans.length===0) {
-          hd.creditPlans=data[0].finance_seed.creditPlans.map((x,i)=>({...x,id:Date.now()+i,original:x.original||x.balance||0}));
-          hubSave(hd);
-          renderMoney();
-        }
-      }
-
+    let sess=await dfRefreshSession(false);
+    if(!sess?.access_token||!sess?.user?.id)return {ok:false,message:'Sign in again to sync across browsers.'};
+    const endpoint=SUPABASE_URL+'/rest/v1/user_settings?select=t212_key,groq_key,watchlist,finance_seed&id=eq.'+encodeURIComponent(sess.user.id);
+    const send=activeSession=>fetch(endpoint,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+activeSession.access_token,'Accept':'application/json'}});
+    let r=await send(sess);
+    if(r.status===401){sess=await dfRefreshSession(true);r=await send(sess)}
+    const payload=await r.json().catch(()=>null);
+    if(!r.ok)throw new Error(settingsSyncMessage(payload,'Account settings could not be loaded.'));
+    const row=Array.isArray(payload)?payload[0]:null;
+    if(row?.t212_key){
+      t212Key=row.t212_key;
+      localStorage.setItem(dfKey('p_t212'),t212Key);
+      const el=document.getElementById('t212k');if(el)el.value=t212Key;
+      st('t212s','✓ Connected to your account',true);
+      const banner=document.getElementById('dbanner');if(banner)banner.style.display='none';
     }
-  } catch(e) { console.log('Settings load error:', e); }
+    if(row?.groq_key){
+      aiKey=row.groq_key;
+      localStorage.setItem(dfKey('p_groq'),aiKey);
+      const el=document.getElementById('antk');if(el)el.value=aiKey;
+      st('ants','✓ Key saved to your account',true);
+    }
+    if(row?.watchlist){
+      try{WL=JSON.parse(row.watchlist);localStorage.setItem(dfKey('p_wl'),row.watchlist)}catch(e){}
+    }
+    if(row?.finance_seed&&Array.isArray(row.finance_seed.creditPlans)){
+      const hd=hubLoad();
+      if(!Array.isArray(hd.creditPlans)||hd.creditPlans.length===0){
+        hd.creditPlans=row.finance_seed.creditPlans.map((x,i)=>({...x,id:Date.now()+i,original:x.original||x.balance||0}));
+        hubSave(hd);renderMoney();
+      }
+    }
+    const needsLocalMigration=(localGroq&&!row?.groq_key)||(localT212&&!row?.t212_key);
+    if(needsLocalMigration){
+      aiKey=row?.groq_key||localGroq||'';
+      t212Key=row?.t212_key||localT212||'';
+      const migrated=await saveSettingsToSupabase();
+      if(migrated.ok){
+        if(aiKey)st('ants','✓ Key saved to your account',true);
+        if(t212Key)st('t212s','✓ Connected to your account',true);
+      }else{
+        if(localGroq)st('ants','Saved in this browser only — press Save AI key to retry',false,'warn');
+        if(localT212)st('t212s','Saved in this browser only — press Save & connect to retry',false,'warn');
+      }
+    }
+    refreshInvestConnectionSummary();
+    return {ok:true,found:!!row};
+  }catch(e){
+    console.warn('Settings load failed:',e?.message||e);
+    if(localGroq)st('ants','Saved in this browser only — account sync unavailable',false,'warn');
+    if(localT212)st('t212s','Saved in this browser only — account sync unavailable',false,'warn');
+    return {ok:false,message:e?.message||'Account settings could not be loaded.'};
+  }
 }
 
 async function saveSettingsToSupabase() {
   try {
-    const sess = getSession();
-    if (!sess || !sess.access_token || !sess.user) return;
-    await fetch(SUPABASE_URL + '/rest/v1/user_settings', {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + sess.access_token,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify({
-        id: sess.user.id,
-        t212_key: t212Key || null,
-        groq_key: aiKey || null,
-        watchlist: JSON.stringify(WL),
-        updated_at: new Date().toISOString()
-      })
+    let sess=await dfRefreshSession(false);
+    if(!sess?.access_token||!sess?.user?.id)return {ok:false,message:'Sign in again to sync across browsers.'};
+    const endpoint=SUPABASE_URL+'/rest/v1/user_settings?on_conflict=id&select=id';
+    const body=JSON.stringify({
+      id:sess.user.id,
+      t212_key:t212Key||null,
+      groq_key:aiKey||null,
+      watchlist:JSON.stringify(WL),
+      updated_at:new Date().toISOString()
     });
-  } catch(e) { console.log('Settings save error:', e); }
+    const send=activeSession=>fetch(endpoint,{
+      method:'POST',
+      headers:{
+        'apikey':SUPABASE_KEY,
+        'Authorization':'Bearer '+activeSession.access_token,
+        'Content-Type':'application/json',
+        'Accept':'application/json',
+        'Prefer':'resolution=merge-duplicates,return=representation'
+      },
+      body
+    });
+    let r=await send(sess);
+    if(r.status===401){sess=await dfRefreshSession(true);r=await send(sess)}
+    const payload=await r.json().catch(()=>null);
+    if(!r.ok)throw new Error(settingsSyncMessage(payload,'Account settings could not be saved.'));
+    if(!Array.isArray(payload)||!payload[0]?.id)throw new Error('Supabase did not confirm the account save.');
+    return {ok:true};
+  }catch(e){
+    console.warn('Settings save failed:',e?.message||e);
+    return {ok:false,message:e?.message||'Account settings could not be saved.'};
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -4018,8 +4052,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load from localStorage first (instant)
   aiKey=localStorage.getItem(dfKey("p_groq"))||"";
   t212Key=localStorage.getItem(dfKey("p_t212"))||"";
-  if(aiKey){document.getElementById("antk").value=aiKey;st("ants","✓ Key saved",true);}
-  if(t212Key){document.getElementById("t212k").value=t212Key;st("t212s","✓ Connected",true);document.getElementById("dbanner").style.display="none";}
+  if(aiKey){document.getElementById("antk").value=aiKey;st("ants","Saved in this browser · syncing account…",false,"pending");}
+  if(t212Key){document.getElementById("t212k").value=t212Key;st("t212s","Saved in this browser · syncing account…",false,"pending");const banner=document.getElementById("dbanner");if(banner)banner.style.display="none";}
   const wl=localStorage.getItem(dfKey("p_wl"));if(wl)WL=JSON.parse(wl);
   // Then try to load from Supabase (overrides localStorage with latest saved)
   await loadSettingsFromSupabase();
@@ -4044,9 +4078,29 @@ function clearAICache() {
   } catch(e) {}
 }
 
-function saveAnt(){aiKey=document.getElementById("antk").value.trim();if(aiKey){localStorage.setItem(dfKey("p_groq"),aiKey);st("ants","✓ Key saved to your account",true);saveSettingsToSupabase();refreshInvestConnectionSummary();}}
-function saveT212(){t212Key=document.getElementById("t212k").value.trim();if(t212Key){localStorage.setItem(dfKey("p_t212"),t212Key);st("t212s","✓ Connected and saved",true);const banner=document.getElementById("dbanner");if(banner)banner.style.display="none";saveSettingsToSupabase();refreshInvestConnectionSummary();syncT212();}}
-function st(id,msg,ok){const e=document.getElementById(id);e.textContent=msg;e.className="kst"+(ok?" ok":"");}
+async function saveAnt(){
+  const value=document.getElementById("antk")?.value.trim()||"";
+  if(!value){st("ants","Paste your Groq key first",false,"warn");return}
+  aiKey=value;
+  localStorage.setItem(dfKey("p_groq"),aiKey);
+  st("ants","Saving securely to your account…",false,"pending");
+  const saved=await saveSettingsToSupabase();
+  st("ants",saved.ok?"✓ Key saved to your account":"Saved in this browser only — "+saved.message,saved.ok,saved.ok?"":"warn");
+  refreshInvestConnectionSummary();
+}
+async function saveT212(){
+  const value=document.getElementById("t212k")?.value.trim()||"";
+  if(!value){st("t212s","Paste your Trading 212 key first",false,"warn");return}
+  t212Key=value;
+  localStorage.setItem(dfKey("p_t212"),t212Key);
+  st("t212s","Saving securely to your account…",false,"pending");
+  const saved=await saveSettingsToSupabase();
+  st("t212s",saved.ok?"✓ Connected and saved to your account":"Connected in this browser only — "+saved.message,saved.ok,saved.ok?"":"warn");
+  const banner=document.getElementById("dbanner");if(banner)banner.style.display="none";
+  refreshInvestConnectionSummary();
+  syncT212();
+}
+function st(id,msg,ok,tone=""){const e=document.getElementById(id);if(!e)return;e.textContent=msg;e.className="kst invest-key-status"+(ok?" ok":"")+(tone?" "+tone:"");}
 
 // ── MANUAL HOLDINGS (Degiro / IBKR) ────────────────────────────────────
 let _manualHoldings = JSON.parse(localStorage.getItem(dfKey('p_manual_holdings'))||'[]');
@@ -4413,7 +4467,10 @@ function toggleInvestConnections(){
   document.getElementById('invest-side-connect')?.setAttribute('aria-expanded',String(shouldOpen));
   document.body.classList.toggle('invest-drawer-open',shouldOpen);
   refreshInvestConnectionSummary();
-  if(shouldOpen)setTimeout(()=>document.getElementById(t212Key?'antk':'t212k')?.focus(),120);
+  if(shouldOpen){
+    loadSettingsFromSupabase().then(refreshInvestConnectionSummary);
+    setTimeout(()=>document.getElementById(t212Key?'antk':'t212k')?.focus(),120);
+  }
 }
 function closeInvestConnections(){
   const modal=document.getElementById('invest-connections-modal');
