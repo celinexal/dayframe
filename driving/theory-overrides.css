@@ -1,34 +1,42 @@
 /* Dayframe Theory Tracker desktop sizing */
 html,body{width:100%;}
-body{font-size:18px!important;background:#fff!important;}
-.main{max-width:1200px!important;width:calc(100% - 48px)!important;padding:0 24px 5rem!important;margin:0 auto!important;}
-.tabs{max-width:560px!important;margin-top:1.4rem!important;}
-.tab-btn{font-size:15px!important;padding:11px 14px!important;}
-.welcome{padding-top:1.4rem!important;}
-.welcome h2 .line-main{font-size:1.45rem!important;}
-.welcome h2 .line-accent{font-size:2.8rem!important;}
-.banner{font-size:16px!important;padding:14px 18px!important;}
-.week-header{padding:16px 18px!important;}
-.wk-badge{font-size:13px!important;padding:4px 10px!important;}
-.week-title-text{font-size:17px!important;}
-.week-prog{font-size:14px!important;}
-.week-body{padding:0 18px 18px!important;}
-.task-row{padding:10px 0!important;gap:12px!important;}
-.task-label{font-size:17px!important;line-height:1.55!important;}
-.check-box{width:22px!important;height:22px!important;}
-.quick-link-btn{font-size:15px!important;padding:10px!important;}
-.log-btn{font-size:16px!important;padding:15px!important;}
-.nwc-title,.topic-title{font-size:17px!important;}
-.topic-summary,.nwc-count{font-size:14px!important;}
-.note-heading{font-size:18px!important;}
-.note-body,.key-fact-item,.reading-summary{font-size:17px!important;}
-.reading-h1{font-size:2.1rem!important;}
-.action-btn{font-size:16px!important;}
-.mock-title{font-size:18px!important;}
+body{font-size:20px!important;background:#fff!important;}
+.main{max-width:none!important;width:100%!important;padding:0 28px 5rem!important;margin:0!important;}
+#main-area,#notes-area,#quiz-area{width:100%!important;}
+.tabs{max-width:680px!important;margin:1.5rem auto 1.2rem!important;}
+.tab-btn{font-size:17px!important;padding:12px 16px!important;}
+.welcome{padding-top:1.5rem!important;}
+.welcome h2 .line-main{font-size:1.55rem!important;}
+.welcome h2 .line-accent{font-size:3.1rem!important;}
+.banner{font-size:17px!important;padding:15px 20px!important;}
+.week-block{width:100%!important;}
+.week-header{padding:18px 20px!important;}
+.wk-badge{font-size:14px!important;padding:5px 11px!important;}
+.week-title-text{font-size:19px!important;}
+.week-prog{font-size:15px!important;}
+.week-body{padding:0 20px 20px!important;}
+.task-row{padding:11px 0!important;gap:13px!important;}
+.task-label{font-size:18px!important;line-height:1.6!important;}
+.check-box{width:24px!important;height:24px!important;}
+.quick-link-btn{font-size:16px!important;padding:11px!important;}
+.log-btn{font-size:17px!important;padding:16px!important;}
+.nwc-title,.topic-title{font-size:18px!important;}
+.topic-summary,.nwc-count{font-size:15px!important;}
+.note-heading{font-size:19px!important;}
+.note-body,.key-fact-item,.reading-summary{font-size:18px!important;}
+.reading-h1{font-size:2.3rem!important;}
+.action-btn{font-size:17px!important;}
+.mock-title{font-size:19px!important;}
+@media(min-width:1200px){
+  .main{padding-left:42px!important;padding-right:42px!important;}
+  .task-label{font-size:19px!important;}
+  .week-title-text{font-size:20px!important;}
+}
 @media(max-width:800px){
   body{font-size:16px!important;}
   .main{width:100%!important;padding:0 16px 4rem!important;}
   .task-label{font-size:15px!important;}
   .week-title-text{font-size:15px!important;}
   .tab-btn{font-size:14px!important;}
+  .welcome h2 .line-accent{font-size:2.35rem!important;}
 }
