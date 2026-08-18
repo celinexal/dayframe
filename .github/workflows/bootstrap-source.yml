@@ -1,0 +1,79 @@
+name: Bootstrap Dayframe source
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Skip when source already exists
+        id: check
+        shell: bash
+        run: |
+          if [ -f app.js ] && [ -f styles.css ] && [ -f index.html ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pull current Dayframe and split source
+        if: steps.check.outputs.ready != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 https://investly.pages.dev/ -o current.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('current.html').read_text()
+          style=re.search(r'<style>(.*?)</style>',s,re.S|re.I)
+          if not style:
+              raise SystemExit('Could not find Dayframe style block')
+          css=style.group(1)
+          s=s[:style.start()]+'<link rel="stylesheet" href="/styles.css">'+s[style.end():]
+          scripts=list(re.finditer(r'<script([^>]*)>(.*?)</script>',s,re.S|re.I))
+          inline=[m for m in scripts if 'src=' not in m.group(1).lower()]
+          if not inline:
+              raise SystemExit('Could not find Dayframe app script')
+          app=inline[-1].group(2)
+          m=inline[-1]
+          s=s[:m.start()]+'<script src="/app.js"></script>'+s[m.end():]
+          Path('index.html').write_text(s)
+          Path('styles.css').write_text(css)
+          Path('app.js').write_text(app)
+          PY
+          base64 -d bootstrap-worker.b64 > _worker.js
+          cat > _headers <<'EOF'
+          /*
+            X-Content-Type-Options: nosniff
+            Referrer-Policy: strict-origin-when-cross-origin
+          EOF
+          cat > MULTIUSER-STATUS.txt <<'EOF'
+          Dayframe uses Supabase authentication and per-user data isolation. Bank connections are stored per authenticated user and protected by Row Level Security.
+          EOF
+          rm -f current.html bootstrap-worker.b64
+
+      - name: Validate JavaScript
+        if: steps.check.outputs.ready != 'true'
+        run: |
+          node --check app.js
+          node --check _worker.js
+
+      - name: Commit editable Dayframe source
+        if: steps.check.outputs.ready != 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html styles.css app.js _worker.js _headers MULTIUSER-STATUS.txt bootstrap-worker.b64
+          git commit -m "Bootstrap editable Dayframe source"
+          git push
