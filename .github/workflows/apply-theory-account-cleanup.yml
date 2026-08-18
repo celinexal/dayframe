@@ -1,0 +1,57 @@
+name: Apply theory account cleanup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/fix_theory_selector.py'
+      - '.github/workflows/apply-theory-account-cleanup.yml'
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  apply-and-deploy:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Dayframe
+        uses: actions/checkout@v6
+
+      - name: Remove old theory person selector
+        run: python scripts/fix_theory_selector.py
+
+      - name: Validate Worker
+        run: node --check _worker.js
+
+      - name: Commit permanent Worker fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f scripts/fix_theory_selector.py .github/workflows/apply-theory-account-cleanup.yml
+          git add -A
+          git commit -m "Remove theory person selection"
+          git push
+
+      - name: Prepare corrected deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir dist
+          cp index.html _worker.js dist/
+          [ ! -f _headers ] || cp _headers dist/
+          [ ! -f app.js ] || cp app.js dist/
+          [ ! -f styles.css ] || cp styles.css dist/
+          [ ! -d assets ] || cp -R assets dist/assets
+
+      - name: Deploy corrected Dayframe
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=investly --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
