@@ -11,7 +11,6 @@ on:
       - '_worker.js'
       - '_headers'
       - 'assets/**'
-      - 'scripts/fix_theory_selector.py'
       - '.github/workflows/deploy-pages.yml'
 
 permissions:
@@ -39,14 +38,6 @@ jobs:
             echo "ready=false" >> "$GITHUB_OUTPUT"
             echo "Cloudflare GitHub secrets have not been added yet; deployment skipped."
           fi
-
-      - name: Remove legacy theory account chooser
-        if: steps.credentials.outputs.ready == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          python scripts/fix_theory_selector.py
-          node --check _worker.js
 
       - name: Prepare deployment folder
         if: steps.credentials.outputs.ready == 'true'
