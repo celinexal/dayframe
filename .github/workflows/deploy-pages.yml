@@ -55,6 +55,17 @@ jobs:
           [ ! -f styles.css ] || cp styles.css dist/
           [ ! -d assets ] || cp -R assets dist/assets
           [ ! -d driving ] || cp -R driving dist/driving
+          if [ -f dist/driving/theory.html ] && [ -f dist/driving/theory-overrides.css ]; then
+            python - <<'PY'
+          from pathlib import Path
+          p=Path('dist/driving/theory.html')
+          s=p.read_text()
+          link='<link rel="stylesheet" href="/driving/theory-overrides.css?v=20260818b">'
+          if link not in s:
+              s=s.replace('</head>', link+'\n</head>', 1)
+          p.write_text(s)
+          PY
+          fi
 
       - name: Deploy to investly.pages.dev
         if: steps.credentials.outputs.ready == 'true'
