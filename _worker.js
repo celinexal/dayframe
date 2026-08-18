@@ -6,7 +6,7 @@ export default {
   async fetch(request, env) {
     const url=new URL(request.url);
     try{
-      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:env.TRUELAYER_ENV||'sandbox',api_version:'v1',build:'multiuser-supabase-20260818'});
+      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-auth-link-v2-20260818'});
       if(url.pathname==='/api/money/connect'&&request.method==='POST')return startConnect(request,env);
       if(url.pathname==='/api/money/callback'&&request.method==='GET')return handleCallback(request,env);
       if(url.pathname==='/api/money/data'&&request.method==='GET')return getMoneyData(request,env);
@@ -17,8 +17,10 @@ export default {
     }catch(err){console.error('Dayframe banking error',err);return json({error:'Something went wrong on the secure banking service.'},500)}
   }
 };
-function isConfigured(env){return !!(env.TRUELAYER_CLIENT_ID&&env.TRUELAYER_CLIENT_SECRET&&env.TRUELAYER_RETURN_URI)}
-function isSandbox(env){return (env.TRUELAYER_ENV||'sandbox').toLowerCase()!=='production'}
+function isConfigured(env){return !!(String(env.TRUELAYER_CLIENT_ID||'').trim()&&String(env.TRUELAYER_CLIENT_SECRET||'').trim()&&String(env.TRUELAYER_RETURN_URI||'').trim())}
+function bankMode(env){const mode=String(env.TRUELAYER_ENV||'sandbox').trim().toLowerCase();return mode==='live'||mode==='production'?'live':'sandbox'}
+function isSandbox(env){return bankMode(env)==='sandbox'}
+function credentialsMatchEnvironment(env){const id=String(env.TRUELAYER_CLIENT_ID||'').trim().toLowerCase();return !!id&&(isSandbox(env)?id.startsWith('sandbox-'):!id.startsWith('sandbox-'))}
 function authBase(env){return isSandbox(env)?'https://auth.truelayer-sandbox.com':'https://auth.truelayer.com'}
 function apiBase(env){return isSandbox(env)?'https://api.truelayer-sandbox.com':'https://api.truelayer.com'}
 function json(data,status=200,headers={}){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}})}
@@ -285,18 +287,21 @@ async function proxyTheoryTracker(request){
 }
 
 async function startConnect(request,env){
-  if(!isConfigured(env))return json({error:'Open Banking is not configured in Cloudflare.'},503);
+  if(!isConfigured(env))return json({code:'OPEN_BANKING_NOT_CONFIGURED',error:'Bank connection setup is not complete yet.'},503);
   const auth=await verifyUser(request);if(!auth)return json({error:'Log in to connect a bank.'},401);
-  const body=await request.json().catch(()=>({}));const name=String(body.name||'').trim(),email=String(body.email||auth.user.email||'').trim();const v=validateProfile(name,email);if(v)return json({error:v},400);
-  if(!isSandbox(env))return json({error:'This test build is intentionally limited to TrueLayer Sandbox.'},400);
-  const state=crypto.randomUUID(),consentId='dayframe-'+crypto.randomUUID();
-  const payload={response_type:'code',client_id:env.TRUELAYER_CLIENT_ID,redirect_uri:env.TRUELAYER_RETURN_URI,scope:'accounts balance transactions offline_access',state,consent_id:consentId,user:{name,email},data_use_description:'Dayframe uses your account data to show balances, transactions, budgets and bills so you can track spending and manage your money in one place.',provider_id:'mock'};
-  const r=await fetch(authBase(env)+'/v1/authuri',{method:'POST',headers:{'content-type':'application/json','accept':'application/json'},body:JSON.stringify(payload)});
-  const txt=await r.text();let d={};try{d=txt?JSON.parse(txt):{}}catch(e){d={raw:txt}}
-  if(!r.ok){console.error('TrueLayer authuri',r.status,txt);return json({error:d.error_description||d.detail||d.error||('TrueLayer rejected the connection (HTTP '+r.status+').')},r.status>=400&&r.status<500?r.status:502)}
-  const authUrl=d.result||d.auth_uri||d.uri||d.url;if(!authUrl)return json({error:'TrueLayer did not return the bank login URL.'},502);
+  if(!credentialsMatchEnvironment(env))return json({code:'OPEN_BANKING_ENVIRONMENT_MISMATCH',error:'The bank connection is using credentials for a different TrueLayer environment.'},503);
+
+  const state=crypto.randomUUID();
+  const authUrl=new URL('https://auth.truelayer.com/');
+  authUrl.searchParams.set('response_type','code');
+  authUrl.searchParams.set('client_id',String(env.TRUELAYER_CLIENT_ID).trim());
+  authUrl.searchParams.set('redirect_uri',String(env.TRUELAYER_RETURN_URI).trim());
+  authUrl.searchParams.set('scope','info accounts balance transactions offline_access');
+  authUrl.searchParams.set('state',state);
+  if(isSandbox(env))authUrl.searchParams.set('providers','uk-cs-mock');
+
   const statePayload=await encryptBlob(env,{state,user_id:auth.user.id,sb_token:auth.token,created_at:Date.now()});
-  return json({auth_url:authUrl},200,{'set-cookie':`${STATE_COOKIE}=${encodeURIComponent(statePayload)}; Path=/; Max-Age=900; HttpOnly; Secure; SameSite=Lax`});
+  return json({auth_url:authUrl.toString()},200,{'set-cookie':`${STATE_COOKIE}=${encodeURIComponent(statePayload)}; Path=/; Max-Age=900; HttpOnly; Secure; SameSite=Lax`});
 }
 
 async function handleCallback(request,env){
@@ -319,7 +324,7 @@ async function refreshTokens(env,t){if(!t?.refresh_token)return null;const form=
 async function apiGet(env,token,path,request){const ip=request.headers.get('CF-Connecting-IP')||'';return fetch(apiBase(env)+path,{headers:{authorization:'Bearer '+token,'accept':'application/json',...(ip?{'X-PSU-IP':ip}:{})}})}
 function category(t){const s=String((t.transaction_category||''))+' '+String(t.transaction_classification||[])+' '+String(t.merchant_name||'')+' '+String(t.description||'');const x=s.toLowerCase();if(/save the change|savings?|investment|wealth|broker|trading 212|vanguard|fidelity/.test(x))return 'Savings & Investments';if(/transfer|bank transfer|faster payment|standing order|^\s*(mr|mrs|ms|miss)\s+[a-z]/.test(x))return 'Transfers';if(/petrol|fuel|shell|esso|bp\b|uber|train|rail|transport|travel|bus|tram|parking/.test(x))return 'Transport';if(/tesco|sainsbury|morrisons(?! petrol)|aldi|lidl|asda|waitrose|grocery|supermarket/.test(x))return 'Groceries';if(/insurance|utility|bill|phone|mobile|broadband|internet|council tax|energy|water/.test(x))return 'Bills & Utilities';if(/netflix|spotify|cinema|entertain|disney|prime video/.test(x))return 'Entertainment';if(/restaurant|cafe|coffee|deliveroo|just eat|uber eats|takeaway|food/.test(x))return 'Eating Out';if(/boots|pharmacy|dentist|medical|health/.test(x))return 'Health';if(/beauty|salon|hair|nails|sephora|space nk/.test(x))return 'Beauty';if(/amazon|shopping|retail|tails\.com|argos|ikea|zara|asos/.test(x))return 'Shopping';return 'Other'}
 function direction(t){const type=String(t.transaction_type||'').toUpperCase();if(type==='CREDIT'||Number(t.amount)>0)return 'income';return 'expense'}
-async function collectAccount(env,token,a,request,connectionId){const id=a.account_id;let balance=0,available=null,tx=[];const [br,tr]=await Promise.all([apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/balance',request),apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/transactions',request)]);if(br.ok){const b=await br.json().catch(()=>({}));const x=b.results?.[0]||{};balance=Number(x.current)||0;available=x.available==null?null:Number(x.available)}if(tr.ok){const d=await tr.json().catch(()=>({}));tx=(d.results||[]).map(t=>({id:t.transaction_id||crypto.randomUUID(),connection_id:connectionId,account_id:id,account_name:a.display_name||'Bank account',timestamp:t.timestamp||'',description:t.description||'',merchant:t.merchant_name||'',amount:Math.abs(Number(t.amount)||0),direction:direction(t),category:category(t),currency:t.currency||a.currency||'GBP'}))}return {account:{connection_id:connectionId,id,type:String(a.account_type||'').includes('SAVINGS')?'savings':'bank',name:a.display_name||'Bank account',provider_id:a.provider?.provider_id||'mock',provider_name:a.provider?.display_name||'Mock Bank',currency:a.currency||'GBP',balance,available,last4:a.account_number?.number?String(a.account_number.number).slice(-4):''},transactions:tx}}
+async function collectAccount(env,token,a,request,connectionId){const id=a.account_id;let balance=0,available=null,tx=[];const [br,tr]=await Promise.all([apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/balance',request),apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/transactions',request)]);if(br.ok){const b=await br.json().catch(()=>({}));const x=b.results?.[0]||{};balance=Number(x.current)||0;available=x.available==null?null:Number(x.available)}if(tr.ok){const d=await tr.json().catch(()=>({}));tx=(d.results||[]).map(t=>({id:t.transaction_id||crypto.randomUUID(),connection_id:connectionId,account_id:id,account_name:a.display_name||'Bank account',timestamp:t.timestamp||'',description:t.description||'',merchant:t.merchant_name||'',amount:Math.abs(Number(t.amount)||0),direction:direction(t),category:category(t),currency:t.currency||a.currency||'GBP'}))}return {account:{connection_id:connectionId,id,type:String(a.account_type||'').includes('SAVINGS')?'savings':'bank',name:a.display_name||'Bank account',provider_id:a.provider?.provider_id||'',provider_name:a.provider?.display_name||'Connected bank',currency:a.currency||'GBP',balance,available,last4:a.account_number?.number?String(a.account_number.number).slice(-4):''},transactions:tx}}
 
 async function getMoneyData(request,env){
   if(!isConfigured(env))return json({configured:false,accounts:[],transactions:[],connections:[]});
