@@ -9,7 +9,7 @@
   <!-- v9.9d-20260417 -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dayframe — Your Personal Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
@@ -1105,6 +1105,251 @@ body.driving-mode .main>.pg{margin-left:205px;width:calc(100% - 205px);max-width
   #pg-planner .planner-hero{padding:24px 21px;align-items:flex-start;flex-direction:column}
   #pg-planner .planner-add{width:100%;justify-content:center;margin-top:10px}
   #pg-planner .life-metrics{grid-template-columns:1fr 1fr}
+}
+
+
+/* Dayframe adaptive visual system: responsive widgets */
+:root{
+  --df-canvas:#f5f7fc;
+  --df-panel:#ffffff;
+  --df-line:#e6e9f1;
+  --df-shadow:0 10px 30px rgba(35,43,67,.075);
+  --df-shadow-hover:0 18px 42px rgba(35,43,67,.13);
+  --df-purple:#7465ee;
+  --df-purple-soft:#f0eeff;
+  --df-blue:#4d82f3;
+  --df-blue-soft:#edf4ff;
+  --df-mint:#21a17e;
+  --df-mint-soft:#e9f9f4;
+  --df-coral:#ee7160;
+  --df-coral-soft:#fff0ed;
+  --df-amber:#df9a2e;
+  --df-amber-soft:#fff6e5;
+  --df-pink:#cf62a0;
+  --df-pink-soft:#fff0f8;
+}
+html,body{width:100%;min-width:0;overflow-x:hidden}
+body{background:var(--df-canvas)}
+.app{width:100%;max-width:none;min-height:100vh;min-height:100dvh}
+.main{width:100%;max-width:none;min-width:0}
+.main>.pg{
+  width:100%;
+  max-width:none!important;
+  min-height:calc(100vh - 64px);
+  min-height:calc(100dvh - 64px);
+  margin-inline:0;
+  padding-left:clamp(18px,2.35vw,52px);
+  padding-right:clamp(18px,2.35vw,52px);
+  padding-bottom:calc(clamp(30px,4vw,68px) + env(safe-area-inset-bottom));
+}
+.main>.pg.hub-page{padding:0!important}
+.hub-shell{
+  width:100%;
+  max-width:none!important;
+  margin:0;
+  padding:clamp(25px,2.7vw,58px) clamp(18px,2.8vw,60px) calc(clamp(38px,4vw,72px) + env(safe-area-inset-bottom));
+}
+.life-wrap,.money-page .life-wrap,.driving-tracker-wrap,
+#pg-driving .life-wrap,#pg-planner .life-wrap{
+  width:100%;
+  max-width:none!important;
+  margin-inline:0;
+}
+.hub-page,.life-page,.driving-tracker-page{
+  background:
+    radial-gradient(circle at 4% 2%,rgba(116,101,238,.075),transparent 25%),
+    radial-gradient(circle at 97% 4%,rgba(77,130,243,.065),transparent 25%),
+    var(--df-canvas);
+}
+
+/* Fluid headings and comfortable reading sizes */
+.pt,.life-title{font-size:clamp(26px,1.65vw,35px);letter-spacing:-.75px}
+.ps,.life-sub{font-size:clamp(12px,.72vw,14px);line-height:1.6}
+.hub-greeting{font-size:clamp(30px,2vw,42px)}
+.hub-date{font-size:clamp(12px,.72vw,14px)}
+.hub-hero h1{font-size:clamp(34px,2.25vw,49px);max-width:850px}
+.hub-hero p{font-size:clamp(13px,.78vw,15px);max-width:760px}
+.hub-section-title{font-size:clamp(19px,1.08vw,23px)}
+.hub-section-sub{font-size:12px}
+
+/* Home widgets retain their identity while using more of wide screens */
+.hub-module-grid{
+  grid-template-columns:repeat(auto-fit,minmax(285px,1fr));
+  gap:clamp(14px,1.15vw,22px);
+}
+.hub-module{
+  min-height:200px;
+  padding:23px;
+  border-color:#e4e7ef;
+  background:linear-gradient(145deg,#fff 28%,var(--module-soft) 145%);
+  box-shadow:inset 0 3px 0 var(--module),var(--df-shadow);
+}
+.hub-module:hover{transform:translateY(-4px);box-shadow:inset 0 3px 0 var(--module),var(--df-shadow-hover)}
+.hub-module-icon{width:48px;height:48px;border-radius:16px;margin-bottom:18px;box-shadow:0 8px 18px rgba(42,49,72,.075)}
+.hub-module-title{font-size:19px}
+.hub-module-desc{font-size:12.5px;line-height:1.65;max-width:88%}
+.hub-module-foot{left:23px;right:23px;bottom:18px;font-size:10.5px}
+.hub-lower-grid{gap:clamp(14px,1.15vw,22px)}
+.hub-panel{
+  border-color:var(--df-line);
+  background:linear-gradient(150deg,#fff 55%,#f9f8ff);
+  box-shadow:var(--df-shadow);
+}
+.hub-panel-head{padding:20px 22px 14px}
+.hub-panel-body{padding:0 22px 21px}
+.hub-panel-title{font-size:15.5px}
+.hub-today-title,.hub-progress-name{font-size:12.5px}
+.hub-today-meta{font-size:10px}
+
+/* Shared cards and metric widgets */
+.life-metrics,.money-metrics{gap:clamp(12px,1vw,18px)}
+.life-metrics{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.life-metric,.mc{
+  --df-widget:var(--df-purple);
+  --df-widget-soft:var(--df-purple-soft);
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--df-line);
+  border-radius:19px;
+  background:linear-gradient(145deg,#fff 42%,var(--df-widget-soft));
+  box-shadow:inset 0 3px 0 var(--df-widget),0 8px 24px rgba(35,43,67,.065);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.life-metric:hover,.mc:hover{transform:translateY(-2px);box-shadow:inset 0 3px 0 var(--df-widget),var(--df-shadow-hover)}
+.life-metric:nth-child(6n+1),.mc:nth-child(6n+1){--df-widget:var(--df-purple);--df-widget-soft:var(--df-purple-soft)}
+.life-metric:nth-child(6n+2),.mc:nth-child(6n+2){--df-widget:var(--df-blue);--df-widget-soft:var(--df-blue-soft)}
+.life-metric:nth-child(6n+3),.mc:nth-child(6n+3){--df-widget:var(--df-mint);--df-widget-soft:var(--df-mint-soft)}
+.life-metric:nth-child(6n+4),.mc:nth-child(6n+4){--df-widget:var(--df-coral);--df-widget-soft:var(--df-coral-soft)}
+.life-metric:nth-child(6n+5),.mc:nth-child(6n+5){--df-widget:var(--df-amber);--df-widget-soft:var(--df-amber-soft)}
+.life-metric:nth-child(6n),.mc:nth-child(6n){--df-widget:var(--df-pink);--df-widget-soft:var(--df-pink-soft)}
+.mc-live,.mc-best,.mc-pos{--df-widget:var(--df-mint)!important;--df-widget-soft:var(--df-mint-soft)!important}
+.mc-neg,.mc-worst{--df-widget:var(--df-coral)!important;--df-widget-soft:var(--df-coral-soft)!important}
+.mc-holdings{--df-widget:var(--df-blue)!important;--df-widget-soft:var(--df-blue-soft)!important}
+.life-metric{padding:19px 20px}
+.life-metric-label,.ml{font-size:10.5px;letter-spacing:.72px}
+.life-metric-value,.mv{font-size:clamp(23px,1.55vw,31px)}
+.life-metric-sub,.ms{font-size:10.5px;line-height:1.5}
+
+.life-card,.dash-card,.card{
+  border-color:var(--df-line);
+  border-radius:20px;
+  background:linear-gradient(155deg,#fff 66%,#faf9ff);
+  box-shadow:var(--df-shadow);
+}
+.life-card{margin-bottom:clamp(14px,1.15vw,20px)}
+.life-card-head,.dash-card-head{
+  padding:18px 20px;
+  background:linear-gradient(100deg,#faf9ff,#fff 52%,#f4f8ff);
+}
+.life-card-body{padding:20px}
+.life-card-title,.dash-card-title{font-size:15px}
+.life-card-sub{font-size:10.5px;line-height:1.45}
+.life-list-row{padding:14px 4px;border-radius:11px;transition:background .16s ease,padding .16s ease}
+.life-list-row:hover{background:#faf9ff;padding-left:10px;padding-right:10px}
+.life-list-title{font-size:12.5px}
+.life-list-meta{font-size:10.5px}
+.life-list-value{font-size:11.5px}
+.life-empty{font-size:12px;line-height:1.55}
+.life-empty strong{font-size:13px}
+
+/* Investment widgets use the same colourful system */
+.mrow{gap:clamp(11px,1vw,18px)}
+.mc{padding:19px 20px;min-height:112px}
+.dash-grid-3,.dash-grid-2{gap:clamp(14px,1.15vw,22px);margin-bottom:clamp(14px,1.15vw,22px)}
+.dash-grid-3>.dash-card:nth-child(3n+1),.dash-grid-2>.dash-card:nth-child(2n+1){box-shadow:inset 0 3px 0 var(--df-purple),var(--df-shadow)}
+.dash-grid-3>.dash-card:nth-child(3n+2),.dash-grid-2>.dash-card:nth-child(2n){box-shadow:inset 0 3px 0 var(--df-blue),var(--df-shadow)}
+.dash-grid-3>.dash-card:nth-child(3n),.dash-grid-2>.dash-card:nth-child(3n){box-shadow:inset 0 3px 0 var(--df-mint),var(--df-shadow)}
+.dash-card:hover{box-shadow:var(--df-shadow-hover)}
+.dash-card-body{padding:clamp(17px,1.25vw,24px)}
+
+/* Money, goals and life-admin details */
+.money-metrics{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.money-overview-grid,.money-pane-grid,.money-two-col{gap:clamp(14px,1.15vw,22px)}
+.money-tab{height:42px;font-size:11.5px;background:#fff;box-shadow:0 6px 18px rgba(35,43,67,.05)}
+.money-tab.on,.money-tab.active,.money-tab[aria-selected="true"]{
+  color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--df-purple),#5d8cf5);
+  box-shadow:0 9px 20px rgba(103,94,231,.22);
+}
+.money-account-row,.money-budget-row,.money-credit-row,.money-bill-row{
+  padding:15px;border-color:#e6eaf1;background:linear-gradient(135deg,#fff,#f7fbfa);
+  box-shadow:0 6px 16px rgba(35,43,67,.04);transition:.18s ease;
+}
+.money-account-row:hover,.money-budget-row:hover,.money-credit-row:hover,.money-bill-row:hover{
+  transform:translateY(-1px);border-color:#dce4e1;box-shadow:0 11px 24px rgba(35,43,67,.08)
+}
+.money-action-btn{min-height:44px;font-size:11.5px;background:linear-gradient(135deg,#fff,#f7f5ff);box-shadow:0 5px 15px rgba(35,43,67,.04)}
+.money-bank-banner{padding:14px 16px;font-size:10.5px;background:linear-gradient(135deg,#eaf8ff,#f3efff)}
+.goal-card{
+  padding:17px;border-color:#f0dfbc;background:linear-gradient(135deg,#fff,#fff8e9);
+  box-shadow:inset 3px 0 0 var(--df-amber),0 7px 18px rgba(67,50,25,.055)
+}
+.goal-name{font-size:12.5px}.goal-amount,.goal-pct{font-size:10.5px}
+.renewal-card{
+  padding:16px;border-color:#efdde8;background:linear-gradient(135deg,#fff,#fff2f9);
+  box-shadow:inset 3px 0 0 var(--df-pink),0 7px 18px rgba(70,38,58,.05)
+}
+.renewal-name{font-size:11.5px}.renewal-date{font-size:18px}.renewal-note{font-size:10.5px;line-height:1.45}
+
+/* App-ready responsive behaviour and touch targets */
+.df-topnav{
+  padding-left:max(18px,env(safe-area-inset-left));
+  padding-right:max(18px,env(safe-area-inset-right));
+}
+button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
+@media(min-width:1900px){
+  .hub-hero{grid-template-columns:minmax(0,1.45fr) minmax(420px,.55fr);padding:44px 48px;min-height:245px}
+  .life-grid{grid-template-columns:minmax(0,1.45fr) minmax(360px,.55fr)}
+  .money-overview-grid{grid-template-columns:minmax(0,1.5fr) minmax(390px,.5fr)}
+  .dash-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:1100px){
+  .hub-module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hub-lower-grid,.life-grid,.money-overview-grid,.money-pane-grid{grid-template-columns:1fr}
+  .hub-lower-grid>.hub-panel:first-child{grid-column:auto}
+}
+@media(max-width:760px){
+  .main>.pg{
+    min-height:calc(100dvh - 58px);
+    padding-left:max(14px,env(safe-area-inset-left));
+    padding-right:max(14px,env(safe-area-inset-right));
+    padding-bottom:calc(34px + env(safe-area-inset-bottom));
+  }
+  .hub-shell{
+    padding:22px max(14px,env(safe-area-inset-left)) calc(38px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-right));
+  }
+  .hub-topbar,.life-header{gap:14px}
+  .hub-greeting{font-size:28px}
+  .hub-hero{padding:27px 23px;border-radius:23px}
+  .hub-hero h1{font-size:31px}
+  .hub-module-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .hub-module{min-height:184px;padding:18px}
+  .hub-module-title{font-size:17px}
+  .hub-module-desc{font-size:11.5px;max-width:94%}
+  .hub-module-foot{left:18px;right:18px}
+  .life-metrics,.money-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .life-metric,.mc{padding:16px;min-width:0}
+  .life-grid,.money-overview-grid,.money-pane-grid,.money-two-col,.hub-lower-grid{grid-template-columns:1fr}
+  .life-card-head,.dash-card-head{align-items:flex-start;padding:16px}
+  .life-card-body,.dash-card-body{padding:16px}
+  .renewal-grid{grid-template-columns:1fr}
+  .money-tabs{margin-left:-2px;margin-right:-2px;scrollbar-width:none}
+  .money-tabs::-webkit-scrollbar{display:none}
+  .money-tab,.life-add,.life-btn-primary,.life-btn-secondary,.money-action-btn{min-height:44px}
+  .df-topnav{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+}
+@media(max-width:520px){
+  .hub-module-grid{grid-template-columns:1fr}
+  .hub-module{min-height:175px}
+  .hub-hero-side{grid-template-columns:1fr 1fr}
+  .life-title-row{align-items:flex-start}
+  .life-title{font-size:25px}
+  .life-sub{font-size:12px}
+  .life-metric-value,.mv{font-size:22px}
+  .goal-card,.renewal-card{padding:14px}
+}
+@media(max-width:360px){
+  .life-metrics,.money-metrics{grid-template-columns:1fr}
+  .hub-hero-side{grid-template-columns:1fr}
 }
 
 </style>
