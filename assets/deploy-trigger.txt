@@ -1,1 +1,1 @@
-Deploy Dayframe with CI/VI theory selector removed — 2026-08-18 14:31 BST.
+Deploy permanent Dayframe theory account fix — 2026-08-18 14:54 BST.
