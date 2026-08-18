@@ -1843,11 +1843,11 @@ body.invest-drawer-open{overflow:hidden}
   <div class="money-connect-dialog">
     <div class="money-connect-top"><div><div class="money-connect-title">Add an account</div><div class="money-connect-sub">Choose how you want Dayframe to bring this account into your Money dashboard.</div></div><button class="money-modal-close" onclick="moneyCloseConnectModal()">×</button></div>
     <div class="money-choice-grid">
-      <button class="money-choice recommended" onclick="moneyShowBankProfile()">
+      <button class="money-choice recommended" onclick="moneyConnectBank()">
         <div class="money-choice-badge">Recommended</div>
         <div class="money-choice-icon">⌁</div>
         <div class="money-choice-name">Connect a bank or card</div>
-        <div class="money-choice-desc">Use Open Banking to securely connect supported current accounts, savings accounts and credit cards. Balances and transactions can then sync automatically.</div>
+        <div class="money-choice-desc">Continue to TrueLayer, choose your bank and approve access securely. Dayframe can then sync balances and transactions automatically.</div>
       </button>
       <button class="money-choice manual" onclick="moneyChooseManualAccount()">
         <div class="money-choice-badge" style="background:#f1f3f7;color:#7c8696">Manual</div>
@@ -1855,15 +1855,6 @@ body.invest-drawer-open{overflow:hidden}
         <div class="money-choice-name">Add an account manually</div>
         <div class="money-choice-desc">Best for Klarna, Clearpay, PayPal Credit or anything else you want to track without a direct data connection.</div>
       </button>
-    </div>
-    <div class="money-bank-profile" id="money-bank-profile">
-      <div class="money-bank-profile-title">Before you connect</div>
-      <div class="money-bank-profile-sub">For this Sandbox test, TrueLayer uses your name and email to create the Mock Bank consent journey. These are only sent when you choose Continue.</div>
-      <div class="money-bank-profile-grid">
-        <div class="life-field"><label>Your name</label><input class="life-input" id="money-bank-name" autocomplete="name" placeholder="e.g. Celine Alum"></div>
-        <div class="life-field"><label>Email address</label><input class="life-input" id="money-bank-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
-      </div>
-      <div class="money-bank-profile-actions"><button class="money-bank-profile-cancel" onclick="moneyHideBankProfile()">Back</button><button class="money-bank-profile-go" onclick="moneyConnectBank()">Continue securely →</button></div>
     </div>
     <div class="money-security-note"><div>🔒</div><div><strong>Dayframe never asks for your online-banking password.</strong> You are redirected through TrueLayer and your own bank to approve access securely. Dayframe never receives your banking password.</div></div>
     <div class="money-connect-status" id="money-connect-status"></div>
@@ -4510,28 +4501,23 @@ function renderHome(){
 
 let _moneyBankData={accounts:[],transactions:[],connections:[]};
 let _moneyBankLoaded=false,_moneyBankLoading=false;
-function moneyOpenConnectModal(){const m=document.getElementById('money-connect-modal');if(m)m.classList.add('open');moneySetConnectStatus('','');moneyHideBankProfile();try{const s=JSON.parse(localStorage.getItem('dayframe_session')||'{}'),p=JSON.parse(localStorage.getItem(dfKey('dayframe_bank_profile'))||'{}');document.getElementById('money-bank-name').value=s.name||p.name||'';document.getElementById('money-bank-email').value=s.user?.email||s.email||p.email||''}catch(e){}}
-function moneyCloseConnectModal(){document.getElementById('money-connect-modal')?.classList.remove('open');moneyHideBankProfile()}
+function moneyOpenConnectModal(){const m=document.getElementById('money-connect-modal');if(m)m.classList.add('open');moneySetConnectStatus('','')}
+function moneyCloseConnectModal(){document.getElementById('money-connect-modal')?.classList.remove('open')}
 function moneySetConnectStatus(type,msg){const e=document.getElementById('money-connect-status');if(!e)return;e.className='money-connect-status'+(type?' show '+type:'');e.innerHTML=msg||''}
 function moneyChooseManualAccount(){moneyCloseConnectModal();moneyQuick('accounts','money-account-form')}
-function moneyShowBankProfile(){document.getElementById('money-bank-profile')?.classList.add('open');moneySetConnectStatus('','');setTimeout(()=>document.getElementById('money-bank-name')?.focus(),50)}
-function moneyHideBankProfile(){document.getElementById('money-bank-profile')?.classList.remove('open')}
 async function moneyConnectBank(){
- const name=document.getElementById('money-bank-name')?.value.trim()||'',email=document.getElementById('money-bank-email')?.value.trim()||'';
- if(name.length<2){moneySetConnectStatus('error','Enter your name before continuing.');return}
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){moneySetConnectStatus('error','Enter a valid email address before continuing.');return}
- localStorage.setItem(dfKey('dayframe_bank_profile'),JSON.stringify({name,email}));
- moneySetConnectStatus('info','<span class="spin" style="display:inline-block;margin-right:7px"></span>Preparing your secure bank connection…');
+ moneySetConnectStatus('info','<span class="spin" style="display:inline-block;margin-right:7px"></span>Opening your secure bank connection…');
  try{
-   const r=await dfBankFetch('/api/money/connect',{method:'POST',body:JSON.stringify({name,email})});
+   const r=await dfBankFetch('/api/money/connect',{method:'POST',body:'{}'});
    const d=await r.json().catch(()=>({}));
    if(!r.ok){
-     if(d.code==='OPEN_BANKING_NOT_CONFIGURED') moneySetConnectStatus('error','Open Banking is not configured in Cloudflare yet.');
-     else moneySetConnectStatus('error',hubEsc(d.error||'Could not start the bank connection.')+(d.trace_id?'<div style="margin-top:6px;font-size:10px;opacity:.72">TrueLayer trace: '+hubEsc(d.trace_id)+'</div>':''));
+     if(d.code==='OPEN_BANKING_NOT_CONFIGURED') moneySetConnectStatus('error','The bank connection setup is not complete yet.');
+     else if(d.code==='OPEN_BANKING_ENVIRONMENT_MISMATCH') moneySetConnectStatus('error','Dayframe’s TrueLayer settings do not match. No bank details were shared.');
+     else moneySetConnectStatus('error',hubEsc(d.error||'Could not start the bank connection.'));
      return;
    }
    if(!d.auth_url)throw new Error('No secure connection URL returned');
-   location.href=d.auth_url;
+   location.assign(d.auth_url);
  }catch(e){moneySetConnectStatus('error',hubEsc(e.message||'Could not start the connection.'))}
 }
 async function moneyLoadBankData(force=false){
