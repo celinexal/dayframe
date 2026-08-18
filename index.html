@@ -1425,6 +1425,23 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 @media(max-width:1100px){.home-glance-grid{grid-template-columns:1fr 1fr}.home-diary-panel{grid-column:1/-1}.diary-layout{grid-template-columns:1fr}.diary-side{display:grid;grid-template-columns:1fr 1fr}}
 @media(max-width:720px){.home-glance-grid{grid-template-columns:1fr}.home-diary-panel{grid-column:auto}.home-glance-panel{min-height:215px}.diary-hero{padding:22px 20px 27px;min-height:255px;border-radius:23px}.diary-private{font-size:8.5px}.diary-hero-copy{margin-top:31px}.diary-hero h1{font-size:31px}.diary-layout{gap:12px}.diary-side{display:flex}.diary-form-top,.diary-composer-actions,.diary-history-head{align-items:flex-start;flex-direction:column}.diary-form-top .life-field{width:100%}.diary-save-btn{width:100%}.diary-search-wrap{width:100%}.diary-search-wrap input{width:100%}.diary-mood{flex:1 1 calc(33.333% - 8px);padding:0 9px}.diary-textarea{min-height:200px}.diary-entry-actions button:first-child{display:none}}
 
+
+/* Dayframe Investing + Learning refresh */
+.invest-learn-bridge{display:grid;grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr);gap:22px;align-items:stretch;margin:0 0 20px;padding:25px;border-radius:22px;background:linear-gradient(125deg,#20283b,#303858 58%,#4b4373);color:#fff;box-shadow:0 18px 42px rgba(33,41,65,.16);position:relative;overflow:hidden}
+.invest-learn-bridge:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-90px;top:-150px;background:radial-gradient(circle,rgba(141,120,255,.35),rgba(141,120,255,0) 68%);pointer-events:none}
+.invest-learn-intro,.invest-learn-links{position:relative;z-index:1}.invest-learn-kicker{display:inline-flex;padding:6px 9px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);border-radius:999px;font-size:8.5px;font-weight:850;letter-spacing:.9px;text-transform:uppercase;color:#c9c2ff}.invest-learn-intro h2{font-family:var(--fd);font-size:22px;line-height:1.15;letter-spacing:-.45px;margin:12px 0 7px}.invest-learn-intro p{font-size:10.5px;line-height:1.65;color:rgba(255,255,255,.59);max-width:430px}.invest-learn-intro>button{margin-top:16px;border:0;background:transparent;color:#c9c2ff;font-family:var(--ff);font-size:10.5px;font-weight:800;cursor:pointer}
+.invest-learn-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.invest-learn-links>button{min-width:0;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.065);padding:14px;text-align:left;color:#fff;font-family:var(--ff);cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;transition:.18s ease}.invest-learn-links>button:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}.invest-learn-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:15px;background:rgba(255,255,255,.08)}.invest-learn-icon.risk{color:#ffd98c}.invest-learn-icon.diversify{color:#9fe0cc}.invest-learn-icon.research{color:#bfcaff}.invest-learn-links strong{display:block;font-size:11px;margin:2px 0 4px}.invest-learn-links small{display:block;font-size:9px;line-height:1.5;color:rgba(255,255,255,.48)}.invest-learn-links i{font-style:normal;color:rgba(255,255,255,.35);padding-top:6px}
+.education-page{background:radial-gradient(circle at 7% 3%,rgba(118,104,245,.08),transparent 26%),radial-gradient(circle at 96% 6%,rgba(77,130,243,.07),transparent 24%),var(--df-canvas)}
+.edu-hero-new{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:28px;align-items:center;border-radius:28px;padding:38px 40px;background:linear-gradient(125deg,#182033,#282d4d 55%,#4e447b);box-shadow:0 20px 50px rgba(31,39,63,.17)}
+.edu-hero-new:before{content:"";position:absolute;width:360px;height:360px;border-radius:50%;right:-120px;top:-220px;background:radial-gradient(circle,rgba(157,138,255,.4),rgba(157,138,255,0) 68%)}.edu-hero-new .edu-hero-copy,.edu-progress-card{position:relative;z-index:1}.edu-hero-kicker{font-size:9px;font-weight:850;letter-spacing:1.1px;text-transform:uppercase;color:#bcb4ff;margin-bottom:10px}.edu-hero-new .edu-hero-title{font-size:clamp(30px,2.3vw,46px);line-height:1.06;letter-spacing:-1px}.edu-hero-new .edu-hero-sub{max-width:680px;font-size:13px;color:rgba(255,255,255,.62);margin-top:10px}.edu-trust-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}.edu-trust-row span{padding:6px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.055);font-size:8.5px;font-weight:750;color:rgba(255,255,255,.65)}
+.edu-progress-card{padding:20px;border:1px solid rgba(255,255,255,.11);border-radius:19px;background:rgba(255,255,255,.075);backdrop-filter:blur(7px)}.edu-progress-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.edu-progress-top span{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.75px;color:rgba(255,255,255,.5)}.edu-progress-top strong{font-family:var(--fd);font-size:21px;color:#fff}.edu-progress-track{height:8px;margin:12px 0 8px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}.edu-progress-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#a89cff,#80c9ff);transition:width .35s ease}.edu-progress-card p{font-size:9.5px;color:rgba(255,255,255,.48)}.edu-progress-card button{margin-top:15px;border:0;background:transparent;color:#c9c2ff;font-family:var(--ff);font-size:10px;font-weight:800;cursor:pointer}
+.edu-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:18px 0}.edu-search{height:44px;min-width:min(430px,100%);display:flex;align-items:center;gap:8px;padding:0 14px;border:1px solid #e2e5ee;border-radius:14px;background:#fff;box-shadow:0 7px 20px rgba(35,43,67,.045)}.edu-search span{color:#9aa4b4}.edu-search input{width:100%;border:0;outline:0;font-family:var(--ff);font-size:11.5px;color:#4b5669}.edu-source-links{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.edu-source-links span{font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.6px;color:#9aa4b4}.edu-source-links a{font-size:9.5px;font-weight:750;color:#6c62df;text-decoration:none;padding:6px 8px;border-radius:9px;background:#f1efff}
+.edu-path-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:26px}.edu-path-card{min-height:108px;border:1px solid #e5e8ef;border-radius:18px;background:#fff;padding:17px;text-align:left;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;font-family:var(--ff);cursor:pointer;box-shadow:0 8px 22px rgba(35,43,67,.05);transition:.18s ease}.edu-path-card:hover{transform:translateY(-2px);box-shadow:var(--df-shadow)}.edu-path-card>span{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:9px;font-weight:850}.edu-path-card.basics>span{background:#efedff;color:#7165e8}.edu-path-card.risk>span{background:#fff3df;color:#ce861b}.edu-path-card.analysis>span{background:#eaf7f3;color:#218b70}.edu-path-card strong{display:block;font-family:var(--fd);font-size:14px;color:#303a4d;margin:2px 0 5px}.edu-path-card small{display:block;font-size:9.5px;line-height:1.55;color:#929bad}.edu-path-card i{font-style:normal;color:#a6aebb;padding-top:8px}
+.edu-library-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:4px 2px 13px}.edu-library-head span{font-size:8.5px;font-weight:850;text-transform:uppercase;letter-spacing:.9px;color:#8c7ff0}.edu-library-head h2{font-family:var(--fd);font-size:21px;color:#202a3b;margin-top:3px}.edu-library-head p{font-size:10px;color:#929bad}.education-page .edu-nav{margin-bottom:17px}.education-page .edu-nav-btn{height:38px;padding:0 14px;background:#fff;border-width:1px;box-shadow:0 4px 13px rgba(35,43,67,.035)}.education-page .edu-nav-btn.on{background:linear-gradient(135deg,#7465ee,#5d88f2);box-shadow:0 8px 18px rgba(103,94,231,.2)}
+.education-page .edu-cards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.education-page .edu-card{position:relative;overflow:hidden;min-height:215px;padding:22px;border-radius:19px;border-color:#e5e8ef;background:linear-gradient(145deg,#fff,#faf9ff);box-shadow:0 8px 24px rgba(35,43,67,.055);cursor:pointer}.education-page .edu-card:nth-child(4n+1){box-shadow:inset 0 3px 0 #7465ee,0 8px 24px rgba(35,43,67,.055)}.education-page .edu-card:nth-child(4n+2){box-shadow:inset 0 3px 0 #4d82f3,0 8px 24px rgba(35,43,67,.055)}.education-page .edu-card:nth-child(4n+3){box-shadow:inset 0 3px 0 #21a17e,0 8px 24px rgba(35,43,67,.055)}.education-page .edu-card:nth-child(4n){box-shadow:inset 0 3px 0 #df9a2e,0 8px 24px rgba(35,43,67,.055)}.education-page .edu-card.read:after{content:"✓ Read";position:absolute;right:14px;top:14px;padding:4px 7px;border-radius:999px;background:#ebf8f3;color:#238a70;font-size:8.5px;font-weight:850}.education-page .edu-card-icon{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:#f2f0ff;font-size:21px;margin-bottom:15px}.education-page .edu-card-title{font-size:15px;margin-bottom:7px}.education-page .edu-card-body{font-size:11.5px;line-height:1.68;color:#737f92}.education-page .edu-card-tag{margin-top:13px}.education-page .edu-detail{border-radius:22px;padding:clamp(22px,2vw,34px)!important}.education-page .edu-detail h3{font-size:22px}.education-page .edu-detail p,.education-page .edu-example,.education-page .edu-warning,.education-page .edu-tip{font-size:12.5px}.edu-checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:15px 0}.edu-checklist>strong{grid-column:1/-1;font-size:11px;color:#5e697b}.edu-checklist span{padding:10px 11px;border:1px solid #e8ebf1;border-radius:11px;background:#fafbfe;font-size:11px;color:#6e788a}.edu-checklist.numbered{grid-template-columns:1fr}.edu-checklist.numbered span{display:flex;align-items:flex-start;gap:9px}.edu-checklist.numbered b{width:21px;height:21px;border-radius:7px;background:#eeecff;color:#6f63e6;display:grid;place-items:center;font-size:9px;flex:0 0 auto}.edu-source-note{font-size:10px!important;color:#969faf!important}.edu-source-note a{color:#6b60de;font-weight:750}.edu-no-results{min-height:240px;border:1px dashed #dde1eb;border-radius:20px;background:#fff;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9aa4b4}.edu-no-results>span{font-size:28px}.edu-no-results strong{font-family:var(--fd);font-size:16px;color:#657084;margin-top:8px}.edu-no-results p{font-size:11px;margin-top:3px}
+@media(max-width:1150px){.invest-learn-bridge{grid-template-columns:1fr}.invest-learn-links{grid-template-columns:repeat(3,1fr)}.edu-hero-new{grid-template-columns:1fr}.edu-progress-card{max-width:520px}.edu-toolbar{align-items:flex-start;flex-direction:column}.edu-source-links{justify-content:flex-start}.edu-path-grid{grid-template-columns:1fr 1fr}.edu-path-card:last-child{grid-column:1/-1}}
+@media(max-width:760px){.invest-learn-bridge{padding:21px;border-radius:18px}.invest-learn-links{grid-template-columns:1fr}.edu-hero-new{padding:27px 23px;border-radius:22px}.edu-hero-new .edu-hero-title{font-size:31px}.edu-path-grid{grid-template-columns:1fr}.edu-path-card:last-child{grid-column:auto}.edu-library-head{align-items:flex-start;flex-direction:column}.education-page .edu-nav{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;scrollbar-width:none}.education-page .edu-nav::-webkit-scrollbar{display:none}.education-page .edu-nav-btn{white-space:nowrap;min-height:42px}.education-page .edu-cards{grid-template-columns:1fr}.edu-checklist{grid-template-columns:1fr}.edu-checklist>strong{grid-column:auto}}
+
 </style>
 </head>
 <body>
@@ -2037,6 +2054,21 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
     <div class="mc mc-holdings"><div class="ml">Holdings</div><div class="mv" id="m-cnt">—</div><div class="ms">positions</div></div>
   </div>
 
+
+  <section class="invest-learn-bridge" aria-label="Understand your portfolio">
+    <div class="invest-learn-intro">
+      <span class="invest-learn-kicker">Learn as you invest</span>
+      <h2>Understand what the numbers are telling you.</h2>
+      <p>Short, plain-English guides connected to the decisions you see in your portfolio. Educational only — never a buy or sell instruction.</p>
+      <button onclick="go('education')">Open the learning library →</button>
+    </div>
+    <div class="invest-learn-links">
+      <button onclick="goEdu('what-is-risk')"><span class="invest-learn-icon risk">⚖</span><span><strong>Risk & return</strong><small>Why higher potential returns usually mean more uncertainty.</small></span><i>→</i></button>
+      <button onclick="goEdu('diversification')"><span class="invest-learn-icon diversify">◇</span><span><strong>Diversification</strong><small>How spreading exposure can reduce reliance on one company.</small></span><i>→</i></button>
+      <button onclick="goEdu('research-checklist')"><span class="invest-learn-icon research">⌕</span><span><strong>Research checklist</strong><small>A calm process for understanding a company before acting.</small></span><i>→</i></button>
+    </div>
+  </section>
+
   <!-- WORLD EVENTS & YOUR PORTFOLIO -->
   <div class="dash-card" style="margin-bottom:16px;border-left:4px solid #dc2626">
     <div class="dash-card-head" style="cursor:pointer" onclick="toggleMacroCard()">
@@ -2084,7 +2116,7 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
       <div class="dash-card-body" id="d-alloc" style="max-height:320px;overflow-y:auto;padding-right:12px"></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-head"><div class="dash-card-title">Actions needed</div></div>
+      <div class="dash-card-head"><div><div class="dash-card-title">Signals to review</div><div style="font-size:10.5px;color:var(--t3);margin-top:2px">Prompts for a closer look, not financial advice</div></div></div>
       <div class="dash-card-body" id="d-acts"></div>
     </div>
   </div>
@@ -3026,25 +3058,39 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 
 <!-- GLOSSARY -->
 <!-- EDUCATION -->
-<div class="pg" id="pg-education">
+<div class="pg education-page" id="pg-education">
   <div id="edu-back-bar" style="display:none"></div>
-
-  <div class="edu-hero">
-    <div style="position:relative;z-index:1">
-      <div class="edu-hero-title">Learn to Invest</div>
-      <div class="edu-hero-sub">Plain English guides to everything you see in Dayframe — from what a stock actually is, to understanding the risks in your own portfolio.</div>
+  <section class="edu-hero edu-hero-new">
+    <div class="edu-hero-copy">
+      <div class="edu-hero-kicker">Dayframe learning</div>
+      <div class="edu-hero-title">Invest with more understanding.</div>
+      <div class="edu-hero-sub">Clear UK-focused lessons that explain the ideas behind your portfolio — without jargon, hype or pretending risk does not exist.</div>
+      <div class="edu-trust-row"><span>Plain English</span><span>Short lessons</span><span>Progress saved</span></div>
     </div>
+    <div class="edu-progress-card">
+      <div class="edu-progress-top"><span>Your learning progress</span><strong id="edu-progress-value">0%</strong></div>
+      <div class="edu-progress-track"><i id="edu-progress-bar"></i></div>
+      <p id="edu-progress-note">Open a lesson to begin.</p>
+      <button onclick="eduContinue()">Continue learning →</button>
+    </div>
+  </section>
+  <div class="edu-toolbar">
+    <label class="edu-search"><span>⌕</span><input id="edu-search" placeholder="Search topics, e.g. risk or dividends" oninput="eduSearch(this.value)"></label>
+    <div class="edu-source-links"><span>Trusted UK sources</span><a href="https://www.fca.org.uk/investsmart" target="_blank" rel="noopener">FCA InvestSmart</a><a href="https://www.gov.uk/individual-savings-accounts" target="_blank" rel="noopener">GOV.UK ISAs</a><a href="https://www.moneyhelper.org.uk/en/savings/investing" target="_blank" rel="noopener">MoneyHelper</a></div>
   </div>
-
-  <!-- FILTER NAV -->
+  <div class="edu-path-grid">
+    <button class="edu-path-card basics" onclick="eduFilter('basics',document.querySelector('.edu-nav-btn[data-edu-cat=basics]'))"><span>01</span><div><strong>Build the foundations</strong><small>Stocks, brokers, exchanges, ISAs and the language of investing.</small></div><i>→</i></button>
+    <button class="edu-path-card risk" onclick="eduFilter('risk',document.querySelector('.edu-nav-btn[data-edu-cat=risk]'))"><span>02</span><div><strong>Protect yourself</strong><small>Risk, concentration, dilution and the warning signs to notice.</small></div><i>→</i></button>
+    <button class="edu-path-card analysis" onclick="eduFilter('analysis',document.querySelector('.edu-nav-btn[data-edu-cat=analysis]'))"><span>03</span><div><strong>Read a company</strong><small>Revenue, profit, valuation, earnings and a repeatable research process.</small></div><i>→</i></button>
+  </div>
+  <div class="edu-library-head"><div><span>Learning library</span><h2>Choose what you want to understand</h2></div><p>Opening a lesson marks it as read. You can return whenever you like.</p></div>
   <div class="edu-nav">
-    <button class="edu-nav-btn on" onclick="eduFilter('basics',this)">The Basics</button>
-    <button class="edu-nav-btn" onclick="eduFilter('risk',this)">Risk & Safety</button>
-    <button class="edu-nav-btn" onclick="eduFilter('analysis',this)">Reading Stocks</button>
-    <button class="edu-nav-btn" onclick="eduFilter('portfolio',this)">Your Portfolio</button>
-    <button class="edu-nav-btn" onclick="eduFilter('all',this)">All Topics</button>
+    <button class="edu-nav-btn on" data-edu-cat="basics" onclick="eduFilter('basics',this)">The Basics</button>
+    <button class="edu-nav-btn" data-edu-cat="risk" onclick="eduFilter('risk',this)">Risk & Safety</button>
+    <button class="edu-nav-btn" data-edu-cat="analysis" onclick="eduFilter('analysis',this)">Reading Stocks</button>
+    <button class="edu-nav-btn" data-edu-cat="portfolio" onclick="eduFilter('portfolio',this)">Your Portfolio</button>
+    <button class="edu-nav-btn" data-edu-cat="all" onclick="eduFilter('all',this)">All Topics</button>
   </div>
-
   <div id="edu-content"></div>
 </div>
 
@@ -4653,6 +4699,7 @@ function go(name,btn){
   }
 
   if(name==='chatter') initChatterPills();
+  if(name==='education') renderEducationProgress();
   if(name!=='education'){const bar=document.getElementById('edu-back-bar');if(bar)bar.style.display='none';}
 }
 
@@ -7745,8 +7792,8 @@ const EDU_TOPICS = [
    detail:`<p>Without an ISA, when you sell a stock for a profit, you pay <strong>Capital Gains Tax</strong> on the profit above a certain threshold. Dividends are also taxed. An ISA eliminates both of these.</p>
    <div class="edu-example">💡 <strong>Example:</strong> You invest £5,000 in NVIDIA inside your ISA. It grows to £20,000. You sell — you keep all £15,000 profit. No tax at all.</div>
    <p>Key ISA rules:</p>
-   <p>• You can invest up to £20,000 per tax year (April to April)<br>• Once inside the ISA, growth and income are tax-free forever<br>• You can only have one Stocks & Shares ISA open at a time per tax year<br>• If you withdraw money, you can't put it back in the same year (unless it's a flexible ISA)</p>
-   <div class="edu-tip">✅ <strong>Use your ISA first</strong> — always max your ISA before investing in a standard account. The tax saving over decades is enormous.</div>`},
+   <p>• You can invest up to £20,000 per tax year (April to April)<br>• Once inside the ISA, growth and income are tax-free forever<br>• Since April 2024, you can subscribe to multiple ISAs of the same type, but your total ISA contributions must stay within the annual allowance<br>• If you withdraw money, you can't put it back in the same year (unless it's a flexible ISA)</p>
+   <div class="edu-tip">✅ <strong>Check whether an ISA suits you:</strong> ISA tax treatment can be valuable, but rules and personal circumstances can change. Keep contributions within the annual allowance and check current GOV.UK guidance.<br><a href='https://www.gov.uk/individual-savings-accounts/how-isas-work' target='_blank' rel='noopener'>Read the current ISA rules on GOV.UK →</a></div>`},
 
   {id:'what-is-an-exchange', cat:'basics', icon:'🏛️', title:'What is a stock exchange?', tag:'beginner',
    body:'A stock exchange is where stocks are bought and sold. Think of it like a marketplace — buyers and sellers meet to agree on a price.',
@@ -7917,18 +7964,35 @@ const EDU_TOPICS = [
    <div class="edu-example">💡 <strong>The key:</strong> You don't need to keep adding money for compounding to work. The £25,937 after 10 years earns more in year 11 than you earned in years 1-3 combined.</div>
    <div class="edu-tip">✅ <strong>Most important habit:</strong> Reinvest dividends and don't withdraw gains prematurely. Every time you take money out, you break the compounding chain.</div>`},
 ];
+EDU_TOPICS.push(
+ {id:'fees-and-costs',cat:'basics',icon:'🧮',title:'Costs and fees: what should I check?',tag:'beginner',
+  body:"A platform can advertise commission-free trading and still have other costs. Learn which charges to look for before you invest.",
+  detail:"<p>Costs reduce the money left working for you, so check the full picture rather than one headline fee.</p><div class='edu-checklist'><strong>Look for:</strong><span>Platform or account fees</span><span>Fund ongoing charges</span><span>Foreign-exchange fees</span><span>The bid–ask spread</span><span>Trading or transfer fees</span><span>Taxes that may apply</span></div><p>A small percentage can make a meaningful difference when it is charged year after year. Compare providers using the same investment amount and holding period.</p><div class='edu-tip'>✅ <strong>Key takeaway:</strong> “Commission-free” does not always mean cost-free. Read the provider’s charges page before investing.</div><p class='edu-source-note'>Source: <a href='https://www.fca.org.uk/investsmart/right-investment-you' target='_blank' rel='noopener'>FCA InvestSmart — Is it the right investment for you?</a></p>"},
+ {id:'research-checklist',cat:'analysis',icon:'🧭',title:'A calm company research checklist',tag:'beginner',
+  body:"A repeatable checklist helps you look past a dramatic chart, exciting headline or social-media tip.",
+  detail:"<p>Start with the business, not the share price. Write down the answer to each question in your own words.</p><div class='edu-checklist numbered'><span><b>1</b> What does the company sell, and who pays it?</span><span><b>2</b> Are revenue, profit and cash flow improving?</span><span><b>3</b> How much debt does it have, and can it service it?</span><span><b>4</b> Is the share count rising through dilution?</span><span><b>5</b> What assumptions are already reflected in the valuation?</span><span><b>6</b> What could prove the investment idea wrong?</span><span><b>7</b> Why am I considering this now?</span></div><div class='edu-warning'>⚠️ A tip, price target or exciting story is a starting point for research — not evidence on its own.</div><div class='edu-tip'>✅ <strong>Key takeaway:</strong> A written reason to invest and a written reason to reconsider can reduce emotional decisions later.</div><p class='edu-source-note'>Further checks: <a href='https://www.fca.org.uk/investsmart/should-you-invest' target='_blank' rel='noopener'>FCA InvestSmart — Should you invest?</a></p>"}
+);
 let eduActiveFilter = 'basics';
 let eduActiveTopic = null;
+let eduSearchQuery = '';
+function eduReadIds(){return Array.isArray(hubLoad().learningRead)?hubLoad().learningRead:[]}
+function eduMarkRead(id){if(!id)return;const d=hubLoad();d.learningRead=Array.isArray(d.learningRead)?d.learningRead:[];if(!d.learningRead.includes(id)){d.learningRead.push(id);hubSave(d)}renderEducationProgress()}
+function renderEducationProgress(){const read=eduReadIds().filter(id=>EDU_TOPICS.some(t=>t.id===id)),pct=EDU_TOPICS.length?Math.round(read.length/EDU_TOPICS.length*100):0;const value=document.getElementById('edu-progress-value'),bar=document.getElementById('edu-progress-bar'),note=document.getElementById('edu-progress-note');if(value)value.textContent=pct+'%';if(bar)bar.style.width=pct+'%';if(note)note.textContent=read.length?read.length+' of '+EDU_TOPICS.length+' lessons explored':'Open a lesson to begin.'}
+function eduContinue(){const read=new Set(eduReadIds()),next=EDU_TOPICS.find(t=>!read.has(t.id))||EDU_TOPICS[0];if(next)goEdu(next.id)}
+function eduSearch(value){eduSearchQuery=String(value||'').trim().toLowerCase();eduActiveTopic=null;const el=document.getElementById('edu-content');if(el)eduRender(el)}
 
 function rEducation(){
   const el = document.getElementById('edu-content');
   if(!el) return;
   // Ensure basics tab is active on first render
   eduActiveFilter = 'basics';
+  eduSearchQuery = '';
+  const search=document.getElementById('edu-search');if(search)search.value='';
   document.querySelectorAll('.edu-nav-btn').forEach(b=>{
     b.classList.toggle('on', b.textContent.trim()==='The Basics');
   });
   eduRender(el);
+  renderEducationProgress();
 }
 
 function eduFilter(cat, btn){
@@ -7955,6 +8019,7 @@ function goEduFromDive(topicId, fromDivePage){
 function goEdu(topicId){
   go('education', document.querySelector('.ni[onclick*=education]'));
   eduActiveTopic = topicId;
+  eduMarkRead(topicId);
   eduActiveFilter = 'all';
   document.querySelectorAll('.edu-nav-btn').forEach((b,i)=>b.classList.toggle('on',i===0));
   const el = document.getElementById('edu-content');
@@ -7966,7 +8031,9 @@ function goEdu(topicId){
 }
 
 function eduRender(el){
-  const topics = eduActiveFilter==='all' ? EDU_TOPICS : EDU_TOPICS.filter(t=>t.cat===eduActiveFilter);
+  const baseTopics = eduActiveFilter==='all' ? EDU_TOPICS : EDU_TOPICS.filter(t=>t.cat===eduActiveFilter);
+  const topics = eduSearchQuery ? baseTopics.filter(t=>(t.title+' '+t.body+' '+t.cat).toLowerCase().includes(eduSearchQuery)) : baseTopics;
+  const readSet=new Set(eduReadIds());
   const returnTicker = window._eduReturnTicker || null;
   const returnDive = window._eduReturnDive || null;
 
@@ -7985,7 +8052,7 @@ function eduRender(el){
   };
 
   el.innerHTML = `<div class="edu-cards">${topics.map(t=>`
-    <div class="edu-card${eduActiveTopic===t.id?' highlight':''}" onclick="eduOpenTopic('${t.id}')">
+    <div class="edu-card${eduActiveTopic===t.id?' highlight':''}${readSet.has(t.id)?' read':''}" onclick="eduOpenTopic('${t.id}')">
       <div class="edu-card-icon">${t.icon}</div>
       <div class="edu-card-title">${t.title}</div>
       <div class="edu-card-body">${t.body}</div>
@@ -7999,11 +8066,14 @@ function eduRender(el){
         <button class="btn" onclick="window._eduReturnTicker=null;window._eduReturnDive=null;eduActiveTopic=null;eduRender(document.getElementById('edu-content'))" style="font-size:12px;margin-left:auto">All topics →</button>
       </div>
     </div>` : ''}`;
+  if(!topics.length)el.innerHTML='<div class="edu-no-results"><span>⌕</span><strong>No lessons found</strong><p>Try a broader word such as risk, fees or ISA.</p></div>';
+  renderEducationProgress();
 }
 
 
 function eduOpenTopic(id){
   eduActiveTopic = eduActiveTopic===id ? null : id;
+  if(eduActiveTopic)eduMarkRead(id);
   const el = document.getElementById('edu-content');
   if(el){ eduRender(el); }
   if(eduActiveTopic){
