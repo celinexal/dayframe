@@ -1,1 +1,1 @@
-Deploy current Dayframe source with Driving landing page and theory account fix — 2026-08-18 14:18 BST.
+Deploy Dayframe with CI/VI theory selector removed — 2026-08-18 14:31 BST.
