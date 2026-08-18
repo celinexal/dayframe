@@ -192,42 +192,15 @@ body{background:var(--bg);color:var(--text);font-family:"Nunito",sans-serif;font
   <div class="logo">theory<span class="star"> &#10022; </span>tracker</div>
 </div>
 <div class="main">
-  <div class="welcome"><h2><span class="line-main">Let's pass</span><span class="line-accent"><span class="soft">our</span> <span class="script">theory</span></span></h2></div>
-  <div class="picker">
-    <button class="pick-btn" id="btn-c" onclick="selectUser('celine')">
-      <div class="pick-avatar av-c">CA</div>
-      <div><div class="pick-name">Celine</div><div class="pick-sub" id="sub-c">loading...</div></div>
-    </button>
-    <button class="pick-btn" id="btn-v" onclick="selectUser('valentina')">
-      <div class="pick-avatar av-v">VA</div>
-      <div><div class="pick-name">Valentina</div><div class="pick-sub" id="sub-v">loading...</div></div>
-    </button>
-  </div>
-  <div class="vs-grid">
-    <div class="vs-card">
-      <div class="vs-label"><span class="dot dot-c"></span>Celine</div>
-      <div class="vs-pct col-c" id="vs-pct-c">-</div>
-      <div class="vs-detail" id="vs-detail-c">loading...</div>
-      <div id="vs-lead-c"></div>
-      <div class="track"><div class="track-fill fill-c" id="prog-c" style="width:0%"></div></div>
-    </div>
-    <div class="vs-card">
-      <div class="vs-label"><span class="dot dot-v"></span>Valentina</div>
-      <div class="vs-pct col-v" id="vs-pct-v">-</div>
-      <div class="vs-detail" id="vs-detail-v">loading...</div>
-      <div id="vs-lead-v"></div>
-      <div class="track"><div class="track-fill fill-v" id="prog-v" style="width:0%"></div></div>
-    </div>
-  </div>
-  <div class="syncing" id="sync-status"></div>
+  <div class="welcome"><h2><span class="line-main">Let's pass</span><span class="line-accent"><span class="soft">our</span> <span class="script">theory</span></span></h2></div><div class="syncing" id="sync-status"></div>
   <div class="tabs">
     <button class="tab-btn active" id="tab-track" onclick="switchTab('track')">Study plan</button>
     <button class="tab-btn" id="tab-notes" onclick="switchTab('notes')">Study notes</button>
     <button class="tab-btn" id="tab-quiz" onclick="switchTab('quiz')">Quizzes</button>
   </div>
-  <div id="tab-track-content"><div id="main-area"><div class="no-user"><h3>Select your name above</h3><p>to view your study plan.</p></div></div></div>
-  <div id="tab-notes-content" style="display:none;"><div id="notes-area"><div class="no-user"><h3>Select your name above</h3><p>to access study notes.</p></div></div></div>
-  <div id="tab-quiz-content" style="display:none;"><div id="quiz-area"><div class="no-user"><h3>Select your name above</h3><p>to access quizzes.</p></div></div></div>
+  <div id="tab-track-content"><div id="main-area"><div class="no-user"><h3>Sign in to Dayframe</h3><p>to view your study plan.</p></div></div></div>
+  <div id="tab-notes-content" style="display:none;"><div id="notes-area"><div class="no-user"><h3>Sign in to Dayframe</h3><p>to access study notes.</p></div></div></div>
+  <div id="tab-quiz-content" style="display:none;"><div id="quiz-area"><div class="no-user"><h3>Sign in to Dayframe</h3><p>to access quizzes.</p></div></div></div>
 </div>
 <div class="reading-view" id="reading-view" style="display:none;"></div>
 <script>
@@ -253,7 +226,7 @@ var MOCK_Q_COUNT=50;
 var MOCK_PASS=43;
 
 var currentUser=null,currentTab="track",openWeeks={0:true},openNoteWeeks={};
-var cache={celine:null,valentina:null};
+var cache={};
 var saveTimer=null,activeQuiz=null,jumpToWeek=-1;
 
 // Weak spots: stored per user in cache as wrongQuestions: [{q,opts,a,wi},...]
@@ -271,7 +244,7 @@ function writeLocalUser(user,data){
 }
 
 function fetchUser(user){
-  return fetch(WORKER_URL+"?user="+user)
+  return fetch(WORKER_URL+"?user="+encodeURIComponent(user))
     .then(function(r){return r.json();})
     .then(function(d){cache[user]=d||{};writeLocalUser(user,cache[user]);return cache[user];})
     .catch(function(){cache[user]=readLocalUser(user)||cache[user]||{};return cache[user];});
@@ -280,7 +253,7 @@ function fetchUser(user){
 function pushUser(user,data){
   cache[user]=data;
   writeLocalUser(user,data);
-  return fetch(WORKER_URL+"?user="+user,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
+  return fetch(WORKER_URL+"?user="+encodeURIComponent(user),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
     .then(function(){setSyncStatus("saved");})
     .catch(function(){setSyncStatus("saved on this device");});
 }
@@ -289,60 +262,41 @@ function setSyncStatus(m){document.getElementById("sync-status").textContent=m;s
 function countDone(data){if(!data||!data.checked)return 0;return Object.values(data.checked).filter(Boolean).length;}
 function weekTasksDone(checked,wi){var n=0;for(var ti=0;ti<WK_TASKS[wi].length;ti++){if(checked[wi+"-"+ti])n++;}return n;}
 
-function updateVsBar(){
-  var dC=cache.celine||{},dV=cache.valentina||{};
-  var doneC=countDone(dC),doneV=countDone(dV);
-  var pctC=Math.round((doneC/TOTAL)*100),pctV=Math.round((doneV/TOTAL)*100);
-  var strC=dC.streak||0,strV=dV.streak||0;
+function updateVsBar(){}
 
-  document.getElementById("vs-pct-c").textContent=pctC+"%";
-  document.getElementById("vs-detail-c").textContent=doneC+"/"+TOTAL+" tasks - "+strC+"d streak";
-  document.getElementById("prog-c").style.width=pctC+"%";
-  document.getElementById("sub-c").textContent=pctC+"% - "+strC+"d streak";
-
-  document.getElementById("vs-pct-v").textContent=pctV+"%";
-  document.getElementById("vs-detail-v").textContent=doneV+"/"+TOTAL+" tasks - "+strV+"d streak";
-  document.getElementById("prog-v").style.width=pctV+"%";
-  document.getElementById("sub-v").textContent=pctV+"% - "+strV+"d streak";
-
-  // Competition nudge
-  var diff=Math.abs(pctC-pctV);
-  var leadC=document.getElementById("vs-lead-c"),leadV=document.getElementById("vs-lead-v");
-  leadC.innerHTML="";leadV.innerHTML="";
-  if(diff>=2){
-    if(pctC>pctV){
-      leadC.innerHTML='<span class="vs-lead" style="background:var(--c-soft);color:var(--c-text);">&#128293; Ahead by '+diff+'%</span>';
-      leadV.innerHTML='<span class="vs-lead" style="background:var(--bg);color:var(--muted);">'+diff+'% behind - keep going!</span>';
-    } else {
-      leadV.innerHTML='<span class="vs-lead" style="background:var(--v-soft);color:var(--v-text);">&#128293; Ahead by '+diff+'%</span>';
-      leadC.innerHTML='<span class="vs-lead" style="background:var(--bg);color:var(--muted);">'+diff+'% behind - keep going!</span>';
-    }
-  } else if(pctC>0||pctV>0){
-    leadC.innerHTML='<span class="vs-lead" style="background:var(--bg);color:var(--muted);">neck and neck!</span>';
-    leadV.innerHTML='<span class="vs-lead" style="background:var(--bg);color:var(--muted);">neck and neck!</span>';
-  }
+function dayframeUserKey(){
+  try{
+    var s=JSON.parse(localStorage.getItem("dayframe_session")||"{}");
+    var id=s&&s.user&&s.user.id;
+    return id?"dayframe:"+id:"";
+  }catch(e){return "";}
 }
 
-function selectUser(user){
-  // Store who this device belongs to on first selection
-  if(!localStorage.getItem("theory_my_user")){
-    localStorage.setItem("theory_my_user",user);
+function getMyUser(){return currentUser;}
+function isMyView(){return true;}
+
+function initDayframeTheory(){
+  currentUser=dayframeUserKey();
+  if(!currentUser){
+    document.getElementById("main-area").innerHTML='<div class="no-user"><h3>Sign in to Dayframe</h3><p>Your theory progress is linked to your Dayframe account.</p></div>';
+    return;
   }
-  currentUser=user;
-  document.getElementById("btn-c").className="pick-btn"+(user==="celine"?" active-c":"");
-  document.getElementById("btn-v").className="pick-btn"+(user==="valentina"?" active-v":"");
+  cache[currentUser]=readLocalUser(currentUser)||{};
   setSyncStatus("syncing...");
-  fetchUser(user).then(function(){setSyncStatus("");updateVsBar();renderCurrentTab();});
+  fetchUser(currentUser).then(function(){
+    setSyncStatus("");
+    renderCurrentTab();
+  });
 }
 
-function getMyUser(){
-  return localStorage.getItem("theory_my_user");
-}
-
-function isMyView(){
-  var my=getMyUser();
-  return !my||my===currentUser;
-}
+window.addEventListener("message",function(e){
+  if(e.origin!==location.origin||!e.data||e.data.type!=="DAYFRAME_AUTH"||!e.data.user_id)return;
+  var next="dayframe:"+e.data.user_id;
+  if(currentUser===next&&cache[currentUser])return;
+  currentUser=next;
+  cache[currentUser]=readLocalUser(currentUser)||{};
+  fetchUser(currentUser).then(function(){renderCurrentTab();});
+});
 
 function renderCurrentTab(){
   if(currentTab==="track")renderTracker();
@@ -362,14 +316,14 @@ function switchTab(tab){
 }
 
 function renderTracker(){
-  if(!currentUser){document.getElementById("main-area").innerHTML='<div class="no-user"><h3>Select your name above</h3><p>to view your study plan.</p></div>';return;}
+  if(!currentUser){document.getElementById("main-area").innerHTML='<div class="no-user"><h3>Sign in to Dayframe</h3><p>to view your study plan.</p></div>';return;}
   var u=currentUser,data=cache[u]||{},checked=data.checked||{},streak=data.streak||0,studiedDates=data.studiedDates||[];
-  var isC=u==="celine",doneClass=isC?"done-c":"done-v",accent=isC?"var(--c-text)":"var(--v-text)",soft=isC?"var(--c-soft)":"var(--v-soft)";
+  var isC=false,doneClass=isC?"done-c":"done-v",accent=isC?"var(--c-text)":"var(--v-text)",soft=isC?"var(--c-soft)":"var(--v-soft)";
   var studiedToday=studiedDates.indexOf(todayStr())>=0;
   var name=u.charAt(0).toUpperCase()+u.slice(1);
   var html='';
   if(!isMyView()){
-    html+='<div class="banner" style="background:#FBF2E9;border-color:#A67B4F33;color:#A67B4F;"><span style="font-size:17px;">&#128270;</span><span>Viewing '+name+' study plan - tap your name to switch back.</span></div>';
+    html+='<div class="banner" style="background:#FBF2E9;border-color:#A67B4F33;color:#A67B4F;"><span style="font-size:17px;">&#128270;</span><span>Viewing '+name+' study plan - </span></div>';
   } else {
     html+='<div class="banner" style="background:'+soft+';border-color:'+accent+'33;color:'+accent+';">';
     html+='<span style="font-size:17px;">'+(studiedToday?"&#128293;":"&#128214;")+'</span>';
@@ -397,7 +351,7 @@ function renderTracker(){
 }
 
 function renderNotesTab(){
-  if(!currentUser){document.getElementById("notes-area").innerHTML='<div class="no-user"><h3>Select your name above</h3><p>to access study notes.</p></div>';return;}
+  if(!currentUser){document.getElementById("notes-area").innerHTML='<div class="no-user"><h3>Sign in to Dayframe</h3><p>to access study notes.</p></div>';return;}
   var data=cache[currentUser]||{},noteTopics=data.noteTopics||{};
   var html='<div class="notes-week-cards">';
   for(var wi=0;wi<NOTES.length;wi++){
@@ -494,7 +448,7 @@ function getWeakSpots(){
 }
 
 function renderQuizTab(jumpWi){
-  if(!currentUser){document.getElementById("quiz-area").innerHTML='<div class="no-user"><h3>Select your name above</h3><p>to access quizzes.</p></div>';return;}
+  if(!currentUser){document.getElementById("quiz-area").innerHTML='<div class="no-user"><h3>Sign in to Dayframe</h3><p>to access quizzes.</p></div>';return;}
   if(activeQuiz){renderActiveQuiz();return;}
   var checked=(cache[currentUser]||{}).checked||{};
   var weakSpots=getWeakSpots();
@@ -731,7 +685,7 @@ function logToday(){
   pushUser(currentUser,data);updateVsBar();renderTracker();
 }
 
-Promise.all([fetchUser("celine"),fetchUser("valentina")]).then(function(){updateVsBar();});
+initDayframeTheory();
 </script>
 <script>
 if('serviceWorker' in navigator){
