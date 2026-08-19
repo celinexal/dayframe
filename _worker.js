@@ -16,10 +16,12 @@ export default {
       if(url.pathname==='/api/investing/t212/data'&&request.method==='GET')return getT212Data(request,env);
       if(url.pathname==='/api/investing/t212/pies'&&request.method==='GET')return getT212Pies(request,env);
       if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
-      if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request);
+      if(url.pathname==='/api/ai/groq'&&request.method==='POST')return proxySharedGroq(request);
+      if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
+      if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request,env);
       if(url.pathname.startsWith('/api/'))return json({error:'Not found'},404);
       return env.ASSETS.fetch(request);
-    }catch(err){console.error('Dayframe banking error',err);return json({error:'Something went wrong on the secure banking service.'},500)}
+    }catch(err){console.error('Dayframe API error',err);return json({error:'Something went wrong on the secure Dayframe service.'},500)}
   }
 };
 function isConfigured(env){return !!(String(env.TRUELAYER_CLIENT_ID||'').trim()&&String(env.TRUELAYER_CLIENT_SECRET||'').trim()&&String(env.TRUELAYER_RETURN_URI||'').trim())}
@@ -40,6 +42,64 @@ function bearer(request){const h=request.headers.get('authorization')||'';return
 async function verifyUser(request){const token=bearer(request);if(!token)return null;const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON,authorization:'Bearer '+token}});if(!r.ok)return null;const user=await r.json().catch(()=>null);return user?.id?{user,token}:null}
 async function sbRest(path,jwt,opts={}){const headers={apikey:SUPABASE_ANON,authorization:'Bearer '+jwt,'content-type':'application/json',...(opts.headers||{})};return fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers})}
 function validateProfile(name,email){name=String(name||'').trim();email=String(email||'').trim();if(name.length<2||name.length>100)return 'Enter your name.';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return 'Enter a valid email address.';return ''}
+
+async function proxySharedGroq(request){
+  const auth=await verifyUser(request);
+  if(!auth)return json({error:'Sign in to use Dayframe AI.'},401);
+  const contentType=String(request.headers.get('content-type')||'').toLowerCase();
+  if(!contentType.includes('application/json'))return json({error:'Invalid AI request.'},415);
+  const suppliedLength=Number(request.headers.get('content-length')||0);
+  if(suppliedLength>60000)return json({error:'AI request is too large.'},413);
+  let upstream;
+  try{
+    upstream=await fetch(SUPABASE_URL+'/functions/v1/dayframe-groq',{
+      method:'POST',
+      headers:{
+        apikey:SUPABASE_ANON,
+        authorization:'Bearer '+auth.token,
+        'content-type':'application/json',
+        accept:'application/json'
+      },
+      body:request.body
+    });
+  }catch(e){
+    return json({error:'Dayframe AI could not be reached.'},502);
+  }
+  return new Response(upstream.body,{
+    status:upstream.status,
+    headers:{
+      'content-type':upstream.headers.get('content-type')||'application/json; charset=utf-8',
+      'cache-control':'no-store'
+    }
+  });
+}
+
+async function theoryData(request){
+  const auth=await verifyUser(request);
+  if(!auth)return json({error:'Sign in to use your theory tracker.'},401);
+  const rowPath='dayframe_theory_data?user_id=eq.'+encodeURIComponent(auth.user.id);
+  if(request.method==='GET'){
+    const result=await sbRest(rowPath+'&select=tracker_data&limit=1',auth.token,{method:'GET'});
+    if(!result.ok)return json({error:'Your theory progress could not be loaded.'},502);
+    const rows=await result.json().catch(()=>[]);
+    return json(rows?.[0]?.tracker_data||{});
+  }
+
+  const suppliedLength=Number(request.headers.get('content-length')||0);
+  if(suppliedLength>550000)return json({error:'Theory progress is too large.'},413);
+  const trackerData=await request.json().catch(()=>null);
+  if(!trackerData||typeof trackerData!=='object'||Array.isArray(trackerData))return json({error:'Invalid theory progress.'},400);
+  const serialized=JSON.stringify(trackerData);
+  if(serialized.length>500000)return json({error:'Theory progress is too large.'},413);
+  const result=await sbRest('dayframe_theory_data?on_conflict=user_id&select=user_id',auth.token,{
+    method:'POST',
+    headers:{Prefer:'resolution=merge-duplicates,return=representation'},
+    body:JSON.stringify({user_id:auth.user.id,tracker_data:trackerData,updated_at:new Date().toISOString()})
+  });
+  const rows=await result.json().catch(()=>[]);
+  if(!result.ok||!Array.isArray(rows)||!rows[0]?.user_id)return json({error:'Your theory progress could not be saved.'},502);
+  return json({ok:true});
+}
 
 function t212Environment(value){return String(value||'live').trim().toLowerCase()==='demo'?'demo':'live'}
 function t212ApiBase(environment){return t212Environment(environment)==='demo'?'https://demo.trading212.com/api/v0':'https://live.trading212.com/api/v0'}
@@ -196,30 +256,25 @@ async function disconnectT212(request,env){
 }
 
 
-async function proxyTheoryTracker(request){
-  const sources=[
-    'https://aa9ae107.theory-tracker.pages.dev/'
-  ];
-  let upstream=null, used='';
-  for(const source of sources){
-    try{
-      const r=await fetch(source,{
-        method:'GET',
-        redirect:'follow',
-        headers:{
-          'accept':'text/html,application/xhtml+xml',
-          'user-agent':request.headers.get('user-agent')||'Mozilla/5.0'
-        }
-      });
-      if(r.ok){upstream=r;used=source;break}
-    }catch(e){}
-  }
+async function proxyTheoryTracker(request,env){
+  const source=new URL('/driving/theory.html',request.url).toString();
+  let upstream=null,used=source;
+  try{
+    const r=await env.ASSETS.fetch(new Request(source,{
+      method:'GET',
+      headers:{
+        'accept':'text/html,application/xhtml+xml',
+        'user-agent':request.headers.get('user-agent')||'Mozilla/5.0'
+      }
+    }));
+    if(r.ok)upstream=r;
+  }catch(e){}
   if(!upstream){
     return new Response(`<!doctype html><html><head><meta charset="utf-8"><style>
       body{font-family:Inter,Arial,sans-serif;background:#f7f8fc;color:#344054;padding:40px}
       .box{max-width:620px;margin:80px auto;background:white;border:1px solid #e7eaf1;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(20,30,50,.06)}
       a{display:inline-block;margin-top:14px;padding:10px 14px;border-radius:10px;background:#ef7464;color:white;text-decoration:none;font-weight:700}
-    </style></head><body><div class="box"><h2>Learning to Drive</h2><p>The theory tracker could not load inside Dayframe just now.</p><a href="https://aa9ae107.theory-tracker.pages.dev" target="_blank">Open Theory Tracker</a></div></body></html>`,
+    </style></head><body><div class="box"><h2>Learning to Drive</h2><p>The theory tracker could not load inside Dayframe just now.</p><a href="/driving/theory.html" target="_blank">Open Theory Tracker</a></div></body></html>`,
       {status:502,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}}
     );
   }
@@ -240,7 +295,7 @@ async function proxyTheoryTracker(request){
       body{font-family:Inter,Arial,sans-serif;background:#f7f8fc;color:#344054;padding:40px}
       .box{max-width:640px;margin:90px auto;background:white;border:1px solid #e7eaf1;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(20,30,50,.06)}
       a{display:inline-block;margin-top:14px;padding:10px 14px;border-radius:10px;background:#ef7464;color:white;text-decoration:none;font-weight:700}
-    </style></head><body><div class="box"><h2>Theory Tracker source is pointing to Dayframe</h2><p>The tracker deployment needs to be corrected before it can be shown here.</p><a href="https://aa9ae107.theory-tracker.pages.dev" target="_blank">Open the tracker deployment</a></div></body></html>`,
+    </style></head><body><div class="box"><h2>Theory Tracker source is pointing to Dayframe</h2><p>The tracker deployment needs to be corrected before it can be shown here.</p><a href="/driving/theory.html" target="_blank">Open the tracker deployment</a></div></body></html>`,
       {status:502,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}}
     );
   }
