@@ -4053,16 +4053,12 @@ async function saveSettingsToSupabase() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('.pg').forEach(p=>{if(p.style.display)p.style.display=''});
   aiKey=localStorage.getItem(dfKey("p_groq"))||"";
   localStorage.removeItem(dfKey("p_t212"));
   if(aiKey){document.getElementById("antk").value=aiKey;st("ants","Saved in this browser · syncing account…",false,"pending")}
   const wl=localStorage.getItem(dfKey("p_wl"));if(wl)WL=JSON.parse(wl);
-  await loadSettingsFromSupabase();
-  await loadT212Status();
-  refreshInvestConnectionSummary();
-  if(t212Connected)syncT212();
   renderManualHoldingsList();
   if(_manualHoldings.length)mergeManualIntoH();
   rDash();rH();rCF();rWL();rTrig();rGloss();rEducation();rCPO();rEarnings();rSectors();rCostBasis();rRiskCard();rThemeRadar();rConfCalendar();rSupplyMap();rEarlySources();rDashWL();rBreakingNews();
