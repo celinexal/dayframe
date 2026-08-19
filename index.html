@@ -1490,8 +1490,8 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 .invest-service-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:16px}.invest-service-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:#ecfaf5;color:#258c6c;font-size:10px;font-weight:900}.service-groq .invest-service-icon{background:#f0eeff;color:#6759df;font-size:15px}
 .invest-service-top h3{font-family:var(--fd);font-size:15px;color:#30394b}.invest-service-top p{font-size:9.5px;line-height:1.5;color:#929bab;margin-top:3px}
 .invest-key-label{display:block;font-size:8.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;color:#858fa1;margin-bottom:6px}
-.invest-key-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}.invest-key-input{width:100%;min-width:0;height:39px;border:1px solid #dfe3eb;border-radius:11px;padding:0 11px;background:#fbfcff;color:#353e50;font:600 10px var(--ff);outline:none}.invest-key-input:focus{border-color:#8c81ee;box-shadow:0 0 0 3px rgba(117,103,235,.1)}
-.invest-key-row button{height:39px;border:0;border-radius:11px;padding:0 12px;background:#2e374a;color:#fff;font:800 9px var(--ff);cursor:pointer}.service-t212 .invest-key-row button{background:#277d65}.service-groq .invest-key-row button{background:#6759df}
+.invest-key-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}.invest-key-stack{display:grid;gap:9px}.invest-key-input{width:100%;min-width:0;height:39px;border:1px solid #dfe3eb;border-radius:11px;padding:0 11px;background:#fbfcff;color:#353e50;font:600 10px var(--ff);outline:none}.invest-key-input:focus{border-color:#8c81ee;box-shadow:0 0 0 3px rgba(117,103,235,.1)}select.invest-key-input{appearance:auto}
+.invest-key-row button,.invest-key-primary{height:39px;border:0;border-radius:11px;padding:0 12px;background:#2e374a;color:#fff;font:800 9px var(--ff);cursor:pointer}.service-t212 .invest-key-primary{width:100%;background:#277d65}.service-groq .invest-key-row button{background:#6759df}.invest-key-help{font-size:8.5px;line-height:1.5;color:#929bab}.invest-key-disconnect{display:none;margin-top:8px;border:0;background:transparent;color:#a65e65;font:750 8.5px var(--ff);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .invest-key-status{min-height:15px;margin-top:7px;font-size:9px;color:#9aa3b1}.invest-key-status.ok{color:#2c9a76;font-weight:800}
 .invest-cache-clear{margin-top:8px;border:0;background:transparent;color:#929aaa;font:700 8.5px var(--ff);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .invest-connect-privacy{display:flex;align-items:flex-start;gap:10px;margin-top:17px;padding:13px;border-radius:15px;background:#f3f7ff;border:1px solid #e2e9f7;color:#66738a}.invest-connect-privacy>span{color:#6a62df}.invest-connect-privacy strong{font-size:9.5px}.invest-connect-privacy p{font-size:8.8px;line-height:1.5;margin-top:3px;color:#8d97a8}
@@ -1625,10 +1625,16 @@ body.invest-drawer-open{overflow:hidden}
     </div>
     <div class="invest-connect-grid">
       <section class="invest-service-card service-t212">
-        <div class="invest-service-top"><span class="invest-service-icon">212</span><div><h3>Trading 212</h3><p>Bring your live portfolio and holdings into Dayframe.</p></div></div>
-        <label class="invest-key-label" for="t212k">Trading 212 API key</label>
-        <div class="invest-key-row"><input class="invest-key-input" type="password" id="t212k" placeholder="Paste your Trading 212 key" autocomplete="off" spellcheck="false"><button type="button" onclick="saveT212()">Save &amp; connect</button></div>
+        <div class="invest-service-top"><span class="invest-service-icon">212</span><div><h3>Trading 212</h3><p>Bring your portfolio and holdings into Dayframe with a read-only key pair.</p></div></div>
+        <div class="invest-key-stack">
+          <div><label class="invest-key-label" for="t212k">API Key</label><input class="invest-key-input" type="password" id="t212k" placeholder="Paste your API Key" autocomplete="new-password" spellcheck="false"></div>
+          <div><label class="invest-key-label" for="t212secret">API Secret Key</label><input class="invest-key-input" type="password" id="t212secret" placeholder="Paste your API Secret Key" autocomplete="new-password" spellcheck="false"></div>
+          <div><label class="invest-key-label" for="t212env">Trading 212 account</label><select class="invest-key-input" id="t212env"><option value="live">Live account</option><option value="demo">Demo / practice account</option></select></div>
+          <div class="invest-key-help">Use a key with Account data and Portfolio read permissions. The secret is encrypted by Dayframe and is never saved in this browser.</div>
+          <button class="invest-key-primary" type="button" onclick="saveT212()">Save &amp; connect</button>
+        </div>
         <div class="kst invest-key-status" id="t212s">Not connected</div>
+        <button class="invest-key-disconnect" id="t212-disconnect" type="button" onclick="disconnectT212()">Disconnect Trading 212</button>
       </section>
       <section class="invest-service-card service-groq">
         <div class="invest-service-top"><span class="invest-service-icon">G</span><div><h3>Groq AI</h3><p>Power the live AI summaries and research tools.</p></div></div>
@@ -3706,7 +3712,8 @@ async function authSuccess(name){
   await loadSettingsFromSupabase();
   personalHubInit(name);
   moneyHandleBankCallback();
-  if(t212Key)setTimeout(()=>syncT212(),300);
+  await loadT212Status();
+  if(t212Connected)setTimeout(()=>syncT212(),300);
 }
 
 async function doLogout(){
@@ -3934,7 +3941,7 @@ const THEME_PEERS = {
   GDRX:['OSCR','HIMS'],
 };
 let WL=["TSEM","SIVE","COHR","LITE","MU","POET","IQEPF","SOI","USAR","OUST","HIMS","SPIR","ALRIB"];
-let aiKey="",t212Key="";
+let aiKey="",t212Connected=false,t212Environment="live";
 let hFilt="all",hSort="val",hDir=-1;
 let activeTk=null,chartInst=null;
 
@@ -3944,25 +3951,43 @@ function settingsSyncMessage(payload,fallback){
   return String(payload.message||payload.error_description||payload.error||payload.hint||fallback);
 }
 
+async function loadT212Status(){
+  try{
+    const r=await dfBankFetch('/api/investing/t212/status');
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){if(r.status!==401)st('t212s',d.error||'Trading 212 status unavailable',false,'warn');return {ok:false}}
+    t212Connected=!!d.connected;
+    t212Environment=d.environment||'live';
+    const env=document.getElementById('t212env');if(env)env.value=t212Environment;
+    const disconnect=document.getElementById('t212-disconnect');if(disconnect)disconnect.style.display=t212Connected?'inline-block':'none';
+    if(t212Connected){
+      st('t212s','✓ Connected securely to your account',true);
+      const banner=document.getElementById('dbanner');if(banner)banner.style.display='none';
+    }else if(d.migration_required){
+      st('t212s','Reconnect with both your API Key and Secret Key',false,'warn');
+    }else{
+      st('t212s','Not connected',false);
+    }
+    refreshInvestConnectionSummary();
+    return {ok:true,connected:t212Connected};
+  }catch(e){
+    st('t212s','Trading 212 status unavailable',false,'warn');
+    return {ok:false};
+  }
+}
+
 async function loadSettingsFromSupabase() {
-  const localGroq=aiKey,localT212=t212Key;
+  const localGroq=aiKey;
   try {
     let sess=await dfRefreshSession(false);
     if(!sess?.access_token||!sess?.user?.id)return {ok:false,message:'Sign in again to sync across browsers.'};
-    const endpoint=SUPABASE_URL+'/rest/v1/user_settings?select=t212_key,groq_key,watchlist,finance_seed&id=eq.'+encodeURIComponent(sess.user.id);
+    const endpoint=SUPABASE_URL+'/rest/v1/user_settings?select=groq_key,watchlist,finance_seed&id=eq.'+encodeURIComponent(sess.user.id);
     const send=activeSession=>fetch(endpoint,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+activeSession.access_token,'Accept':'application/json'}});
     let r=await send(sess);
     if(r.status===401){sess=await dfRefreshSession(true);r=await send(sess)}
     const payload=await r.json().catch(()=>null);
     if(!r.ok)throw new Error(settingsSyncMessage(payload,'Account settings could not be loaded.'));
     const row=Array.isArray(payload)?payload[0]:null;
-    if(row?.t212_key){
-      t212Key=row.t212_key;
-      localStorage.setItem(dfKey('p_t212'),t212Key);
-      const el=document.getElementById('t212k');if(el)el.value=t212Key;
-      st('t212s','✓ Connected to your account',true);
-      const banner=document.getElementById('dbanner');if(banner)banner.style.display='none';
-    }
     if(row?.groq_key){
       aiKey=row.groq_key;
       localStorage.setItem(dfKey('p_groq'),aiKey);
@@ -3979,25 +4004,17 @@ async function loadSettingsFromSupabase() {
         hubSave(hd);renderMoney();
       }
     }
-    const needsLocalMigration=(localGroq&&!row?.groq_key)||(localT212&&!row?.t212_key);
-    if(needsLocalMigration){
-      aiKey=row?.groq_key||localGroq||'';
-      t212Key=row?.t212_key||localT212||'';
+    if(localGroq&&!row?.groq_key){
+      aiKey=localGroq;
       const migrated=await saveSettingsToSupabase();
-      if(migrated.ok){
-        if(aiKey)st('ants','✓ Key saved to your account',true);
-        if(t212Key)st('t212s','✓ Connected to your account',true);
-      }else{
-        if(localGroq)st('ants','Saved in this browser only — press Save AI key to retry',false,'warn');
-        if(localT212)st('t212s','Saved in this browser only — press Save & connect to retry',false,'warn');
-      }
+      if(migrated.ok)st('ants','✓ Key saved to your account',true);
+      else st('ants','Saved in this browser only — press Save AI key to retry',false,'warn');
     }
     refreshInvestConnectionSummary();
     return {ok:true,found:!!row};
   }catch(e){
     console.warn('Settings load failed:',e?.message||e);
     if(localGroq)st('ants','Saved in this browser only — account sync unavailable',false,'warn');
-    if(localT212)st('t212s','Saved in this browser only — account sync unavailable',false,'warn');
     return {ok:false,message:e?.message||'Account settings could not be loaded.'};
   }
 }
@@ -4009,7 +4026,6 @@ async function saveSettingsToSupabase() {
     const endpoint=SUPABASE_URL+'/rest/v1/user_settings?on_conflict=id&select=id';
     const body=JSON.stringify({
       id:sess.user.id,
-      t212_key:t212Key||null,
       groq_key:aiKey||null,
       watchlist:JSON.stringify(WL),
       updated_at:new Date().toISOString()
@@ -4038,21 +4054,17 @@ async function saveSettingsToSupabase() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Clear any stale inline display styles — CSS classes control visibility
-  document.querySelectorAll('.pg').forEach(p=>{ if(p.style.display) p.style.display=''; });
-  // Load from localStorage first (instant)
+  document.querySelectorAll('.pg').forEach(p=>{if(p.style.display)p.style.display=''});
   aiKey=localStorage.getItem(dfKey("p_groq"))||"";
-  t212Key=localStorage.getItem(dfKey("p_t212"))||"";
-  if(aiKey){document.getElementById("antk").value=aiKey;st("ants","Saved in this browser · syncing account…",false,"pending");}
-  if(t212Key){document.getElementById("t212k").value=t212Key;st("t212s","Saved in this browser · syncing account…",false,"pending");const banner=document.getElementById("dbanner");if(banner)banner.style.display="none";}
+  localStorage.removeItem(dfKey("p_t212"));
+  if(aiKey){document.getElementById("antk").value=aiKey;st("ants","Saved in this browser · syncing account…",false,"pending")}
   const wl=localStorage.getItem(dfKey("p_wl"));if(wl)WL=JSON.parse(wl);
-  // Then try to load from Supabase (overrides localStorage with latest saved)
   await loadSettingsFromSupabase();
+  await loadT212Status();
   refreshInvestConnectionSummary();
-  // If we got a T212 key from Supabase, sync immediately
-  if(t212Key) syncT212();
+  if(t212Connected)syncT212();
   renderManualHoldingsList();
-  if(_manualHoldings.length) mergeManualIntoH();
+  if(_manualHoldings.length)mergeManualIntoH();
   rDash();rH();rCF();rWL();rTrig();rGloss();rEducation();rCPO();rEarnings();rSectors();rCostBasis();rRiskCard();rThemeRadar();rConfCalendar();rSupplyMap();rEarlySources();rDashWL();rBreakingNews();
   ptRender();
 });
@@ -4080,16 +4092,42 @@ async function saveAnt(){
   refreshInvestConnectionSummary();
 }
 async function saveT212(){
-  const value=document.getElementById("t212k")?.value.trim()||"";
-  if(!value){st("t212s","Paste your Trading 212 key first",false,"warn");return}
-  t212Key=value;
-  localStorage.setItem(dfKey("p_t212"),t212Key);
-  st("t212s","Saving securely to your account…",false,"pending");
-  const saved=await saveSettingsToSupabase();
-  st("t212s",saved.ok?"✓ Connected and saved to your account":"Connected in this browser only — "+saved.message,saved.ok,saved.ok?"":"warn");
-  const banner=document.getElementById("dbanner");if(banner)banner.style.display="none";
-  refreshInvestConnectionSummary();
-  syncT212();
+  const api_key=document.getElementById("t212k")?.value.trim()||"";
+  const api_secret=document.getElementById("t212secret")?.value.trim()||"";
+  const environment=document.getElementById("t212env")?.value||"live";
+  if(!api_key){st("t212s","Paste your Trading 212 API Key first",false,"warn");return}
+  if(!api_secret){st("t212s","Paste your Trading 212 API Secret Key too",false,"warn");return}
+  st("t212s","Checking both credentials with Trading 212…",false,"pending");
+  try{
+    const r=await dfBankFetch('/api/investing/t212/connect',{method:'POST',body:JSON.stringify({api_key,api_secret,environment})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||'Trading 212 could not be connected.');
+    t212Connected=true;t212Environment=d.environment||environment;
+    document.getElementById("t212k").value="";
+    document.getElementById("t212secret").value="";
+    const disconnect=document.getElementById('t212-disconnect');if(disconnect)disconnect.style.display='inline-block';
+    st("t212s","✓ Connected, verified and saved securely",true);
+    const banner=document.getElementById("dbanner");if(banner)banner.style.display="none";
+    refreshInvestConnectionSummary();
+    applyT212Snapshot(d);
+  }catch(e){
+    t212Connected=false;
+    st("t212s","❌ "+String(e.message||"Could not connect").substring(0,90),false);
+    refreshInvestConnectionSummary();
+  }
+}
+async function disconnectT212(){
+  if(!confirm('Disconnect Trading 212 from your Dayframe account?'))return;
+  st('t212s','Disconnecting…',false,'pending');
+  try{
+    const r=await dfBankFetch('/api/investing/t212/connection',{method:'DELETE'});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.error||'Could not disconnect Trading 212.');
+    t212Connected=false;
+    const disconnect=document.getElementById('t212-disconnect');if(disconnect)disconnect.style.display='none';
+    st('t212s','Disconnected',false);
+    refreshInvestConnectionSummary();
+  }catch(e){st('t212s',e.message||'Could not disconnect Trading 212.',false)}
 }
 function st(id,msg,ok,tone=""){const e=document.getElementById(id);if(!e)return;e.textContent=msg;e.className="kst invest-key-status"+(ok?" ok":"")+(tone?" "+tone:"");}
 
@@ -4191,92 +4229,71 @@ const TICKER_NAMES = {
 window.TICKER_NAMES = TICKER_NAMES;
 
 
-async function syncT212(){
-  if(!t212Key){alert("Add your T212 key in the sidebar first.");return;}
-  document.getElementById("sspin").style.display="inline-block";
-  try{
-    const[pr,cr]=await Promise.all([
-      fetch(SRV+"/api/t212/portfolio",{headers:{"x-t212-key":t212Key}}),
-      fetch(SRV+"/api/t212/cash",{headers:{"x-t212-key":t212Key}})
-    ]);
-    if(!pr.ok){const e=await pr.json().catch(()=>({}));const msg=e.error||'T212 error '+pr.status;if(pr.status===401)throw new Error('T212 key rejected (401). Make sure you copied the full key from T212 → Settings → API → Generate Key');throw new Error(msg);}
-    const pos=await pr.json(),cash=await cr.json();
-    const pos_held = pos.filter(p => p.quantity > 0);
-    const IGNORE = new Set(['ALUS','YNDX','CFV']);
-    const tv=pos_held.reduce((s,p)=>s+(((p.averagePrice||0)*p.quantity)+(p.ppl||0)),0);
-    H=pos_held.map(p=>{
-      const TICKER_ALIAS = {'IPOE':'SOFI','IPOD':'SOFI','IPOF':'SOFI','VACQ':'RKLB','NPA':'ASTS','TWND':'BURU','CNDB':'GCTS','TE':'T1E','GRAB_SGD':'GRAB','1337':'GRAB','AGC':'GRAB','ASTL':'ASTL','YNDX':'NBIS','VIAV':'VIAV','NK':'NK','VVPR':'VVPR'};
-      const raw=p.ticker.replace(/_US_EQ$|_EQ$|_US$|_CA_EQ$|_GB_EQ$|_CA$|_GB$|_SGD_EQ$|_SGD$|_HKD_EQ$|_HKD$|_EUR_EQ$|_EUR$|_AUD_EQ$|_AUD$|_SG_EQ$|_SG$/,"");
-      const t = TICKER_ALIAS[raw] || raw;
-      const g=+(p.ppl||0).toFixed(2);
-      const inv=+((p.averagePrice||0)*p.quantity).toFixed(2);
-      const v=+(inv+g).toFixed(2);
-      const gp=inv>0?+((g/inv)*100).toFixed(2):0;
-      const ex=H.find(h=>h.ticker===t)||{};
-      return{ticker:t,name:ex.name||t,pct:+((v/tv)*100).toFixed(2),val:v,gain:g,gainPct:gp,verdict:ex.verdict||"hold",sector:TICKER_SECTORS[t]||ex.sector||"Other",trend:ex.trend||"side",dilution:ex.dilution||false,earn:ex.earn||false};
-    })
-    .filter(h=>h.val>0)
-    .filter(h=>!IGNORE.has(h.ticker))
-    .sort((a,b)=>b.val-a.val);
+function t212MoneyPrefix(currency){return ({GBP:'£',USD:'$',EUR:'€'})[currency]||(currency?currency+' ':'£')}
+function applyT212Snapshot(data){
+  const pos=Array.isArray(data?.positions)?data.positions:[],cash=data?.summary||{};
+  const posHeld=pos.filter(p=>Number(p.quantity)>0);
+  const IGNORE=new Set(['ALUS','YNDX','CFV']);
+  const aliases={'IPOE':'SOFI','IPOD':'SOFI','IPOF':'SOFI','VACQ':'RKLB','NPA':'ASTS','TWND':'BURU','CNDB':'GCTS','TE':'T1E','GRAB_SGD':'GRAB','1337':'GRAB','AGC':'GRAB','ASTL':'ASTL','YNDX':'NBIS','VIAV':'VIAV','NK':'NK','VVPR':'VVPR'};
+  const existing=new Map(H.map(h=>[h.ticker,h]));
+  const totalValue=posHeld.reduce((sum,p)=>sum+(Number(p.currentValue)||0),0);
+  H=posHeld.map(p=>{
+    const raw=String(p.ticker||'').replace(/_US_EQ$|_EQ$|_US$|_CA_EQ$|_GB_EQ$|_CA$|_GB$|_SGD_EQ$|_SGD$|_HKD_EQ$|_HKD$|_EUR_EQ$|_EUR$|_AUD_EQ$|_AUD$|_SG_EQ$|_SG$/,'');
+    const ticker=aliases[raw]||raw,old=existing.get(ticker)||{};
+    const invested=Number(p.totalCost)||0,value=Number(p.currentValue)||0,gain=Number(p.ppl)||0;
+    const gainPct=invested>0?+((gain/invested)*100).toFixed(2):0;
+    return {ticker,name:p.name||old.name||ticker,pct:totalValue>0?+((value/totalValue)*100).toFixed(2):0,val:+value.toFixed(2),gain:+gain.toFixed(2),gainPct,verdict:old.verdict||'hold',sector:TICKER_SECTORS[ticker]||old.sector||'Other',trend:old.trend||'side',dilution:old.dilution||false,earn:old.earn||false};
+  }).filter(h=>h.val>0&&!IGNORE.has(h.ticker)).sort((a,b)=>b.val-a.val);
 
-    // Show a small warning for any ticker the app doesn't recognise
-    const KNOWN_TICKERS = new Set(['SOFI','GOOGL','AMZN','RKLB','ASTS','IREN','AAOI','BBAI','GRAB','AXTI','IQEPF','SOI','T1E','GCTS','BURU','KRKNF','LITE','COHR','TSEM','MU','SNDK','PL','IRDM','NVDA','AMD','AVGO','PLTR','NBIS','AEHR','SIVE','POET','APLD','SRFM','NAK','ONDS','OSS','OSCR','ASTL','NBIS','USAR','OUST','SREMF','SPIR','ALRIB','HIMS','IBRX','VECO','SHT','MRVL','INTC','TRT','VIAV','NK','VVPR','AAOI','BBAI']);
-    const unknown = H.filter(h => !KNOWN_TICKERS.has(h.ticker));
-    const unknownBanner = document.getElementById('unknown-tickers-banner');
-    if(unknownBanner) {
-      if(unknown.length) {
-        unknownBanner.style.display = 'block';
-        unknownBanner.innerHTML = '<span style="font-weight:700">⚠️ Unrecognised tickers from T212:</span> ' + unknown.map(h => '<code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:12px">'+h.ticker+'</code> (raw: <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:12px">'+h.ticker+'</code>)').join(', ') + ' — let us know what these are so we can map them correctly.';
-      } else {
-        unknownBanner.style.display = 'none';
-      }
-    }
-    const ti=H.reduce((s,h)=>s+h.val-h.gain,0),tg=H.reduce((s,h)=>s+h.gain,0);
-    const best=[...H].sort((a,b)=>b.gainPct-a.gainPct)[0];
-    const worst=[...H].sort((a,b)=>a.gainPct-b.gainPct)[0];
-    // Use T212's own account total (already in GBP) — avoids currency conversion issues
-    const accountTotal = (cash.total != null) ? cash.total : H.reduce((s,h)=>s+h.val,0);
-    document.getElementById("m-val").textContent="£"+accountTotal.toFixed(0);
-    document.getElementById("m-cash").textContent="incl. £"+(cash.free||0).toFixed(0)+" cash";
-    document.getElementById("m-pl").textContent=(tg>=0?"+£":"-£")+Math.abs(tg).toFixed(0);
-    document.getElementById("m-pl").className="mv "+(tg>=0?"pos":"neg");
-    document.getElementById("m-plp").textContent=((tg/ti)*100).toFixed(1)+"%";
-    document.getElementById("m-plp").className="ms "+(tg>=0?"pos":"neg");
-    document.getElementById("m-best").textContent=best.ticker;
-    document.getElementById("m-worst").textContent=worst.ticker;
-    const bestp=document.getElementById("m-bestp");
-    const worstp=document.getElementById("m-worstp");
-    if(bestp){bestp.textContent=(best.gainPct>=0?"+":"")+best.gainPct.toFixed(1)+"%";bestp.className="ms pos";}
-    if(worstp){worstp.textContent=(worst.gainPct>=0?"+":"")+worst.gainPct.toFixed(1)+"%";worstp.className="ms neg";}
-    document.getElementById("m-cnt").textContent=H.length;
-    document.getElementById("dsub").textContent="Live from T212 — "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-    const plCard=document.getElementById("mc-pl-card");
-    if(plCard){plCard.classList.remove("mc-neg","mc-pos");plCard.classList.add(tg>=0?"mc-pos":"mc-neg");}
-    rDash();rH();rCF();rSectors();rCostBasis();rRiskCard();
-    st("t212s","✓ Synced "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),true);
-    // Populate news ticker selector
-    const sel=document.getElementById("news-ticker-sel");
-    if(sel){sel.innerHTML=H.map(h=>`<option value="${h.ticker}">${h.ticker}</option>`).join("");}
-    // Auto-load news feed and brief after sync
-    if(aiKey){
-      setTimeout(()=>fetchMiniNews(), 1000);
-      setTimeout(()=>runAISummary(), 8000);
-      setTimeout(()=>fetchNews(), 15000);
-    }
-  }catch(e){const errMsg = e.message||"Unknown error";
-    st("t212s","❌ "+errMsg.substring(0,50),false);
-    document.getElementById("dsub").textContent = "Sync failed — check your T212 key in the sidebar";
-    // If 401, clear the saved key so user re-enters it fresh
-    if(errMsg.includes("401")){
-      localStorage.removeItem(dfKey("p_t212"));
-      t212Key="";
-      document.getElementById("t212k").value="";
-      st("t212s","Key rejected — paste it again",false);
-    }
+  const known=new Set(['SOFI','GOOGL','AMZN','RKLB','ASTS','IREN','AAOI','BBAI','GRAB','AXTI','IQEPF','SOI','T1E','GCTS','BURU','KRKNF','LITE','COHR','TSEM','MU','SNDK','PL','IRDM','NVDA','AMD','AVGO','PLTR','NBIS','AEHR','SIVE','POET','APLD','SRFM','NAK','ONDS','OSS','OSCR','USAR','OUST','SREMF','SPIR','ALRIB','HIMS','IBRX','VECO','SHT','MRVL','INTC','TRT','VIAV','NK','VVPR']);
+  const unknown=H.filter(h=>!known.has(h.ticker)),unknownBanner=document.getElementById('unknown-tickers-banner');
+  if(unknownBanner){
+    unknownBanner.style.display=unknown.length?'block':'none';
+    if(unknown.length)unknownBanner.innerHTML='<span style="font-weight:700">⚠️ Unrecognised tickers from T212:</span> '+unknown.map(h=>'<code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:12px">'+hubEsc(h.ticker)+'</code>').join(', ')+' — tell us what these are so Dayframe can map them correctly.';
   }
-  document.getElementById("sspin").style.display="none";
-}
 
+  const invested=H.reduce((sum,h)=>sum+h.val-h.gain,0),gain=H.reduce((sum,h)=>sum+h.gain,0);
+  const best=H.length?[...H].sort((a,b)=>b.gainPct-a.gainPct)[0]:null;
+  const worst=H.length?[...H].sort((a,b)=>a.gainPct-b.gainPct)[0]:null;
+  const prefix=t212MoneyPrefix(cash.currency),accountTotal=Number(cash.total)||H.reduce((sum,h)=>sum+h.val,0);
+  document.getElementById("m-val").textContent=prefix+accountTotal.toFixed(0);
+  document.getElementById("m-cash").textContent="incl. "+prefix+(Number(cash.free)||0).toFixed(0)+" cash";
+  document.getElementById("m-pl").textContent=(gain>=0?'+':'-')+prefix+Math.abs(gain).toFixed(0);
+  document.getElementById("m-pl").className="mv "+(gain>=0?"pos":"neg");
+  document.getElementById("m-plp").textContent=(invested>0?(gain/invested)*100:0).toFixed(1)+"%";
+  document.getElementById("m-plp").className="ms "+(gain>=0?"pos":"neg");
+  document.getElementById("m-best").textContent=best?.ticker||'—';
+  document.getElementById("m-worst").textContent=worst?.ticker||'—';
+  const bestp=document.getElementById("m-bestp"),worstp=document.getElementById("m-worstp");
+  if(bestp){bestp.textContent=best?((best.gainPct>=0?'+':'')+best.gainPct.toFixed(1)+'%'):'—';bestp.className='ms '+(best?.gainPct>=0?'pos':'neg')}
+  if(worstp){worstp.textContent=worst?((worst.gainPct>=0?'+':'')+worst.gainPct.toFixed(1)+'%'):'—';worstp.className='ms '+(worst?.gainPct>=0?'pos':'neg')}
+  document.getElementById("m-cnt").textContent=H.length;
+  document.getElementById("dsub").textContent=(data.environment==='demo'?'Demo':'Live')+" from T212 — "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  const plCard=document.getElementById("mc-pl-card");if(plCard){plCard.classList.remove("mc-neg","mc-pos");plCard.classList.add(gain>=0?"mc-pos":"mc-neg")}
+  rDash();rH();rCF();rSectors();rCostBasis();rRiskCard();
+  st("t212s","✓ Synced "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),true);
+  const sel=document.getElementById("news-ticker-sel");if(sel)sel.innerHTML=H.map(h=>'<option value="'+hubEsc(h.ticker)+'">'+hubEsc(h.ticker)+'</option>').join('');
+  if(aiKey){setTimeout(()=>fetchMiniNews(),1000);setTimeout(()=>runAISummary(),8000);setTimeout(()=>fetchNews(),15000)}
+}
+async function syncT212(){
+  if(!t212Connected){st('t212s','Connect with both Trading 212 credentials first',false,'warn');return}
+  const spinner=document.getElementById("sspin");if(spinner)spinner.style.display="inline-block";
+  try{
+    const r=await dfBankFetch('/api/investing/t212/data');
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){
+      if(d.code==='T212_NOT_CONNECTED'||d.code==='T212_AUTH_REJECTED')t212Connected=false;
+      throw new Error(d.error||('Trading 212 error '+r.status));
+    }
+    t212Connected=true;t212Environment=d.environment||t212Environment;
+    applyT212Snapshot(d);
+    refreshInvestConnectionSummary();
+  }catch(e){
+    st("t212s","❌ "+String(e.message||"Unknown error").substring(0,90),false);
+    document.getElementById("dsub").textContent="Sync failed — open Connections to check Trading 212";
+    refreshInvestConnectionSummary();
+  }finally{if(spinner)spinner.style.display="none"}
+}
 async function fetchWLNews(){
   const out = document.getElementById("wl-news-out");
   const sel = document.getElementById("news-ticker-sel");
@@ -4445,8 +4462,8 @@ function hubToast(msg){const el=document.getElementById('hub-toast');if(!el)retu
 function toggleLifeForm(id,force){const el=document.getElementById(id);if(!el)return;const open=force===undefined?!el.classList.contains('open'):force;el.classList.toggle('open',open);if(open){const input=el.querySelector('input');if(input)setTimeout(()=>input.focus(),50)}}
 function refreshInvestConnectionSummary(){
   const summary=document.getElementById('invest-connection-summary'),dot=document.getElementById('invest-connection-dot');
-  const connected=Number(!!t212Key)+Number(!!aiKey);
-  if(summary)summary.textContent=connected===2?'Trading 212 & Groq ready':connected===1?(t212Key?'Trading 212 connected':'Groq AI ready'):'Add Trading 212 & Groq';
+  const connected=Number(t212Connected)+Number(!!aiKey);
+  if(summary)summary.textContent=connected===2?'Trading 212 & Groq ready':connected===1?(t212Connected?'Trading 212 connected':'Groq AI ready'):'Add Trading 212 & Groq';
   if(dot)dot.classList.toggle('ready',connected>0);
 }
 function toggleInvestConnections(){
@@ -4459,8 +4476,8 @@ function toggleInvestConnections(){
   document.body.classList.toggle('invest-drawer-open',shouldOpen);
   refreshInvestConnectionSummary();
   if(shouldOpen){
-    loadSettingsFromSupabase().then(refreshInvestConnectionSummary);
-    setTimeout(()=>document.getElementById(t212Key?'antk':'t212k')?.focus(),120);
+    Promise.all([loadSettingsFromSupabase(),loadT212Status()]).then(refreshInvestConnectionSummary);
+    setTimeout(()=>document.getElementById(t212Connected?'antk':'t212k')?.focus(),120);
   }
 }
 function closeInvestConnections(){
@@ -9369,16 +9386,17 @@ async function loadPies(){
   const out = document.getElementById("pies-out");
   const btn = document.getElementById("pies-refresh-btn");
   const spin = document.getElementById("pies-spin");
-  if(!t212Key){
-    out.innerHTML='<div class="aip wrn"><div class="at">T212 not connected</div><div class="ax">Connect your T212 key in the sidebar first.</div></div>';
+  if(!t212Connected){
+    out.innerHTML='<div class="aip wrn"><div class="at">T212 not connected</div><div class="ax">Connect both Trading 212 credentials first.</div></div>';
     return;
   }
   btn.disabled=true; spin.style.display="inline-block";
   out.innerHTML='<div class="ldg"><span class="spin"></span>Loading pies from T212...</div>';
   try{
-    const r = await fetch(SRV+"/api/t212/pies",{headers:{"x-t212-key":t212Key}});
-    if(!r.ok) throw new Error("T212 error "+r.status);
-    const pies = await r.json();
+    const r=await dfBankFetch('/api/investing/t212/pies');
+    const payload=await r.json().catch(()=>null);
+    if(!r.ok)throw new Error(payload?.error||("T212 error "+r.status));
+    const pies=payload;
     if(!pies||!pies.length){
       out.innerHTML='<div class="empty"><div class="ico">🥧</div>No pies found on your T212 account</div>';
       return;
