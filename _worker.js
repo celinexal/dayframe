@@ -160,19 +160,20 @@ async function t212CredentialKey(env){
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('dayframe:t212:credentials:v1:'+root));
   return crypto.subtle.importKey('raw',digest,{name:'AES-GCM'},false,['encrypt','decrypt']);
 }
+const T212_CREDENTIAL_PREFIX='t212v1.';
 async function encryptT212Credentials(env,value){
   const key=await t212CredentialKey(env);if(!key)return '';
   const iv=crypto.getRandomValues(new Uint8Array(12));
   const plain=new TextEncoder().encode(JSON.stringify(value));
   const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,plain));
   const out=new Uint8Array(iv.length+cipher.length);out.set(iv);out.set(cipher,iv.length);
-  return 't212v1.'+b64u(out);
+  return T212_CREDENTIAL_PREFIX+b64u(out);
 }
 async function decryptT212Credentials(env,value){
   try{
-    const text=String(value||'');if(!text.startsWith('t212v1.'))return null;
+    const text=String(value||'');if(!text.startsWith(T212_CREDENTIAL_PREFIX))return null;
     const key=await t212CredentialKey(env);if(!key)return null;
-    const all=unb64u(text.slice(8)),iv=all.slice(0,12),cipher=all.slice(12);
+    const all=unb64u(text.slice(T212_CREDENTIAL_PREFIX.length)),iv=all.slice(0,12),cipher=all.slice(12);
     const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,cipher);
     const parsed=JSON.parse(new TextDecoder().decode(plain));
     return validT212Part(parsed?.api_key)&&validT212Part(parsed?.api_secret)?{api_key:String(parsed.api_key),api_secret:String(parsed.api_secret),environment:t212Environment(parsed.environment)}:null;
