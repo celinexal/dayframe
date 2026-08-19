@@ -224,9 +224,11 @@ function normaliseT212Position(position){
   const safeCost=Number.isFinite(totalCost)?totalCost:fallbackCost;
   const safeValue=Number.isFinite(currentValue)?currentValue:fallbackValue;
   const providerPpl=Number(wallet?.unrealizedProfitLoss??position?.ppl);
+  const rawTicker=String(instrument?.ticker||position?.ticker||''),baseTicker=rawTicker.replace(/_US_EQ$|_EQ$|_US$|_DE_EQ$|_DE$/,'');
+  const sivers=/^(2DGg|2DGG|2DG)$/.test(baseTicker);
   return {
-    ticker:String(instrument?.ticker||position?.ticker||''),
-    name:String(instrument?.name||instrument?.shortName||instrument?.ticker||position?.ticker||'Holding'),
+    ticker:sivers?'SIVE':rawTicker,
+    name:sivers?'Sivers Semiconductors AB':String(instrument?.name||instrument?.shortName||instrument?.ticker||position?.ticker||'Holding'),
     quantity,
     averagePrice,
     currentPrice,
