@@ -6,10 +6,11 @@ const STATE_COOKIE='dayframe_tl_v1_state';
 const BIBLE_API_USFM=Object.freeze({'Genesis':'GEN','Exodus':'EXO','Leviticus':'LEV','Numbers':'NUM','Deuteronomy':'DEU','Joshua':'JOS','Judges':'JDG','Ruth':'RUT','1 Samuel':'1SA','2 Samuel':'2SA','1 Kings':'1KI','2 Kings':'2KI','1 Chronicles':'1CH','2 Chronicles':'2CH','Ezra':'EZR','Nehemiah':'NEH','Esther':'EST','Job':'JOB','Psalms':'PSA','Proverbs':'PRO','Ecclesiastes':'ECC','Song of Solomon':'SNG','Isaiah':'ISA','Jeremiah':'JER','Lamentations':'LAM','Ezekiel':'EZK','Daniel':'DAN','Hosea':'HOS','Joel':'JOL','Amos':'AMO','Obadiah':'OBA','Jonah':'JON','Micah':'MIC','Nahum':'NAM','Habakkuk':'HAB','Zephaniah':'ZEP','Haggai':'HAG','Zechariah':'ZEC','Malachi':'MAL','Matthew':'MAT','Mark':'MRK','Luke':'LUK','John':'JHN','Acts':'ACT','Romans':'ROM','1 Corinthians':'1CO','2 Corinthians':'2CO','Galatians':'GAL','Ephesians':'EPH','Philippians':'PHP','Colossians':'COL','1 Thessalonians':'1TH','2 Thessalonians':'2TH','1 Timothy':'1TI','2 Timothy':'2TI','Titus':'TIT','Philemon':'PHM','Hebrews':'HEB','James':'JAS','1 Peter':'1PE','2 Peter':'2PE','1 John':'1JN','2 John':'2JN','3 John':'3JN','Jude':'JUD','Revelation':'REV'});
 async function getLicensedBibleChapter(url,env){
  const key=String(env.API_BIBLE_KEY||'').trim(),translation=String(url.searchParams.get('translation')||'').trim().toUpperCase(),book=canonicalBibleBook(url.searchParams.get('book')),chapter=Number(url.searchParams.get('chapter'));
- if(!['NIV','MSG'].includes(translation))return json({error:'Choose NIV or The Message.'},400);
+ if(!['NIV','MSG','NLT'].includes(translation))return json({error:'Choose NIV, The Message or NLT.'},400);
  if(!book)return json({error:'Choose a valid Bible book.'},400);
  if(!Number.isInteger(chapter)||chapter<1||chapter>BIBLE_KJV_BOOKS[book])return json({error:'Choose a valid chapter for '+book+'.'},400);
- if(!key)return json({error:'The licensed '+(translation==='MSG'?'Message':'NIV')+' reader needs one owner-only API.Bible connection before it can appear inside Dayframe.',code:'BIBLE_LICENSE_NOT_CONFIGURED'},503);
+ const translationName=translation==='MSG'?'The Message':translation==='NLT'?'NLT':'NIV';
+ if(!key)return json({error:'The licensed '+translationName+' reader needs one owner-only API.Bible connection before it can appear inside Dayframe.',code:'BIBLE_LICENSE_NOT_CONFIGURED'},503);
  const base='https://rest.api.bible/v1',headers={accept:'application/json','api-key':key};
  let versions;
  try{versions=await fetch(base+'/bibles?language=eng&abbreviation='+encodeURIComponent(translation),{headers})}catch(e){return json({error:'The licensed Bible service is temporarily unavailable.'},502)}
@@ -18,10 +19,10 @@ async function getLicensedBibleChapter(url,env){
  const versionLength=Number(versions.headers.get('content-length')||0);if(versionLength>250000)return json({error:'The licensed Bible response was unexpectedly large.'},502);
  let versionData;try{versionData=await versions.json()}catch(e){return json({error:'The licensed Bible service returned an invalid response.'},502)}
  const candidates=Array.isArray(versionData.data)?versionData.data:[],version=candidates.find(x=>String(x.abbreviation||x.abbreviationLocal||'').toUpperCase()===translation)||candidates[0];
- if(!version?.id)return json({error:(translation==='MSG'?'The Message':'NIV')+' is not included in Dayframe’s API.Bible licence yet.',code:'BIBLE_TRANSLATION_NOT_LICENSED'},503);
+ if(!version?.id)return json({error:translationName+' is not included in Dayframe’s API.Bible licence yet.',code:'BIBLE_TRANSLATION_NOT_LICENSED'},503);
  const chapterId=BIBLE_API_USFM[book]+'.'+chapter,chapterUrl=base+'/bibles/'+encodeURIComponent(version.id)+'/chapters/'+encodeURIComponent(chapterId)+'?content-type=text&include-notes=false&include-titles=true&include-chapter-numbers=false&include-verse-numbers=true';
  let response;try{response=await fetch(chapterUrl,{headers})}catch(e){return json({error:'The licensed Bible service is temporarily unavailable.'},502)}
- if(response.status===403)return json({error:(translation==='MSG'?'The Message':'NIV')+' is not included in Dayframe’s API.Bible licence yet.',code:'BIBLE_TRANSLATION_NOT_LICENSED'},503);
+ if(response.status===403)return json({error:translationName+' is not included in Dayframe’s API.Bible licence yet.',code:'BIBLE_TRANSLATION_NOT_LICENSED'},503);
  if(!response.ok)return json({error:'The licensed Bible reader could not open that chapter.'},502);
  const length=Number(response.headers.get('content-length')||0);if(length>500000)return json({error:'The licensed Bible response was unexpectedly large.'},502);
  let payload;try{payload=await response.json()}catch(e){return json({error:'The licensed Bible service returned an invalid response.'},502)}
