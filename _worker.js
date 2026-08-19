@@ -54,7 +54,7 @@ export default {
   async fetch(request, env) {
     const url=new URL(request.url);
     try{
-      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-auth-link-v2-20260818'});
+      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-auth-link-v3-20260819'});
       if(url.pathname==='/api/money/connect'&&request.method==='POST')return startConnect(request,env);
       if(url.pathname==='/api/money/callback'&&request.method==='GET')return handleCallback(request,env);
       if(url.pathname==='/api/money/data'&&request.method==='GET')return getMoneyData(request,env);
@@ -561,7 +561,7 @@ async function startConnect(request,env){
   if(!credentialsMatchEnvironment(env))return json({code:'OPEN_BANKING_ENVIRONMENT_MISMATCH',error:'The bank connection is using credentials for a different TrueLayer environment.'},503);
 
   const state=crypto.randomUUID();
-  const authUrl=new URL('https://auth.truelayer.com/');
+  const authUrl=new URL(authBase(env)+'/');
   authUrl.searchParams.set('response_type','code');
   authUrl.searchParams.set('client_id',String(env.TRUELAYER_CLIENT_ID).trim());
   authUrl.searchParams.set('redirect_uri',String(env.TRUELAYER_RETURN_URI).trim());
