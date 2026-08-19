@@ -1,3 +1,4 @@
+// Dayframe build: Bible licences connected 2026-08-19
 const SUPABASE_URL='https://xvquxwvapgzxyuntylci.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2cXV4d3ZhcGd6eHl1bnR5bGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjQ4MzQsImV4cCI6MjA4OTYwMDgzNH0.ovxzwMPaoyqdM4tJnjh28ovzj9mpsl87ToDiA2mXADw';
 const STATE_COOKIE='dayframe_tl_v1_state';
