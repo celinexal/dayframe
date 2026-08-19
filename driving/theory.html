@@ -217,9 +217,18 @@ body{font-size:16px;background:#fff;}
 .quiz-section-title{font-size:12px;}
 .mock-title{font-size:17px;}
 
+
+/* Embedded inside Dayframe: avoid duplicated headings and give study content more room */
+body.dayframe-embedded .top-bar,body.dayframe-embedded .welcome{display:none}
+body.dayframe-embedded .main{max-width:920px;padding-top:12px}
+body.dayframe-embedded .tabs{position:sticky;top:8px;z-index:20;max-width:520px;margin:.2rem auto 1.2rem;box-shadow:0 7px 20px rgba(45,42,53,.08)}
+body.dayframe-embedded .syncing{margin-bottom:3px}
+@media(max-width:640px){body.dayframe-embedded .main{padding:8px 14px 4rem}body.dayframe-embedded .tabs{top:5px}}
+
 </style>
 </head>
 <body>
+<script>if(window.self!==window.top)document.body.classList.add('dayframe-embedded');</script>
 <div class="top-bar">
   <div class="logo">theory<span class="star"> &#10022; </span>tracker</div>
 </div>
