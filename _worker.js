@@ -2,6 +2,25 @@ const SUPABASE_URL='https://xvquxwvapgzxyuntylci.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2cXV4d3ZhcGd6eHl1bnR5bGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjQ4MzQsImV4cCI6MjA4OTYwMDgzNH0.ovxzwMPaoyqdM4tJnjh28ovzj9mpsl87ToDiA2mXADw';
 const STATE_COOKIE='dayframe_tl_v1_state';
 
+const BIBLE_KJV_BOOKS=Object.freeze({'Genesis':50,'Exodus':40,'Leviticus':27,'Numbers':36,'Deuteronomy':34,'Joshua':24,'Judges':21,'Ruth':4,'1 Samuel':31,'2 Samuel':24,'1 Kings':22,'2 Kings':25,'1 Chronicles':29,'2 Chronicles':36,'Ezra':10,'Nehemiah':13,'Esther':10,'Job':42,'Psalms':150,'Proverbs':31,'Ecclesiastes':12,'Song of Solomon':8,'Isaiah':66,'Jeremiah':52,'Lamentations':5,'Ezekiel':48,'Daniel':12,'Hosea':14,'Joel':3,'Amos':9,'Obadiah':1,'Jonah':4,'Micah':7,'Nahum':3,'Habakkuk':3,'Zephaniah':3,'Haggai':2,'Zechariah':14,'Malachi':4,'Matthew':28,'Mark':16,'Luke':24,'John':21,'Acts':28,'Romans':16,'1 Corinthians':16,'2 Corinthians':13,'Galatians':6,'Ephesians':6,'Philippians':4,'Colossians':4,'1 Thessalonians':5,'2 Thessalonians':3,'1 Timothy':6,'2 Timothy':4,'Titus':3,'Philemon':1,'Hebrews':13,'James':5,'1 Peter':5,'2 Peter':3,'1 John':5,'2 John':1,'3 John':1,'Jude':1,'Revelation':22});
+function canonicalBibleBook(value){const clean=String(value||'').trim().replace(/\s+/g,' ').toLowerCase();return Object.keys(BIBLE_KJV_BOOKS).find(x=>x.toLowerCase()===clean)||''}
+async function getKJVChapter(url){
+ const book=canonicalBibleBook(url.searchParams.get('book')),chapter=Number(url.searchParams.get('chapter'));
+ if(!book)return json({error:'Choose a valid Bible book.'},400);
+ if(!Number.isInteger(chapter)||chapter<1||chapter>BIBLE_KJV_BOOKS[book])return json({error:'Choose a valid chapter for '+book+'.'},400);
+ const upstreamUrl='https://bible-api.com/'+encodeURIComponent(book+' '+chapter)+'?translation=kjv';
+ let response;
+ try{response=await fetch(upstreamUrl,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:86400}})}catch(e){return json({error:'The Bible reader is temporarily unavailable.'},502)}
+ if(!response.ok)return json({error:'The Bible reader could not open that chapter.'},502);
+ const length=Number(response.headers.get('content-length')||0);
+ if(length>300000)return json({error:'The Bible response was unexpectedly large.'},502);
+ let data;try{data=await response.json()}catch(e){return json({error:'The Bible reader returned an invalid response.'},502)}
+ const verses=Array.isArray(data.verses)?data.verses.slice(0,200).map(v=>({verse:Number(v.verse)||0,text:String(v.text||'').slice(0,1200)})).filter(v=>v.verse&&v.text):[];
+ if(!verses.length)return json({error:'No verses were returned for that chapter.'},502);
+ return json({reference:String(data.reference||book+' '+chapter),translation:'King James Version',verses,attribution:'King James Version · public domain'},200,{'cache-control':'public, max-age=3600, s-maxage=86400'});
+}
+
+
 export default {
   async fetch(request, env) {
     const url=new URL(request.url);
@@ -17,6 +36,7 @@ export default {
       if(url.pathname==='/api/investing/t212/pies'&&request.method==='GET')return getT212Pies(request,env);
       if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
       if(url.pathname==='/api/ai/groq'&&request.method==='POST')return proxySharedGroq(request);
+      if(url.pathname==='/api/bible/kjv')return request.method==='GET'?getKJVChapter(url):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
       if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request,env);
       if(url.pathname.startsWith('/api/'))return json({error:'Not found'},404);
