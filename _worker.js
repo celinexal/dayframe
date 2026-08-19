@@ -11,6 +11,11 @@ export default {
       if(url.pathname==='/api/money/callback'&&request.method==='GET')return handleCallback(request,env);
       if(url.pathname==='/api/money/data'&&request.method==='GET')return getMoneyData(request,env);
       if(url.pathname.startsWith('/api/money/connections/')&&request.method==='DELETE')return disconnectBank(request,env,url.pathname.split('/').pop());
+      if(url.pathname==='/api/investing/t212/status'&&request.method==='GET')return getT212Status(request,env);
+      if(url.pathname==='/api/investing/t212/connect'&&request.method==='POST')return connectT212(request,env);
+      if(url.pathname==='/api/investing/t212/data'&&request.method==='GET')return getT212Data(request,env);
+      if(url.pathname==='/api/investing/t212/pies'&&request.method==='GET')return getT212Pies(request,env);
+      if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
       if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request);
       if(url.pathname.startsWith('/api/'))return json({error:'Not found'},404);
       return env.ASSETS.fetch(request);
@@ -35,6 +40,160 @@ function bearer(request){const h=request.headers.get('authorization')||'';return
 async function verifyUser(request){const token=bearer(request);if(!token)return null;const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON,authorization:'Bearer '+token}});if(!r.ok)return null;const user=await r.json().catch(()=>null);return user?.id?{user,token}:null}
 async function sbRest(path,jwt,opts={}){const headers={apikey:SUPABASE_ANON,authorization:'Bearer '+jwt,'content-type':'application/json',...(opts.headers||{})};return fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers})}
 function validateProfile(name,email){name=String(name||'').trim();email=String(email||'').trim();if(name.length<2||name.length>100)return 'Enter your name.';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return 'Enter a valid email address.';return ''}
+
+function t212Environment(value){return String(value||'live').trim().toLowerCase()==='demo'?'demo':'live'}
+function t212ApiBase(environment){return t212Environment(environment)==='demo'?'https://demo.trading212.com/api/v0':'https://live.trading212.com/api/v0'}
+function validT212Part(value){const text=String(value||'').trim();return text.length>=8&&text.length<=600&&!/[\u0000-\u001f\u007f]/.test(text)}
+async function t212CredentialKey(env){
+  const root=String(env.DAYFRAME_CREDENTIAL_KEY||env.TRUELAYER_CLIENT_SECRET||'').trim();
+  if(!root)return null;
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('dayframe:t212:credentials:v1:'+root));
+  return crypto.subtle.importKey('raw',digest,{name:'AES-GCM'},false,['encrypt','decrypt']);
+}
+async function encryptT212Credentials(env,value){
+  const key=await t212CredentialKey(env);if(!key)return '';
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const plain=new TextEncoder().encode(JSON.stringify(value));
+  const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,plain));
+  const out=new Uint8Array(iv.length+cipher.length);out.set(iv);out.set(cipher,iv.length);
+  return 't212v1.'+b64u(out);
+}
+async function decryptT212Credentials(env,value){
+  try{
+    const text=String(value||'');if(!text.startsWith('t212v1.'))return null;
+    const key=await t212CredentialKey(env);if(!key)return null;
+    const all=unb64u(text.slice(8)),iv=all.slice(0,12),cipher=all.slice(12);
+    const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,cipher);
+    const parsed=JSON.parse(new TextDecoder().decode(plain));
+    return validT212Part(parsed?.api_key)&&validT212Part(parsed?.api_secret)?{api_key:String(parsed.api_key),api_secret:String(parsed.api_secret),environment:t212Environment(parsed.environment)}:null;
+  }catch(e){return null}
+}
+function t212BasicAuth(credentials){return 'Basic '+btoa(credentials.api_key+':'+credentials.api_secret)}
+async function t212Request(credentials,path){
+  const response=await fetch(t212ApiBase(credentials.environment)+path,{method:'GET',headers:{accept:'application/json',authorization:t212BasicAuth(credentials)}});
+  const data=await response.json().catch(()=>null);
+  return {response,data};
+}
+function t212Failure(result){
+  const status=result?.response?.status||0;
+  if(status===401)return json({code:'T212_AUTH_REJECTED',error:'Trading 212 did not accept that API Key and API Secret pair.'},422);
+  if(status===403)return json({code:'T212_PERMISSIONS',error:'Enable the Account data and Portfolio read permissions for this Trading 212 key.'},422);
+  if(status===429)return json({code:'T212_RATE_LIMIT',error:'Trading 212 is rate-limiting this account. Wait a moment and try again.'},429);
+  return json({code:'T212_UNAVAILABLE',error:'Trading 212 could not be reached just now.'},502);
+}
+async function loadT212Credentials(auth,env){
+  const rr=await sbRest('user_settings?select=t212_key&id=eq.'+encodeURIComponent(auth.user.id),auth.token,{method:'GET'});
+  if(!rr.ok)return {error:'Dayframe could not load the saved Trading 212 connection.'};
+  const rows=await rr.json().catch(()=>[]),stored=rows?.[0]?.t212_key||'';
+  if(!stored)return {connected:false,migration_required:false};
+  const credentials=await decryptT212Credentials(env,stored);
+  if(!credentials)return {connected:false,migration_required:true};
+  return {connected:true,credentials};
+}
+async function saveT212Credentials(auth,env,credentials){
+  const encrypted=await encryptT212Credentials(env,credentials);
+  if(!encrypted)return {ok:false,error:'Secure credential storage is not configured.'};
+  const rr=await sbRest('user_settings?on_conflict=id&select=id',auth.token,{
+    method:'POST',
+    headers:{Prefer:'resolution=merge-duplicates,return=representation'},
+    body:JSON.stringify({id:auth.user.id,t212_key:encrypted,updated_at:new Date().toISOString()})
+  });
+  const rows=await rr.json().catch(()=>[]);
+  return rr.ok&&Array.isArray(rows)&&!!rows[0]?.id?{ok:true}:{ok:false,error:'Dayframe could not save the Trading 212 connection.'};
+}
+function normaliseT212Position(position){
+  const instrument=position?.instrument||{},wallet=position?.walletImpact||{};
+  const quantity=Number(position?.quantity)||0;
+  const averagePrice=Number(position?.averagePricePaid??position?.averagePrice)||0;
+  const currentPrice=Number(position?.currentPrice)||0;
+  const totalCost=Number(wallet?.totalCost);
+  const currentValue=Number(wallet?.currentValue);
+  const fallbackCost=averagePrice*quantity;
+  const fallbackValue=currentPrice*quantity;
+  const safeCost=Number.isFinite(totalCost)?totalCost:fallbackCost;
+  const safeValue=Number.isFinite(currentValue)?currentValue:fallbackValue;
+  const providerPpl=Number(wallet?.unrealizedProfitLoss??position?.ppl);
+  return {
+    ticker:String(instrument?.ticker||position?.ticker||''),
+    name:String(instrument?.name||instrument?.shortName||instrument?.ticker||position?.ticker||'Holding'),
+    quantity,
+    averagePrice,
+    currentPrice,
+    totalCost:safeCost,
+    currentValue:safeValue,
+    ppl:Number.isFinite(providerPpl)?providerPpl:safeValue-safeCost,
+    currency:String(wallet?.currency||'')
+  };
+}
+function normaliseT212Summary(summary){
+  const cash=summary?.cash||{},investments=summary?.investments||{};
+  return {
+    currency:String(summary?.currency||'GBP'),
+    total:Number(summary?.totalValue??summary?.total)||0,
+    free:Number(cash?.availableToTrade??cash?.free)||0,
+    inPies:Number(cash?.inPies)||0,
+    reservedForOrders:Number(cash?.reservedForOrders)||0,
+    investmentValue:Number(investments?.currentValue)||0,
+    totalCost:Number(investments?.totalCost)||0,
+    ppl:Number(investments?.unrealizedProfitLoss)||0
+  };
+}
+async function fetchT212Snapshot(credentials){
+  const [summaryResult,positionsResult]=await Promise.all([
+    t212Request(credentials,'/equity/account/summary'),
+    t212Request(credentials,'/equity/positions')
+  ]);
+  if(!summaryResult.response.ok)return {failure:t212Failure(summaryResult)};
+  if(!positionsResult.response.ok)return {failure:t212Failure(positionsResult)};
+  if(!Array.isArray(positionsResult.data)||!summaryResult.data||typeof summaryResult.data!=='object')return {failure:json({code:'T212_RESPONSE_CHANGED',error:'Trading 212 returned an unexpected response.'},502)};
+  return {data:{summary:normaliseT212Summary(summaryResult.data),positions:positionsResult.data.map(normaliseT212Position),environment:credentials.environment,refreshed_at:new Date().toISOString()}};
+}
+async function getT212Status(request,env){
+  const auth=await verifyUser(request);if(!auth)return json({error:'Log in to view this connection.'},401);
+  const stored=await loadT212Credentials(auth,env);
+  if(stored.error)return json({error:stored.error},502);
+  return json({connected:stored.connected,environment:stored.credentials?.environment||null,migration_required:stored.migration_required||false});
+}
+async function connectT212(request,env){
+  const auth=await verifyUser(request);if(!auth)return json({error:'Log in to connect Trading 212.'},401);
+  const body=await request.json().catch(()=>({}));
+  const api_key=String(body.api_key||'').trim(),api_secret=String(body.api_secret||'').trim(),environment=t212Environment(body.environment);
+  if(!validT212Part(api_key))return json({error:'Enter the complete Trading 212 API Key.'},400);
+  if(!validT212Part(api_secret))return json({error:'Enter the complete Trading 212 API Secret Key.'},400);
+  const credentials={api_key,api_secret,environment};
+  const snapshot=await fetchT212Snapshot(credentials);
+  if(snapshot.failure)return snapshot.failure;
+  const saved=await saveT212Credentials(auth,env,credentials);
+  if(!saved.ok)return json({error:saved.error},502);
+  return json({connected:true,...snapshot.data});
+}
+async function getT212Data(request,env){
+  const auth=await verifyUser(request);if(!auth)return json({error:'Log in to refresh Trading 212.'},401);
+  const stored=await loadT212Credentials(auth,env);
+  if(stored.error)return json({error:stored.error},502);
+  if(!stored.connected)return json({code:'T212_NOT_CONNECTED',error:'Connect Trading 212 with both credentials first.'},404);
+  const snapshot=await fetchT212Snapshot(stored.credentials);
+  return snapshot.failure||json(snapshot.data);
+}
+async function getT212Pies(request,env){
+  const auth=await verifyUser(request);if(!auth)return json({error:'Log in to load Trading 212 pies.'},401);
+  const stored=await loadT212Credentials(auth,env);
+  if(stored.error)return json({error:stored.error},502);
+  if(!stored.connected)return json({code:'T212_NOT_CONNECTED',error:'Connect Trading 212 first.'},404);
+  const result=await t212Request(stored.credentials,'/equity/pies');
+  if(!result.response.ok)return t212Failure(result);
+  return json(Array.isArray(result.data)?result.data:[]);
+}
+async function disconnectT212(request,env){
+  const auth=await verifyUser(request);if(!auth)return json({error:'Log in to disconnect Trading 212.'},401);
+  const rr=await sbRest('user_settings?id=eq.'+encodeURIComponent(auth.user.id),auth.token,{
+    method:'PATCH',
+    headers:{Prefer:'return=minimal'},
+    body:JSON.stringify({t212_key:null,updated_at:new Date().toISOString()})
+  });
+  if(!rr.ok)return json({error:'Dayframe could not remove the Trading 212 connection.'},502);
+  return json({ok:true});
+}
 
 
 async function proxyTheoryTracker(request){
