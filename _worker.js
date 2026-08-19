@@ -2,6 +2,33 @@ const SUPABASE_URL='https://xvquxwvapgzxyuntylci.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2cXV4d3ZhcGd6eHl1bnR5bGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjQ4MzQsImV4cCI6MjA4OTYwMDgzNH0.ovxzwMPaoyqdM4tJnjh28ovzj9mpsl87ToDiA2mXADw';
 const STATE_COOKIE='dayframe_tl_v1_state';
 
+
+const BIBLE_API_USFM=Object.freeze({'Genesis':'GEN','Exodus':'EXO','Leviticus':'LEV','Numbers':'NUM','Deuteronomy':'DEU','Joshua':'JOS','Judges':'JDG','Ruth':'RUT','1 Samuel':'1SA','2 Samuel':'2SA','1 Kings':'1KI','2 Kings':'2KI','1 Chronicles':'1CH','2 Chronicles':'2CH','Ezra':'EZR','Nehemiah':'NEH','Esther':'EST','Job':'JOB','Psalms':'PSA','Proverbs':'PRO','Ecclesiastes':'ECC','Song of Solomon':'SNG','Isaiah':'ISA','Jeremiah':'JER','Lamentations':'LAM','Ezekiel':'EZK','Daniel':'DAN','Hosea':'HOS','Joel':'JOL','Amos':'AMO','Obadiah':'OBA','Jonah':'JON','Micah':'MIC','Nahum':'NAM','Habakkuk':'HAB','Zephaniah':'ZEP','Haggai':'HAG','Zechariah':'ZEC','Malachi':'MAL','Matthew':'MAT','Mark':'MRK','Luke':'LUK','John':'JHN','Acts':'ACT','Romans':'ROM','1 Corinthians':'1CO','2 Corinthians':'2CO','Galatians':'GAL','Ephesians':'EPH','Philippians':'PHP','Colossians':'COL','1 Thessalonians':'1TH','2 Thessalonians':'2TH','1 Timothy':'1TI','2 Timothy':'2TI','Titus':'TIT','Philemon':'PHM','Hebrews':'HEB','James':'JAS','1 Peter':'1PE','2 Peter':'2PE','1 John':'1JN','2 John':'2JN','3 John':'3JN','Jude':'JUD','Revelation':'REV'});
+async function getLicensedBibleChapter(url,env){
+ const key=String(env.API_BIBLE_KEY||'').trim(),translation=String(url.searchParams.get('translation')||'').trim().toUpperCase(),book=canonicalBibleBook(url.searchParams.get('book')),chapter=Number(url.searchParams.get('chapter'));
+ if(!['NIV','MSG'].includes(translation))return json({error:'Choose NIV or The Message.'},400);
+ if(!book)return json({error:'Choose a valid Bible book.'},400);
+ if(!Number.isInteger(chapter)||chapter<1||chapter>BIBLE_KJV_BOOKS[book])return json({error:'Choose a valid chapter for '+book+'.'},400);
+ if(!key)return json({error:'The licensed '+(translation==='MSG'?'Message':'NIV')+' reader needs one owner-only API.Bible connection before it can appear inside Dayframe.',code:'BIBLE_LICENSE_NOT_CONFIGURED'},503);
+ const base='https://rest.api.bible/v1',headers={accept:'application/json','api-key':key};
+ let versions;
+ try{versions=await fetch(base+'/bibles?language=eng&abbreviation='+encodeURIComponent(translation),{headers})}catch(e){return json({error:'The licensed Bible service is temporarily unavailable.'},502)}
+ if(versions.status===401)return json({error:'Dayframe’s licensed Bible key needs to be checked.',code:'BIBLE_LICENSE_NOT_CONFIGURED'},503);
+ if(!versions.ok)return json({error:'The licensed Bible service could not check this translation.'},502);
+ const versionLength=Number(versions.headers.get('content-length')||0);if(versionLength>250000)return json({error:'The licensed Bible response was unexpectedly large.'},502);
+ let versionData;try{versionData=await versions.json()}catch(e){return json({error:'The licensed Bible service returned an invalid response.'},502)}
+ const candidates=Array.isArray(versionData.data)?versionData.data:[],version=candidates.find(x=>String(x.abbreviation||x.abbreviationLocal||'').toUpperCase()===translation)||candidates[0];
+ if(!version?.id)return json({error:(translation==='MSG'?'The Message':'NIV')+' is not included in Dayframe’s API.Bible licence yet.',code:'BIBLE_TRANSLATION_NOT_LICENSED'},503);
+ const chapterId=BIBLE_API_USFM[book]+'.'+chapter,chapterUrl=base+'/bibles/'+encodeURIComponent(version.id)+'/chapters/'+encodeURIComponent(chapterId)+'?content-type=text&include-notes=false&include-titles=true&include-chapter-numbers=false&include-verse-numbers=true';
+ let response;try{response=await fetch(chapterUrl,{headers})}catch(e){return json({error:'The licensed Bible service is temporarily unavailable.'},502)}
+ if(response.status===403)return json({error:(translation==='MSG'?'The Message':'NIV')+' is not included in Dayframe’s API.Bible licence yet.',code:'BIBLE_TRANSLATION_NOT_LICENSED'},503);
+ if(!response.ok)return json({error:'The licensed Bible reader could not open that chapter.'},502);
+ const length=Number(response.headers.get('content-length')||0);if(length>500000)return json({error:'The licensed Bible response was unexpectedly large.'},502);
+ let payload;try{payload=await response.json()}catch(e){return json({error:'The licensed Bible service returned an invalid response.'},502)}
+ const content=String(payload?.data?.content||'').slice(0,350000);if(!content)return json({error:'No Scripture text was returned for that chapter.'},502);
+ return json({reference:String(payload.data.reference||book+' '+chapter),translation,content,copyright:String(payload.data.copyright||version.copyright||''),fumsToken:String(payload?.meta?.fumsToken||payload?.meta?.fums||'')},200,{'cache-control':'no-store'});
+}
+
 const BIBLE_KJV_BOOKS=Object.freeze({'Genesis':50,'Exodus':40,'Leviticus':27,'Numbers':36,'Deuteronomy':34,'Joshua':24,'Judges':21,'Ruth':4,'1 Samuel':31,'2 Samuel':24,'1 Kings':22,'2 Kings':25,'1 Chronicles':29,'2 Chronicles':36,'Ezra':10,'Nehemiah':13,'Esther':10,'Job':42,'Psalms':150,'Proverbs':31,'Ecclesiastes':12,'Song of Solomon':8,'Isaiah':66,'Jeremiah':52,'Lamentations':5,'Ezekiel':48,'Daniel':12,'Hosea':14,'Joel':3,'Amos':9,'Obadiah':1,'Jonah':4,'Micah':7,'Nahum':3,'Habakkuk':3,'Zephaniah':3,'Haggai':2,'Zechariah':14,'Malachi':4,'Matthew':28,'Mark':16,'Luke':24,'John':21,'Acts':28,'Romans':16,'1 Corinthians':16,'2 Corinthians':13,'Galatians':6,'Ephesians':6,'Philippians':4,'Colossians':4,'1 Thessalonians':5,'2 Thessalonians':3,'1 Timothy':6,'2 Timothy':4,'Titus':3,'Philemon':1,'Hebrews':13,'James':5,'1 Peter':5,'2 Peter':3,'1 John':5,'2 John':1,'3 John':1,'Jude':1,'Revelation':22});
 function canonicalBibleBook(value){const clean=String(value||'').trim().replace(/\s+/g,' ').toLowerCase();return Object.keys(BIBLE_KJV_BOOKS).find(x=>x.toLowerCase()===clean)||''}
 async function getKJVChapter(url){
@@ -37,6 +64,7 @@ export default {
       if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
       if(url.pathname==='/api/ai/groq'&&request.method==='POST')return proxySharedGroq(request);
       if(url.pathname==='/api/bible/kjv')return request.method==='GET'?getKJVChapter(url):json({error:'Method not allowed'},405,{allow:'GET'});
+      if(url.pathname==='/api/bible/licensed')return request.method==='GET'?getLicensedBibleChapter(url,env):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
       if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request,env);
       if(url.pathname.startsWith('/api/'))return json({error:'Not found'},404);
