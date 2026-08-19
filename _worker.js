@@ -275,6 +275,8 @@ async function connectT212(request,env){
   if(snapshot.failure)return snapshot.failure;
   const saved=await saveT212Credentials(auth,env,credentials);
   if(!saved.ok)return json({error:saved.error},502);
+  const verified=await loadT212Credentials(auth,env);
+  if(verified.error||!verified.connected)return json({error:'The connection was verified but could not be restored from your account.',code:'T212_SAVE_VERIFY_FAILED'},502);
   return json({connected:true,...snapshot.data});
 }
 async function getT212Data(request,env){
