@@ -6,6 +6,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>try{if(localStorage.getItem('dayframe_session'))document.documentElement.classList.add('df-session-pending')}catch(e){}</script>
   <!-- v9.9d-20260417 -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -925,6 +926,7 @@ tbody td{padding:10px 13px;vertical-align:middle;}
 .money-row-category{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
 .money-row-actions{display:flex;align-items:center;gap:5px}
 .money-account-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin-bottom:11px;border:1px solid #e8ebf1;border-radius:13px;background:#fbfcfe}.money-account-toolbar-copy{display:flex;align-items:center;gap:9px;min-width:0}.money-account-toolbar-dot{width:8px;height:8px;border-radius:50%;background:#c2c8d2;box-shadow:0 0 0 4px #f0f2f6}.money-account-toolbar-dot.live{background:#27a884;box-shadow:0 0 0 4px #e5f7f1}.money-account-toolbar strong{display:block;font-size:10.5px;color:#526078}.money-account-toolbar span{display:block;font-size:8.5px;color:#98a1b1;margin-top:1px}
+.money-account-save-status{min-height:17px;margin-top:9px;font-size:9.5px;font-weight:750;color:#7c8799}.money-account-save-status.error{color:#b45c53}.money-account-save-status.ok{color:#27806a}
 .money-account-actions{display:grid;gap:8px}.money-account-action{display:flex;align-items:center;gap:11px;width:100%;padding:12px;border:1px solid #e8ebf1;border-radius:14px;background:#fff;text-align:left;font-family:var(--ff);cursor:pointer}.money-account-action:hover{border-color:#d9d6fa;background:#fcfbff}.money-account-action i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#f1efff;color:#6d61ea;font-style:normal;font-size:14px}.money-account-action strong{display:block;font-size:10.5px;color:#566174}.money-account-action span{display:block;font-size:8.5px;color:#99a2b1;margin-top:2px}
 .money-provider-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}.money-provider-pills button{height:28px;padding:0 9px;border:1px solid #e6e9ef;border-radius:999px;background:#fafbfc;color:#778194;font:700 8.5px var(--ff);cursor:pointer}.money-provider-pills button:hover{color:#665be1;border-color:#d9d5fa;background:#f7f5ff}
 .credit-priority-card{padding:15px;border:1px solid #e6e3ff;border-radius:16px;background:linear-gradient(140deg,#faf8ff,#f5f8ff)}.credit-priority-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.credit-priority-badge{display:inline-flex;padding:4px 7px;border-radius:999px;background:#ebe9ff;color:#685be6;font-size:8px;font-weight:850}.credit-priority-name{font-family:var(--fd);font-size:17px;font-weight:850;color:#354055;margin-top:10px}.credit-priority-copy{font-size:9.5px;color:#7e899a;line-height:1.6;margin-top:5px}.credit-strategy{width:100%;height:36px;border:1px solid #dfe2eb;border-radius:10px;background:#fff;padding:0 9px;color:#596477;font:750 9.5px var(--ff);outline:none;margin-top:12px}.credit-rank{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;background:#f1efff;color:#6d61e8;font-size:8px;font-weight:850;margin-right:5px}
@@ -946,6 +948,10 @@ tbody td{padding:10px 13px;vertical-align:middle;}
 /* ── DAYFRAME MULTI-USER / TOP NAV ── */
 #auth-screen{display:flex!important;position:fixed;inset:0;z-index:9999;background:#f7f8fc;align-items:stretch;overflow:auto;font-family:var(--ff)}
 #auth-screen.hidden{display:none!important}
+html.df-session-pending #auth-screen{align-items:center;justify-content:center;overflow:hidden}
+html.df-session-pending #auth-screen .auth-public{visibility:hidden}
+html.df-session-pending #auth-screen::before{content:'D';position:absolute;left:50%;top:calc(50% - 35px);transform:translate(-50%,-50%);width:52px;height:52px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,#795ff4,#5d8cff);color:#fff;font-family:var(--fd);font-size:23px;font-weight:850;box-shadow:0 12px 30px rgba(108,94,238,.24)}
+html.df-session-pending #auth-screen::after{content:'Opening your Dayframe…';position:absolute;left:50%;top:calc(50% + 22px);transform:translateX(-50%);color:#748094;font-size:11px;font-weight:750;letter-spacing:.15px;white-space:nowrap}
 .auth-public{width:100%;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;background:radial-gradient(circle at 78% 8%,rgba(124,97,243,.13),transparent 28%),radial-gradient(circle at 18% 88%,rgba(77,130,243,.10),transparent 25%),#f8f9fd;color:#152033}
 .auth-public-nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px;max-width:1280px;width:calc(100% - 56px);margin:0 auto}
 .auth-public-logo{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-size:22px;font-weight:850;letter-spacing:-.6px}.auth-public-mark{width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,#795ff4,#5d8cff);color:#fff;display:grid;place-items:center;box-shadow:0 9px 22px rgba(108,94,238,.22);font-size:18px}.auth-public-actions{display:flex;align-items:center;gap:9px}.auth-nav-btn{height:40px;border-radius:12px;padding:0 16px;font-family:var(--ff);font-size:11px;font-weight:800;cursor:pointer}.auth-nav-btn.ghost{border:1px solid #e0e4ec;background:#fff;color:#606b7d}.auth-nav-btn.primary{border:0;background:#20293b;color:#fff;box-shadow:0 7px 18px rgba(32,41,59,.14)}
@@ -1845,9 +1851,9 @@ body.invest-drawer-open{overflow:hidden}
     <div class="money-pane-grid">
       <div class="money-col">
         <section class="life-card money-glass money-form-card">
-          <div class="life-card-head"><div><div class="life-card-title">Accounts & connections</div><div class="life-card-sub">Your live and manually tracked accounts in one place</div></div><button class="money-head-action" onclick="moneyOpenConnectModal()">＋ Add account</button></div>
+          <div class="life-card-head"><div><div class="life-card-title">Accounts & connections</div><div class="life-card-sub">Your live and manually tracked accounts in one place</div></div><button type="button" class="money-head-action" onclick="moneyOpenConnectModal()">＋ Add account</button></div>
           <div class="life-card-body">
-            <div class="life-form" id="money-account-form"><div class="life-form-grid"><div class="life-field"><label>Provider</label><select class="life-select" id="money-account-provider"><option value="">Select provider</option><option>Monzo</option><option>Barclays</option><option>Barclaycard</option><option>American Express</option><option>Klarna</option><option>Clearpay</option><option>PayPal</option><option>PayPal Credit</option><option value="custom">Custom</option></select></div><div class="life-field"><label>Account type</label><select class="life-select" id="money-account-type"><option value="bank">Bank account</option><option value="savings">Savings</option><option value="credit-card">Credit card</option><option value="bnpl">Buy now pay later</option><option value="wallet">Wallet</option></select></div><div class="life-field"><label>Custom name</label><input class="life-input" id="money-account-custom" placeholder="Only if custom"></div><div class="life-field"><label>Current balance</label><input class="life-input" id="money-account-balance" type="number" step="0.01" placeholder="0.00"></div><div class="life-field"><label>Last 4 digits</label><input class="life-input" id="money-account-last4" placeholder="e.g. 1234"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('money-account-form',false)">Cancel</button><button class="life-btn-primary" onclick="addMoneyAccount()">Save account</button></div></div>
+            <div class="life-form" id="money-account-form"><div class="life-form-grid"><div class="life-field"><label>Provider</label><select class="life-select" id="money-account-provider"><option value="">Select provider</option><option>Monzo</option><option>Barclays</option><option>Barclaycard</option><option>American Express</option><option>Klarna</option><option>Clearpay</option><option>PayPal</option><option>PayPal Credit</option><option value="custom">Custom</option></select></div><div class="life-field"><label>Account type</label><select class="life-select" id="money-account-type"><option value="bank">Bank account</option><option value="savings">Savings</option><option value="credit-card">Credit card</option><option value="bnpl">Buy now pay later</option><option value="wallet">Wallet</option></select></div><div class="life-field"><label>Custom name</label><input class="life-input" id="money-account-custom" placeholder="Only if custom"></div><div class="life-field"><label>Current balance</label><input class="life-input" id="money-account-balance" type="number" step="0.01" placeholder="0.00"></div><div class="life-field"><label>Last 4 digits</label><input class="life-input" id="money-account-last4" placeholder="e.g. 1234"></div></div><div class="money-account-save-status" id="money-account-save-status" aria-live="polite"></div><div class="life-form-actions"><button type="button" class="life-btn-secondary" onclick="toggleLifeForm('money-account-form',false)">Cancel</button><button type="button" class="life-btn-primary" id="money-account-save-btn" onclick="addMoneyAccount()">Save account</button></div></div>
             <div id="money-accounts-list" class="money-accounts-list"></div>
           </div>
         </section>
@@ -1858,8 +1864,8 @@ body.invest-drawer-open{overflow:hidden}
           <div class="life-card-body">
             <div id="money-account-connection-summary"></div>
             <div class="money-account-actions">
-              <button class="money-account-action" onclick="moneyOpenConnectModal()"><i>⌁</i><span><strong>Connect a bank or card</strong><span>Secure Open Banking connection</span></span></button>
-              <button class="money-account-action" onclick="moneyChooseManualAccount()"><i>＋</i><span><strong>Add something manually</strong><span>For Klarna, Clearpay, PayPal or cash</span></span></button>
+              <button type="button" class="money-account-action" onclick="moneyOpenConnectModal()"><i>⌁</i><span><strong>Connect a bank or card</strong><span>Secure Open Banking connection</span></span></button>
+              <button type="button" class="money-account-action" onclick="moneyChooseManualAccount()"><i>＋</i><span><strong>Add something manually</strong><span>For Klarna, Clearpay, PayPal or cash</span></span></button>
             </div>
             <div class="money-provider-pills"><button onclick="moneyPresetAccount('Klarna','bnpl')">Klarna</button><button onclick="moneyPresetAccount('Clearpay','bnpl')">Clearpay</button><button onclick="moneyPresetAccount('PayPal','wallet')">PayPal</button><button onclick="moneyPresetAccount('PayPal Credit','credit-card')">PayPal Credit</button></div>
           </div>
@@ -3689,26 +3695,32 @@ function dfKey(key){return 'df_'+dfCurrentUserId()+'_'+key}
 function dfSession(){try{return JSON.parse(localStorage.getItem('dayframe_session')||'{}')}catch(e){return {}}}
 function dfSessionExpiry(data){const raw=Number(data?.expires_at)||0;if(raw)return raw>1e12?raw:raw*1000;return Date.now()+Math.max(60,Number(data?.expires_in)||3600)*1000}
 function dfAuthHeaders(json=false){const s=dfSession();const h={};if(s.access_token)h.Authorization='Bearer '+s.access_token;if(json)h['Content-Type']='application/json';return h}
+function dfRefreshIsInvalid(response,data){const raw=String(data?.error_code||data?.error_description||data?.error||data?.message||'').toLowerCase();return (response.status===400||response.status===401)&&(/refresh|invalid|expired|revoked|session/.test(raw))}
 let _dfRefreshPromise=null;
 async function dfRefreshSession(force=false){
-  const current=dfSession();
-  if(!current?.refresh_token||current.demo)return current;
-  const expiry=Number(current.expires_at)||0;
-  const legacyThirtyDayExpiry=expiry>Date.now()+24*60*60*1000;
-  if(!force&&current.access_token&&expiry>Date.now()+120000&&!legacyThirtyDayExpiry)return current;
-  if(_dfRefreshPromise)return _dfRefreshPromise;
-  _dfRefreshPromise=(async()=>{
+  const initial=dfSession();
+  if(!initial?.refresh_token||initial.demo)return initial;
+  const refresh=async()=>{
+    const current=dfSession();
+    if(!current?.refresh_token||current.demo)return current;
+    if(current.refresh_token!==initial.refresh_token&&current.access_token)return current;
+    const expiry=Number(current.expires_at)||0;
+    const legacyThirtyDayExpiry=expiry>Date.now()+24*60*60*1000;
+    if(!force&&current.access_token&&expiry>Date.now()+120000&&!legacyThirtyDayExpiry)return current;
     try{
       const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({refresh_token:current.refresh_token})});
       const d=await r.json().catch(()=>({}));
-      if(!r.ok||!d.access_token)return current;
+      if(!r.ok||!d.access_token)return {...current,[dfRefreshIsInvalid(r,d)?'_refreshInvalid':'_refreshUnavailable']:true};
       const next={...current,access_token:d.access_token,refresh_token:d.refresh_token||current.refresh_token,user:d.user||current.user,email:d.user?.email||current.email,expires_at:dfSessionExpiry(d)};
+      delete next._refreshInvalid;delete next._refreshUnavailable;
       localStorage.setItem('dayframe_session',JSON.stringify(next));
       return next;
-    }catch(e){return current}
-    finally{_dfRefreshPromise=null}
-  })();
-  return _dfRefreshPromise;
+    }catch(e){return {...current,_refreshUnavailable:true}}
+  };
+  if(navigator.locks?.request)return navigator.locks.request('dayframe-session-refresh',{mode:'exclusive'},refresh);
+  if(_dfRefreshPromise)return _dfRefreshPromise;
+  _dfRefreshPromise=refresh();
+  try{return await _dfRefreshPromise}finally{_dfRefreshPromise=null}
 }
 async function dfBankFetch(url,opts={}){
   await dfRefreshSession(false);
@@ -3939,6 +3951,7 @@ async function doUpdatePassword(){
 }
 
 async function authSuccess(name){
+  document.documentElement.classList.remove('df-session-pending');
   document.getElementById('auth-screen').classList.add('hidden');
   const userEl=document.getElementById('sb-user-name');if(userEl)userEl.textContent=name;
   const avatarEl=document.getElementById('sb-user-avatar');if(avatarEl)avatarEl.textContent=(name||'U')[0].toUpperCase();
@@ -3959,20 +3972,22 @@ async function doLogout(){
   location.reload();
 }
 
-// Check existing session on load. Refresh first so saved user and bank data
-// never render against an expired access token.
+// Restore an existing session without flashing the login page or rotating a
+// still-valid refresh token. Invalid sessions are cleared; temporary network
+// failures keep the local session so a refresh never looks like a logout.
 (async function checkSession(){
-  if(beginPasswordRecoveryFromUrl())return;
+  if(beginPasswordRecoveryFromUrl()){document.documentElement.classList.remove('df-session-pending');return}
   const raw=localStorage.getItem('dayframe_session');
-  if(!raw){document.getElementById('auth-screen')?.classList.remove('hidden');return}
+  if(!raw){document.documentElement.classList.remove('df-session-pending');document.getElementById('auth-screen')?.classList.remove('hidden');return}
   try{
     const stored=JSON.parse(raw);
     if(!stored?.access_token&&!stored?.refresh_token)throw new Error('Missing session');
-    const session=await dfRefreshSession(true);
-    if(!session?.access_token)throw new Error('Session could not be restored');
+    const session=await dfRefreshSession(false);
+    if(session?._refreshInvalid||!session?.access_token)throw new Error('Session could not be restored');
     await authSuccess(session.name||session.email?.split('@')[0]||'User');
   }catch(e){
     localStorage.removeItem('dayframe_session');
+    document.documentElement.classList.remove('df-session-pending');
     document.getElementById('auth-screen')?.classList.remove('hidden');
   }
 })();
@@ -4670,11 +4685,28 @@ async function loadVIX(tk, sector, trend){
 const HUB_STORE_KEY='dayframe_personal_hub_v1';
 const hubDefault=()=>({money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,savings:0,buffer:0,aiNote:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
 function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage.getItem(dfKey(HUB_STORE_KEY))||'{}'));}catch(e){return hubDefault();}}
-let _hubSyncTimer=null,_hubSyncBusy=false;
+let _hubSyncTimer=null,_hubSyncChain=Promise.resolve(true);
 function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
-async function syncHubToSupabase(data){
-  const s=await dfRefreshSession();if(!s?.access_token||!s?.user?.id||_hubSyncBusy)return;_hubSyncBusy=true;
-  try{await fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?on_conflict=user_id',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:s.user.id,hub_data:data,updated_at:new Date().toISOString()})})}catch(e){console.log('Dayframe data sync error',e)}finally{_hubSyncBusy=false}
+function hubSaveImmediate(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);return syncHubToSupabase(d)}
+function syncHubToSupabase(data){
+  const run=async()=>{
+    let session=await dfRefreshSession(false);
+    if(!session?.access_token||!session?.user?.id||session?._refreshInvalid)return false;
+    const send=()=>fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?on_conflict=user_id',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:session.user.id,hub_data:data,updated_at:new Date().toISOString()})});
+    try{
+      let response=await send();
+      if(response.status===401){
+        session=await dfRefreshSession(true);
+        if(!session?.access_token||session?._refreshInvalid)return false;
+        response=await send();
+      }
+      if(!response.ok){console.log('Dayframe data sync failed',response.status);return false}
+      return true;
+    }catch(e){console.log('Dayframe data sync error',e);return false}
+  };
+  const next=_hubSyncChain.catch(()=>false).then(run);
+  _hubSyncChain=next;
+  return next;
 }
 async function loadHubFromSupabase(){
   const s=await dfRefreshSession();if(!s?.access_token||!s?.user?.id)return;
@@ -4853,7 +4885,33 @@ function moneyOpenTab(name,btn){document.querySelectorAll('.money-pane').forEach
 function moneyQuick(tab,formId){moneyOpenTab(tab);if(formId)toggleLifeForm(formId,true)}
 function moneyPrimaryAction(){const active=document.querySelector('.money-tab.on')?.dataset.moneyTab||'overview';const map={overview:['accounts','money-account-form'],accounts:['accounts','money-account-form'],budget:['budget','money-budget-form'],credit:['credit','money-credit-form'],bills:['bills','money-bill-form'],transactions:['transactions','money-form']};const target=map[active]||map.overview;moneyQuick(target[0],target[1])}
 function moneyPresetAccount(provider,type){const p=document.getElementById('money-account-provider'),t=document.getElementById('money-account-type');if(p){const has=[...p.options].some(o=>o.value===provider||o.text===provider);p.value=has?provider:'custom'}if(t)t.value=type||'bank';if(![...p.options].some(o=>o.value===provider||o.text===provider))document.getElementById('money-account-custom').value=provider;moneyQuick('accounts','money-account-form')}
-function addMoneyAccount(){const provider=document.getElementById('money-account-provider').value;const type=document.getElementById('money-account-type').value;const custom=document.getElementById('money-account-custom').value.trim();const balance=Number(document.getElementById('money-account-balance').value);const last4=document.getElementById('money-account-last4').value.trim();const status='tracked';const name=provider==='custom'?custom:provider;if(!name)return hubToast('Choose a provider or add a custom name');if(!Number.isFinite(balance))return hubToast('Add a valid balance');const d=hubLoad();d.accounts.unshift({id:Date.now(),name,type,balance,last4,status});hubSave(d);document.getElementById('money-account-provider').value='';document.getElementById('money-account-type').value='bank';document.getElementById('money-account-custom').value='';document.getElementById('money-account-balance').value='';document.getElementById('money-account-last4').value='';toggleLifeForm('money-account-form',false);renderMoney();renderHome();hubToast('Account saved')}
+function moneyAccountFormStatus(message,tone=''){const el=document.getElementById('money-account-save-status');if(!el)return;el.textContent=message||'';el.className='money-account-save-status'+(tone?' '+tone:'')}
+async function addMoneyAccount(){
+  const provider=document.getElementById('money-account-provider').value;
+  const type=document.getElementById('money-account-type').value;
+  const custom=document.getElementById('money-account-custom').value.trim();
+  const balanceRaw=document.getElementById('money-account-balance').value;
+  const balance=balanceRaw===''?0:Number(balanceRaw);
+  const last4=document.getElementById('money-account-last4').value.trim();
+  const name=(provider==='custom'||!provider)?custom:provider;
+  if(!name){moneyAccountFormStatus('Choose a provider or enter a custom account name.','error');return}
+  if(!Number.isFinite(balance)){moneyAccountFormStatus('Enter a valid current balance.','error');return}
+  const button=document.getElementById('money-account-save-btn');if(button)button.disabled=true;
+  moneyAccountFormStatus('Saving account…');
+  const d=hubLoad();
+  d.accounts.unshift({id:Date.now(),name,type,balance,last4,status:'tracked'});
+  const synced=await hubSaveImmediate(d);
+  document.getElementById('money-account-provider').value='';
+  document.getElementById('money-account-type').value='bank';
+  document.getElementById('money-account-custom').value='';
+  document.getElementById('money-account-balance').value='';
+  document.getElementById('money-account-last4').value='';
+  moneyAccountFormStatus(synced?'Account saved to your Dayframe.':'Saved here — cloud sync will retry when your connection returns.',synced?'ok':'');
+  renderMoney();renderHome();
+  if(button)button.disabled=false;
+  setTimeout(()=>toggleLifeForm('money-account-form',false),synced?350:900);
+  hubToast(synced?'Account saved':'Account saved — waiting to sync')
+}
 function deleteMoneyAccount(id){const d=hubLoad();d.accounts=d.accounts.filter(x=>x.id!==id);hubSave(d);renderMoney();renderHome()}
 function moneyBankTransactionsForMonth(month){return (_moneyBankData.transactions||[]).map(x=>({id:x.id,raw_id:x.id,desc:moneyPrettyMerchant(x.merchant||x.description||'Bank transaction'),amount:Math.abs(Number(x.amount||0)),type:x.direction==='income'?'income':'expense',category:moneyNormaliseCategory(x.category||'Other'),date:String(x.timestamp||'').slice(0,10),bank:true})).filter(x=>x.date.slice(0,7)===month)}
 function budgetPlanValues(){
