@@ -1493,6 +1493,7 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 .invest-key-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}.invest-key-stack{display:grid;gap:9px}.invest-key-input{width:100%;min-width:0;height:39px;border:1px solid #dfe3eb;border-radius:11px;padding:0 11px;background:#fbfcff;color:#353e50;font:600 10px var(--ff);outline:none}.invest-key-input:focus{border-color:#8c81ee;box-shadow:0 0 0 3px rgba(117,103,235,.1)}select.invest-key-input{appearance:auto}
 .invest-key-row button,.invest-key-primary{height:39px;border:0;border-radius:11px;padding:0 12px;background:#2e374a;color:#fff;font:800 9px var(--ff);cursor:pointer}.service-t212 .invest-key-primary{width:100%;background:#277d65}.service-groq .invest-key-row button{background:#6759df}.invest-key-help{font-size:8.5px;line-height:1.5;color:#929bab}.invest-key-disconnect{display:none;margin-top:8px;border:0;background:transparent;color:#a65e65;font:750 8.5px var(--ff);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .invest-key-status{min-height:15px;margin-top:7px;font-size:9px;color:#9aa3b1}.invest-key-status.ok{color:#2c9a76;font-weight:800}
+.invest-help{margin-top:12px;border:1px solid #e5e9f0;border-radius:13px;background:#fafbfe;overflow:hidden}.invest-help summary{display:flex;align-items:center;gap:7px;padding:10px 11px;list-style:none;cursor:pointer;color:#667185;font:800 9px var(--ff)}.invest-help summary::-webkit-details-marker{display:none}.invest-help summary:after{content:"＋";margin-left:auto;color:#9aa3b1;font-size:12px}.invest-help[open] summary:after{content:"−"}.invest-help-icon{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#eef1f7;color:#68748a;font:900 9px var(--ff)}.service-t212 .invest-help-icon{background:#e8f7f1;color:#277d65}.service-groq .invest-help-icon{background:#eeecff;color:#6759df}.invest-help-body{padding:0 12px 12px;border-top:1px solid #edf0f5;color:#778397}.invest-help-body ol{margin:10px 0 0;padding-left:18px}.invest-help-body li{margin:0 0 7px;font-size:9px;line-height:1.55}.invest-help-body strong{color:#4b5669}.invest-help-note{margin-top:8px;padding:9px 10px;border-radius:10px;background:#fff6e9;color:#8c6731;font-size:8.5px;line-height:1.5}.invest-help-link{display:inline-flex;align-items:center;gap:5px;margin-top:8px;color:#6158d4;font:800 9px var(--ff);text-decoration:none}.invest-help-link:hover{text-decoration:underline}
 .invest-cache-clear{margin-top:8px;border:0;background:transparent;color:#929aaa;font:700 8.5px var(--ff);padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .invest-connect-privacy{display:flex;align-items:flex-start;gap:10px;margin-top:17px;padding:13px;border-radius:15px;background:#f3f7ff;border:1px solid #e2e9f7;color:#66738a}.invest-connect-privacy>span{color:#6a62df}.invest-connect-privacy strong{font-size:9.5px}.invest-connect-privacy p{font-size:8.8px;line-height:1.5;margin-top:3px;color:#8d97a8}
 body.invest-drawer-open{overflow:hidden}
@@ -1635,13 +1636,40 @@ body.invest-drawer-open{overflow:hidden}
         </div>
         <div class="kst invest-key-status" id="t212s">Not connected</div>
         <button class="invest-key-disconnect" id="t212-disconnect" type="button" onclick="disconnectT212()">Disconnect Trading 212</button>
+        <details class="invest-help">
+          <summary><span class="invest-help-icon">i</span>Where do I get these?</summary>
+          <div class="invest-help-body">
+            <ol>
+              <li>Open Trading 212 and switch to the <strong>Invest</strong> or <strong>Stocks ISA</strong> account you want to connect.</li>
+              <li>Open <strong>Menu → Settings → API (Beta)</strong>, accept the warning, then choose <strong>Generate API key</strong>.</li>
+              <li>Name it <strong>Dayframe</strong> and enable read-only <strong>Account data</strong> and <strong>Portfolio</strong> permissions. Leave order permissions off.</li>
+              <li>Generate the pair, then copy both the <strong>API Key</strong> and <strong>API Secret Key</strong>. The secret is shown only once.</li>
+              <li>Choose the matching <strong>Live</strong> or <strong>Demo</strong> option above and paste both values.</li>
+            </ol>
+            <div class="invest-help-note">Using an IP-restricted key may block Dayframe’s Cloudflare connection. If that happens, create an unrestricted key but keep it read-only.</div>
+            <a class="invest-help-link" href="https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-Trading-212-API-key" target="_blank" rel="noopener noreferrer">Open Trading 212’s official guide ↗</a>
+          </div>
+        </details>
       </section>
       <section class="invest-service-card service-groq">
-        <div class="invest-service-top"><span class="invest-service-icon">G</span><div><h3>Groq AI</h3><p>Power the live AI summaries and research tools.</p></div></div>
-        <label class="invest-key-label" for="antk">Groq API key</label>
+        <div class="invest-service-top"><span class="invest-service-icon">G</span><div><h3>Groq AI</h3><p>Use your personal Groq key for AI summaries and research tools.</p></div></div>
+        <label class="invest-key-label" for="antk">Your personal Groq API key</label>
         <div class="invest-key-row"><input class="invest-key-input" type="password" id="antk" placeholder="Paste your Groq key" autocomplete="off" spellcheck="false"><button type="button" onclick="saveAnt()">Save AI key</button></div>
         <div class="kst invest-key-status" id="ants">Not saved</div>
         <button class="invest-cache-clear" type="button" onclick="clearAICache()">Clear saved AI responses</button>
+        <details class="invest-help">
+          <summary><span class="invest-help-icon">i</span>Where do I get this?</summary>
+          <div class="invest-help-body">
+            <ol>
+              <li>Open the <strong>Groq Console</strong> and sign in or create a free account.</li>
+              <li>Create or select a project, then open <strong>API Keys</strong>.</li>
+              <li>Choose <strong>Create API Key</strong>, give it a name such as <strong>Dayframe</strong>, and copy the key.</li>
+              <li>Paste it above and choose <strong>Save AI key</strong>.</li>
+            </ol>
+            <div class="invest-help-note">This is currently your own key and quota. Other Dayframe users use their own Groq keys; they do not share yours.</div>
+            <a class="invest-help-link" href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">Create a Groq API key ↗</a>
+          </div>
+        </details>
       </section>
     </div>
     <div class="invest-connect-privacy"><span>◉</span><div><strong>Private to your account</strong><p>Your saved values reload when you sign back in, so you do not need to reconnect each visit.</p></div></div>
