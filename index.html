@@ -1853,7 +1853,7 @@ body.invest-drawer-open{overflow:hidden}
         <section class="life-card money-glass money-form-card">
           <div class="life-card-head"><div><div class="life-card-title">Accounts & connections</div><div class="life-card-sub">Your live and manually tracked accounts in one place</div></div><button type="button" class="money-head-action" onclick="moneyOpenConnectModal()">＋ Add account</button></div>
           <div class="life-card-body">
-            <div class="life-form" id="money-account-form"><div class="life-form-grid"><div class="life-field"><label>Provider</label><select class="life-select" id="money-account-provider"><option value="">Select provider</option><option>Monzo</option><option>Barclays</option><option>Barclaycard</option><option>American Express</option><option>Vanquis</option><option>Klarna</option><option>Clearpay</option><option>PayPal</option><option>PayPal Credit</option><option value="custom">Custom</option></select></div><div class="life-field"><label>Account type</label><select class="life-select" id="money-account-type"><option value="bank">Bank account</option><option value="savings">Savings</option><option value="credit-card">Credit card</option><option value="bnpl">Buy now pay later</option><option value="wallet">Wallet</option></select></div><div class="life-field"><label>Custom name</label><input class="life-input" id="money-account-custom" placeholder="Only if custom"></div><div class="life-field"><label>Current balance / amount owed</label><input class="life-input" id="money-account-balance" type="number" step="0.01" placeholder="0.00"><div class="money-category-help">For credit or pay-later accounts, enter the amount owed as a positive number.</div></div><div class="life-field"><label>Last 4 digits</label><input class="life-input" id="money-account-last4" placeholder="e.g. 1234"></div></div><div class="money-account-save-status" id="money-account-save-status" aria-live="polite"></div><div class="life-form-actions"><button type="button" class="life-btn-secondary" onclick="toggleLifeForm('money-account-form',false)">Cancel</button><button type="button" class="life-btn-primary" id="money-account-save-btn" onclick="addMoneyAccount()">Save account</button></div></div>
+            <div class="life-form" id="money-account-form"><div class="life-form-grid"><div class="life-field"><label>Provider</label><select class="life-select" id="money-account-provider"><option value="">Select provider</option><option>Monzo</option><option>Barclays</option><option>Barclaycard</option><option>American Express</option><option>Vanquis</option><option>Klarna</option><option>Clearpay</option><option>PayPal</option><option>PayPal Credit</option><option value="custom">Custom</option></select></div><div class="life-field"><label>Account type</label><select class="life-select" id="money-account-type"><option value="bank">Current account</option><option value="savings">Savings</option><option value="credit-card">Credit card</option><option value="bnpl">Buy now pay later</option><option value="wallet">Wallet</option></select><div class="money-category-help">Choose the closest type. You can correct it later.</div></div><div class="life-field"><label>Custom name</label><input class="life-input" id="money-account-custom" placeholder="Only if custom"></div><div class="life-field"><label>Current balance / amount owed</label><input class="life-input" id="money-account-balance" type="number" step="0.01" placeholder="0.00"><div class="money-category-help">For credit or pay-later accounts, enter the amount owed as a positive number.</div></div><div class="life-field"><label>Last 4 digits</label><input class="life-input" id="money-account-last4" placeholder="e.g. 1234"></div></div><div class="money-account-save-status" id="money-account-save-status" aria-live="polite"></div><div class="life-form-actions"><button type="button" class="life-btn-secondary" onclick="moneyCancelAccountEdit()">Cancel</button><button type="button" class="life-btn-primary" id="money-account-save-btn" onclick="addMoneyAccount()">Save account</button></div></div>
             <div id="money-accounts-list" class="money-accounts-list"></div>
           </div>
         </section>
@@ -1939,7 +1939,7 @@ body.invest-drawer-open{overflow:hidden}
 
 <div class="money-category-modal" id="money-category-modal" onclick="if(event.target===this)moneyCloseCategoryEditor()"><div class="money-category-dialog"><div class="money-category-title">Choose a category</div><div class="money-category-sub">Pick an existing category or type a new one. Dayframe will remember the merchant and apply it to matching transactions in your account.</div><div class="life-field"><label>Category</label><input class="life-input" id="money-category-edit-input" list="money-category-options" placeholder="e.g. Pet care"></div><div class="money-category-actions"><button class="life-btn-secondary" onclick="moneyCloseCategoryEditor()">Cancel</button><button class="life-btn-primary" onclick="moneySaveCategoryEdit()">Save category</button></div></div></div>
 
-<div class="money-account-modal" id="money-account-modal" onclick="if(event.target===this)moneyCloseAccountDetail()"><div class="money-account-sheet"><div class="money-account-sheet-head"><div><div class="money-account-sheet-title" id="money-detail-name">Account</div><div class="money-account-sheet-sub" id="money-detail-meta"></div></div><button class="money-account-sheet-close" onclick="moneyCloseAccountDetail()">×</button></div><div class="money-account-stats"><div class="money-account-stat"><div class="money-account-stat-label" id="money-detail-balance-label">Balance</div><div class="money-account-stat-value" id="money-detail-balance">£0.00</div></div><div class="money-account-stat"><div class="money-account-stat-label" id="money-detail-available-label">Available</div><div class="money-account-stat-value" id="money-detail-available">—</div></div><div class="money-account-stat"><div class="money-account-stat-label">Transactions</div><div class="money-account-stat-value" id="money-detail-count">0</div></div></div><div class="money-account-tx"><div class="money-account-tx-head"><div class="money-account-tx-title">Recent activity</div><div style="display:flex;align-items:center;gap:10px"><div class="money-account-tx-count" id="money-detail-source">Synced through Open Banking</div><button class="money-head-action" id="money-detail-add" onclick="moneyAddTransactionForDetail()">＋ Add transaction</button></div></div><div id="money-detail-transactions"></div></div></div></div>
+<div class="money-account-modal" id="money-account-modal" onclick="if(event.target===this)moneyCloseAccountDetail()"><div class="money-account-sheet"><div class="money-account-sheet-head"><div><div class="money-account-sheet-title" id="money-detail-name">Account</div><div class="money-account-sheet-sub" id="money-detail-meta"></div></div><div style="display:flex;align-items:center;gap:8px"><button class="money-head-action" id="money-detail-edit" onclick="moneyEditAccountForDetail()">Edit account</button><button class="money-account-sheet-close" onclick="moneyCloseAccountDetail()">×</button></div></div><div class="money-account-stats"><div class="money-account-stat"><div class="money-account-stat-label" id="money-detail-balance-label">Balance</div><div class="money-account-stat-value" id="money-detail-balance">£0.00</div></div><div class="money-account-stat"><div class="money-account-stat-label" id="money-detail-available-label">Available</div><div class="money-account-stat-value" id="money-detail-available">—</div></div><div class="money-account-stat"><div class="money-account-stat-label">Transactions</div><div class="money-account-stat-value" id="money-detail-count">0</div></div></div><div class="money-account-tx"><div class="money-account-tx-head"><div class="money-account-tx-title">Recent activity</div><div style="display:flex;align-items:center;gap:10px"><div class="money-account-tx-count" id="money-detail-source">Synced through Open Banking</div><button class="money-head-action" id="money-detail-add" onclick="moneyAddTransactionForDetail()">＋ Add transaction</button></div></div><div id="money-detail-transactions"></div><div id="money-detail-payment-suggestions"></div></div></div></div>
 
 <div class="money-connect-modal" id="money-connect-modal" onclick="if(event.target===this)moneyCloseConnectModal()">
   <div class="money-connect-dialog">
@@ -4706,7 +4706,7 @@ async function loadVIX(tk, sector, trend){
 
 // ── PERSONAL HUB DATA & RENDERING ──
 const HUB_STORE_KEY='dayframe_personal_hub_v1';
-const hubDefault=()=>({money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,savings:0,buffer:0,aiNote:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
+const hubDefault=()=>({money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,savings:0,buffer:0,aiNote:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
 function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage.getItem(dfKey(HUB_STORE_KEY))||'{}'));}catch(e){return hubDefault();}}
 let _hubSyncTimer=null,_hubSyncChain=Promise.resolve(true);
 function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
@@ -4808,7 +4808,16 @@ let _moneyBankLoaded=false,_moneyBankLoading=false;
 function moneyOpenConnectModal(){const m=document.getElementById('money-connect-modal');if(m)m.classList.add('open');moneySetConnectStatus('','')}
 function moneyCloseConnectModal(){document.getElementById('money-connect-modal')?.classList.remove('open')}
 function moneySetConnectStatus(type,msg){const e=document.getElementById('money-connect-status');if(!e)return;e.className='money-connect-status'+(type?' show '+type:'');e.innerHTML=msg||''}
-function moneyChooseManualAccount(){moneyCloseConnectModal();moneyQuick('accounts','money-account-form')}
+function moneyResetAccountForm(){
+ _moneyEditingAccountId=null;
+ const values={'money-account-provider':'','money-account-type':'bank','money-account-custom':'','money-account-balance':'','money-account-last4':''};
+ Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});
+ const button=document.getElementById('money-account-save-btn');if(button){button.textContent='Save account';button.disabled=false}
+ moneyAccountFormStatus('')
+}
+function moneyBeginNewManualAccount(){moneyResetAccountForm();moneyCloseConnectModal();moneyQuick('accounts','money-account-form')}
+function moneyCancelAccountEdit(){moneyResetAccountForm();toggleLifeForm('money-account-form',false)}
+function moneyChooseManualAccount(){moneyBeginNewManualAccount()}
 async function moneyConnectBank(){
  moneySetConnectStatus('info','<span class="spin" style="display:inline-block;margin-right:7px"></span>Opening your secure bank connection…');
  try{
@@ -4894,7 +4903,7 @@ function moneyHandleBankStart(){
 function moneyCurrentMonth(){return new Date().toISOString().slice(0,7)}
 function moneyNormaliseCategory(v){const map={Bills:'Bills & Utilities',Food:'Groceries',Fun:'Entertainment',Everyday:'Shopping'};const clean=String(v||'Other').trim();return map[clean]||clean||'Other'}
 const MONEY_BASE_CATEGORIES=['Shopping','Groceries','Transport','Entertainment','Bills & Utilities','Health','Beauty','Eating Out','Subscriptions','Phone','Utilities','Insurance','Rent','Internet','Income','Transfers','Savings & Investments','Other'];
-let _moneyCategoryTarget='',_moneyBillSuggestions=[],_moneyDetailAccountId=null;
+let _moneyCategoryTarget='',_moneyBillSuggestions=[],_moneyDetailAccountId=null,_moneyEditingAccountId=null,_moneyAccountsExpanded=false;
 function moneyKnownCategories(d=hubLoad()){const items=[...MONEY_BASE_CATEGORIES,...(d.customCategories||[]),...(d.money||[]).map(x=>x.category),...(d.budgets||[]).map(x=>x.category),...(d.bills||[]).map(x=>x.category),...(_moneyBankData.transactions||[]).map(x=>x.category)];return [...new Set(items.map(moneyNormaliseCategory).filter(Boolean))].sort((a,b)=>a==='Other'?1:b==='Other'?-1:a.localeCompare(b))}
 function moneyRememberCategory(d,category){const clean=moneyNormaliseCategory(category);d.customCategories=d.customCategories||[];if(clean&&!MONEY_BASE_CATEGORIES.includes(clean)&&!d.customCategories.includes(clean))d.customCategories.push(clean);return clean}
 function moneyRenderCategoryOptions(d=hubLoad()){const el=document.getElementById('money-category-options');if(el)el.innerHTML=moneyKnownCategories(d).map(x=>'<option value="'+hubEsc(x)+'"></option>').join('')}
@@ -4988,8 +4997,8 @@ function moneyEstimatePayoff(plan){
 }
 function moneyOpenTab(name,btn){document.querySelectorAll('.money-pane').forEach(p=>p.classList.remove('on'));const pane=document.getElementById('money-pane-'+name);if(pane)pane.classList.add('on');document.querySelectorAll('.money-tab').forEach(t=>t.classList.remove('on'));if(btn)btn.classList.add('on');else{const target=document.querySelector('.money-tab[data-money-tab="'+name+'"]');if(target)target.classList.add('on')}}
 function moneyQuick(tab,formId){moneyOpenTab(tab);if(formId)toggleLifeForm(formId,true)}
-function moneyPrimaryAction(){const active=document.querySelector('.money-tab.on')?.dataset.moneyTab||'overview';const map={overview:['accounts','money-account-form'],accounts:['accounts','money-account-form'],budget:['budget','money-budget-form'],credit:['credit','money-credit-form'],bills:['bills','money-bill-form'],transactions:['transactions','money-form']};const target=map[active]||map.overview;moneyQuick(target[0],target[1])}
-function moneyPresetAccount(provider,type){const p=document.getElementById('money-account-provider'),t=document.getElementById('money-account-type');if(p){const has=[...p.options].some(o=>o.value===provider||o.text===provider);p.value=has?provider:'custom'}if(t)t.value=type||'bank';if(![...p.options].some(o=>o.value===provider||o.text===provider))document.getElementById('money-account-custom').value=provider;moneyQuick('accounts','money-account-form')}
+function moneyPrimaryAction(){const active=document.querySelector('.money-tab.on')?.dataset.moneyTab||'overview';const map={overview:['accounts','money-account-form'],accounts:['accounts','money-account-form'],budget:['budget','money-budget-form'],credit:['credit','money-credit-form'],bills:['bills','money-bill-form'],transactions:['transactions','money-form']};const target=map[active]||map.overview;if(target[1]==='money-account-form')moneyBeginNewManualAccount();else moneyQuick(target[0],target[1])}
+function moneyPresetAccount(provider,type){moneyResetAccountForm();const p=document.getElementById('money-account-provider'),t=document.getElementById('money-account-type');if(p){const has=[...p.options].some(o=>o.value===provider||o.text===provider);p.value=has?provider:'custom';if(!has){const custom=document.getElementById('money-account-custom');if(custom)custom.value=provider}}if(t)t.value=type||'bank';moneyQuick('accounts','money-account-form')}
 function moneyAccountFormStatus(message,tone=''){const el=document.getElementById('money-account-save-status');if(!el)return;el.textContent=message||'';el.className='money-account-save-status'+(tone?' '+tone:'')}
 async function addMoneyAccount(){
   const provider=document.getElementById('money-account-provider').value;
@@ -5002,22 +5011,27 @@ async function addMoneyAccount(){
   if(!name){moneyAccountFormStatus('Choose a provider or enter a custom account name.','error');return}
   if(!Number.isFinite(balance)){moneyAccountFormStatus('Enter a valid current balance.','error');return}
   const button=document.getElementById('money-account-save-btn');if(button)button.disabled=true;
-  moneyAccountFormStatus('Saving account…');
-  const d=hubLoad();
-  d.accounts.unshift({id:Date.now(),name,type,balance,last4,status:'tracked'});
-  const synced=await hubSaveImmediate(d);
+  const editingId=_moneyEditingAccountId;
+  moneyAccountFormStatus(editingId?'Updating account…':'Saving account…');
+  const d=hubLoad();d.accounts=d.accounts||[];
+  const existing=editingId?d.accounts.find(x=>String(x.id)===String(editingId)):null;
+  if(editingId&&!existing){moneyAccountFormStatus('That account could not be found. Please reopen it.','error');if(button)button.disabled=false;return}
+  const next={name,type,balance,last4,status:'tracked',balance_as_of:hubDateISO()};
+  if(existing)Object.assign(existing,next);else d.accounts.unshift({id:Date.now(),...next});
+  const synced=await hubSaveImmediate(d),action=existing?'updated':'saved';
+  _moneyEditingAccountId=null;
   document.getElementById('money-account-provider').value='';
   document.getElementById('money-account-type').value='bank';
   document.getElementById('money-account-custom').value='';
   document.getElementById('money-account-balance').value='';
   document.getElementById('money-account-last4').value='';
-  moneyAccountFormStatus(synced?'Account saved to your Dayframe.':'Saved here — cloud sync will retry when your connection returns.',synced?'ok':'');
+  if(button){button.textContent='Save account';button.disabled=false}
+  moneyAccountFormStatus(synced?'Account '+action+' in your Dayframe.':'Saved here — cloud sync will retry when your connection returns.',synced?'ok':'');
   renderMoney();renderHome();
-  if(button)button.disabled=false;
   setTimeout(()=>toggleLifeForm('money-account-form',false),synced?350:900);
-  hubToast(synced?'Account saved':'Account saved — waiting to sync')
+  hubToast(synced?'Account '+action:'Account saved — waiting to sync')
 }
-function deleteMoneyAccount(id){const d=hubLoad();d.accounts=d.accounts.filter(x=>String(x.id)!==String(id));(d.money||[]).forEach(x=>{if(String(x.account_id||'')===String(id)){x.account_id='';x.account_name=''}});hubSave(d);renderMoney();renderHome()}
+function deleteMoneyAccount(id){const d=hubLoad();d.accounts=d.accounts.filter(x=>String(x.id)!==String(id));(d.money||[]).forEach(x=>{if(String(x.account_id||'')===String(id)){x.account_id='';x.account_name=''}});d.creditPaymentMatches=d.creditPaymentMatches||{};d.transactionCategoryOverrides=d.transactionCategoryOverrides||{};Object.keys(d.creditPaymentMatches).forEach(key=>{const match=d.creditPaymentMatches[key];if(String(match?.account_id)===String(id)){const categoryKey='bank:'+key;if(match.had_override)d.transactionCategoryOverrides[categoryKey]=match.previous_override;else delete d.transactionCategoryOverrides[categoryKey];delete d.creditPaymentMatches[key]}});hubSave(d);renderMoney();renderHome()}
 function moneyBankTransactionsForMonth(month){const d=hubLoad();return (_moneyBankData.transactions||[]).map(x=>{const key='bank:'+String(x.id);return {id:x.id,raw_id:x.id,desc:moneyPrettyMerchant(x.merchant||x.description||'Bank transaction'),amount:Math.abs(Number(x.amount||0)),type:x.direction==='income'?'income':'expense',category:moneyNormaliseCategory((d.transactionCategoryOverrides||{})[key]||moneyRuleCategory(d,x)||x.category||'Other'),date:String(x.timestamp||'').slice(0,10),bank:true}}).filter(x=>x.date.slice(0,7)===month)}
 function budgetPlanValues(){
  const d=hubLoad(); d.budgetPlan=d.budgetPlan||{income:0,rent:0,regularBills:0,savings:0,buffer:0};
@@ -5058,14 +5072,62 @@ function addMoneyItem(){
  const desc=document.getElementById('money-desc').value.trim(),amount=Number(document.getElementById('money-amount').value),type=document.getElementById('money-type').value,rawCategory=document.getElementById('money-category').value,accountId=String(document.getElementById('money-account-select')?.value||'');
  if(!desc||!Number.isFinite(amount)||amount<=0)return hubToast('Add a description and amount');
  const d=hubLoad(),account=(d.accounts||[]).find(x=>String(x.id)===accountId),rule=moneyRuleCategory(d,{desc}),category=moneyRememberCategory(d,rawCategory||rule||'Other');
- d.money.unshift({id:Date.now(),desc,amount,type,category,date:hubDateISO(),account_id:account?String(account.id):'',account_name:account?.name||''});
+ const tracksDebt=account&&['credit-card','bnpl'].includes(account.type),balanceEffect=tracksDebt?(type==='expense'?amount:-amount):0;
+ if(balanceEffect)account.balance=Math.max(0,Number(account.balance||0)+balanceEffect);
+ d.money.unshift({id:Date.now(),desc,amount,type,category,date:hubDateISO(),account_id:account?String(account.id):'',account_name:account?.name||'',balance_effect:balanceEffect});
  hubSave(d);document.getElementById('money-desc').value='';document.getElementById('money-amount').value='';document.getElementById('money-category').value='';if(document.getElementById('money-account-select'))document.getElementById('money-account-select').value='';
  toggleLifeForm('money-form',false);renderMoney();renderHome();hubToast(account?'Transaction added to '+account.name:'Transaction saved')
 }
-function deleteMoney(id){const detailId=_moneyDetailAccountId,d=hubLoad();d.money=d.money.filter(x=>x.id!==id);hubSave(d);renderMoney();renderHome();if(detailId)moneyOpenAccountDetail(detailId)}
+function deleteMoney(id){const detailId=_moneyDetailAccountId,d=hubLoad(),item=(d.money||[]).find(x=>x.id===id);if(item&&Number(item.balance_effect||0)){const account=(d.accounts||[]).find(x=>String(x.id)===String(item.account_id||''));if(account)account.balance=Math.max(0,Number(account.balance||0)-Number(item.balance_effect||0))}d.money=d.money.filter(x=>x.id!==id);hubSave(d);renderMoney();renderHome();if(detailId)moneyOpenAccountDetail(detailId)}
 function moneyPrettyMerchant(v){const raw=String(v||'').trim();if(!raw)return 'Bank transaction';if(raw===raw.toUpperCase()&&/[A-Z]/.test(raw)){let s=raw.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());return s.replace(/^Aa\b/,'AA').replace(/^Axa\b/,'AXA').replace(/\.Com\b/g,'.com')}return raw}
 function moneyIsTransferCategory(c){return ['Transfers','Savings & Investments'].includes(moneyNormaliseCategory(c))}
 function moneyDeduplicateTransactions(items){const seen=new Set();return items.filter(x=>{const k=x.bank&&x.raw_id?String(x.raw_id):null;if(!k)return true;if(seen.has(k))return false;seen.add(k);return true})}
+function moneyCreditAccountCutoff(account){
+ const saved=String(account?.balance_as_of||'').slice(0,10);if(saved)return saved;
+ const created=Number(account?.id);return Number.isFinite(created)&&created>946684800000?hubDateISO(new Date(created)):''
+}
+function moneyLikelyCreditPayment(account,transaction){
+ const accountName=moneyMerchantRuleKey(account?.name||''),description=moneyMerchantRuleKey((transaction?.merchant||'')+' '+(transaction?.description||''));
+ if(!accountName||!description)return false;
+ let aliases=[];
+ if(accountName.includes('paypal credit'))aliases=['paypal credit'];
+ else if(accountName.includes('american express')||accountName.includes('amex'))aliases=['american express','amex'];
+ else if(accountName.includes('barclaycard'))aliases=['barclaycard'];
+ else if(accountName.includes('vanquis'))aliases=['vanquis'];
+ else if(accountName.includes('klarna'))aliases=['klarna'];
+ else if(accountName.includes('clearpay'))aliases=['clearpay'];
+ else aliases=accountName.split(' ').filter(x=>x.length>=4&&!['bank','account','card','credit','classic','platinum'].includes(x));
+ return aliases.some(alias=>description.includes(alias))
+}
+function moneyCreditPaymentSuggestions(account,d=hubLoad()){
+ const currentIds=new Set((_moneyBankData.accounts||[]).filter(x=>x.type==='bank').map(x=>String(x.id))),cutoff=moneyCreditAccountCutoff(account),matches=d.creditPaymentMatches||{};
+ return (_moneyBankData.transactions||[]).filter(x=>currentIds.has(String(x.account_id))&&x.direction!=='income'&&Math.abs(Number(x.amount||0))>0&&(!cutoff||String(x.timestamp||'').slice(0,10)>=cutoff)&&!matches[String(x.id)]&&moneyLikelyCreditPayment(account,x)).sort((a,b)=>String(b.timestamp||'').localeCompare(String(a.timestamp||''))).slice(0,8)
+}
+function moneyRenderCreditPaymentSuggestions(account,d=hubLoad()){
+ const host=document.getElementById('money-detail-payment-suggestions');if(!host)return;
+ if(!['credit-card','bnpl'].includes(account?.type)){host.innerHTML='';return}
+ d.creditPaymentMatches=d.creditPaymentMatches||{};
+ const suggestions=moneyCreditPaymentSuggestions(account,d),applied=Object.entries(d.creditPaymentMatches).filter(([,m])=>String(m.account_id)===String(account.id)).sort((a,b)=>String(b[1].applied_at||'').localeCompare(String(a[1].applied_at||'')));
+ if(!suggestions.length&&!applied.length){host.innerHTML='';return}
+ const suggestionRows=suggestions.map(x=>'<div class="money-suggestion-row"><div><strong>'+hubEsc(moneyPrettyMerchant(x.merchant||x.description||'Credit repayment'))+'</strong><span>'+hubPrettyDate(String(x.timestamp||'').slice(0,10))+' · '+hubMoney(Math.abs(Number(x.amount||0)))+' leaving '+hubEsc(x.account_name||'a current account')+'</span></div><button class="money-suggestion-add" onclick="moneyApplyCreditPayment(\''+encodeURIComponent(String(account.id)).replace(/'/g,'%27')+'\',\''+encodeURIComponent(String(x.id)).replace(/'/g,'%27')+'\')">Apply</button></div>').join('');
+ const appliedRows=applied.map(([txId,m])=>'<div class="money-suggestion-row"><div><strong>'+hubEsc(m.description||'Credit repayment')+'</strong><span>'+hubPrettyDate(m.date)+' · '+hubMoney(m.amount)+' applied to this balance</span></div><button class="money-suggestion-add" onclick="moneyUndoCreditPayment(\''+encodeURIComponent(txId).replace(/'/g,'%27')+'\')">Undo</button></div>').join('');
+ host.innerHTML='<div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--bd)"><div class="money-account-tx-head"><div><div class="money-account-tx-title">Repayments from current accounts</div><div class="money-account-tx-count">Review a match before it changes the amount owed.</div></div></div><div class="money-suggestion-list">'+suggestionRows+appliedRows+'</div></div>'
+}
+function moneyApplyCreditPayment(encodedAccountId,encodedTransactionId){
+ const accountId=decodeURIComponent(encodedAccountId),transactionId=decodeURIComponent(encodedTransactionId),d=hubLoad(),account=(d.accounts||[]).find(x=>String(x.id)===accountId),transaction=(_moneyBankData.transactions||[]).find(x=>String(x.id)===transactionId);
+ if(!account||!transaction||!['credit-card','bnpl'].includes(account.type)||!moneyCreditPaymentSuggestions(account,d).some(x=>String(x.id)===transactionId))return hubToast('That repayment match is no longer available');
+ d.creditPaymentMatches=d.creditPaymentMatches||{};if(d.creditPaymentMatches[transactionId])return;
+ const amount=Math.min(Math.abs(Number(transaction.amount||0)),Math.max(0,Number(account.balance||0)));if(!amount)return hubToast('This account has no balance left to reduce');
+ d.transactionCategoryOverrides=d.transactionCategoryOverrides||{};const categoryKey='bank:'+transactionId,hadOverride=Object.prototype.hasOwnProperty.call(d.transactionCategoryOverrides,categoryKey);
+ d.creditPaymentMatches[transactionId]={account_id:String(account.id),amount,description:moneyPrettyMerchant(transaction.merchant||transaction.description||'Credit repayment'),date:String(transaction.timestamp||'').slice(0,10),applied_at:new Date().toISOString(),had_override:hadOverride,previous_override:hadOverride?d.transactionCategoryOverrides[categoryKey]:''};
+ account.balance=Math.max(0,Number(account.balance||0)-amount);d.transactionCategoryOverrides[categoryKey]='Transfers';hubSave(d);renderMoney();moneyOpenAccountDetail('manual:'+account.id);renderHome();hubToast('Repayment applied to '+account.name)
+}
+function moneyUndoCreditPayment(encodedTransactionId){
+ const transactionId=decodeURIComponent(encodedTransactionId),d=hubLoad();d.creditPaymentMatches=d.creditPaymentMatches||{};const match=d.creditPaymentMatches[transactionId];if(!match)return;
+ const account=(d.accounts||[]).find(x=>String(x.id)===String(match.account_id));if(account)account.balance=Math.max(0,Number(account.balance||0)+Number(match.amount||0));
+ d.transactionCategoryOverrides=d.transactionCategoryOverrides||{};const categoryKey='bank:'+transactionId;if(match.had_override)d.transactionCategoryOverrides[categoryKey]=match.previous_override;else delete d.transactionCategoryOverrides[categoryKey];
+ delete d.creditPaymentMatches[transactionId];hubSave(d);renderMoney();if(account)moneyOpenAccountDetail('manual:'+account.id);renderHome();hubToast('Repayment removed')
+}
 function moneyOpenAccountDetail(accountId){
  const key=String(accountId),manual=key.startsWith('manual:'),d=hubLoad(),manualId=manual?key.slice(7):'';
  const a=manual?(d.accounts||[]).find(x=>String(x.id)===manualId):(_moneyBankData.accounts||[]).find(x=>String(x.id)===key);
@@ -5078,21 +5140,33 @@ function moneyOpenAccountDetail(accountId){
  set('money-detail-available-label',manual?'Updates':'Available');
  set('money-detail-balance',hubMoney(a.balance));set('money-detail-available',manual?'Manual':(a.available==null?'—':hubMoney(a.available)));set('money-detail-count',tx.length);set('money-detail-source',manual?'Transactions you add':'Synced through Open Banking');
  const add=document.getElementById('money-detail-add');if(add)add.style.display=manual?'inline-flex':'none';
+ const edit=document.getElementById('money-detail-edit');if(edit)edit.style.display=manual?'inline-flex':'none';
  const host=document.getElementById('money-detail-transactions');
  if(host)host.innerHTML=tx.length?tx.slice(0,30).map(x=>{
   const txKey=(manual?'local:':'bank:')+String(x.id),cat=moneyNormaliseCategory(manual?(moneyRuleCategory(d,x)||x.category||'Other'):((d.transactionCategoryOverrides||{})[txKey]||moneyRuleCategory(d,x)||x.category||'Other')),income=manual?x.type==='income':x.direction==='income',date=manual?x.date:String(x.timestamp||'').slice(0,10);
   return '<div class="life-list-row"><div class="life-list-icon" style="background:'+(income?'#eaf9f5':'#f4f5f8')+';color:'+(income?'#27a884':'#788395')+'">'+(income?'↙':'↗')+'</div><div class="life-list-main"><div class="life-list-title">'+hubEsc(moneyPrettyMerchant(x.merchant||x.description||x.desc))+'</div><div class="money-row-category">'+moneyCategoryButton(txKey,cat)+'<span class="life-list-meta"> '+hubPrettyDate(date)+(moneyIsTransferCategory(cat)?'<span class="money-transfer-pill">Not counted as spending</span>':'')+'</span></div></div><div class="life-list-value '+(income?'money-value-pos':'money-value-neg')+'">'+(income?'+':'−')+hubMoney(Math.abs(Number(x.amount||0)))+'</div>'+(manual?'<button class="life-row-delete" onclick="deleteMoney('+Number(x.id)+')">×</button>':'')+'</div>'
  }).join(''):'<div class="money-empty-soft"><strong>No transactions yet</strong>'+(manual?'Use “Add transaction” to start tracking this account’s spending.':'This account has no synced activity to show.')+'</div>';
- document.getElementById('money-account-modal')?.classList.add('open')
+ moneyRenderCreditPaymentSuggestions(manual?a:null,d);document.getElementById('money-account-modal')?.classList.add('open')
 }
 function moneyAddTransactionForDetail(){
  const key=String(_moneyDetailAccountId||'');if(!key.startsWith('manual:'))return;
  const accountId=key.slice(7);moneyCloseAccountDetail();moneyOpenTab('transactions');moneyRenderAccountOptions();const select=document.getElementById('money-account-select');if(select)select.value=accountId;toggleLifeForm('money-form',true)
 }
+function moneyEditAccountForDetail(){
+ const key=String(_moneyDetailAccountId||'');if(!key.startsWith('manual:'))return;
+ const accountId=key.slice(7),d=hubLoad(),account=(d.accounts||[]).find(x=>String(x.id)===accountId);if(!account)return;
+ _moneyEditingAccountId=String(account.id);moneyCloseAccountDetail();moneyOpenTab('accounts');
+ const provider=document.getElementById('money-account-provider'),custom=document.getElementById('money-account-custom'),option=provider?[...provider.options].find(x=>x.value===account.name||x.text===account.name):null;
+ if(provider)provider.value=option?option.value:'custom';if(custom)custom.value=option?'':account.name;
+ const type=document.getElementById('money-account-type'),balance=document.getElementById('money-account-balance'),last4=document.getElementById('money-account-last4'),button=document.getElementById('money-account-save-btn');
+ if(type)type.value=account.type||'bank';if(balance)balance.value=Number(account.balance||0);if(last4)last4.value=account.last4||'';if(button)button.textContent='Update account';
+ moneyAccountFormStatus('Editing '+account.name);toggleLifeForm('money-account-form',true)
+}
 function moneyCloseAccountDetail(){document.getElementById('money-account-modal')?.classList.remove('open');_moneyDetailAccountId=null}
+function moneyToggleAccountsOverview(){_moneyAccountsExpanded=!_moneyAccountsExpanded;renderMoney()}
 
 function renderMoney(){
- const d=hubLoad(); d.accounts=d.accounts||[]; d.budgets=d.budgets||[]; d.budgetPlan=d.budgetPlan||{income:0,rent:0,regularBills:0,savings:0,buffer:0,aiNote:'',autoNote:''}; d.customCategories=d.customCategories||[]; d.transactionCategoryOverrides=d.transactionCategoryOverrides||{}; d.transactionCategoryRules=d.transactionCategoryRules||{}; d.creditStrategy=d.creditStrategy||'avalanche'; d.creditPlans=d.creditPlans||[]; d.bills=d.bills||[]; moneyRenderCategoryOptions(d);moneyRenderAccountOptions(d);moneyApplyBudgetAutoSuggestions(d);
+ const d=hubLoad(); d.accounts=d.accounts||[]; d.budgets=d.budgets||[]; d.budgetPlan=d.budgetPlan||{income:0,rent:0,regularBills:0,savings:0,buffer:0,aiNote:'',autoNote:''}; d.customCategories=d.customCategories||[]; d.transactionCategoryOverrides=d.transactionCategoryOverrides||{}; d.transactionCategoryRules=d.transactionCategoryRules||{}; d.creditPaymentMatches=d.creditPaymentMatches||{}; d.creditStrategy=d.creditStrategy||'avalanche'; d.creditPlans=d.creditPlans||[]; d.bills=d.bills||[]; moneyRenderCategoryOptions(d);moneyRenderAccountOptions(d);moneyApplyBudgetAutoSuggestions(d);
  const bankAccounts=_moneyBankData.accounts||[];
  const bankTx=moneyDeduplicateTransactions((_moneyBankData.transactions||[]).map(x=>{const key='bank:'+String(x.id);return {id:'bank-'+x.id,raw_id:x.id,categoryKey:key,account_id:x.account_id,desc:moneyPrettyMerchant(x.merchant||x.description||'Bank transaction'),amount:Math.abs(Number(x.amount||0)),type:x.direction==='income'?'income':'expense',category:moneyNormaliseCategory(d.transactionCategoryOverrides[key]||moneyRuleCategory(d,x)||x.category||'Other'),date:(x.timestamp||'').slice(0,10),bank:true,account_name:x.account_name||''}}));
  const manualAccountNames=new Map((d.accounts||[]).map(a=>[String(a.id),a.name]));
@@ -5104,8 +5178,8 @@ function renderMoney(){
  const spendingTx=tx.filter(x=>x.type==='expense'&&!moneyIsTransferCategory(x.category));
  const expenses=spendingTx.reduce((a,x)=>a+Number(x.amount||0),0);
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
- const currentAccount=bankAccounts.find(a=>a.type==='bank'&&/current|checking/i.test(a.name||''))||bankAccounts.find(a=>a.type==='bank')||d.accounts.find(a=>a.type==='bank'&&/current|checking/i.test(a.name||''))||d.accounts.find(a=>a.type==='bank')||null;
- const currentBalance=currentAccount?Number(currentAccount.balance||0):0;
+ const currentAccounts=[...bankAccounts.filter(a=>a.type==='bank'),...d.accounts.filter(a=>a.type==='bank')];
+ const currentBalance=currentAccounts.reduce((sum,a)=>sum+Number(a.balance||0),0);
  const liabilityAccounts=d.accounts.filter(a=>['credit-card','bnpl'].includes(a.type)).reduce((a,x)=>a+Math.abs(Number(x.balance||0)),0)+bankAccounts.filter(a=>a.type==='credit-card').reduce((a,x)=>a+Math.abs(Number(x.balance||0)),0);
  const creditBalance=d.creditPlans.reduce((a,x)=>a+Math.abs(Number(x.balance||0)),0)+liabilityAccounts;
  const savings=d.accounts.filter(a=>a.type==='savings').reduce((a,x)=>a+Number(x.balance||0),0)+bankAccounts.filter(a=>a.type==='savings').reduce((a,x)=>a+Number(x.balance||0),0);
@@ -5114,7 +5188,7 @@ function renderMoney(){
  const available=income-cashOutflow-dueBillsTotal;
  set('money-income',hubMoney(income)); set('money-spent',hubMoney(expenses)); set('money-remaining',hubMoney(income-expenses)); set('money-count',tx.length);
  set('money-networth',hubMoney(currentBalance)); set('money-available',hubMoney(available)); set('money-bills-due',hubMoney(dueBillsTotal)); set('money-credit-balance',hubMoney(-creditBalance)); set('money-savings',hubMoney(savings));
- set('money-networth-sub', currentAccount ? (currentAccount.name||'Connected current account') : 'Connect a current account to show its balance');
+ set('money-networth-sub', currentAccounts.length ? (currentAccounts.length===1?(currentAccounts[0].name||'Current account'):'Across '+currentAccounts.length+' current accounts') : 'Connect a current account to show its balance');
  set('money-available-sub', income||cashOutflow ? hubMoney(income-cashOutflow)+' before due bills' : 'Income minus outgoings and near bills');
  set('money-bills-due-sub', billMeta.length ? billMeta.filter(x=>x.status!=='paid' && x.days<0).length+' overdue / upcoming soon' : 'Recurring payments you add');
  set('money-credit-sub', d.creditPlans.length ? d.creditPlans.length+' payoff plan'+(d.creditPlans.length===1?'':'s') : 'Across cards and pay-later plans');
@@ -5124,7 +5198,8 @@ function renderMoney(){
  const accountsPreview=document.getElementById('money-accounts-preview');
  const connectedRows=bankAccounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${hubEsc(a.provider_name||a.provider_id||moneyTypeLabel(a.type))}${a.last4?' · •••• '+hubEsc(a.last4):''}</div><div class="money-live-badge"><i></i>Open Banking connected</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><span class="money-account-chevron">›</span></div>`);
  const manualRows=d.accounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('manual:${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${moneyTypeLabel(a.type)}${a.last4?' · •••• '+hubEsc(a.last4):''}</div><div class="money-chip-status tracked">Manual · open spending</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><span class="money-account-chevron">›</span></div>`);
- if(accountsPreview) accountsPreview.innerHTML=(connectedRows.length||manualRows.length) ? `<div class="money-bank-banner"><div><strong>${bankAccounts.length?bankAccounts.length+' live account'+(bankAccounts.length===1?'':'s')+' syncing':'Manual tracking only'}</strong>${bankAccounts.length?'Balances and bank transactions are being pulled through Open Banking.':'Connect a supported bank/card for automatic balances and transactions.'}</div>${bankAccounts.length?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':'<button class="money-sync-btn" onclick="moneyOpenConnectModal()">Connect</button>'}</div>`+[...connectedRows,...manualRows].slice(0,6).join('') : `<div class="money-empty-soft"><strong>No accounts added yet</strong>Connect a supported bank/card or add Klarna, Clearpay, PayPal Credit and other accounts manually.</div><div class="money-connect-row"><button class="money-connect-chip" onclick="moneyOpenConnectModal()">Connect bank/card</button><button class="money-connect-chip" onclick="moneyPresetAccount('Klarna','bnpl')">Klarna</button><button class="money-connect-chip" onclick="moneyPresetAccount('Clearpay','bnpl')">Clearpay</button><button class="money-connect-chip" onclick="moneyPresetAccount('PayPal Credit','credit-card')">PayPal Credit</button></div>`;
+ const overviewAccountRows=[...connectedRows,...manualRows],accountCount=overviewAccountRows.length;
+ if(accountsPreview) accountsPreview.innerHTML=accountCount ? `<div class="money-bank-banner"><div><strong>${accountCount} account${accountCount===1?'':'s'}</strong>${bankAccounts.length?bankAccounts.length+' connected through Open Banking'+(d.accounts.length?' · '+d.accounts.length+' tracked manually':''):'Tracked manually — connect a supported account for automatic updates.'}</div><div class="money-row-actions">${bankAccounts.length?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':'<button class="money-sync-btn" onclick="moneyOpenConnectModal()">Connect</button>'}<button class="money-sync-btn" onclick="moneyToggleAccountsOverview()">${_moneyAccountsExpanded?'Hide accounts ↑':'View accounts ↓'}</button></div></div>`+(_moneyAccountsExpanded?overviewAccountRows.join(''):'') : `<div class="money-empty-soft"><strong>No accounts added yet</strong>Connect a supported bank/card or add Klarna, Clearpay, PayPal Credit and other accounts manually.</div><div class="money-connect-row"><button class="money-connect-chip" onclick="moneyOpenConnectModal()">Connect bank/card</button><button class="money-connect-chip" onclick="moneyPresetAccount('Klarna','bnpl')">Klarna</button><button class="money-connect-chip" onclick="moneyPresetAccount('Clearpay','bnpl')">Clearpay</button><button class="money-connect-chip" onclick="moneyPresetAccount('PayPal Credit','credit-card')">PayPal Credit</button></div>`;
  const accountsList=document.getElementById('money-accounts-list');
  if(accountsList){const live=bankAccounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${hubEsc(a.provider_name||a.provider_id||moneyTypeLabel(a.type))}${a.last4?' · •••• '+hubEsc(a.last4):''}${a.available!=null?' · Available '+hubMoney(a.available):''}</div><div class="money-live-badge"><i></i>Open Banking connected</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><span class="money-account-chevron">›</span></div>`).join('');const manual=d.accounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('manual:${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${moneyTypeLabel(a.type)}${a.last4?' · •••• '+hubEsc(a.last4):''}</div><div class="money-chip-status tracked">Manual · ${(d.money||[]).filter(x=>String(x.account_id||'')===String(a.id)).length} transaction${(d.money||[]).filter(x=>String(x.account_id||'')===String(a.id)).length===1?'':'s'}</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><button class="life-row-delete" onclick="event.stopPropagation();deleteMoneyAccount(${a.id})">×</button><span class="money-account-chevron">›</span></div>`).join('');accountsList.innerHTML=(live||manual)?live+manual:`<div class="money-empty-soft"><strong>No accounts here yet</strong>Use “Add account” to connect a bank/card or add a manual account.</div>`;const summary=document.getElementById('money-account-connection-summary');if(summary)summary.innerHTML=`<div class="money-account-toolbar"><div class="money-account-toolbar-copy"><i class="money-account-toolbar-dot ${bankAccounts.length?'live':''}"></i><div><strong>${bankAccounts.length?bankAccounts.length+' live account'+(bankAccounts.length===1?'':'s'):'Manual tracking'}</strong><span>${bankAccounts.length?'Balances and transactions are syncing':'Connect an account when you want automatic updates'}</span></div></div><div class="money-row-actions">${bankAccounts.length?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':''}</div></div>`}
  const cats={}; spendingTx.forEach(x=>{const c=moneyNormaliseCategory(x.category);cats[c]=(cats[c]||0)+Number(x.amount||0)});
