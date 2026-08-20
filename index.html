@@ -3963,6 +3963,7 @@ async function authSuccess(name){
   personalHubInit(name);
   restoreT212Snapshot();
   moneyHandleBankCallback();
+  moneyHandleBankStart();
   const t212Status=await loadT212Status();
   if(t212Status.connected)setTimeout(()=>syncT212(),450);
 }
@@ -3978,7 +3979,7 @@ async function doLogout(){
 (async function checkSession(){
   if(beginPasswordRecoveryFromUrl()){document.documentElement.classList.remove('df-session-pending');return}
   const raw=localStorage.getItem('dayframe_session');
-  if(!raw){document.documentElement.classList.remove('df-session-pending');document.getElementById('auth-screen')?.classList.remove('hidden');return}
+  if(!raw){document.documentElement.classList.remove('df-session-pending');document.getElementById('auth-screen')?.classList.remove('hidden');moneyPrepareBankLogin();return}
   try{
     const stored=JSON.parse(raw);
     if(!stored?.access_token&&!stored?.refresh_token)throw new Error('Missing session');
@@ -3986,9 +3987,19 @@ async function doLogout(){
     if(session?._refreshInvalid||!session?.access_token)throw new Error('Session could not be restored');
     await authSuccess(session.name||session.email?.split('@')[0]||'User');
   }catch(e){
-    localStorage.removeItem('dayframe_session');
+    const current=dfSession();
     document.documentElement.classList.remove('df-session-pending');
+    if(current?.access_token&&!current?._refreshInvalid){
+      console.warn('Dayframe reopened with a partial data load:',e?.message||e);
+      document.getElementById('auth-screen')?.classList.add('hidden');
+      personalHubInit(current.name||current.email?.split('@')[0]||'User');
+      moneyHandleBankCallback();
+      moneyHandleBankStart();
+      return;
+    }
+    localStorage.removeItem('dayframe_session');
     document.getElementById('auth-screen')?.classList.remove('hidden');
+    moneyPrepareBankLogin();
   }
 })();
 const SRV="https://vastly-api.alumceline.workers.dev";
@@ -4804,6 +4815,13 @@ async function moneyConnectBank(){
    const r=await dfBankFetch('/api/money/connect',{method:'POST',body:'{}'});
    const d=await r.json().catch(()=>({}));
    if(!r.ok){
+     if(d.code==='OPEN_BANKING_ORIGIN_MISMATCH'&&d.continue_url){
+       const next=new URL(d.continue_url,location.href);
+       if(!['http:','https:'].includes(next.protocol))throw new Error('The secure Dayframe address is invalid.');
+       moneySetConnectStatus('info','Moving you to the secure Dayframe address before opening your bank…');
+       setTimeout(()=>location.assign(next.toString()),120);
+       return;
+     }
      if(d.code==='OPEN_BANKING_NOT_CONFIGURED') moneySetConnectStatus('error','The bank connection setup is not complete yet.');
      else if(d.code==='OPEN_BANKING_ENVIRONMENT_MISMATCH') moneySetConnectStatus('error','Dayframe’s TrueLayer settings do not match. No bank details were shared.');
      else moneySetConnectStatus('error',hubEsc(d.error||'Could not start the bank connection.'));
@@ -4847,7 +4865,7 @@ function moneyBankCallbackMessage(reason){
 }
 function moneyHandleBankCallback(){
  const u=new URL(location.href),status=u.searchParams.get('bank'),reason=u.searchParams.get('bank_reason')||'';
- if(!status)return;
+ if(!status)return false;
  if(status==='connected'){
   setTimeout(()=>{go('money');moneyOpenTab('accounts');hubToast('Bank connection completed');moneyLoadBankData(true)},150);
  }else if(status==='error'){
@@ -4858,6 +4876,19 @@ function moneyHandleBankCallback(){
  }
  u.searchParams.delete('bank');u.searchParams.delete('bank_reason');
  history.replaceState({},'',u.pathname+(u.search?u.search:'')+u.hash);
+ return true;
+}
+function moneyPrepareBankLogin(){
+ const u=new URL(location.href);if(u.searchParams.get('bank_start')!=='1')return;
+ const sub=document.querySelector('#auth-login .auth-form-sub');
+ if(sub)sub.textContent='Log in once on the secure Dayframe address, then your bank connection will continue automatically.';
+}
+function moneyHandleBankStart(){
+ const u=new URL(location.href);if(u.searchParams.get('bank_start')!=='1')return false;
+ u.searchParams.delete('bank_start');
+ history.replaceState({},'',u.pathname+(u.search?u.search:'')+u.hash);
+ setTimeout(()=>{go('money');moneyOpenTab('accounts');moneyOpenConnectModal();moneyConnectBank()},220);
+ return true;
 }
 
 function moneyCurrentMonth(){return new Date().toISOString().slice(0,7)}
