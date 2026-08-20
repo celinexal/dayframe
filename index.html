@@ -4912,7 +4912,27 @@ function moneyMerchantRuleKey(value){
  const clean=moneyPrettyMerchant(raw).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(?:contactless|debit card|credit card|visa|mastercard|card purchase|pos)\b/g,' ').replace(/\b\d{4,}\b/g,' ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
  return clean.slice(0,90)
 }
-function moneyRuleCategory(d,item){const key=moneyMerchantRuleKey(item?.merchant||item?.description||item?.desc||'');return key?String((d.transactionCategoryRules||{})[key]||''):''}
+function moneyMerchantFamilyKey(value){
+ const exact=moneyMerchantRuleKey(value);if(!exact)return '';
+ let tokens=exact.split(' ').filter(Boolean);if(tokens[1]==='s')tokens=[tokens[0]+'s',...tokens.slice(2)];
+ const companyEndings=new Set(['ltd','limited','plc','llp','inc','incorporated','company','group','uk','gb']);
+ while(tokens.length>1&&companyEndings.has(tokens[tokens.length-1]))tokens.pop();
+ if(tokens.length===1)return tokens[0];
+ const guarded=new Set(['paypal','apple','google','amazon','uber','virgin','british','american','direct','first','national','home','one','new','just','square','stripe','sumup','klarna','clearpay','ebay','etsy','deliveroo','transport','burger','pizza','london','city','royal','united','great','north','south','east','west','central','the']);
+ const first=tokens[0];return first.length>=4&&!guarded.has(first)?first:tokens.slice(0,2).join(' ')
+}
+function moneyMerchantMatches(left,right){
+ const a=moneyMerchantRuleKey(left),b=moneyMerchantRuleKey(right);if(!a||!b)return false;
+ return a===b||moneyMerchantFamilyKey(a)===moneyMerchantFamilyKey(b)
+}
+function moneyRuleCategory(d,item){
+ const raw=item?.merchant||item?.description||item?.desc||'',exact=moneyMerchantRuleKey(raw);if(!exact)return '';
+ const rules=d.transactionCategoryRules||{};if(rules[exact])return String(rules[exact]);
+ const family=moneyMerchantFamilyKey(exact);if(!family)return '';
+ if(rules['family:'+family])return String(rules['family:'+family]);
+ const legacy=[...new Set(Object.entries(rules).filter(([key,value])=>value&&!key.startsWith('family:')&&moneyMerchantFamilyKey(key)===family).map(([,value])=>String(value)))];
+ return legacy.length===1?legacy[0]:''
+}
 function moneyCategoryForKey(key){
  const d=hubLoad();d.transactionCategoryRules=d.transactionCategoryRules||{};
  if(key.startsWith('local:')){
@@ -4931,15 +4951,15 @@ function moneySaveCategoryEdit(){
  let target=null,updated=0;
  if(key.startsWith('local:'))target=(d.money||[]).find(x=>String(x.id)===key.slice(6));
  else if(key.startsWith('bank:'))target=(_moneyBankData.transactions||[]).find(x=>String(x.id)===key.slice(5));
- const ruleKey=moneyMerchantRuleKey(target?.merchant||target?.description||target?.desc||'');
+ const targetName=target?.merchant||target?.description||target?.desc||'',ruleKey=moneyMerchantRuleKey(targetName),familyKey=moneyMerchantFamilyKey(targetName);
  if(ruleKey){
-  d.transactionCategoryRules[ruleKey]=category;
-  for(const item of (d.money||[])){if(moneyMerchantRuleKey(item.desc)===ruleKey){item.category=category;updated++}}
-  for(const item of (_moneyBankData.transactions||[])){if(moneyMerchantRuleKey(item.merchant||item.description)===ruleKey){d.transactionCategoryOverrides['bank:'+String(item.id)]=category;updated++}}
+  d.transactionCategoryRules[ruleKey]=category;if(familyKey)d.transactionCategoryRules['family:'+familyKey]=category;
+  for(const item of (d.money||[])){if(moneyMerchantMatches(item.desc,targetName)){item.category=category;updated++}}
+  for(const item of (_moneyBankData.transactions||[])){if(moneyMerchantMatches(item.merchant||item.description,targetName)){d.transactionCategoryOverrides['bank:'+String(item.id)]=category;updated++}}
  }
  if(!updated&&key.startsWith('local:')&&target){target.category=category;updated=1}
  if(!updated&&key.startsWith('bank:')){d.transactionCategoryOverrides[key]=category;updated=1}
- moneyRememberCategory(d,category);const detailId=_moneyDetailAccountId;hubSave(d);moneyCloseCategoryEditor();renderMoney();if(detailId)moneyOpenAccountDetail(detailId);hubToast(updated>1?'Category updated for '+updated+' matching transactions':'Category updated')
+ moneyRememberCategory(d,category);const detailId=_moneyDetailAccountId;hubSave(d);moneyCloseCategoryEditor();renderMoney();if(detailId)moneyOpenAccountDetail(detailId);hubToast(updated>1?'Category updated for '+updated+' transactions with the same main merchant':'Category updated')
 }
 function moneyCategoryButton(key,category){const cat=moneyNormaliseCategory(category);return '<button class="money-category-pill '+(cat==='Other'?'other':'')+'" onclick="moneyOpenCategoryEditor(\''+encodeURIComponent(key)+'\')" title="Change category">'+hubEsc(cat)+' ✎</button>'}
 function moneySetTransactionView(view){_moneyTransactionView=view==='other'?'other':'all';renderMoney()}
