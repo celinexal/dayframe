@@ -54,7 +54,7 @@ export default {
   async fetch(request, env) {
     const url=new URL(request.url);
     try{
-      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-origin-v5-20260820',return_origin:bankReturnOrigin(env)});
+      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-cards-v6-20260820',return_origin:bankReturnOrigin(env)});
       if(url.pathname==='/api/money/connect'&&request.method==='POST')return startConnect(request,env);
       if(url.pathname==='/api/money/callback'&&request.method==='GET')return handleCallback(request,env);
       if(url.pathname==='/api/money/data'&&request.method==='GET')return getMoneyData(request,env);
@@ -610,7 +610,7 @@ async function startConnect(request,env){
   authUrl.searchParams.set('response_type','code');
   authUrl.searchParams.set('client_id',String(env.TRUELAYER_CLIENT_ID).trim());
   authUrl.searchParams.set('redirect_uri',String(env.TRUELAYER_RETURN_URI).trim());
-  authUrl.searchParams.set('scope','info accounts balance transactions offline_access');
+  authUrl.searchParams.set('scope','info accounts cards balance transactions offline_access');
   authUrl.searchParams.set('state',state);
   if(isSandbox(env))authUrl.searchParams.set('providers','uk-cs-mock');
 
@@ -675,27 +675,95 @@ async function refreshTokens(env,t){if(!t?.refresh_token)return null;const form=
 async function apiGet(env,token,path,request){const ip=request.headers.get('CF-Connecting-IP')||'';return fetch(apiBase(env)+path,{headers:{authorization:'Bearer '+token,'accept':'application/json',...(ip?{'X-PSU-IP':ip}:{})}})}
 function category(t){const s=String((t.transaction_category||''))+' '+String(t.transaction_classification||[])+' '+String(t.merchant_name||'')+' '+String(t.description||'');const x=s.toLowerCase();if(/save the change|savings?|investment|wealth|broker|trading 212|vanguard|fidelity/.test(x))return 'Savings & Investments';if(/transfer|bank transfer|faster payment|standing order|^\s*(mr|mrs|ms|miss)\s+[a-z]/.test(x))return 'Transfers';if(/petrol|fuel|shell|esso|bp\b|uber|train|rail|transport|travel|bus|tram|parking/.test(x))return 'Transport';if(/tesco|sainsbury|morrisons(?! petrol)|aldi|lidl|asda|waitrose|grocery|supermarket/.test(x))return 'Groceries';if(/insurance|utility|bill|phone|mobile|broadband|internet|council tax|energy|water/.test(x))return 'Bills & Utilities';if(/netflix|spotify|cinema|entertain|disney|prime video/.test(x))return 'Entertainment';if(/restaurant|cafe|coffee|deliveroo|just eat|uber eats|takeaway|food/.test(x))return 'Eating Out';if(/boots|pharmacy|dentist|medical|health/.test(x))return 'Health';if(/beauty|salon|hair|nails|sephora|space nk/.test(x))return 'Beauty';if(/amazon|shopping|retail|tails\.com|argos|ikea|zara|asos/.test(x))return 'Shopping';return 'Other'}
 function direction(t){const type=String(t.transaction_type||'').toUpperCase();if(type==='CREDIT'||Number(t.amount)>0)return 'income';return 'expense'}
-async function collectAccount(env,token,a,request,connectionId){const id=a.account_id;let balance=0,available=null,tx=[];const [br,tr]=await Promise.all([apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/balance',request),apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/transactions',request)]);if(br.ok){const b=await br.json().catch(()=>({}));const x=b.results?.[0]||{};balance=Number(x.current)||0;available=x.available==null?null:Number(x.available)}if(tr.ok){const d=await tr.json().catch(()=>({}));tx=(d.results||[]).map(t=>({id:t.transaction_id||crypto.randomUUID(),connection_id:connectionId,account_id:id,account_name:a.display_name||'Bank account',timestamp:t.timestamp||'',description:t.description||'',merchant:t.merchant_name||'',amount:Math.abs(Number(t.amount)||0),direction:direction(t),category:category(t),currency:t.currency||a.currency||'GBP'}))}return {account:{connection_id:connectionId,id,type:String(a.account_type||'').includes('SAVINGS')?'savings':'bank',name:a.display_name||'Bank account',provider_id:a.provider?.provider_id||'',provider_name:a.provider?.display_name||'Connected bank',currency:a.currency||'GBP',balance,available,last4:a.account_number?.number?String(a.account_number.number).slice(-4):''},transactions:tx}}
+function cardDirection(t){return Number(t.amount)<0?'income':'expense'}
+function optionalNumber(value){const n=Number(value);return value==null||!Number.isFinite(n)?null:n}
+function tokenHasScope(tokens,scope){
+  const raw=Array.isArray(tokens?.scope)?tokens.scope.join(' '):String(tokens?.scope||'').trim();
+  return !raw||raw.split(/\s+/).includes(scope);
+}
+async function collectAccount(env,token,a,request,connectionId){
+  const id=a.account_id;let balance=0,available=null,tx=[];
+  const [br,tr]=await Promise.all([
+    apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/balance',request),
+    apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/transactions',request)
+  ]);
+  if(br.ok){const b=await br.json().catch(()=>({})),x=b.results?.[0]||{};balance=Number(x.current)||0;available=optionalNumber(x.available)}
+  if(tr.ok){const d=await tr.json().catch(()=>({}));tx=(d.results||[]).map(t=>({id:t.transaction_id||crypto.randomUUID(),connection_id:connectionId,account_id:id,account_name:a.display_name||'Bank account',timestamp:t.timestamp||'',description:t.description||'',merchant:t.merchant_name||'',amount:Math.abs(Number(t.amount)||0),direction:direction(t),category:category(t),currency:t.currency||a.currency||'GBP'}))}
+  return {account:{connection_id:connectionId,id,type:String(a.account_type||'').includes('SAVINGS')?'savings':'bank',name:a.display_name||'Bank account',provider_id:a.provider?.provider_id||'',provider_name:a.provider?.display_name||'Connected bank',currency:a.currency||'GBP',balance,available,last4:a.account_number?.number?String(a.account_number.number).slice(-4):''},transactions:tx}
+}
+async function collectCard(env,token,card,request,connectionId){
+  const id=card.account_id;let balance=0,available=null,creditLimit=null,paymentDue=null,paymentDueDate='',lastStatementBalance=null,lastStatementDate='',tx=[];
+  const [br,tr]=await Promise.all([
+    apiGet(env,token,'/data/v1/cards/'+encodeURIComponent(id)+'/balance',request),
+    apiGet(env,token,'/data/v1/cards/'+encodeURIComponent(id)+'/transactions',request)
+  ]);
+  if(br.ok){
+    const b=await br.json().catch(()=>({})),x=b.results?.[0]||{};
+    balance=Number(x.current)||0;
+    available=optionalNumber(x.available);
+    creditLimit=optionalNumber(x.credit_limit);
+    paymentDue=optionalNumber(x.payment_due);
+    paymentDueDate=String(x.payment_due_date||'');
+    lastStatementBalance=optionalNumber(x.last_statement_balance);
+    lastStatementDate=String(x.last_statement_date||'');
+  }
+  if(tr.ok){
+    const d=await tr.json().catch(()=>({}));
+    tx=(d.results||[]).map(t=>({id:t.transaction_id||crypto.randomUUID(),connection_id:connectionId,account_id:id,account_name:card.display_name||'Credit card',timestamp:t.timestamp||'',description:t.description||'',merchant:t.merchant_name||'',amount:Math.abs(Number(t.amount)||0),direction:cardDirection(t),category:category(t),currency:t.currency||card.currency||'GBP'}));
+  }
+  return {account:{connection_id:connectionId,id,type:'credit-card',name:card.display_name||'Credit card',provider_id:card.provider?.provider_id||'',provider_name:card.provider?.display_name||'Connected card',currency:card.currency||'GBP',balance,available,credit_limit:creditLimit,payment_due:paymentDue,payment_due_date:paymentDueDate,last_statement_balance:lastStatementBalance,last_statement_date:lastStatementDate,last4:String(card.partial_card_number||''),card_network:String(card.card_network||''),name_on_card:String(card.name_on_card||'')},transactions:tx}
+}
 
 async function getMoneyData(request,env){
   if(!isConfigured(env))return json({configured:false,accounts:[],transactions:[],connections:[]});
   const auth=await verifyUser(request);if(!auth)return json({error:'Log in again to view connected accounts.'},401);
-  const rr=await sbRest('dayframe_bank_connections_v1?user_id=eq.'+encodeURIComponent(auth.user.id)+'&select=id,encrypted_tokens,status,created_at&order=created_at.asc',auth.token,{method:'GET'});
+  const rr=await sbRest('dayframe_bank_connections_v1?user_id=eq.'+encodeURIComponent(auth.user.id)+'&select=id,encrypted_tokens,status,created_at&order=created_at.desc',auth.token,{method:'GET'});
   if(!rr.ok)return json({error:'Could not load your bank connections.'},502);
-  const rows=await rr.json().catch(()=>[]),accounts=[],transactions=[],connections=[];
+  const rows=await rr.json().catch(()=>[]),accounts=[],transactions=[],connections=[],seenAccounts=new Set(),seenCards=new Set();
   for(const row of rows){
     let t=await decryptBlob(env,row.encrypted_tokens);if(!t){connections.push({id:row.id,status:'error'});continue}
     let changed=false;
     if(!t.access_token||Date.now()>Number(t.expires_at||0)-120000){const n=await refreshTokens(env,t);if(!n){connections.push({id:row.id,status:'reauth_required'});continue}t=n;changed=true}
-    let ar=await apiGet(env,t.access_token,'/data/v1/accounts',request);
-    if(ar.status===401&&t.refresh_token){const n=await refreshTokens(env,t);if(n){t=n;changed=true;ar=await apiGet(env,t.access_token,'/data/v1/accounts',request)}}
-    if(!ar.ok){connections.push({id:row.id,status:ar.status===401||ar.status===403?'reauth_required':'error'});continue}
-    if(changed){const enc=await encryptBlob(env,t);await sbRest('dayframe_bank_connections_v1?id=eq.'+encodeURIComponent(row.id),auth.token,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({encrypted_tokens:enc,status:'active',updated_at:new Date().toISOString()})})}
-    const ad=await ar.json().catch(()=>({}));for(const a of (ad.results||[])){const x=await collectAccount(env,t.access_token,a,request,row.id);accounts.push(x.account);transactions.push(...x.transactions)}
-    connections.push({id:row.id,status:'active',created_at:row.created_at});
+    const loadFeeds=()=>Promise.all([
+      apiGet(env,t.access_token,'/data/v1/accounts',request),
+      tokenHasScope(t,'cards')?apiGet(env,t.access_token,'/data/v1/cards',request):Promise.resolve(null)
+    ]);
+    let [ar,cr]=await loadFeeds();
+    if((ar.status===401||cr?.status===401)&&t.refresh_token){
+      const n=await refreshTokens(env,t);
+      if(n){t=n;changed=true;[ar,cr]=await loadFeeds()}
+    }
+    if(changed){
+      const enc=await encryptBlob(env,t);
+      await sbRest('dayframe_bank_connections_v1?id=eq.'+encodeURIComponent(row.id),auth.token,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({encrypted_tokens:enc,status:'active',updated_at:new Date().toISOString()})});
+    }
+    let usable=false;
+    if(ar.ok){
+      usable=true;
+      const ad=await ar.json().catch(()=>({}));
+      for(const a of (ad.results||[])){
+        const key=String(a.account_id||'');if(!key||seenAccounts.has(key))continue;seenAccounts.add(key);
+        const x=await collectAccount(env,t.access_token,a,request,row.id);accounts.push(x.account);transactions.push(...x.transactions);
+      }
+    }
+    if(cr?.ok){
+      usable=true;
+      const cd=await cr.json().catch(()=>({}));
+      for(const card of (cd.results||[])){
+        const key=String(card.account_id||'');if(!key||seenCards.has(key))continue;seenCards.add(key);
+        const x=await collectCard(env,t.access_token,card,request,row.id);accounts.push(x.account);transactions.push(...x.transactions);
+      }
+    }
+    if(!usable){
+      const statuses=[ar.status,cr?.status].filter(Boolean),needsAuth=statuses.some(x=>x===401||x===403);
+      connections.push({id:row.id,status:needsAuth?'reauth_required':'error',created_at:row.created_at});
+      continue;
+    }
+    const cardAccess=!tokenHasScope(t,'cards')?'reconnect_required':cr?.ok?'active':(cr?.status===401||cr?.status===403?'reauth_required':'error');
+    connections.push({id:row.id,status:'active',card_access:cardAccess,created_at:row.created_at});
   }
-  const accountMap=new Map();for(const a of accounts)accountMap.set(a.connection_id+'|'+a.id,a);
-  const txMap=new Map();for(const t of transactions)txMap.set(t.connection_id+'|'+t.id,t);
+  const accountMap=new Map();for(const a of accounts)accountMap.set(a.type+'|'+a.id,a);
+  const txMap=new Map();for(const t of transactions)txMap.set(t.account_id+'|'+t.id,t);
   const finalAccounts=[...accountMap.values()],finalTx=[...txMap.values()].sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp)));
   return json({configured:true,api_version:'v1',accounts:finalAccounts,transactions:finalTx,connections,refreshed_at:new Date().toISOString()});
 }
