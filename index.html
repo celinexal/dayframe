@@ -4915,10 +4915,18 @@ function moneyMerchantRuleKey(value){
 function moneyMerchantFamilyKey(value){
  const exact=moneyMerchantRuleKey(value);if(!exact)return '';
  let tokens=exact.split(' ').filter(Boolean);if(tokens[1]==='s')tokens=[tokens[0]+'s',...tokens.slice(2)];
+ if(tokens[0]==='direct'&&tokens[1]==='debit')tokens=tokens.slice(2);
+ else if(tokens[0]==='standing'&&tokens[1]==='order')tokens=tokens.slice(2);
+ else if(tokens[0]==='faster'&&/^payments?$/.test(tokens[1]||''))tokens=tokens.slice(2);
+ else if(tokens[0]==='card'&&/^(purchase|payment)$/.test(tokens[1]||''))tokens=tokens.slice(2);
+ else if(['purchase','payment','payments','paid','transaction','transfer','dd'].includes(tokens[0]))tokens=tokens.slice(1);
+ while(tokens.length>1&&['to','from','at','via'].includes(tokens[0]))tokens.shift();
+ if(!tokens.length)return exact;
+ const joined=tokens.join(' ');if(tokens.includes('klarna'))return 'klarna';if(tokens.includes('clearpay')||joined.includes('clear pay'))return 'clearpay';
  const companyEndings=new Set(['ltd','limited','plc','llp','inc','incorporated','company','group','uk','gb']);
  while(tokens.length>1&&companyEndings.has(tokens[tokens.length-1]))tokens.pop();
  if(tokens.length===1)return tokens[0];
- const guarded=new Set(['paypal','apple','google','amazon','uber','virgin','british','american','direct','first','national','home','one','new','just','square','stripe','sumup','klarna','clearpay','ebay','etsy','deliveroo','transport','burger','pizza','london','city','royal','united','great','north','south','east','west','central','the']);
+ const guarded=new Set(['paypal','apple','google','amazon','uber','virgin','british','american','direct','first','national','home','one','new','just','square','stripe','sumup','ebay','etsy','deliveroo','transport','burger','pizza','london','city','royal','united','great','north','south','east','west','central','the']);
  const first=tokens[0];return first.length>=4&&!guarded.has(first)?first:tokens.slice(0,2).join(' ')
 }
 function moneyMerchantMatches(left,right){
@@ -4931,7 +4939,9 @@ function moneyRuleCategory(d,item){
  const family=moneyMerchantFamilyKey(exact);if(!family)return '';
  if(rules['family:'+family])return String(rules['family:'+family]);
  const legacy=[...new Set(Object.entries(rules).filter(([key,value])=>value&&!key.startsWith('family:')&&moneyMerchantFamilyKey(key)===family).map(([,value])=>String(value)))];
- return legacy.length===1?legacy[0]:''
+ if(legacy.length)return legacy.length===1?legacy[0]:'';
+ const overrides=d.transactionCategoryOverrides||{},inferred=[...new Set((_moneyBankData.transactions||[]).filter(tx=>moneyMerchantFamilyKey(tx.merchant||tx.description||'')===family).map(tx=>String(overrides['bank:'+String(tx.id)]||'')).filter(Boolean))];
+ return inferred.length===1?inferred[0]:''
 }
 function moneyCategoryForKey(key){
  const d=hubLoad();d.transactionCategoryRules=d.transactionCategoryRules||{};
