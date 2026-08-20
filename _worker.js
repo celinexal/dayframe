@@ -54,7 +54,7 @@ export default {
   async fetch(request, env) {
     const url=new URL(request.url);
     try{
-      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-callback-v4-20260820'});
+      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-origin-v5-20260820',return_origin:bankReturnOrigin(env)});
       if(url.pathname==='/api/money/connect'&&request.method==='POST')return startConnect(request,env);
       if(url.pathname==='/api/money/callback'&&request.method==='GET')return handleCallback(request,env);
       if(url.pathname==='/api/money/data'&&request.method==='GET')return getMoneyData(request,env);
@@ -80,10 +80,20 @@ function isSandbox(env){return bankMode(env)==='sandbox'}
 function credentialsMatchEnvironment(env){const id=String(env.TRUELAYER_CLIENT_ID||'').trim().toLowerCase();return !!id&&(isSandbox(env)?id.startsWith('sandbox-'):!id.startsWith('sandbox-'))}
 function authBase(env){return isSandbox(env)?'https://auth.truelayer-sandbox.com':'https://auth.truelayer.com'}
 function apiBase(env){return isSandbox(env)?'https://api.truelayer-sandbox.com':'https://api.truelayer.com'}
+function bankReturnOrigin(env){try{return new URL(String(env.TRUELAYER_RETURN_URI||'').trim()).origin}catch(e){return ''}}
+function bankRequestOrigin(request){
+  const supplied=String(request.headers.get('origin')||'').trim();
+  if(supplied){try{return new URL(supplied).origin}catch(e){}}
+  try{return new URL(request.url).origin}catch(e){return ''}
+}
+function bankContinueUrl(env){
+  const origin=bankReturnOrigin(env);if(!origin)return '';
+  const target=new URL('/',origin);target.searchParams.set('bank_start','1');return target.toString();
+}
 function json(data,status=200,headers={}){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}})}
 function cookieValue(request,name){const raw=request.headers.get('cookie')||'';const hit=raw.split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'='));return hit?decodeURIComponent(hit.slice(name.length+1)):''}
-function clearCookie(name){return `${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None`}
-function bankStateCookie(value){return `${STATE_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=1800; HttpOnly; Secure; SameSite=None`}
+function clearCookie(name){return `${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`}
+function bankStateCookie(value){return `${STATE_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=1800; HttpOnly; Secure; SameSite=Lax`}
 function bankErrorReason(value,status=0){
   const code=String(value||'').trim().toLowerCase();
   if(['access_denied','consent_denied','user_cancelled','cancelled'].includes(code))return 'bank_declined';
@@ -589,6 +599,11 @@ async function startConnect(request,env){
   if(!isConfigured(env))return json({code:'OPEN_BANKING_NOT_CONFIGURED',error:'Bank connection setup is not complete yet.'},503);
   const auth=await verifyUser(request);if(!auth)return json({error:'Log in to connect a bank.'},401);
   if(!credentialsMatchEnvironment(env))return json({code:'OPEN_BANKING_ENVIRONMENT_MISMATCH',error:'The bank connection is using credentials for a different TrueLayer environment.'},503);
+  const returnOrigin=bankReturnOrigin(env),requestOrigin=bankRequestOrigin(request);
+  if(returnOrigin&&requestOrigin&&returnOrigin!==requestOrigin){
+    console.error(JSON.stringify({event:'bank_connect_origin_mismatch',request_origin:requestOrigin,return_origin:returnOrigin}));
+    return json({code:'OPEN_BANKING_ORIGIN_MISMATCH',error:'Continue in the secure Dayframe website to connect your bank.',continue_url:bankContinueUrl(env)},409);
+  }
 
   const state=crypto.randomUUID();
   const authUrl=new URL(authBase(env)+'/');
