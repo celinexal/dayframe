@@ -115,13 +115,14 @@ async function proxySharedGroq(request){
   }catch(e){
     return json({error:'Dayframe AI could not be reached.'},502);
   }
-  return new Response(upstream.body,{
-    status:upstream.status,
-    headers:{
-      'content-type':upstream.headers.get('content-type')||'application/json; charset=utf-8',
-      'cache-control':'no-store'
-    }
+  const headers=new Headers({
+    'content-type':upstream.headers.get('content-type')||'application/json; charset=utf-8',
+    'cache-control':'no-store'
   });
+  for(const name of ['retry-after','x-ratelimit-limit-requests','x-ratelimit-limit-tokens','x-ratelimit-remaining-requests','x-ratelimit-remaining-tokens','x-ratelimit-reset-requests','x-ratelimit-reset-tokens']){
+    const value=upstream.headers.get(name);if(value)headers.set(name,value);
+  }
+  return new Response(upstream.body,{status:upstream.status,headers});
 }
 
 async function theoryData(request){
@@ -212,6 +213,15 @@ async function saveT212Credentials(auth,env,credentials){
   const rows=await rr.json().catch(()=>[]);
   return rr.ok&&Array.isArray(rows)&&!!rows[0]?.id?{ok:true}:{ok:false,error:'Dayframe could not save the Trading 212 connection.'};
 }
+function canonicalT212Ticker(value,name='',isin=''){
+  const raw=String(value||'').trim();
+  const base=raw
+    .replace(/\.(?:DE|US|GB|L|ST)$/i,'')
+    .replace(/_(?:US|CA|GB|SGD|HKD|EUR|AUD|SG|DE)?_?EQ$/i,'')
+    .replace(/_(?:US|CA|GB|SGD|HKD|EUR|AUD|SG|DE)$/i,'');
+  if(String(isin||'').trim().toUpperCase()==='SE0003917798'||/sivers\s+semiconductors/i.test(String(name||''))||/^2DG[A-Z]*$/i.test(base))return 'SIVE';
+  return base.toUpperCase();
+}
 function normaliseT212Position(position){
   const instrument=position?.instrument||{},wallet=position?.walletImpact||{};
   const quantity=Number(position?.quantity)||0;
@@ -224,11 +234,14 @@ function normaliseT212Position(position){
   const safeCost=Number.isFinite(totalCost)?totalCost:fallbackCost;
   const safeValue=Number.isFinite(currentValue)?currentValue:fallbackValue;
   const providerPpl=Number(wallet?.unrealizedProfitLoss??position?.ppl);
-  const rawTicker=String(instrument?.ticker||position?.ticker||''),baseTicker=rawTicker.replace(/_US_EQ$|_EQ$|_US$|_DE_EQ$|_DE$/,'');
-  const sivers=/^(2DGg|2DGG|2DG)$/.test(baseTicker);
+  const rawTicker=String(instrument?.ticker||position?.ticker||'');
+  const providerName=String(instrument?.name||instrument?.shortName||instrument?.ticker||position?.ticker||'Holding');
+  const isin=String(instrument?.isin||position?.isin||'');
+  const ticker=canonicalT212Ticker(rawTicker,providerName,isin);
   return {
-    ticker:sivers?'SIVE':rawTicker,
-    name:sivers?'Sivers Semiconductors AB':String(instrument?.name||instrument?.shortName||instrument?.ticker||position?.ticker||'Holding'),
+    ticker,
+    name:ticker==='SIVE'?'Sivers Semiconductors AB':providerName,
+    isin,
     quantity,
     averagePrice,
     currentPrice,
