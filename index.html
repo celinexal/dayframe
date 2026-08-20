@@ -4311,7 +4311,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const wl=localStorage.getItem(dfKey("p_wl"));if(wl)WL=JSON.parse(wl);
   renderManualHoldingsList();
   if(_manualHoldings.length)mergeManualIntoH();
-  rDash();rH();rCF();rWL();rTrig();rGloss();rEducation();rCPO();rEarnings();rSectors();rCostBasis();rRiskCard();rThemeRadar();rConfCalendar();rSupplyMap();rEarlySources();rDashWL();rBreakingNews();
+  [rDash,rH,rCF,rWL,rTrig,rGloss,rEducation,rCPO,rEarnings,rSectors,rCostBasis,rRiskCard,rThemeRadar,rConfCalendar,rSupplyMap,rEarlySources,rDashWL,rBreakingNews].forEach(fn=>{try{fn()}catch(e){console.warn('Skipped unavailable investing widget:',fn.name)}});
   ptRender();
 });
 
