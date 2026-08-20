@@ -1,4 +1,4 @@
-// Dayframe build: Bible licences connected 2026-08-19
+// Dayframe build: Investing research upgrade 2026-08-20
 const SUPABASE_URL='https://xvquxwvapgzxyuntylci.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2cXV4d3ZhcGd6eHl1bnR5bGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjQ4MzQsImV4cCI6MjA4OTYwMDgzNH0.ovxzwMPaoyqdM4tJnjh28ovzj9mpsl87ToDiA2mXADw';
 const STATE_COOKIE='dayframe_tl_v1_state';
@@ -50,6 +50,59 @@ async function getKJVChapter(url){
 }
 
 
+const MARKET_RANGES=new Set(['1mo','3mo','6mo','1y','2y','5y']);
+const MARKET_INTERVALS=new Set(['1d','1wk','1mo']);
+function marketTickerFromPath(path,prefix){
+  let value='';try{value=decodeURIComponent(path.slice(prefix.length))}catch(e){return ''}
+  value=String(value||'').trim().toUpperCase();
+  return /^[A-Z0-9.^=-]{1,20}$/.test(value)?value:'';
+}
+async function fetchYahooChartData(symbol,range='6mo',interval='1wk'){
+  const query='?range='+encodeURIComponent(range)+'&interval='+encodeURIComponent(interval)+'&includePrePost=false&events=div%2Csplits';
+  let lastStatus=502;
+  for(const host of ['query1.finance.yahoo.com','query2.finance.yahoo.com']){
+    let response;
+    try{
+      response=await fetch('https://'+host+'/v8/finance/chart/'+encodeURIComponent(symbol)+query,{
+        headers:{accept:'application/json','user-agent':'Mozilla/5.0 Dayframe/1.0'},
+        cf:{cacheEverything:true,cacheTtl:300}
+      });
+    }catch(e){continue}
+    lastStatus=response.status;
+    if(!response.ok)continue;
+    const body=await response.text();
+    if(body.length>2000000)throw new Error('Market response was unexpectedly large.');
+    let data;try{data=JSON.parse(body)}catch(e){continue}
+    if(data?.chart?.result?.[0]&&!data?.chart?.error)return data;
+  }
+  const err=new Error('Market data provider unavailable.');err.status=lastStatus;throw err;
+}
+async function getMarketChart(url){
+  const prefix='/api/market/chart/';
+  const symbol=marketTickerFromPath(url.pathname,prefix);
+  if(!symbol)return json({error:'Enter a valid market ticker.'},400);
+  const requestedRange=String(url.searchParams.get('range')||'6mo');
+  const requestedInterval=String(url.searchParams.get('interval')||'1wk');
+  const range=MARKET_RANGES.has(requestedRange)?requestedRange:'6mo';
+  const interval=MARKET_INTERVALS.has(requestedInterval)?requestedInterval:'1wk';
+  try{
+    const data=await fetchYahooChartData(symbol,range,interval);
+    return json(data,200,{'cache-control':'public, max-age=60, s-maxage=300'});
+  }catch(e){
+    return json({error:'Verified market data is unavailable for this ticker.'},e?.status===404?404:502);
+  }
+}
+async function getMarketVix(){
+  try{
+    const data=await fetchYahooChartData('^VIX','1mo','1d');
+    const result=data.chart.result[0],closes=result?.indicators?.quote?.[0]?.close||[];
+    const latest=[...closes].reverse().find(v=>Number.isFinite(Number(v)));
+    if(!Number.isFinite(Number(latest)))throw new Error('No VIX price.');
+    return json({vix:+Number(latest).toFixed(2),source:'Yahoo Finance'},200,{'cache-control':'public, max-age=60, s-maxage=300'});
+  }catch(e){return json({error:'Market mood data is unavailable.'},502)}
+}
+
+
 export default {
   async fetch(request, env) {
     const url=new URL(request.url);
@@ -65,6 +118,8 @@ export default {
       if(url.pathname==='/api/investing/t212/pies'&&request.method==='GET')return getT212Pies(request,env);
       if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
       if(url.pathname==='/api/ai/groq'&&request.method==='POST')return proxySharedGroq(request);
+      if(url.pathname.startsWith('/api/market/chart/')&&request.method==='GET')return getMarketChart(url);
+      if(url.pathname==='/api/vix'&&request.method==='GET')return getMarketVix();
       if(url.pathname==='/api/bible/kjv')return request.method==='GET'?getKJVChapter(url):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/bible/licensed')return request.method==='GET'?getLicensedBibleChapter(url,env):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
