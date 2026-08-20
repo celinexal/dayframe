@@ -4832,7 +4832,33 @@ async function moneyLoadBankData(force=false){
 }
 async function moneyRefreshBankData(){_moneyBankLoaded=false;hubToast('Refreshing connected accounts…');await moneyLoadBankData(true);hubToast('Money data refreshed')}
 async function moneyDisconnectBank(connectionId){if(!confirm('Disconnect this bank connection from your Dayframe account?'))return;try{const r=await dfBankFetch('/api/money/connections/'+encodeURIComponent(connectionId),{method:'DELETE'});if(!r.ok)throw new Error('Could not remove connection');_moneyBankLoaded=false;await moneyLoadBankData(true);hubToast('Bank connection removed')}catch(e){hubToast(e.message)}}
-function moneyHandleBankCallback(){const u=new URL(location.href);const status=u.searchParams.get('bank');if(!status)return;if(status==='connected'){setTimeout(()=>{go('money');moneyOpenTab('accounts');hubToast('Bank connection completed');moneyLoadBankData(true)},150)}else if(status==='error'){setTimeout(()=>{go('money');moneyOpenConnectModal();moneySetConnectStatus('error','The bank connection was not completed. You can try again whenever you are ready.')},150)}u.searchParams.delete('bank');history.replaceState({},'',u.pathname+(u.search?u.search:'')+u.hash)}
+function moneyBankCallbackMessage(reason){
+ const messages={
+  bank_declined:'Your bank ended the login before approving access. No new account was added. Start again and complete every step shown by your bank.',
+  bank_unavailable:'Your bank or TrueLayer was temporarily unavailable. Your existing accounts are safe; please retry in a moment.',
+  login_expired:'The one-time bank login expired before Dayframe could save it. Please start the connection again from the beginning.',
+  return_session_expired:'The secure return session expired or was blocked by the browser. It has been reset, so you can retry now.',
+  setup_problem:'Dayframe’s live bank connection needs attention before another account can be added.',
+  save_failed:'Your bank approved access, but Dayframe could not save the new connection. Your existing accounts are safe; please retry.',
+  missing_code:'Your bank returned without completing approval. No new account was added; please retry and finish every bank step.',
+  bank_error:'Your bank could not complete the connection. Your existing accounts are safe; please retry.'
+ };
+ return messages[reason]||'The bank connection did not finish. Your existing accounts are safe; please retry.';
+}
+function moneyHandleBankCallback(){
+ const u=new URL(location.href),status=u.searchParams.get('bank'),reason=u.searchParams.get('bank_reason')||'';
+ if(!status)return;
+ if(status==='connected'){
+  setTimeout(()=>{go('money');moneyOpenTab('accounts');hubToast('Bank connection completed');moneyLoadBankData(true)},150);
+ }else if(status==='error'){
+  setTimeout(()=>{
+   go('money');moneyOpenConnectModal();
+   moneySetConnectStatus('error',hubEsc(moneyBankCallbackMessage(reason))+'<div style="margin-top:10px"><button type="button" class="life-btn-primary" onclick="moneyConnectBank()">Retry bank connection</button></div>');
+  },150);
+ }
+ u.searchParams.delete('bank');u.searchParams.delete('bank_reason');
+ history.replaceState({},'',u.pathname+(u.search?u.search:'')+u.hash);
+}
 
 function moneyCurrentMonth(){return new Date().toISOString().slice(0,7)}
 function moneyNormaliseCategory(v){const map={Bills:'Bills & Utilities',Food:'Groceries',Fun:'Entertainment',Everyday:'Shopping'};const clean=String(v||'Other').trim();return map[clean]||clean||'Other'}
