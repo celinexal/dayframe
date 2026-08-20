@@ -54,7 +54,7 @@ export default {
   async fetch(request, env) {
     const url=new URL(request.url);
     try{
-      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-auth-link-v3-20260819'});
+      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-callback-v4-20260820'});
       if(url.pathname==='/api/money/connect'&&request.method==='POST')return startConnect(request,env);
       if(url.pathname==='/api/money/callback'&&request.method==='GET')return handleCallback(request,env);
       if(url.pathname==='/api/money/data'&&request.method==='GET')return getMoneyData(request,env);
@@ -82,7 +82,24 @@ function authBase(env){return isSandbox(env)?'https://auth.truelayer-sandbox.com
 function apiBase(env){return isSandbox(env)?'https://api.truelayer-sandbox.com':'https://api.truelayer.com'}
 function json(data,status=200,headers={}){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}})}
 function cookieValue(request,name){const raw=request.headers.get('cookie')||'';const hit=raw.split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'='));return hit?decodeURIComponent(hit.slice(name.length+1)):''}
-function clearCookie(name){return `${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`}
+function clearCookie(name){return `${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None`}
+function bankStateCookie(value){return `${STATE_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=1800; HttpOnly; Secure; SameSite=None`}
+function bankErrorReason(value,status=0){
+  const code=String(value||'').trim().toLowerCase();
+  if(['access_denied','consent_denied','user_cancelled','cancelled'].includes(code))return 'bank_declined';
+  if(['invalid_grant','expired_code','code_expired'].includes(code))return 'login_expired';
+  if(['invalid_client','unauthorized_client','invalid_redirect_uri','redirect_uri_mismatch'].includes(code))return 'setup_problem';
+  if(status>=500||['temporarily_unavailable','server_error','provider_error','connector_error','connector_overload'].includes(code))return 'bank_unavailable';
+  return code?'bank_error':'unknown_error';
+}
+function bankCallbackRedirect(url,status,reason=''){
+  const target=new URL('/',url.origin);
+  target.searchParams.set('bank',status);
+  if(reason)target.searchParams.set('bank_reason',reason);
+  const headers=new Headers({location:target.toString(),'cache-control':'no-store'});
+  headers.append('set-cookie',clearCookie(STATE_COOKIE));
+  return new Response(null,{status:302,headers});
+}
 function b64u(bytes){let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function unb64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const raw=atob(s);return Uint8Array.from(raw,c=>c.charCodeAt(0))}
 async function aesKey(env){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(env.TRUELAYER_CLIENT_SECRET));return crypto.subtle.importKey('raw',digest,{name:'AES-GCM'},false,['encrypt','decrypt'])}
@@ -583,23 +600,60 @@ async function startConnect(request,env){
   if(isSandbox(env))authUrl.searchParams.set('providers','uk-cs-mock');
 
   const statePayload=await encryptBlob(env,{state,user_id:auth.user.id,sb_token:auth.token,created_at:Date.now()});
-  return json({auth_url:authUrl.toString()},200,{'set-cookie':`${STATE_COOKIE}=${encodeURIComponent(statePayload)}; Path=/; Max-Age=900; HttpOnly; Secure; SameSite=Lax`});
+  return json({auth_url:authUrl.toString()},200,{'set-cookie':bankStateCookie(statePayload)});
 }
 
 async function handleCallback(request,env){
   const url=new URL(request.url),code=url.searchParams.get('code'),state=url.searchParams.get('state'),error=url.searchParams.get('error');
-  if(error||!code)return Response.redirect(new URL('/?bank=error',url.origin).toString(),302);
-  const pending=await decryptBlob(env,cookieValue(request,STATE_COOKIE));
-  if(!pending||!state||pending.state!==state||Date.now()-Number(pending.created_at||0)>900000)return Response.redirect(new URL('/?bank=error',url.origin).toString(),302);
+  if(error||!code){
+    const reason=error?bankErrorReason(error):'missing_code';
+    console.error(JSON.stringify({event:'bank_callback_failed',reason}));
+    return bankCallbackRedirect(url,'error',reason);
+  }
+
+  const stateCookie=cookieValue(request,STATE_COOKIE);
+  if(!stateCookie){
+    console.error(JSON.stringify({event:'bank_callback_failed',reason:'return_session_expired'}));
+    return bankCallbackRedirect(url,'error','return_session_expired');
+  }
+  const pending=await decryptBlob(env,stateCookie);
+  if(!pending){
+    console.error(JSON.stringify({event:'bank_callback_failed',reason:'return_session_invalid'}));
+    return bankCallbackRedirect(url,'error','return_session_expired');
+  }
+  if(!state||pending.state!==state){
+    console.error(JSON.stringify({event:'bank_callback_failed',reason:'state_mismatch'}));
+    return bankCallbackRedirect(url,'error','return_session_expired');
+  }
+  if(Date.now()-Number(pending.created_at||0)>1800000){
+    console.error(JSON.stringify({event:'bank_callback_failed',reason:'state_expired'}));
+    return bankCallbackRedirect(url,'error','return_session_expired');
+  }
+
   const form=new URLSearchParams({grant_type:'authorization_code',client_id:env.TRUELAYER_CLIENT_ID,client_secret:env.TRUELAYER_CLIENT_SECRET,redirect_uri:env.TRUELAYER_RETURN_URI,code});
-  const r=await fetch(authBase(env)+'/connect/token',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded','accept':'application/json'},body:form});
-  const txt=await r.text();let d={};try{d=txt?JSON.parse(txt):{}}catch(e){}
-  if(!r.ok||!d.access_token){console.error('TrueLayer token exchange',r.status,txt);return Response.redirect(new URL('/?bank=error',url.origin).toString(),302)}
-  const tokens={access_token:d.access_token,refresh_token:d.refresh_token||'',expires_at:Date.now()+(Number(d.expires_in)||3600)*1000,scope:d.scope||''};
+  let tokenResponse;
+  try{
+    tokenResponse=await fetch(authBase(env)+'/connect/token',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded','accept':'application/json'},body:form});
+  }catch(e){
+    console.error(JSON.stringify({event:'bank_callback_failed',reason:'token_network_error'}));
+    return bankCallbackRedirect(url,'error','bank_unavailable');
+  }
+  const tokenText=await tokenResponse.text();let tokenData={};try{tokenData=tokenText?JSON.parse(tokenText):{}}catch(e){}
+  if(!tokenResponse.ok||!tokenData.access_token){
+    const upstreamCode=String(tokenData.error||tokenData.error_code||tokenData.code||'');
+    const reason=bankErrorReason(upstreamCode,tokenResponse.status);
+    console.error(JSON.stringify({event:'bank_callback_failed',reason,upstream_status:tokenResponse.status,upstream_code:upstreamCode.slice(0,80)}));
+    return bankCallbackRedirect(url,'error',reason);
+  }
+
+  const tokens={access_token:tokenData.access_token,refresh_token:tokenData.refresh_token||'',expires_at:Date.now()+(Number(tokenData.expires_in)||3600)*1000,scope:tokenData.scope||''};
   const encrypted_tokens=await encryptBlob(env,tokens);
-  const ins=await sbRest('dayframe_bank_connections_v1',pending.sb_token,{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({user_id:pending.user_id,encrypted_tokens,status:'active'})});
-  if(!ins.ok){console.error('Supabase bank insert',ins.status,await ins.text());return Response.redirect(new URL('/?bank=error',url.origin).toString(),302)}
-  const headers=new Headers();headers.append('location',new URL('/?bank=connected',url.origin).toString());headers.append('set-cookie',clearCookie(STATE_COOKIE));return new Response(null,{status:302,headers});
+  const insert=await sbRest('dayframe_bank_connections_v1',pending.sb_token,{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({user_id:pending.user_id,encrypted_tokens,status:'active'})});
+  if(!insert.ok){
+    console.error(JSON.stringify({event:'bank_callback_failed',reason:'save_failed',upstream_status:insert.status}));
+    return bankCallbackRedirect(url,'error','save_failed');
+  }
+  return bankCallbackRedirect(url,'connected');
 }
 
 async function refreshTokens(env,t){if(!t?.refresh_token)return null;const form=new URLSearchParams({grant_type:'refresh_token',client_id:env.TRUELAYER_CLIENT_ID,client_secret:env.TRUELAYER_CLIENT_SECRET,refresh_token:t.refresh_token});const r=await fetch(authBase(env)+'/connect/token',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded','accept':'application/json'},body:form});const d=await r.json().catch(()=>({}));if(!r.ok||!d.access_token)return null;return {access_token:d.access_token,refresh_token:d.refresh_token||t.refresh_token,expires_at:Date.now()+(Number(d.expires_in)||3600)*1000,scope:d.scope||t.scope||''}}
