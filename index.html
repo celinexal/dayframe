@@ -8166,7 +8166,8 @@ async function loadCongress(){
 
 // WATCHLIST
 function rWL(){
-  document.getElementById("wl-chips").innerHTML=WL.length?`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">`+WL.map(t=>`<div style="display:inline-flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rs);padding:5px 11px"><span class="tc">${t}</span><button onclick="rmWL('${t}')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:0;line-height:1">×</button></div>`).join("")+`</div>`:`<div style="color:var(--t3);font-size:13px;margin-bottom:12px;font-weight:500">Add tickers below to build your watchlist.</div>`;
+  const host=document.getElementById("wl-chips");if(!host)return;
+  host.innerHTML=WL.length?`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">`+WL.map(t=>`<div style="display:inline-flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rs);padding:5px 11px"><span class="tc">${t}</span><button onclick="rmWL('${t}')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:0;line-height:1">×</button></div>`).join("")+`</div>`:`<div style="color:var(--t3);font-size:13px;margin-bottom:12px;font-weight:500">Add tickers below to build your watchlist.</div>`;
 }
 function addWL(){const i=document.getElementById("wl-inp"),v=i?i.value.trim().toUpperCase():"";if(v&&!WL.includes(v)){WL.push(v);localStorage.setItem(dfKey("p_wl"),JSON.stringify(WL));rWL();rCF();rWLPage();}if(i)i.value="";}
 function addWLNew(){const i=document.getElementById("wl-add-inp"),v=i?i.value.trim().toUpperCase():"";if(!v)return;if(!WL.includes(v)){WL.push(v);localStorage.setItem(dfKey("p_wl"),JSON.stringify(WL));rCF();rWLPage();}if(i)i.value="";}
