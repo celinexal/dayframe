@@ -77,6 +77,23 @@ async function fetchYahooChartData(symbol,range='6mo',interval='1wk'){
   }
   const err=new Error('Market data provider unavailable.');err.status=lastStatus;throw err;
 }
+async function resolveYahooSymbol(query){
+  const clean=String(query||'').trim().slice(0,120);if(clean.length<2)return '';
+  let response;
+  try{
+    response=await fetch('https://query1.finance.yahoo.com/v1/finance/search?q='+encodeURIComponent(clean)+'&quotesCount=8&newsCount=0',{
+      headers:{accept:'application/json','user-agent':'Mozilla/5.0 Dayframe/1.0'},
+      cf:{cacheEverything:true,cacheTtl:3600}
+    });
+  }catch(e){return ''}
+  if(!response.ok)return '';
+  const body=await response.text();if(body.length>500000)return '';
+  let data;try{data=JSON.parse(body)}catch(e){return ''}
+  const quotes=Array.isArray(data?.quotes)?data.quotes.filter(item=>['EQUITY','ETF','MUTUALFUND'].includes(String(item?.quoteType||''))):[];
+  const preferred=quotes.find(item=>!['PNK','OQB','OEM','OTC'].includes(String(item?.exchange||'').toUpperCase()))||quotes[0];
+  const symbol=String(preferred?.symbol||'').trim().toUpperCase();
+  return /^[A-Z0-9.^=-]{1,20}$/.test(symbol)?symbol:'';
+}
 async function getMarketChart(url){
   const prefix='/api/market/chart/';
   const symbol=marketTickerFromPath(url.pathname,prefix);
@@ -85,12 +102,20 @@ async function getMarketChart(url){
   const requestedInterval=String(url.searchParams.get('interval')||'1wk');
   const range=MARKET_RANGES.has(requestedRange)?requestedRange:'6mo';
   const interval=MARKET_INTERVALS.has(requestedInterval)?requestedInterval:'1wk';
-  try{
-    const data=await fetchYahooChartData(symbol,range,interval);
-    return json(data,200,{'cache-control':'public, max-age=60, s-maxage=300'});
-  }catch(e){
-    return json({error:'Verified market data is unavailable for this ticker.'},e?.status===404?404:502);
+  let data,resolvedSymbol=symbol,lastError;
+  try{data=await fetchYahooChartData(symbol,range,interval)}catch(error){lastError=error}
+  if(!data){
+    const search=String(url.searchParams.get('search')||'').trim().slice(0,120);
+    if(search){
+      const resolved=await resolveYahooSymbol(search);
+      if(resolved&&resolved!==symbol){
+        try{data=await fetchYahooChartData(resolved,range,interval);resolvedSymbol=resolved}catch(error){lastError=error}
+      }
+    }
   }
+  if(!data)return json({error:'Verified market data is unavailable for this listing.'},lastError?.status===404?404:502);
+  data.dayframe={requested_symbol:symbol,resolved_symbol:resolvedSymbol,used_search:resolvedSymbol!==symbol};
+  return json(data,200,{'cache-control':'public, max-age=60, s-maxage=300'});
 }
 async function getMarketVix(){
   try{
