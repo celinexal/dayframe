@@ -6664,7 +6664,7 @@ async function openChart(tk){
   _html += '<div class="dash-card">';
   _html += '<div class="dash-card-head"><div class="dash-card-title">6-month chart</div><span style="font-size:11px;color:var(--t3);font-weight:500">Yahoo Finance</span></div>';
   _html += '<div class="dash-card-body">';
-  _html += '<div class="cwrap"><canvas id="sc"></canvas></div>';
+  _html += '<div class="cwrap"><svg id="sc" viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Six-month price chart" style="display:block;width:100%;height:100%;overflow:visible"></svg></div>';
   _html += '<div class="cleg" style="margin-top:8px"><span><span class="cdot" style="background:#4f46e5"></span>Price</span><span><span class="cdot" style="background:var(--gn)"></span>Support</span><span><span class="cdot" style="background:var(--rd)"></span>Resistance</span><span><span class="cdot" style="background:var(--am)"></span>50d MA</span></div>';
   _html += '<div class="rsi-wrap" style="margin-top:14px">';
   _html += '<div style="font-size:11px;color:var(--t3);margin-bottom:8px">\uD83D\uDCC8 <strong style="color:var(--tx)">Momentum (RSI)</strong> \u2014 0\u2013100. Under 30 = beaten down. Over 70 = running hot.</div>';
@@ -8012,25 +8012,26 @@ async function loadChart(tk,h){
 }
 function marketCurrencyPrefix(code){return ({USD:'$',GBP:'£',GBp:'p',EUR:'€',SEK:'SEK ',CAD:'C$',AUD:'A$',JPY:'¥'})[String(code||'')]||(code?String(code)+' ':'')}
 function drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix='$'){
-  const ctx=c.getContext("2d"),ratio=Math.min(window.devicePixelRatio||1,2);
-  const width=Math.max(c.parentElement?.clientWidth||0,560),height=Math.max(c.parentElement?.clientHeight||0,260);
-  c.width=Math.round(width*ratio);c.height=Math.round(height*ratio);c.style.width="100%";c.style.height=height+"px";
-  ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,width,height);
-  const pad={left:54,right:14,top:18,bottom:32},values=[...prices,...ma,sup,res].filter(v=>Number.isFinite(Number(v))).map(Number);
+  const width=720,height=260,pad={left:62,right:16,top:16,bottom:34};
+  const valid=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
+  const values=[...prices,...ma,sup,res].filter(valid).map(Number);
   if(values.length<2)throw new Error("No chart values");
   let min=Math.min(...values),max=Math.max(...values),spread=Math.max(max-min,Math.abs(max)*.04,1);min-=spread*.08;max+=spread*.08;
   const x=index=>pad.left+(index/Math.max(labels.length-1,1))*(width-pad.left-pad.right);
-  const y=value=>pad.top+(max-value)/(max-min)*(height-pad.top-pad.bottom);
-  ctx.font="10px system-ui";ctx.fillStyle="#8b93a7";ctx.strokeStyle="rgba(15,23,42,.08)";ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){const yy=pad.top+i*(height-pad.top-pad.bottom)/4,value=max-i*(max-min)/4;ctx.beginPath();ctx.moveTo(pad.left,yy);ctx.lineTo(width-pad.right,yy);ctx.stroke();ctx.fillText(pricePrefix+value.toFixed(2),4,yy+3)}
-  const draw=(series,color,lineWidth=1.5,dash=[])=>{ctx.save();ctx.strokeStyle=color;ctx.lineWidth=lineWidth;ctx.setLineDash(dash);ctx.beginPath();let started=false;series.forEach((value,index)=>{if(!Number.isFinite(Number(value)))return;const xx=x(index),yy=y(Number(value));if(!started){ctx.moveTo(xx,yy);started=true}else ctx.lineTo(xx,yy)});ctx.stroke();ctx.restore()};
-  draw(new Array(labels.length).fill(sup),"rgba(21,128,61,.65)",1.25,[5,4]);
-  draw(new Array(labels.length).fill(res),"rgba(185,28,28,.65)",1.25,[5,4]);
-  draw(ma,"rgba(180,83,9,.8)",1.5);
-  draw(prices,"#1d4ed8",2.25);
+  const y=value=>pad.top+(max-Number(value))/(max-min)*(height-pad.top-pad.bottom);
+  const pathFor=series=>{let path="",started=false;series.forEach((value,index)=>{if(!valid(value)){started=false;return}path+=(started?" L":" M")+x(index).toFixed(1)+" "+y(value).toFixed(1);started=true});return path};
+  const pricePath=pathFor(prices),maPath=pathFor(ma);
+  if(!pricePath)throw new Error("No price path");
+  const finitePoints=prices.map((value,index)=>valid(value)?{index,value:Number(value)}:null).filter(Boolean);
+  const first=finitePoints[0],last=finitePoints[finitePoints.length-1];
+  const areaPath=first&&last?pricePath+" L"+x(last.index).toFixed(1)+" "+(height-pad.bottom)+" L"+x(first.index).toFixed(1)+" "+(height-pad.bottom)+" Z":"";
+  let grid="",axisLabels="";
+  for(let i=0;i<=4;i++){const yy=pad.top+i*(height-pad.top-pad.bottom)/4,value=max-i*(max-min)/4;grid+='<line x1="'+pad.left+'" y1="'+yy.toFixed(1)+'" x2="'+(width-pad.right)+'" y2="'+yy.toFixed(1)+'" stroke="rgba(15,23,42,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>';axisLabels+='<text x="4" y="'+(yy+4).toFixed(1)+'" fill="#7b849a" font-size="10" font-family="system-ui,sans-serif">'+hubEsc(pricePrefix+value.toFixed(2))+'</text>'}
   const labelIndexes=[0,Math.round((labels.length-1)/2),labels.length-1].filter((value,index,array)=>array.indexOf(value)===index);
-  ctx.fillStyle="#8b93a7";ctx.textAlign="center";labelIndexes.forEach(index=>ctx.fillText(labels[index]||"",x(index),height-10));ctx.textAlign="left";
-  chartInst={destroy(){ctx.clearRect(0,0,width,height)}};
+  const dateLabels=labelIndexes.map(index=>'<text x="'+x(index).toFixed(1)+'" y="'+(height-9)+'" fill="#7b849a" font-size="10" font-family="system-ui,sans-serif" text-anchor="'+(index===0?'start':index===labels.length-1?'end':'middle')+'">'+hubEsc(labels[index]||"")+'</text>').join("");
+  c.setAttribute("viewBox","0 0 "+width+" "+height);c.setAttribute("preserveAspectRatio","none");
+  c.innerHTML='<defs><linearGradient id="df-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity=".25"/><stop offset="100%" stop-color="#3b82f6" stop-opacity=".02"/></linearGradient></defs>'+grid+axisLabels+(areaPath?'<path d="'+areaPath+'" fill="url(#df-chart-fill)" stroke="none"/>':'')+'<path d="M'+pad.left+' '+y(sup).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(21,128,61,.68)" stroke-width="1.25" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/><path d="M'+pad.left+' '+y(res).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(185,28,28,.68)" stroke-width="1.25" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>'+(maPath?'<path d="'+maPath+'" fill="none" stroke="#b45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>':'')+'<path d="'+pricePath+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'+dateLabels;
+  chartInst={destroy(){if(c)c.innerHTML=""}};
 }
 function drawChart(labels,prices,sup,res,ma,pricePrefix='$'){
   if(chartInst&&typeof chartInst.destroy==="function"){chartInst.destroy();chartInst=null}
