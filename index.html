@@ -11,6 +11,14 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6f66ee">
+<meta name="application-name" content="Dayframe">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dayframe">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/dayframe-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/dayframe-icon.svg">
 <title>Dayframe — Your Personal Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
@@ -1598,6 +1606,90 @@ body.invest-drawer-open{overflow:hidden}
 @media(max-width:720px){.bible-reader-card-head{flex-direction:row}.bible-order-trigger{min-width:150px}.bible-order-popover{position:fixed;left:12px;right:12px;top:84px;width:auto;max-height:calc(100vh - 100px)}.bible-note-side .bible-note-form{grid-template-columns:1fr}.bible-note-side .bible-note-form .wide{grid-column:1}.bible-saved-notes-card .bible-notes-list{grid-template-columns:1fr}}
 @media(max-width:640px){.money-category-list{grid-template-columns:1fr}.money-cat-row{grid-template-columns:auto minmax(0,1fr) auto}.money-cat-pct{display:block;grid-column:2/4}}
 </style>
+
+<style id="dayframe-polish-2026">
+/* Dayframe experience polish */
+.auth-public-grid-six{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.auth-public-grid-six .auth-public-feature{min-height:88px;padding:15px 16px;border-radius:17px}
+.auth-public-grid-six .auth-public-feature b{font-size:12px}
+.auth-public-grid-six .auth-public-feature span{font-size:10.5px;line-height:1.6}
+.auth-public-sub{font-size:15px;line-height:1.75;max-width:690px}
+.df-nav-btn{font-size:11px}
+.life-card-sub,.hub-section-sub,.hub-module-desc,.home-panel-sub,.money-account-meta,.money-category-help{font-size:12px;line-height:1.55}
+.money-cat-name,.money-cat-value{font-size:11.5px!important}
+.money-cat-pct{font-size:10px!important}
+button,input,select,textarea{font-family:var(--ff)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid rgba(111,102,238,.28);outline-offset:2px}
+.home-edit-button{min-height:38px;padding:0 13px;border:1px solid #dfdcff;border-radius:11px;background:linear-gradient(135deg,#fff,#f3f1ff);color:#6659df;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 5px 14px rgba(65,57,145,.07)}
+.home-edit-button span{margin-right:5px}
+.hub-module.home-item-hidden,.home-glance-panel.home-item-hidden{display:none!important}
+
+.df-mobile-nav{display:none}
+.df-quick-fab{position:fixed;right:28px;bottom:26px;z-index:165;width:58px;height:58px;border:0;border-radius:19px;background:linear-gradient(145deg,#7564f3,#5e83f4);color:#fff;box-shadow:0 15px 34px rgba(83,77,201,.33);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:0;transition:transform .18s ease,box-shadow .18s ease}
+.df-quick-fab:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 20px 42px rgba(83,77,201,.4)}
+.df-quick-fab span{font-size:24px;line-height:22px;font-weight:400}.df-quick-fab small{font-size:8px;font-weight:800;letter-spacing:.35px}
+.df-sheet-backdrop{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:center;padding:20px;background:rgba(16,24,39,.34);backdrop-filter:blur(7px)}
+.df-sheet-backdrop.open{display:flex;animation:dfFade .16s ease}
+.df-action-sheet{display:none;width:min(680px,100%);max-height:min(82vh,720px);overflow:auto;border:1px solid rgba(255,255,255,.8);border-radius:25px;background:linear-gradient(160deg,#fff,#faf9ff);box-shadow:0 28px 80px rgba(22,28,45,.24);padding:22px}
+.df-action-sheet.active{display:block;animation:dfSheetUp .2s ease}
+.df-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+.df-sheet-head>div>span{display:block;font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#8b7fec;margin-bottom:4px}
+.df-sheet-head h2{font-family:var(--fd);font-size:22px;line-height:1.2;color:#1d2638}
+.df-sheet-head p{font-size:11.5px;color:#8a94a6;margin-top:5px;line-height:1.55}
+.df-sheet-head>button{flex:0 0 auto;width:36px;height:36px;border:1px solid #e7e9ef;border-radius:11px;background:#fff;color:#7c8798;font-size:19px;cursor:pointer}
+.df-quick-grid,.df-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.df-quick-grid>button,.df-more-grid>button{min-height:76px;display:flex;align-items:center;gap:12px;padding:13px;text-align:left;border:1px solid #e9ebf2;border-radius:16px;background:#fff;color:#30394b;cursor:pointer;transition:.16s ease}
+.df-quick-grid>button:hover,.df-more-grid>button:hover{transform:translateY(-1px);border-color:#dcd8ff;background:#faf9ff;box-shadow:0 9px 22px rgba(44,49,77,.08)}
+.df-quick-grid i,.df-more-grid i{width:39px;height:39px;display:grid;place-items:center;flex:0 0 auto;border-radius:13px;background:#f0efff;color:#6d60e6;font-style:normal;font-size:16px;font-weight:850}
+.df-quick-grid span,.df-more-grid span{display:flex;flex-direction:column;min-width:0}.df-quick-grid strong,.df-more-grid strong{font-size:12px}.df-quick-grid small,.df-more-grid small{font-size:10px;color:#929baa;margin-top:2px;line-height:1.4}
+.df-more-grid .danger i{background:#fff0f0;color:#ca5d5d}.df-more-grid .danger strong{color:#b84d4d}
+.df-install-action[hidden]{display:none!important}
+@keyframes dfFade{from{opacity:0}to{opacity:1}}@keyframes dfSheetUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.home-editor-list{display:grid;gap:9px}.home-editor-group+.home-editor-group{margin-top:20px}.home-editor-group>h3{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#98a1b1;margin-bottom:9px}
+.home-editor-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:11px;padding:11px 12px;border:1px solid #e8eaf1;border-radius:14px;background:#fff}
+.home-editor-check{width:20px;height:20px;accent-color:#6e61e8}.home-editor-copy strong{display:block;font-size:12px;color:#3d4658}.home-editor-copy small{display:block;font-size:9.5px;color:#97a0ae;margin-top:1px}
+.home-editor-move{display:flex;gap:5px}.home-editor-move button{width:32px;height:32px;border:1px solid #e5e7ee;border-radius:9px;background:#fafbfc;color:#707b8d;cursor:pointer}.home-editor-move button:disabled{opacity:.3}
+.home-editor-note{margin-top:14px;padding:11px 12px;border-radius:13px;background:#f4f2ff;color:#7569b6;font-size:10.5px;line-height:1.55}
+
+.df-connection-health{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.df-connection-health>div{padding:10px 11px;border:1px solid #e6e9ef;border-radius:12px;background:#fafbfc}
+.df-connection-health span{display:block;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.65px;color:#99a2b1}.df-connection-health strong{display:block;margin-top:3px;font-size:10.5px;color:#4d586c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.df-connection-health strong.ready{color:#238369}.df-connection-health strong.attention{color:#c56e3c}
+.money-connection-board{display:grid;grid-template-columns:1.2fr .8fr .8fr auto;gap:9px;align-items:stretch}
+.money-connection-cell{padding:10px 12px;border:1px solid #e8ebf1;border-radius:12px;background:#fff}.money-connection-cell span{display:block;font-size:8.5px;font-weight:850;text-transform:uppercase;letter-spacing:.55px;color:#99a2b1}.money-connection-cell strong{display:block;margin-top:3px;font-size:11px;color:#4d586b}.money-connection-cell strong.live{color:#21876d}.money-connection-cell strong.attention{color:#c1644d}
+.money-connection-actions{display:flex;align-items:center;gap:6px}.money-connection-actions button{min-height:38px}
+.money-sync-note{font-size:9.5px;color:#8f99a8;margin-top:7px}
+
+@media(max-width:760px){
+  .df-topnav{height:58px;padding-left:max(13px,env(safe-area-inset-left));padding-right:max(13px,env(safe-area-inset-right))}
+  .df-nav-links{display:none!important}.df-nav-brand span{display:block!important}.df-nav-right .df-logout,.df-user-name{display:none}.df-user-pill{padding:4px;border:0;background:transparent}.df-user-avatar{width:34px;height:34px}
+  .df-mobile-nav{position:fixed;left:0;right:0;bottom:0;z-index:170;height:calc(70px + env(safe-area-inset-bottom));padding:8px max(8px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(8px,env(safe-area-inset-left));display:grid;grid-template-columns:repeat(5,1fr);align-items:start;background:rgba(255,255,255,.94);border-top:1px solid #e6e9f0;box-shadow:0 -10px 30px rgba(27,34,51,.08);backdrop-filter:blur(18px)}
+  .df-mobile-nav button{height:54px;border:0;border-radius:13px;background:transparent;color:#8a95a6;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;cursor:pointer}
+  .df-mobile-nav button span{font-size:17px;line-height:20px;font-weight:750}.df-mobile-nav button small{font-size:9px;font-weight:750}.df-mobile-nav button.on{background:#f1efff;color:#675ae4}
+  .df-quick-fab{display:flex;right:16px;bottom:calc(82px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:18px}
+  .main>.pg{padding-bottom:calc(116px + env(safe-area-inset-bottom))!important}.hub-shell{padding-bottom:calc(120px + env(safe-area-inset-bottom))!important}
+  body.investing-mode .invest-sidepanel,body.driving-mode .driving-sidepanel{bottom:calc(70px + env(safe-area-inset-bottom))}
+  .df-sheet-backdrop{padding:12px 10px calc(80px + env(safe-area-inset-bottom))}
+  .df-action-sheet{border-radius:23px;padding:19px;max-height:calc(100dvh - 105px)}
+  .df-quick-grid,.df-more-grid{grid-template-columns:1fr}
+  .df-quick-grid>button,.df-more-grid>button{min-height:68px}
+  .auth-public-grid-six{grid-template-columns:1fr 1fr}
+  .auth-public-grid-six .auth-public-feature{min-height:96px}
+  .auth-public-sub{font-size:14px}
+  .hub-section-head{align-items:center}.home-edit-button{min-height:44px}
+  .money-connection-board{grid-template-columns:1fr 1fr}.money-connection-actions{grid-column:1/-1}.money-connection-actions button{flex:1}
+  .life-btn-primary,.life-btn-secondary,.money-head-action,.money-sync-btn,.diary-new-btn,.bible-reader-btn{min-height:44px}
+}
+@media(max-width:480px){
+  .auth-public-grid-six{grid-template-columns:1fr}.auth-public-grid-six .auth-public-feature{min-height:0}
+  .df-connection-health{grid-template-columns:1fr}.money-connection-board{grid-template-columns:1fr}
+  .hub-section-head{align-items:flex-start}.home-edit-button{padding:0 10px;font-size:10px}
+}
+.home-glance-grid.home-visible-0{display:none}.home-glance-grid.home-visible-1{grid-template-columns:minmax(0,1fr)}.home-glance-grid.home-visible-2{grid-template-columns:repeat(2,minmax(0,1fr))}.home-glance-grid.home-visible-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:760px){.home-glance-grid.home-visible-1,.home-glance-grid.home-visible-2,.home-glance-grid.home-visible-3{grid-template-columns:1fr!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
 </head>
 <body>
 
@@ -1611,13 +1703,15 @@ body.invest-drawer-open{overflow:hidden}
     <main class="auth-public-main">
       <section class="auth-public-copy">
         <div class="auth-public-kicker">✦ Your personal dashboard</div>
-        <h1 class="auth-public-title">Your money, plans and goals.<br><span>One beautiful place.</span></h1>
-        <p class="auth-public-sub">Dayframe brings everyday life admin together without mixing anybody else's information into yours. Connect your own accounts, build your own budget, manage your plans and keep your investments private.</p>
-        <div class="auth-public-grid">
-          <div class="auth-public-feature"><b>Money</b><span>Accounts, transactions, budgets, bills and credit payoff plans.</span></div>
-          <div class="auth-public-feature"><b>Plans</b><span>Tasks and longer-term goals without keeping everything in your head.</span></div>
-          <div class="auth-public-feature"><b>Life admin</b><span>Driving, renewals, appointments and the small things that matter.</span></div>
-          <div class="auth-public-feature"><b>Investing</b><span>Your portfolio and investing tools stay inside your own account.</span></div>
+        <h1 class="auth-public-title">Your money, plans and life.<br><span>One calm place.</span></h1>
+        <p class="auth-public-sub">Dayframe brings the parts of life you want to stay on top of into one private space — money, plans, driving, journaling, Bible study and investing.</p>
+        <div class="auth-public-grid auth-public-grid-six">
+          <div class="auth-public-feature"><b>Money</b><span>Accounts, spending, budgets, bills and credit plans.</span></div>
+          <div class="auth-public-feature"><b>Plans &amp; goals</b><span>Today’s tasks and bigger goals without the mental clutter.</span></div>
+          <div class="auth-public-feature"><b>Driving</b><span>Theory progress, your car and important renewal dates.</span></div>
+          <div class="auth-public-feature"><b>Diary</b><span>A private place for moods, thoughts and gentle reflection.</span></div>
+          <div class="auth-public-feature"><b>Bible Study</b><span>Read Scripture, highlight passages and keep personal notes.</span></div>
+          <div class="auth-public-feature"><b>Investing</b><span>Your portfolio, research and learning tools in your account.</span></div>
         </div>
       </section>
       <section class="auth-public-card">
@@ -1690,6 +1784,14 @@ body.invest-drawer-open{overflow:hidden}
   <div class="df-nav-right"><div class="df-user-pill"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></div><button class="df-logout" onclick="doLogout()">Log out</button></div>
 </div>
 
+<nav class="df-mobile-nav" aria-label="Main navigation">
+  <button class="on" data-mobile-page="home" onclick="go('home')"><span>⌂</span><small>Home</small></button>
+  <button data-mobile-page="money" onclick="go('money')"><span>£</span><small>Money</small></button>
+  <button data-mobile-page="planner" onclick="go('planner')"><span>✓</span><small>Plans</small></button>
+  <button data-mobile-page="bible" onclick="go('bible')"><span>✦</span><small>Bible</small></button>
+  <button data-mobile-page="more" onclick="dfOpenMore()"><span>•••</span><small>More</small></button>
+</nav>
+
 <div class="invest-sidepanel" id="invest-sidepanel" aria-label="Investing navigation">
   <div class="invest-side-head"><div class="invest-side-kicker">Investing</div><div class="invest-side-title">Your portfolio</div></div>
   <nav class="invest-side-nav">
@@ -1725,6 +1827,11 @@ body.invest-drawer-open{overflow:hidden}
           <button class="invest-key-primary" type="button" onclick="saveT212()">Save &amp; connect</button>
         </div>
         <div class="kst invest-key-status" id="t212s">Not connected</div>
+        <div class="df-connection-health" id="t212-connection-health">
+          <div><span>Status</span><strong id="t212-health-status">Not connected</strong></div>
+          <div><span>Last synced</span><strong id="t212-health-synced">Never</strong></div>
+          <div><span>Account</span><strong id="t212-health-scope">Live · read only</strong></div>
+        </div>
         <button class="invest-key-disconnect" id="t212-disconnect" type="button" onclick="disconnectT212()">Disconnect Trading 212</button>
         <details class="invest-help">
           <summary><span class="invest-help-icon">i</span>Where do I get these?</summary>
@@ -1789,34 +1896,34 @@ body.invest-drawer-open{overflow:hidden}
       </div>
     </section>
 
-    <div class="hub-section-head"><div><div class="hub-section-title">Your spaces</div><div class="hub-section-sub">Everything has a place — open what you need.</div></div></div>
+    <div class="hub-section-head"><div><div class="hub-section-title">Your spaces</div><div class="hub-section-sub">Everything has a place — open what you need.</div></div><button class="home-edit-button" type="button" onclick="homeOpenEditor()"><span>✦</span> Edit Home</button></div>
     <div class="hub-module-grid">
-      <article class="hub-module hub-invest" onclick="go('dashboard')">
+      <article class="hub-module hub-invest" data-home-module="investing" onclick="go('dashboard')">
         <div class="hub-module-icon"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/><path d="M4 7l6-4 6 5 5-4"/></svg></div>
         <div class="hub-module-title">Investing</div><div class="hub-module-desc">Your portfolio, company research and investing lessons in one place.</div>
         <div class="hub-module-foot"><span class="hub-arrow">→</span></div>
       </article>
-      <article class="hub-module hub-money" onclick="go('money')">
+      <article class="hub-module hub-money" data-home-module="money" onclick="go('money')">
         <div class="hub-module-icon"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M15 12h6.5M5 9h6M5 15h4"/></svg></div>
         <div class="hub-module-title">Money</div><div class="hub-module-desc">Track spending, income and the bigger picture without a complicated budget app.</div>
         <div class="hub-module-foot"><span class="hub-arrow">→</span></div>
       </article>
-      <article class="hub-module hub-planner" onclick="go('planner')">
+      <article class="hub-module hub-planner" data-home-module="planner" onclick="go('planner')">
         <div class="hub-module-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M7 2v5M17 2v5M3 9h18M7 13h3M14 13h3M7 17h3"/></svg></div>
         <div class="hub-module-title">Plans</div><div class="hub-module-desc">Keep today’s tasks and your bigger goals together in one calm, connected space.</div>
         <div class="hub-module-foot"><span class="hub-arrow">→</span></div>
       </article>
-      <article class="hub-module hub-driving" onclick="go('driving')">
+      <article class="hub-module hub-driving" data-home-module="driving" onclick="go('driving')">
         <div class="hub-module-icon"><svg viewBox="0 0 24 24"><path d="M5 13l1.8-5.1A2 2 0 018.7 6.5h6.6a2 2 0 011.9 1.4L19 13"/><rect x="3" y="12" width="18" height="6.5" rx="2"/><path d="M6 18.5V21M18 18.5V21M7 15h.1M17 15h.1"/></svg></div>
         <div class="hub-module-title">Driving</div><div class="hub-module-desc">Learn to drive, track your theory progress, then manage your car, renewals and vehicle details.</div>
         <div class="hub-module-foot"><span class="hub-arrow">→</span></div>
       </article>
-      <article class="hub-module hub-diary" onclick="go('diary')">
+      <article class="hub-module hub-diary" data-home-module="diary" onclick="go('diary')">
         <div class="hub-module-icon"><svg viewBox="0 0 24 24"><path d="M5 3.5h11a3 3 0 013 3V20H7.5A2.5 2.5 0 015 17.5v-14z"/><path d="M8 8.5h7M8 12h5"/><path d="M8.5 16.2c1.2-1.3 2.8-.4 2.8.8 0-1.2 1.6-2.1 2.8-.8 1.1 1.2-.2 2.6-2.8 4-2.6-1.4-3.9-2.8-2.8-4z"/></svg></div>
         <div class="hub-module-title">Diary</div><div class="hub-module-desc">A private, gentle space to check in with yourself, notice your mood and keep the thoughts that matter.</div>
         <div class="hub-module-foot"><span class="hub-arrow">→</span></div>
       </article>
-      <article class="hub-module hub-bible" onclick="go('bible')">
+      <article class="hub-module hub-bible" data-home-module="bible" onclick="go('bible')">
         <div class="hub-module-icon"><svg viewBox="0 0 24 24"><path d="M4 4.5h6.5A3.5 3.5 0 0114 8v12a3.5 3.5 0 00-3.5-3.5H4z"/><path d="M20 4.5h-6.5A3.5 3.5 0 0010 8v12a3.5 3.5 0 013.5-3.5H20z"/><path d="M15 8h2M16 7v4"/></svg></div>
         <div class="hub-module-title">Bible Study</div><div class="hub-module-desc">Read Scripture, follow a gentle faith journey and keep private reflections, prayers and questions.</div>
         <div class="hub-module-foot"><span class="hub-arrow">→</span></div>
@@ -1824,15 +1931,15 @@ body.invest-drawer-open{overflow:hidden}
     </div>
 
     <div class="hub-lower-grid home-glance-grid">
-      <section class="hub-panel home-glance-panel home-coming-panel">
+      <section class="hub-panel home-glance-panel home-coming-panel" data-home-widget="coming">
         <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">✓</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">The next few things on your radar</div></div></div><button class="hub-panel-link" onclick="go('planner')">Open plans →</button></div>
         <div class="hub-panel-body" id="home-coming-up"></div>
       </section>
-      <section class="hub-panel home-glance-panel home-goal-panel">
+      <section class="hub-panel home-glance-panel home-goal-panel" data-home-widget="goals">
         <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">◎</span><div><div class="hub-panel-title">Goal progress</div><div class="home-panel-sub">A little closer, one step at a time</div></div></div><button class="hub-panel-link" onclick="openPlannerGoals()">View goals →</button></div>
         <div class="hub-panel-body" id="home-goal-progress"></div>
       </section>
-      <section class="hub-panel home-glance-panel home-diary-panel">
+      <section class="hub-panel home-glance-panel home-diary-panel" data-home-widget="diary">
         <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">♡</span><div><div class="hub-panel-title">A moment for you</div><div class="home-panel-sub">Pause, notice, write it down</div></div></div><button class="hub-panel-link" onclick="go('diary')">Open diary →</button></div>
         <div class="hub-panel-body" id="home-journal-glance"></div>
       </section>
@@ -3487,7 +3594,35 @@ body.invest-drawer-open{overflow:hidden}
   <input class="gsearch" id="gsearch" placeholder="Search terms e.g. dilution, P/E, RSI..." oninput="filterGloss(this.value)"/>
   <div class="ggl" id="ggl"></div>
 </div>
-
+<button class="df-quick-fab" id="df-quick-fab" type="button" onclick="dfOpenQuickAdd()" aria-label="Quick add" aria-expanded="false"><span>＋</span><small>Add</small></button>
+<div class="df-sheet-backdrop" id="df-sheet-backdrop" onclick="if(event.target===this)dfCloseSheets()" aria-hidden="true">
+  <section class="df-action-sheet" id="df-quick-sheet" role="dialog" aria-modal="true" aria-labelledby="df-quick-title">
+    <div class="df-sheet-head"><div><span>Quick add</span><h2 id="df-quick-title">What would you like to add?</h2></div><button type="button" onclick="dfCloseSheets()" aria-label="Close">×</button></div>
+    <div class="df-quick-grid">
+      <button type="button" onclick="dfQuickAction('task')"><i>✓</i><span><strong>Task</strong><small>Add something to your plans</small></span></button>
+      <button type="button" onclick="dfQuickAction('goal')"><i>◎</i><span><strong>Goal</strong><small>Start or update a bigger plan</small></span></button>
+      <button type="button" onclick="dfQuickAction('transaction')"><i>£</i><span><strong>Transaction</strong><small>Add income or spending</small></span></button>
+      <button type="button" onclick="dfQuickAction('bill')"><i>◷</i><span><strong>Bill</strong><small>Track a recurring payment</small></span></button>
+      <button type="button" onclick="dfQuickAction('diary')"><i>♡</i><span><strong>Diary entry</strong><small>Write down how you feel</small></span></button>
+      <button type="button" onclick="dfQuickAction('bible')"><i>✦</i><span><strong>Bible note</strong><small>Reflect on a passage</small></span></button>
+    </div>
+  </section>
+  <section class="df-action-sheet" id="df-more-sheet" role="dialog" aria-modal="true" aria-labelledby="df-more-title">
+    <div class="df-sheet-head"><div><span>Dayframe</span><h2 id="df-more-title">More spaces</h2></div><button type="button" onclick="dfCloseSheets()" aria-label="Close">×</button></div>
+    <div class="df-more-grid">
+      <button type="button" onclick="dfMoreGo('driving')"><i>⌁</i><span><strong>Driving</strong><small>Theory and My Car</small></span></button>
+      <button type="button" onclick="dfMoreGo('diary')"><i>♡</i><span><strong>Diary</strong><small>Your private journal</small></span></button>
+      <button type="button" onclick="dfMoreGo('dashboard')"><i>↗</i><span><strong>Investing</strong><small>Portfolio and analysis</small></span></button>
+      <button type="button" onclick="homeOpenEditor()"><i>✦</i><span><strong>Edit Home</strong><small>Choose and reorder widgets</small></span></button>
+      <button type="button" class="df-install-action" id="df-install-action" onclick="dfInstallApp()" hidden><i>↓</i><span><strong>Install Dayframe</strong><small>Add it to this device</small></span></button>
+      <button type="button" class="danger" onclick="doLogout()"><i>↪</i><span><strong>Log out</strong><small>Leave this account safely</small></span></button>
+    </div>
+  </section>
+  <section class="df-action-sheet home-editor-sheet" id="home-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="home-editor-title">
+    <div class="df-sheet-head"><div><span>Personalise</span><h2 id="home-editor-title">Edit Home</h2><p>Show what matters and move your spaces into the order you prefer.</p></div><button type="button" onclick="dfCloseSheets()" aria-label="Close">×</button></div>
+    <div id="home-editor-content"></div>
+  </section>
+</div>
 </main>
 </div>
 
@@ -4502,12 +4637,12 @@ function canonicalT212Ticker(value,name='',isin=''){
   return T212_TICKER_ALIASES[upper]||upper;
 }
 const T212_SNAPSHOT_KEY='t212_last_snapshot_v1';
-function cacheT212Snapshot(data){try{localStorage.setItem(dfKey(T212_SNAPSHOT_KEY),JSON.stringify({data,savedAt:Date.now()}))}catch(e){}}
+function cacheT212Snapshot(data){try{_t212LastSyncAt=Date.now();localStorage.setItem(dfKey(T212_SNAPSHOT_KEY),JSON.stringify({data,savedAt:_t212LastSyncAt}));refreshInvestConnectionSummary()}catch(e){}}
 function restoreT212Snapshot(){
  try{
   const saved=JSON.parse(localStorage.getItem(dfKey(T212_SNAPSHOT_KEY))||'null');
   if(!saved?.data||!Array.isArray(saved.data.positions)||!saved.data.summary)return false;
-  applyT212Snapshot(saved.data,{fromCache:true});return true
+  _t212LastSyncAt=Number(saved.savedAt)||0;applyT212Snapshot(saved.data,{fromCache:true});return true
  }catch(e){return false}
 }
 function applyT212Snapshot(data,options={}){
@@ -4543,13 +4678,14 @@ function applyT212Snapshot(data,options={}){
   if(bestp){bestp.textContent=best?((best.gainPct>=0?'+':'')+best.gainPct.toFixed(1)+'%'):'—';bestp.className='ms '+(best?.gainPct>=0?'pos':'neg')}
   if(worstp){worstp.textContent=worst?((worst.gainPct>=0?'+':'')+worst.gainPct.toFixed(1)+'%'):'—';worstp.className='ms '+(worst?.gainPct>=0?'pos':'neg')}
   document.getElementById("m-cnt").textContent=H.length;
-  const snapshotTime=data.refreshed_at?new Date(data.refreshed_at):new Date(),timeLabel=snapshotTime.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  const snapshotTime=data.refreshed_at?new Date(data.refreshed_at):new Date(),timeLabel=snapshotTime.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});_t212LastSyncAt=snapshotTime.getTime();
   document.getElementById("dsub").textContent=(options.fromCache?'Saved':'Live')+" T212 data — "+timeLabel;
   const plCard=document.getElementById("mc-pl-card");if(plCard){plCard.classList.remove("mc-neg","mc-pos");plCard.classList.add(gain>=0?"mc-pos":"mc-neg")}
   rDash();rH();rCF();rSectors();rCostBasis();rRiskCard();
   if(options.fromCache)st("t212s","✓ Connected · showing saved data while refreshing",true);
   else{cacheT212Snapshot(data);st("t212s","✓ Synced "+timeLabel,true)}
   const sel=document.getElementById("news-ticker-sel");if(sel)sel.innerHTML=H.map(h=>'<option value="'+hubEsc(h.ticker)+'">'+hubEsc(h.ticker)+'</option>').join('');
+  refreshInvestConnectionSummary();
   // Syncing holdings should never spend shared AI quota. AI cards load only when asked.
 }
 async function syncT212(){
@@ -4723,7 +4859,7 @@ async function loadVIX(tk, sector, trend){
 
 // ── PERSONAL HUB DATA & RENDERING ──
 const HUB_STORE_KEY='dayframe_personal_hub_v1';
-const hubDefault=()=>({money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,regularBillSelections:[],regularBillsSource:'',previousRegularBillsSuggestion:0,savings:0,buffer:0,aiNote:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
+const hubDefault=()=>({preferences:{home:{modules:['money','planner','driving','diary','bible','investing'],hidden:[],widgets:{coming:true,goals:true,diary:true}}},money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,regularBillSelections:[],regularBillsSource:'',previousRegularBillsSuggestion:0,savings:0,buffer:0,aiNote:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
 function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage.getItem(dfKey(HUB_STORE_KEY))||'{}'));}catch(e){return hubDefault();}}
 let _hubSyncTimer=null,_hubSyncChain=Promise.resolve(true);
 function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
@@ -4763,11 +4899,108 @@ function hubDateISO(d=new Date()){const x=new Date(d);x.setMinutes(x.getMinutes(
 function hubPrettyDate(v){if(!v)return 'No date';const d=new Date(v+'T12:00:00');return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:d.getFullYear()!==new Date().getFullYear()?'numeric':undefined});}
 function hubDaysUntil(v){if(!v)return null;const a=new Date(hubDateISO()+'T00:00:00'),b=new Date(v+'T00:00:00');return Math.round((b-a)/86400000)}
 function hubToast(msg){const el=document.getElementById('hub-toast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(window._hubToastT);window._hubToastT=setTimeout(()=>el.classList.remove('show'),1800)}
+function dfOpenSheet(id){
+ const backdrop=document.getElementById('df-sheet-backdrop');if(!backdrop)return;
+ document.querySelectorAll('.df-action-sheet').forEach(x=>x.classList.remove('active'));
+ const sheet=document.getElementById(id);if(!sheet)return;
+ sheet.classList.add('active');backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');
+ document.body.classList.add('df-sheet-open');
+ document.getElementById('df-quick-fab')?.setAttribute('aria-expanded',String(id==='df-quick-sheet'));
+ setTimeout(()=>sheet.querySelector('button')?.focus(),80)
+}
+function dfCloseSheets(){
+ const backdrop=document.getElementById('df-sheet-backdrop');
+ if(backdrop){backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true')}
+ document.querySelectorAll('.df-action-sheet').forEach(x=>x.classList.remove('active'));
+ document.body.classList.remove('df-sheet-open');document.getElementById('df-quick-fab')?.setAttribute('aria-expanded','false')
+}
+function dfOpenQuickAdd(){dfOpenSheet('df-quick-sheet')}
+function dfOpenMore(){dfOpenSheet('df-more-sheet')}
+function dfMoreGo(page){dfCloseSheets();go(page)}
+function dfQuickAction(type){
+ dfCloseSheets();
+ if(type==='task'){go('planner');setTimeout(()=>toggleLifeForm('task-form',true),120)}
+ else if(type==='goal'){openPlannerGoals(true)}
+ else if(type==='transaction'){go('money');setTimeout(()=>{moneyOpenTab('transactions');toggleLifeForm('money-form',true)},120)}
+ else if(type==='bill'){go('money');setTimeout(()=>{moneyOpenTab('bills');toggleLifeForm('money-bill-form',true)},120)}
+ else if(type==='diary'){go('diary');setTimeout(()=>{diaryResetComposer();document.getElementById('diary-body')?.focus()},140)}
+ else if(type==='bible'){go('bible');setTimeout(()=>{bibleClearNote();document.getElementById('bible-note-body')?.focus()},140)}
+}
+const DF_HOME_MODULES=[
+ {key:'money',label:'Money',note:'Accounts, budgets and spending'},
+ {key:'planner',label:'Plans',note:'Tasks and bigger goals'},
+ {key:'driving',label:'Driving',note:'Theory and My Car'},
+ {key:'diary',label:'Diary',note:'Mood and private entries'},
+ {key:'bible',label:'Bible Study',note:'Reading, highlights and notes'},
+ {key:'investing',label:'Investing',note:'Portfolio and analysis'}
+];
+const DF_HOME_WIDGETS=[
+ {key:'coming',label:'Coming up',note:'Tasks, bills and vehicle dates'},
+ {key:'goals',label:'Goal progress',note:'Your first active goal'},
+ {key:'diary',label:'Diary prompt',note:'A gentle daily check-in'}
+];
+function homePreferenceData(d=hubLoad()){
+ d.preferences=d.preferences||{};const raw=d.preferences.home||{};
+ const allowed=DF_HOME_MODULES.map(x=>x.key),saved=Array.isArray(raw.modules)?raw.modules.filter(x=>allowed.includes(x)):[];
+ const modules=[...new Set(saved.concat(allowed))],hidden=Array.isArray(raw.hidden)?raw.hidden.filter(x=>allowed.includes(x)):[];
+ const widgets=Object.assign({coming:true,goals:true,diary:true},raw.widgets||{});
+ const out={modules,hidden,widgets};d.preferences.home=out;return out
+}
+function homeApplyPreferences(d=hubLoad()){
+ const pref=homePreferenceData(d),grid=document.querySelector('.hub-module-grid');
+ if(grid){pref.modules.forEach((key,index)=>{const card=grid.querySelector('[data-home-module="'+key+'"]');if(card){card.style.order=String(index);card.classList.toggle('home-item-hidden',pref.hidden.includes(key))}})}
+ let visibleWidgets=0;
+ document.querySelectorAll('[data-home-widget]').forEach(card=>{const show=pref.widgets[card.dataset.homeWidget]!==false;card.classList.toggle('home-item-hidden',!show);if(show)visibleWidgets++});
+ const lower=document.querySelector('.home-glance-grid');if(lower){lower.classList.remove('home-visible-0','home-visible-1','home-visible-2','home-visible-3');lower.classList.add('home-visible-'+visibleWidgets)}
+}
+function homeRenderEditor(){
+ const out=document.getElementById('home-editor-content');if(!out)return;
+ const d=hubLoad(),pref=homePreferenceData(d);
+ const moduleRows=pref.modules.map((key,index)=>{
+  const item=DF_HOME_MODULES.find(x=>x.key===key),checked=!pref.hidden.includes(key);
+  return '<div class="home-editor-row"><input class="home-editor-check" type="checkbox" '+(checked?'checked':'')+' aria-label="Show '+hubEsc(item.label)+'" onchange="homeToggleModule(\''+key+'\',this.checked)"><div class="home-editor-copy"><strong>'+hubEsc(item.label)+'</strong><small>'+hubEsc(item.note)+'</small></div><div class="home-editor-move"><button type="button" '+(index===0?'disabled':'')+' onclick="homeMoveModule(\''+key+'\',-1)" aria-label="Move '+hubEsc(item.label)+' up">↑</button><button type="button" '+(index===pref.modules.length-1?'disabled':'')+' onclick="homeMoveModule(\''+key+'\',1)" aria-label="Move '+hubEsc(item.label)+' down">↓</button></div></div>'
+ }).join('');
+ const widgetRows=DF_HOME_WIDGETS.map(item=>'<div class="home-editor-row"><input class="home-editor-check" type="checkbox" '+(pref.widgets[item.key]!==false?'checked':'')+' aria-label="Show '+hubEsc(item.label)+'" onchange="homeToggleWidget(\''+item.key+'\',this.checked)"><div class="home-editor-copy"><strong>'+hubEsc(item.label)+'</strong><small>'+hubEsc(item.note)+'</small></div><div></div></div>').join('');
+ out.innerHTML='<div class="home-editor-group"><h3>Your spaces</h3><div class="home-editor-list">'+moduleRows+'</div></div><div class="home-editor-group"><h3>At a glance</h3><div class="home-editor-list">'+widgetRows+'</div></div><div class="home-editor-note">Your Home layout is saved privately to this Dayframe account and follows you to your other devices.</div>'
+}
+function homeOpenEditor(){dfOpenSheet('home-editor-sheet');homeRenderEditor()}
+function homeToggleModule(key,show){
+ const d=hubLoad(),pref=homePreferenceData(d);
+ if(!show&&pref.modules.filter(x=>!pref.hidden.includes(x)).length<=1){hubToast('Keep at least one space on Home');homeRenderEditor();return}
+ pref.hidden=pref.hidden.filter(x=>x!==key);if(!show)pref.hidden.push(key);
+ hubSave(d);homeApplyPreferences(d);homeRenderEditor()
+}
+function homeMoveModule(key,direction){
+ const d=hubLoad(),pref=homePreferenceData(d),from=pref.modules.indexOf(key),to=Math.max(0,Math.min(pref.modules.length-1,from+direction));
+ if(from<0||from===to)return;pref.modules.splice(from,1);pref.modules.splice(to,0,key);hubSave(d);homeApplyPreferences(d);homeRenderEditor()
+}
+function homeToggleWidget(key,show){const d=hubLoad(),pref=homePreferenceData(d);pref.widgets[key]=!!show;hubSave(d);homeApplyPreferences(d);homeRenderEditor()}
+let _dfInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();_dfInstallPrompt=event;document.getElementById('df-install-action')?.removeAttribute('hidden')});
+window.addEventListener('appinstalled',()=>{_dfInstallPrompt=null;document.getElementById('df-install-action')?.setAttribute('hidden','');hubToast('Dayframe installed')});
+async function dfInstallApp(){
+ if(!_dfInstallPrompt){hubToast('Use your browser menu to add Dayframe to your home screen');return}
+ _dfInstallPrompt.prompt();await _dfInstallPrompt.userChoice.catch(()=>null);_dfInstallPrompt=null;document.getElementById('df-install-action')?.setAttribute('hidden','');dfCloseSheets()
+}
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+document.addEventListener('keydown',event=>{if(event.key==='Escape')dfCloseSheets()});
+
 function toggleLifeForm(id,force){const el=document.getElementById(id);if(!el)return;const open=force===undefined?!el.classList.contains('open'):force;el.classList.toggle('open',open);if(open){const input=el.querySelector('input');if(input)setTimeout(()=>input.focus(),50)}}
+function dfSyncLabel(value){
+ if(!value)return 'Never';
+ const d=new Date(value);if(Number.isNaN(d.getTime()))return 'Never';
+ const today=new Date(),sameDay=d.toDateString()===today.toDateString();
+ return sameDay?'Today at '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' at '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})
+}
+function t212CachedAt(){try{return Number(JSON.parse(localStorage.getItem(dfKey(T212_SNAPSHOT_KEY))||'null')?.savedAt)||0}catch(e){return 0}}
 function refreshInvestConnectionSummary(){
   const summary=document.getElementById('invest-connection-summary'),dot=document.getElementById('invest-connection-dot');
-  if(summary)summary.textContent=t212Connected?'Trading 212 & AI ready':'AI ready · add Trading 212';
-  if(dot)dot.classList.toggle('ready',true);
+  if(summary)summary.textContent=t212Connected?'Trading 212 connected · AI ready':'AI ready · add Trading 212';
+  if(dot)dot.classList.toggle('ready',t212Connected);
+  const status=document.getElementById('t212-health-status'),synced=document.getElementById('t212-health-synced'),scope=document.getElementById('t212-health-scope');
+  if(status){status.textContent=t212Connected?'Connected':'Not connected';status.className=t212Connected?'ready':''}
+  if(synced)synced.textContent=dfSyncLabel(_t212LastSyncAt||t212CachedAt());
+  if(scope)scope.textContent=(t212Environment==='demo'?'Demo':'Live')+' · read only'
 }
 function toggleInvestConnections(){
   const modal=document.getElementById('invest-connections-modal');
@@ -4814,13 +5047,13 @@ function renderHome(){
  const cu=document.getElementById('home-coming-up');
  if(cu)cu.innerHTML=upcoming.length?upcoming.map(x=>'<div class="hub-today-item"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta">'+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>').join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Your schedule is clear</strong><span>Nothing urgent is asking for your attention.</span></div>';
  const gp=document.getElementById('home-goal-progress');
- if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="go(\'goals\')">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span><div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
+ if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="openPlannerGoals(true)">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span><div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
  const jg=document.getElementById('home-journal-glance');
- if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong><p>'+hubEsc((todayEntry.body||'').slice(0,125))+(String(todayEntry.body||'').length>125?'…':'')+'</p></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}}
+ if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong><p>'+hubEsc((todayEntry.body||'').slice(0,125))+(String(todayEntry.body||'').length>125?'…':'')+'</p></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}} homeApplyPreferences(d);
 }
 
 
-let _moneyBankData={accounts:[],transactions:[],connections:[]};
+let _moneyBankData={accounts:[],transactions:[],connections:[],refreshedAt:'',error:''};
 let _moneyBankLoaded=false,_moneyBankLoading=false;
 function moneyOpenConnectModal(){const m=document.getElementById('money-connect-modal');if(m)m.classList.add('open');moneySetConnectStatus('','')}
 function moneyCloseConnectModal(){document.getElementById('money-connect-modal')?.classList.remove('open')}
@@ -4863,18 +5096,17 @@ async function moneyLoadBankData(force=false){
  try{
    const r=await dfBankFetch('/api/money/data');
    const d=await r.json().catch(()=>({}));
-   if(r.status===404){_moneyBankLoaded=true;return}
+   if(r.status===404){_moneyBankData={accounts:[],transactions:[],connections:[],refreshedAt:'',error:''};_moneyBankLoaded=true;renderMoney();return}
    if(!r.ok){
-     _moneyBankLoaded=true;
-     if(r.status===401)hubToast('Your saved bank connection is still there. Sign in again to refresh it.');
-     return;
+     _moneyBankData.error=d.error||(r.status===401?'Sign in again to refresh your connected accounts.':'Connected accounts could not be refreshed.');_moneyBankLoaded=true;
+     if(r.status===401)hubToast('Your saved bank connection is still there. Sign in again to refresh it.');renderMoney();return;
    }
-   _moneyBankData={accounts:d.accounts||[],transactions:d.transactions||[],connections:d.connections||[]};
+   _moneyBankData={accounts:d.accounts||[],transactions:d.transactions||[],connections:d.connections||[],refreshedAt:d.refreshed_at||new Date().toISOString(),error:''};
    _moneyBankLoaded=true;
    renderMoney();
- }catch(e){}finally{_moneyBankLoading=false}
+ }catch(e){_moneyBankData.error=e.message||'Connected accounts could not be refreshed.';_moneyBankLoaded=true;renderMoney()}finally{_moneyBankLoading=false}
 }
-async function moneyRefreshBankData(){_moneyBankLoaded=false;hubToast('Refreshing connected accounts…');await moneyLoadBankData(true);hubToast('Money data refreshed')}
+async function moneyRefreshBankData(){_moneyBankLoaded=false;hubToast('Refreshing connected accounts…');await moneyLoadBankData(true);hubToast(_moneyBankData.error?'Bank connection needs attention':'Money data refreshed')}
 async function moneyDisconnectBank(connectionId){if(!confirm('Disconnect this bank connection from your Dayframe account?'))return;try{const r=await dfBankFetch('/api/money/connections/'+encodeURIComponent(connectionId),{method:'DELETE'});if(!r.ok)throw new Error('Could not remove connection');_moneyBankLoaded=false;await moneyLoadBankData(true);hubToast('Bank connection removed')}catch(e){hubToast(e.message)}}
 function moneyBankCallbackMessage(reason){
  const messages={
@@ -5248,6 +5480,16 @@ function moneyEditAccountForDetail(){
 function moneyCloseAccountDetail(){document.getElementById('money-account-modal')?.classList.remove('open');_moneyDetailAccountId=null}
 function moneyToggleAccountsOverview(){_moneyAccountsExpanded=!_moneyAccountsExpanded;renderMoney()}
 
+function moneyConnectionStatusHtml(bankAccounts){
+ const connections=_moneyBankData.connections||[],attention=connections.filter(x=>x.status&&x.status!=='active');
+ const connected=connections.filter(x=>x.status==='active'),hasLive=bankAccounts.length>0||connected.length>0;
+ const state=_moneyBankData.error?'Refresh failed':attention.length?'Attention needed':hasLive?'Connected':'Not connected';
+ const stateClass=(_moneyBankData.error||attention.length)?'attention':hasLive?'live':'';
+ const cardCount=bankAccounts.filter(x=>x.type==='credit-card').length,bankCount=bankAccounts.length-cardCount;
+ const coverage=hasLive?bankCount+' bank'+(bankCount===1?'':'s')+(cardCount?' · '+cardCount+' card'+(cardCount===1?'':'s'):''):'No live accounts';
+ const detail=_moneyBankData.error||attention.length?'Your saved connection is still here. Reconnect if refreshing continues to fail.':hasLive?'Balances and transactions update securely through Open Banking.':'Manual accounts remain available without a bank connection.';
+ return '<div class="money-connection-board"><div class="money-connection-cell"><span>Status</span><strong class="'+stateClass+'">'+hubEsc(state)+'</strong></div><div class="money-connection-cell"><span>Last synced</span><strong>'+hubEsc(dfSyncLabel(_moneyBankData.refreshedAt))+'</strong></div><div class="money-connection-cell"><span>Included</span><strong>'+hubEsc(coverage)+'</strong></div><div class="money-connection-actions">'+(hasLive?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':'')+'<button class="money-sync-btn" onclick="moneyOpenConnectModal()">'+((attention.length||_moneyBankData.error)?'Reconnect':'Add account')+'</button></div></div><div class="money-sync-note">'+hubEsc(detail)+'</div>'
+}
 function renderMoney(){
  const d=hubLoad(); d.accounts=d.accounts||[]; d.budgets=d.budgets||[]; d.budgetPlan=d.budgetPlan||{income:0,rent:0,regularBills:0,savings:0,buffer:0,aiNote:'',autoNote:''};d.budgetPlan.regularBillSelections=Array.isArray(d.budgetPlan.regularBillSelections)?d.budgetPlan.regularBillSelections:[];d.budgetPlan.regularBillsSource=d.budgetPlan.regularBillsSource||'';d.budgetPlan.previousRegularBillsSuggestion=Number(d.budgetPlan.previousRegularBillsSuggestion)||0; d.customCategories=d.customCategories||[]; d.transactionCategoryOverrides=d.transactionCategoryOverrides||{}; d.transactionCategoryRules=d.transactionCategoryRules||{}; d.creditPaymentMatches=d.creditPaymentMatches||{}; d.creditStrategy=d.creditStrategy||'avalanche'; d.creditPlans=d.creditPlans||[]; d.bills=d.bills||[]; moneyRenderCategoryOptions(d);moneyRenderAccountOptions(d);moneyApplyBudgetAutoSuggestions(d);
  const bankAccounts=_moneyBankData.accounts||[];
@@ -5284,7 +5526,7 @@ function renderMoney(){
  const overviewAccountRows=[...connectedRows,...manualRows],accountCount=overviewAccountRows.length;
  if(accountsPreview) accountsPreview.innerHTML=accountCount ? `<div class="money-bank-banner"><div><strong>${accountCount} account${accountCount===1?'':'s'}</strong>${bankAccounts.length?bankAccounts.length+' connected through Open Banking'+(d.accounts.length?' · '+d.accounts.length+' tracked manually':''):'Tracked manually — connect a supported account for automatic updates.'}</div><div class="money-row-actions">${bankAccounts.length?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':'<button class="money-sync-btn" onclick="moneyOpenConnectModal()">Connect</button>'}<button class="money-sync-btn" onclick="moneyToggleAccountsOverview()">${_moneyAccountsExpanded?'Hide accounts ↑':'View accounts ↓'}</button></div></div>`+(_moneyAccountsExpanded?overviewAccountRows.join(''):'') : `<div class="money-empty-soft"><strong>No accounts added yet</strong>Connect a supported bank/card or add Klarna, Clearpay, PayPal Credit and other accounts manually.</div><div class="money-connect-row"><button class="money-connect-chip" onclick="moneyOpenConnectModal()">Connect bank/card</button><button class="money-connect-chip" onclick="moneyPresetAccount('Klarna','bnpl')">Klarna</button><button class="money-connect-chip" onclick="moneyPresetAccount('Clearpay','bnpl')">Clearpay</button><button class="money-connect-chip" onclick="moneyPresetAccount('PayPal Credit','credit-card')">PayPal Credit</button></div>`;
  const accountsList=document.getElementById('money-accounts-list');
- if(accountsList){const live=bankAccounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${hubEsc(a.provider_name||a.provider_id||moneyTypeLabel(a.type))}${a.last4?' · •••• '+hubEsc(a.last4):''}${a.available!=null?' · Available '+hubMoney(a.available):''}</div><div class="money-live-badge"><i></i>Open Banking connected</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><span class="money-account-chevron">›</span></div>`).join('');const manual=d.accounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('manual:${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${moneyTypeLabel(a.type)}${a.last4?' · •••• '+hubEsc(a.last4):''}</div><div class="money-chip-status tracked">Manual · ${(d.money||[]).filter(x=>String(x.account_id||'')===String(a.id)).length} transaction${(d.money||[]).filter(x=>String(x.account_id||'')===String(a.id)).length===1?'':'s'}</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><button class="life-row-delete" onclick="event.stopPropagation();deleteMoneyAccount(${a.id})">×</button><span class="money-account-chevron">›</span></div>`).join('');accountsList.innerHTML=(live||manual)?live+manual:`<div class="money-empty-soft"><strong>No accounts here yet</strong>Use “Add account” to connect a bank/card or add a manual account.</div>`;const summary=document.getElementById('money-account-connection-summary');if(summary)summary.innerHTML=`<div class="money-account-toolbar"><div class="money-account-toolbar-copy"><i class="money-account-toolbar-dot ${bankAccounts.length?'live':''}"></i><div><strong>${bankAccounts.length?bankAccounts.length+' live account'+(bankAccounts.length===1?'':'s'):'Manual tracking'}</strong><span>${bankAccounts.length?'Balances and transactions are syncing':'Connect an account when you want automatic updates'}</span></div></div><div class="money-row-actions">${bankAccounts.length?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':''}</div></div>`}
+ if(accountsList){const live=bankAccounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${hubEsc(a.provider_name||a.provider_id||moneyTypeLabel(a.type))}${a.last4?' · •••• '+hubEsc(a.last4):''}${a.available!=null?' · Available '+hubMoney(a.available):''}</div><div class="money-live-badge"><i></i>Open Banking connected</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><span class="money-account-chevron">›</span></div>`).join('');const manual=d.accounts.map(a=>`<div class="money-account-row money-clickable" onclick="moneyOpenAccountDetail('manual:${hubEsc(a.id)}')"><div class="money-account-icon">${moneyAccountIcon(a.type,a.name)}</div><div class="money-account-main"><div class="money-account-name">${hubEsc(a.name)}</div><div class="money-account-meta">${moneyTypeLabel(a.type)}${a.last4?' · •••• '+hubEsc(a.last4):''}</div><div class="money-chip-status tracked">Manual · ${(d.money||[]).filter(x=>String(x.account_id||'')===String(a.id)).length} transaction${(d.money||[]).filter(x=>String(x.account_id||'')===String(a.id)).length===1?'':'s'}</div></div><div class="money-account-value">${hubMoney(a.balance)}</div><button class="life-row-delete" onclick="event.stopPropagation();deleteMoneyAccount(${a.id})">×</button><span class="money-account-chevron">›</span></div>`).join('');accountsList.innerHTML=(live||manual)?live+manual:`<div class="money-empty-soft"><strong>No accounts here yet</strong>Use “Add account” to connect a bank/card or add a manual account.</div>`;const summary=document.getElementById('money-account-connection-summary');if(summary)summary.innerHTML=moneyConnectionStatusHtml(bankAccounts)}
  const cats={}; spendingTx.forEach(x=>{const c=moneyNormaliseCategory(x.category);cats[c]=(cats[c]||0)+Number(x.amount||0)});(d.budgets||[]).forEach(b=>{const c=moneyNormaliseCategory(b.category);if(!(c in cats))cats[c]=0});
  const entries=Object.entries(cats).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])),spentEntries=entries.filter(([,value])=>value>0);
  const palette=moneyPalette();
@@ -5670,6 +5912,9 @@ function go(name,btn){
   const mainKey=isInvesting?'investing':isDriving?'driving':name;
   const mainBtn=document.querySelector(`.df-nav-btn[data-main-page="${mainKey}"]`);
   if(mainBtn)mainBtn.classList.add('on');
+  const mobileKey=['home','money','planner','bible'].includes(mainKey)?mainKey:'more';
+  document.querySelectorAll('.df-mobile-nav button[data-mobile-page]').forEach(b=>b.classList.toggle('on',b.dataset.mobilePage===mobileKey));
+  dfCloseSheets();
   document.querySelectorAll('.invest-side-nav button').forEach(b=>b.classList.toggle('on',b.dataset.investPage===name));
   document.querySelectorAll('.driving-side-nav button').forEach(b=>b.classList.toggle('on',b.dataset.drivingPage===name));
   renderLifePage(name);

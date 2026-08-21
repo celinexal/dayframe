@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Dayframe</title>
+  <desc id="desc">A white D on a violet and blue rounded square.</desc>
+  <defs>
+    <linearGradient id="bg" x1="64" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8065F5"/>
+      <stop offset="1" stop-color="#568CF4"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#342E75" flood-opacity=".24"/>
+    </filter>
+  </defs>
+  <rect x="42" y="42" width="428" height="428" rx="126" fill="url(#bg)" filter="url(#shadow)"/>
+  <path fill="#fff" d="M172 142h91c84 0 136 43 136 114s-52 114-136 114h-91V142Zm88 168c43 0 68-19 68-54s-25-54-68-54h-20v108h20Z"/>
+  <circle cx="381" cy="141" r="18" fill="#DCD6FF" opacity=".95"/>
+</svg>
