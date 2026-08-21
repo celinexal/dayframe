@@ -4656,7 +4656,7 @@ function applyT212Snapshot(data,options={}){
     const ticker=canonicalT212Ticker(raw,p.name,p.isin),old=existing.get(ticker)||{},knownName=ticker==='SIVE'?'Sivers Semiconductors AB':'';
     const invested=Number(p.totalCost)||0,value=Number(p.currentValue)||0,gain=Number(p.ppl)||0;
     const gainPct=invested>0?+((gain/invested)*100).toFixed(2):0,providerName=String(p.name||'').trim(),displayName=(!providerName||providerName===raw)?(knownName||old.name||ticker):providerName;
-    return {ticker,name:displayName,isin:String(p.isin||''),pct:totalValue>0?+((value/totalValue)*100).toFixed(2):0,val:+value.toFixed(2),gain:+gain.toFixed(2),gainPct,verdict:old.verdict||'hold',sector:TICKER_SECTORS[ticker]||old.sector||'Other',trend:old.trend||'side',dilution:old.dilution||false,earn:old.earn||false};
+    return {ticker,name:displayName,isin:String(p.isin||''),pct:totalValue>0?+((value/totalValue)*100).toFixed(2):0,val:+value.toFixed(2),gain:+gain.toFixed(2),gainPct,quantity:Number(p.quantity)||0,averagePrice:Number(p.averagePrice)||0,currentPrice:Number(p.currentPrice)||0,totalCost:invested,currency:String(p.currency||cash.currency||''),verdict:old.verdict||'hold',sector:TICKER_SECTORS[ticker]||old.sector||'Other',trend:old.trend||'side',dilution:old.dilution||false,earn:old.earn||false};
   }).filter(h=>h.val>0&&!IGNORE.has(h.ticker)).sort((a,b)=>b.val-a.val);
 
   const unknownBanner=document.getElementById('unknown-tickers-banner');
@@ -6824,12 +6824,35 @@ function renderTargetCard(body, tk, mean, low, high, px, rating, source) {
 
 function researchBriefSections(text){
   const keys=['BUSINESS','STRENGTHS','RISKS','CATALYSTS','NUMBERS','QUESTIONS'];
-  const clean=String(text||'').replace(/\*\*/g,'').trim(),parts={};
-  keys.forEach((key,index)=>{
-    const next=keys[index+1];
-    const rx=next?new RegExp(key+'\\s*:\\s*([\\s\\S]*?)(?='+next+'\\s*:|$)','i'):new RegExp(key+'\\s*:\\s*([\\s\\S]*)','i');
-    const hit=clean.match(rx);parts[key]=hit?hit[1].trim():'';
+  const parts=Object.fromEntries(keys.map(key=>[key,'']));
+  const clean=String(text||'').replace(/\r/g,'').replace(/\*\*/g,'').trim();
+  if(!clean)return parts;
+  const headings='BUSINESS(?:\\s+MODEL)?|STRENGTHS(?:\\s+AND\\s+ADVANTAGES)?|RISKS|CATALYSTS|NUMBERS(?:\\s+TO\\s+CHECK)?|QUESTIONS';
+  const marker=new RegExp('(?:^|\\n|\\s)(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?('+headings+')(?:\\s*(?::|[-–—])\\s*|\\s*(?=\\n|$))','gim');
+  const matches=[...clean.matchAll(marker)];
+  const keyFor=value=>{
+    const heading=String(value||'').trim().toUpperCase();
+    if(heading.startsWith('BUSINESS'))return 'BUSINESS';
+    if(heading.startsWith('STRENGTHS'))return 'STRENGTHS';
+    if(heading.startsWith('NUMBERS'))return 'NUMBERS';
+    return keys.includes(heading)?heading:'';
+  };
+  matches.forEach((match,index)=>{
+    const key=keyFor(match[1]);if(!key)return;
+    const start=(match.index||0)+match[0].length,end=index+1<matches.length?(matches[index+1].index||clean.length):clean.length;
+    const value=clean.slice(start,end).replace(/^[-•*]\\s*/gm,'').trim();
+    if(value)parts[key]=value;
   });
+  if(!Object.values(parts).some(Boolean)){
+    const inline=new RegExp('('+headings+')\\s*(?::|[-–—])\\s*','gim'),inlineMatches=[...clean.matchAll(inline)];
+    inlineMatches.forEach((match,index)=>{
+      const key=keyFor(match[1]);if(!key)return;
+      const start=(match.index||0)+match[0].length,end=index+1<inlineMatches.length?(inlineMatches[index+1].index||clean.length):clean.length;
+      const value=clean.slice(start,end).replace(/^[-•*]\\s*/gm,'').trim();
+      if(value)parts[key]=value;
+    });
+  }
+  if(!Object.values(parts).some(Boolean))parts.BUSINESS=clean;
   return parts;
 }
 async function loadResearchBrief(tk,h){
@@ -6852,7 +6875,7 @@ async function loadResearchBrief(tk,h){
       {key:'QUESTIONS',num:'06',title:'Questions before acting',tone:'slate'}
     ];
     const valid=defs.filter(d=>sections[d.key]);
-    if(!valid.length)throw new Error('The research brief was incomplete. Try again in a moment.');
+    if(!valid.length){host.innerHTML='<div class="invest-brief-item blue"><div><b>01</b><span>Research summary</span></div><p>'+hubEsc(result).replace(/\\n/g,'<br>')+'</p></div>';return}
     host.innerHTML='<div class="invest-brief-grid">'+valid.map(d=>'<article class="invest-brief-item '+d.tone+'"><div><b>'+d.num+'</b><span>'+d.title+'</span></div><p>'+hubEsc(sections[d.key]).replace(/\n/g,'<br>')+'</p></article>').join('')+'</div><div class="invest-brief-foot"><span>AI explanation · facts that may have changed still need checking · saved for six hours</span></div>';
   }catch(e){host.innerHTML='<div class="invest-brief-error">'+hubEsc(e.message||'Could not create the brief.')+'</div>'}
 }
@@ -8004,30 +8027,68 @@ async function loadChart(tk,h){
       }
     }
   }catch(e){
-    const px=document.getElementById("live-px");if(px)px.textContent="—";
+    const holding=H.find(item=>item.ticker===tk),px=document.getElementById("live-px");
+    const prefix=marketCurrencyPrefix(holding?.currency||'');
+    if(px)px.textContent=holding?.currentPrice>0?prefix+holding.currentPrice.toFixed(2):"—";
     const wrap=document.querySelector("#sc")?.closest(".cwrap");
-    if(wrap)wrap.innerHTML='<div class="invest-market-unavailable"><span>Market chart unavailable</span><p>Dayframe could not verify a live chart for this ticker. No estimated or invented prices are shown.</p></div>';
-    const body=document.getElementById("fund-body");if(body)body.innerHTML='<div class="invest-market-unavailable compact"><span>Live numbers unavailable</span><p>Try again later or check the company’s exchange listing.</p></div>';
-    const src=document.getElementById("fund-src");if(src)src.textContent="Unavailable";
+    if(wrap)wrap.innerHTML='<div class="invest-market-unavailable"><span>Chart temporarily unavailable</span><p>Dayframe kept your verified holding figures below. Try the chart again shortly.</p></div>';
+    const body=document.getElementById("fund-body");
+    if(body&&holding){
+      const items=[
+        {lbl:"Your Value",val:"£"+holding.val.toFixed(2),desc:"Value from your latest Trading 212 sync."},
+        {lbl:"Your Return",val:(holding.gainPct>=0?"+":"")+holding.gainPct.toFixed(1)+"%",desc:"Return since buying."},
+        {lbl:"Quantity",val:holding.quantity?holding.quantity.toLocaleString("en-GB",{maximumFractionDigits:6}):"—",desc:"Shares from Trading 212."},
+        {lbl:"Average Price",val:holding.averagePrice>0?prefix+holding.averagePrice.toFixed(2):"—",desc:"Average price paid."}
+      ];
+      body.innerHTML='<div class="fund-grid">'+items.map(item=>'<div class="fund-box"><div class="fund-lbl">'+item.lbl+'</div><div class="fund-val">'+item.val+'</div><div class="fund-desc">'+item.desc+'</div></div>').join('')+'</div><div class="invest-market-unavailable compact"><span>Market feed unavailable</span><p>No figures have been estimated or invented.</p></div>';
+    }else if(body)body.innerHTML='<div class="invest-market-unavailable compact"><span>Market numbers unavailable</span><p>Try again shortly or check the company’s exchange listing.</p></div>';
+    const src=document.getElementById("fund-src");if(src)src.textContent=holding?"Trading 212":"Unavailable";
   }
 }
 
 function marketCurrencyPrefix(code){return ({USD:'$',GBP:'£',GBp:'p',EUR:'€',SEK:'SEK ',CAD:'C$',AUD:'A$',JPY:'¥'})[String(code||'')]||(code?String(code)+' ':'')}
+function drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix='$'){
+  const ctx=c.getContext("2d"),ratio=Math.min(window.devicePixelRatio||1,2);
+  const width=Math.max(c.parentElement?.clientWidth||0,560),height=Math.max(c.parentElement?.clientHeight||0,260);
+  c.width=Math.round(width*ratio);c.height=Math.round(height*ratio);c.style.width="100%";c.style.height=height+"px";
+  ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,width,height);
+  const pad={left:54,right:14,top:18,bottom:32},values=[...prices,...ma,sup,res].filter(v=>Number.isFinite(Number(v))).map(Number);
+  if(values.length<2)throw new Error("No chart values");
+  let min=Math.min(...values),max=Math.max(...values),spread=Math.max(max-min,Math.abs(max)*.04,1);min-=spread*.08;max+=spread*.08;
+  const x=index=>pad.left+(index/Math.max(labels.length-1,1))*(width-pad.left-pad.right);
+  const y=value=>pad.top+(max-value)/(max-min)*(height-pad.top-pad.bottom);
+  ctx.font="10px system-ui";ctx.fillStyle="#8b93a7";ctx.strokeStyle="rgba(15,23,42,.08)";ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=pad.top+i*(height-pad.top-pad.bottom)/4,value=max-i*(max-min)/4;ctx.beginPath();ctx.moveTo(pad.left,yy);ctx.lineTo(width-pad.right,yy);ctx.stroke();ctx.fillText(pricePrefix+value.toFixed(2),4,yy+3)}
+  const draw=(series,color,lineWidth=1.5,dash=[])=>{ctx.save();ctx.strokeStyle=color;ctx.lineWidth=lineWidth;ctx.setLineDash(dash);ctx.beginPath();let started=false;series.forEach((value,index)=>{if(!Number.isFinite(Number(value)))return;const xx=x(index),yy=y(Number(value));if(!started){ctx.moveTo(xx,yy);started=true}else ctx.lineTo(xx,yy)});ctx.stroke();ctx.restore()};
+  draw(new Array(labels.length).fill(sup),"rgba(21,128,61,.65)",1.25,[5,4]);
+  draw(new Array(labels.length).fill(res),"rgba(185,28,28,.65)",1.25,[5,4]);
+  draw(ma,"rgba(180,83,9,.8)",1.5);
+  draw(prices,"#1d4ed8",2.25);
+  const labelIndexes=[0,Math.round((labels.length-1)/2),labels.length-1].filter((value,index,array)=>array.indexOf(value)===index);
+  ctx.fillStyle="#8b93a7";ctx.textAlign="center";labelIndexes.forEach(index=>ctx.fillText(labels[index]||"",x(index),height-10));ctx.textAlign="left";
+  chartInst={destroy(){ctx.clearRect(0,0,width,height)}};
+}
 function drawChart(labels,prices,sup,res,ma,pricePrefix='$'){
-  if(chartInst){chartInst.destroy();chartInst=null;}
+  if(chartInst&&typeof chartInst.destroy==="function"){chartInst.destroy();chartInst=null}
   const c=document.getElementById("sc");if(!c)return;
-  chartInst=new Chart(c.getContext("2d"),{
-    type:"line",
-    data:{labels,datasets:[
-      {label:"Price",data:prices,borderColor:"#1d4ed8",backgroundColor:"rgba(29,78,216,.06)",borderWidth:2,pointRadius:0,pointHoverRadius:4,fill:true,tension:.3,spanGaps:true},
-      {label:"Support",data:new Array(labels.length).fill(sup),borderColor:"rgba(21,128,61,.5)",borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
-      {label:"Resistance",data:new Array(labels.length).fill(res),borderColor:"rgba(185,28,28,.5)",borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
-      {label:"50d MA",data:ma,borderColor:"rgba(180,83,9,.7)",borderWidth:1.5,pointRadius:0,fill:false,tension:.3,spanGaps:true}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:"#fff",borderColor:"#e4e7ef",borderWidth:1,titleColor:"#5a6478",bodyColor:"#0d1117",padding:10,callbacks:{label:c=>c.dataset.label+": "+pricePrefix+(c.parsed.y||0).toFixed(2)}}},
-      scales:{x:{grid:{color:"rgba(0,0,0,.04)"},ticks:{color:"#9aa0b4",font:{size:10},maxTicksLimit:8}},y:{grid:{color:"rgba(0,0,0,.04)"},ticks:{color:"#9aa0b4",font:{size:10},callback:v=>pricePrefix+v.toFixed(2)}}}}
-  });
+  if(typeof window.Chart==="function"){
+    try{
+      chartInst=new window.Chart(c.getContext("2d"),{
+        type:"line",
+        data:{labels,datasets:[
+          {label:"Price",data:prices,borderColor:"#1d4ed8",backgroundColor:"rgba(29,78,216,.06)",borderWidth:2,pointRadius:0,pointHoverRadius:4,fill:true,tension:.3,spanGaps:true},
+          {label:"Support",data:new Array(labels.length).fill(sup),borderColor:"rgba(21,128,61,.5)",borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
+          {label:"Resistance",data:new Array(labels.length).fill(res),borderColor:"rgba(185,28,28,.5)",borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
+          {label:"50d MA",data:ma,borderColor:"rgba(180,83,9,.7)",borderWidth:1.5,pointRadius:0,fill:false,tension:.3,spanGaps:true}
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+          plugins:{legend:{display:false},tooltip:{backgroundColor:"#fff",borderColor:"#e4e7ef",borderWidth:1,titleColor:"#5a6478",bodyColor:"#0d1117",padding:10,callbacks:{label:item=>item.dataset.label+": "+pricePrefix+(item.parsed.y||0).toFixed(2)}}},
+          scales:{x:{grid:{color:"rgba(0,0,0,.04)"},ticks:{color:"#9aa0b4",font:{size:10},maxTicksLimit:8}},y:{grid:{color:"rgba(0,0,0,.04)"},ticks:{color:"#9aa0b4",font:{size:10},callback:value=>pricePrefix+Number(value).toFixed(2)}}}}
+      });
+      return;
+    }catch(e){chartInst=null}
+  }
+  drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix);
 }
 
 async function loadAnalyst(tk,h,isCov){
