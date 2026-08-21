@@ -6632,27 +6632,7 @@ async function openChart(tk){
     _html += '</div>';
   }
 
-  // ── STOCKS IN THE SAME THEME ─────────────────────────────────────────
-  var _peers = (typeof THEME_PEERS !== 'undefined' && THEME_PEERS[tk]) ? THEME_PEERS[tk] : [];
-  if (_peers.length > 0) {
-    _html += '<div class="dash-card" style="margin-bottom:14px">';
-    _html += '<div class="dash-card-head"><div><div class="dash-card-title">Companies to compare</div><div style="font-size:11px;color:var(--t3);margin-top:1px">Similar exposure does not mean the same risk — open each one to compare.</div></div></div>';
-    _html += '<div style="padding:14px 16px;display:flex;gap:8px;flex-wrap:wrap">';
-    _peers.forEach(function(peer) {
-      var inPort = window.H && H.find(function(x){ return x.ticker === peer; });
-      var peerBg = inPort ? 'var(--bl)' : 'var(--sf2)';
-      var peerCol = inPort ? '#fff' : 'var(--t2)';
-      var peerBd = inPort ? 'var(--bl)' : 'var(--bd)';
-      _html += '<button onclick="'+(inPort?'openChart':'openChartResearch')+'(\''+peer+'\')" style="padding:8px 14px;background:'+peerBg+';color:'+peerCol+';border:1.5px solid '+peerBd+';border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--ff)">';
-      _html += peer + (inPort ? ' ✓' : '');
-      _html += '</button>';
-    });
-    _html += '</div>';
-    _html += '<div style="padding:4px 16px 12px;font-size:11px;color:var(--t3)">✓ = in your portfolio</div>';
-    _html += '</div>';
-  }
-
-  _html += '</div>'; // end view-overview
+  //tml += '</div>'; // end view-overview
 
   // ── DEEP DIVE VIEW ─────────────────────────────────────────────────────
   _html += '<div id="view-deepdive" style="display:none">';
@@ -7954,7 +7934,7 @@ async function loadChart(tk,h){
   let res,meta,prices,labels,vp,cur,pricePrefix;
   try{
     const search=searchHint?'&search='+encodeURIComponent(searchHint):'';
-    const response=await fetch(SRV+"/api/market/chart/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk"+search);
+    const response=await fetch(SRV+"/api/investing/prices/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk"+search);
     if(!response.ok)throw new Error("market data unavailable");
     const data=await response.json(),result=data?.chart?.result?.[0];
     if(!result)throw new Error("no data");
