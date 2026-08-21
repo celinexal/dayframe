@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dayframe chart visual test</title>
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#17203d;background:#f5f7fb}
+    *{box-sizing:border-box}
+    body{margin:0;padding:32px}
+    .card{max-width:920px;margin:auto;background:#fff;border:1px solid #e3e7f0;border-radius:18px;box-shadow:0 8px 25px rgba(38,48,83,.07);overflow:hidden}
+    .head{display:flex;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e3e7f0;font-weight:800}
+    .source{font-size:11px;color:#7b8499;font-weight:600}
+    .body{padding:20px}
+    .cwrap{position:relative;width:100%;height:260px;margin-bottom:8px}
+    #sc{display:block;width:100%;height:100%;overflow:visible}
+    .legend{display:flex;gap:16px;flex-wrap:wrap;color:#596278;font-size:12px}
+    .legend span{display:flex;align-items:center;gap:6px}
+    .dot{width:8px;height:8px;border-radius:50%}
+    @media(max-width:600px){body{padding:12px}.body{padding:14px}.cwrap{height:230px}}
+  </style>
+</head>
+<body>
+  <section class="card">
+    <div class="head"><span>6-month chart</span><span class="source" id="status">Loading live pricesâ€¦</span></div>
+    <div class="body">
+      <div class="cwrap"><svg id="sc" viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Six-month price chart"></svg></div>
+      <div class="legend">
+        <span><i class="dot" style="background:#2563eb"></i>Price</span>
+        <span><i class="dot" style="background:#15803d"></i>Support</span>
+        <span><i class="dot" style="background:#b91c1c"></i>Resistance</span>
+        <span><i class="dot" style="background:#b45309"></i>Moving average</span>
+      </div>
+    </div>
+  </section>
+  <script>
+    let chartInst=null;
+    function hubEsc(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+    function drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix='$'){
+      const width=720,height=260,pad={left:62,right:16,top:16,bottom:34};
+      const valid=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
+      const values=[...prices,...ma,sup,res].filter(valid).map(Number);
+      if(values.length<2)throw new Error("No chart values");
+      let min=Math.min(...values),max=Math.max(...values),spread=Math.max(max-min,Math.abs(max)*.04,1);min-=spread*.08;max+=spread*.08;
+      const x=index=>pad.left+(index/Math.max(labels.length-1,1))*(width-pad.left-pad.right);
+      const y=value=>pad.top+(max-Number(value))/(max-min)*(height-pad.top-pad.bottom);
+      const pathFor=series=>{let path="",started=false;series.forEach((value,index)=>{if(!valid(value)){started=false;return}path+=(started?" L":" M")+x(index).toFixed(1)+" "+y(value).toFixed(1);started=true});return path};
+      const pricePath=pathFor(prices),maPath=pathFor(ma);
+      if(!pricePath)throw new Error("No price path");
+      const finitePoints=prices.map((value,index)=>valid(value)?{index,value:Number(value)}:null).filter(Boolean);
+      const first=finitePoints[0],last=finitePoints[finitePoints.length-1];
+      const areaPath=first&&last?pricePath+" L"+x(last.index).toFixed(1)+" "+(height-pad.bottom)+" L"+x(first.index).toFixed(1)+" "+(height-pad.bottom)+" Z":"";
+      let grid="",axisLabels="";
+      for(let i=0;i<=4;i++){const yy=pad.top+i*(height-pad.top-pad.bottom)/4,value=max-i*(max-min)/4;grid+='<line x1="'+pad.left+'" y1="'+yy.toFixed(1)+'" x2="'+(width-pad.right)+'" y2="'+yy.toFixed(1)+'" stroke="rgba(15,23,42,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>';axisLabels+='<text x="4" y="'+(yy+4).toFixed(1)+'" fill="#7b849a" font-size="10" font-family="system-ui,sans-serif">'+hubEsc(pricePrefix+value.toFixed(2))+'</text>'}
+      const labelIndexes=[0,Math.round((labels.length-1)/2),labels.length-1].filter((value,index,array)=>array.indexOf(value)===index);
+      const dateLabels=labelIndexes.map(index=>'<text x="'+x(index).toFixed(1)+'" y="'+(height-9)+'" fill="#7b849a" font-size="10" font-family="system-ui,sans-serif" text-anchor="'+(index===0?'start':index===labels.length-1?'end':'middle')+'">'+hubEsc(labels[index]||"")+'</text>').join("");
+      c.setAttribute("viewBox","0 0 "+width+" "+height);c.setAttribute("preserveAspectRatio","none");
+      c.innerHTML='<defs><linearGradient id="df-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity=".25"/><stop offset="100%" stop-color="#3b82f6" stop-opacity=".02"/></linearGradient></defs>'+grid+axisLabels+(areaPath?'<path d="'+areaPath+'" fill="url(#df-chart-fill)" stroke="none"/>':'')+'<path d="M'+pad.left+' '+y(sup).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(21,128,61,.68)" stroke-width="1.25" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/><path d="M'+pad.left+' '+y(res).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(185,28,28,.68)" stroke-width="1.25" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>'+(maPath?'<path d="'+maPath+'" fill="none" stroke="#b45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>':'')+'<path d="'+pricePath+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'+dateLabels;
+      chartInst={destroy(){if(c)c.innerHTML=""}};
+    }
+    (async()=>{
+      const status=document.getElementById("status");
+      try{
+        const response=await fetch("/api/investing/prices/AAPL?range=6mo&interval=1wk",{cache:"no-store"});
+        if(!response.ok)throw new Error("HTTP "+response.status);
+        const data=await response.json(),result=data?.chart?.result?.[0];
+        const timestamps=result?.timestamp||[],closes=result?.indicators?.quote?.[0]?.close||[];
+        const labels=timestamps.map(value=>new Date(value*1000).toLocaleDateString("en-GB",{day:"numeric",month:"short"}));
+        const prices=closes.map(value=>Number.isFinite(Number(value))?+Number(value).toFixed(2):null);
+        const valid=prices.filter(value=>value!==null);
+        if(valid.length<2)throw new Error("Not enough prices");
+        const ma=prices.map((_,index)=>{const values=prices.slice(Math.max(0,index-6),index+1).filter(value=>value!==null);return values.length>=3?values.reduce((sum,value)=>sum+value,0)/values.length:null});
+        drawNativePriceChart(document.getElementById("sc"),labels,prices,Math.min(...valid)*1.02,Math.max(...valid)*.98,ma,"$");
+        status.textContent="Live AAPL Â· "+valid.length+" verified prices";
+        document.body.dataset.chartReady="true";
+      }catch(error){
+        status.textContent="Chart failed Â· "+error.message;
+        document.body.dataset.chartReady="false";
+      }
+    })();
+  </script>
+</body>
+</html>
+
