@@ -95,7 +95,7 @@ async function resolveYahooSymbol(query){
   return /^[A-Z0-9.^=-]{1,20}$/.test(symbol)?symbol:'';
 }
 async function getMarketChart(url){
-  const prefix='/api/market/chart/';
+  const prefix=url.pathname.startsWith('/api/investing/prices/')?'/api/investing/prices/':'/api/market/chart/';
   const symbol=marketTickerFromPath(url.pathname,prefix);
   if(!symbol)return json({error:'Enter a valid market ticker.'},400);
   const requestedRange=String(url.searchParams.get('range')||'6mo');
@@ -143,7 +143,7 @@ export default {
       if(url.pathname==='/api/investing/t212/pies'&&request.method==='GET')return getT212Pies(request,env);
       if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
       if(url.pathname==='/api/ai/groq'&&request.method==='POST')return proxySharedGroq(request);
-      if(url.pathname.startsWith('/api/market/chart/')&&request.method==='GET')return getMarketChart(url);
+      if((url.pathname.startsWith('/api/investing/prices/')||url.pathname.startsWith('/api/market/chart/'))&&request.method==='GET')return getMarketChart(url);
       if(url.pathname==='/api/vix'&&request.method==='GET')return getMarketVix();
       if(url.pathname==='/api/bible/kjv')return request.method==='GET'?getKJVChapter(url):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/bible/licensed')return request.method==='GET'?getLicensedBibleChapter(url,env):json({error:'Method not allowed'},405,{allow:'GET'});
