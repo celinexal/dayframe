@@ -21,7 +21,6 @@
 <link rel="apple-touch-icon" href="/dayframe-icon.svg">
 <title>Dayframe — Your Personal Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-8px); }
@@ -3594,19 +3593,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   <input class="gsearch" id="gsearch" placeholder="Search terms e.g. dilution, P/E, RSI..." oninput="filterGloss(this.value)"/>
   <div class="ggl" id="ggl"></div>
 </div>
-<button class="df-quick-fab" id="df-quick-fab" type="button" onclick="dfOpenQuickAdd()" aria-label="Quick add" aria-expanded="false"><span>＋</span><small>Add</small></button>
 <div class="df-sheet-backdrop" id="df-sheet-backdrop" onclick="if(event.target===this)dfCloseSheets()" aria-hidden="true">
-  <section class="df-action-sheet" id="df-quick-sheet" role="dialog" aria-modal="true" aria-labelledby="df-quick-title">
-    <div class="df-sheet-head"><div><span>Quick add</span><h2 id="df-quick-title">What would you like to add?</h2></div><button type="button" onclick="dfCloseSheets()" aria-label="Close">×</button></div>
-    <div class="df-quick-grid">
-      <button type="button" onclick="dfQuickAction('task')"><i>✓</i><span><strong>Task</strong><small>Add something to your plans</small></span></button>
-      <button type="button" onclick="dfQuickAction('goal')"><i>◎</i><span><strong>Goal</strong><small>Start or update a bigger plan</small></span></button>
-      <button type="button" onclick="dfQuickAction('transaction')"><i>£</i><span><strong>Transaction</strong><small>Add income or spending</small></span></button>
-      <button type="button" onclick="dfQuickAction('bill')"><i>◷</i><span><strong>Bill</strong><small>Track a recurring payment</small></span></button>
-      <button type="button" onclick="dfQuickAction('diary')"><i>♡</i><span><strong>Diary entry</strong><small>Write down how you feel</small></span></button>
-      <button type="button" onclick="dfQuickAction('bible')"><i>✦</i><span><strong>Bible note</strong><small>Reflect on a passage</small></span></button>
-    </div>
-  </section>
   <section class="df-action-sheet" id="df-more-sheet" role="dialog" aria-modal="true" aria-labelledby="df-more-title">
     <div class="df-sheet-head"><div><span>Dayframe</span><h2 id="df-more-title">More spaces</h2></div><button type="button" onclick="dfCloseSheets()" aria-label="Close">×</button></div>
     <div class="df-more-grid">
@@ -4914,18 +4901,8 @@ function dfCloseSheets(){
  document.querySelectorAll('.df-action-sheet').forEach(x=>x.classList.remove('active'));
  document.body.classList.remove('df-sheet-open');document.getElementById('df-quick-fab')?.setAttribute('aria-expanded','false')
 }
-function dfOpenQuickAdd(){dfOpenSheet('df-quick-sheet')}
 function dfOpenMore(){dfOpenSheet('df-more-sheet')}
 function dfMoreGo(page){dfCloseSheets();go(page)}
-function dfQuickAction(type){
- dfCloseSheets();
- if(type==='task'){go('planner');setTimeout(()=>toggleLifeForm('task-form',true),120)}
- else if(type==='goal'){openPlannerGoals(true)}
- else if(type==='transaction'){go('money');setTimeout(()=>{moneyOpenTab('transactions');toggleLifeForm('money-form',true)},120)}
- else if(type==='bill'){go('money');setTimeout(()=>{moneyOpenTab('bills');toggleLifeForm('money-bill-form',true)},120)}
- else if(type==='diary'){go('diary');setTimeout(()=>{diaryResetComposer();document.getElementById('diary-body')?.focus()},140)}
- else if(type==='bible'){go('bible');setTimeout(()=>{bibleClearNote();document.getElementById('bible-note-body')?.focus()},140)}
-}
 const DF_HOME_MODULES=[
  {key:'money',label:'Money',note:'Accounts, budgets and spending'},
  {key:'planner',label:'Plans',note:'Tasks and bigger goals'},
@@ -7973,65 +7950,25 @@ async function loadTwits(tk){
 }
 
 async function loadChart(tk,h){
+  const marketSymbol=marketSymbolFor(tk),searchHint=String(h?.isin||h?.name||tk).trim();
+  let res,meta,prices,labels,vp,cur,pricePrefix;
   try{
-    const marketSymbol=marketSymbolFor(tk);
-    const r=await fetch(SRV+"/api/market/chart/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk");
-    if(!r.ok)throw new Error("market data unavailable");
-    const data=await r.json();
-    const res=data?.chart?.result?.[0];
-    if(!res)throw new Error("no data");
-    const ts=res.timestamp||[];
-    const cl=res.indicators?.quote?.[0]?.close||[];
-    const labels=ts.map(t=>new Date(t*1000).toLocaleDateString("en-GB",{day:"numeric",month:"short"}));
-    const prices=cl.map(p=>p?+p.toFixed(2):null);
-    const vp=prices.filter(p=>p!==null);
-    const cur=vp[vp.length-1];
+    const search=searchHint?'&search='+encodeURIComponent(searchHint):'';
+    const response=await fetch(SRV+"/api/market/chart/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk"+search);
+    if(!response.ok)throw new Error("market data unavailable");
+    const data=await response.json(),result=data?.chart?.result?.[0];
+    if(!result)throw new Error("no data");
+    const ts=result.timestamp||[],cl=result.indicators?.quote?.[0]?.close||[];
+    labels=ts.map(value=>new Date(value*1000).toLocaleDateString("en-GB",{day:"numeric",month:"short"}));
+    prices=cl.map(value=>Number.isFinite(Number(value))?+Number(value).toFixed(2):null);
+    vp=prices.filter(value=>value!==null);cur=vp[vp.length-1];
     if(!Number.isFinite(cur))throw new Error("no verified prices");
-    const meta=res.meta||{},pricePrefix=marketCurrencyPrefix(meta.currency);
-    document.getElementById("live-px").textContent=pricePrefix+cur.toFixed(2);
-    // (snap card removed)
-    setRSI(calcRSI(vp).slice(-1)[0]);
-    const sup=Math.min(...vp)*1.02,rrs=Math.max(...vp)*0.98;
-    const ma=prices.map((_,i)=>{const w=prices.slice(Math.max(0,i-6),i+1).filter(p=>p);return w.length>=3?+(w.reduce((s,v)=>s+v,0)/w.length).toFixed(2):null;});
-    drawChart(labels,prices,sup,rrs,ma,pricePrefix);
-    detectChartPattern(vp, tk);
-
-    // Extract fundamentals from Yahoo meta — always runs, enriches any existing data
-    if(meta.regularMarketPrice){
-      const body=document.getElementById("fund-body");
-      const src=document.getElementById("fund-src");
-      const w52hi=meta.fiftyTwoWeekHigh||meta["52WeekHigh"];
-      const w52lo=meta.fiftyTwoWeekLow||meta["52WeekLow"];
-      const cap=meta.marketCap;
-      const t212h=H.find(x=>x.ticker===tk);
-      const yahooItems=[];
-      if(t212h&&t212h.val>0){
-        yahooItems.push({lbl:"Your Value",val:"\u00a3"+t212h.val.toFixed(2),col:"",desc:"Current value of your holding.",edu:"what-is-a-stock"});
-        yahooItems.push({lbl:"Your Return",val:(t212h.gainPct>=0?"+":"")+t212h.gainPct.toFixed(1)+"%",col:t212h.gainPct>=0?"pos":"neg",desc:"Your total return since buying.",edu:"what-is-a-stock"});
-      }
-      yahooItems.push({lbl:"Price",val:pricePrefix+cur.toFixed(2),col:"",desc:"Latest verified market price.",edu:"what-is-a-stock"});
-      if(cap) yahooItems.push({lbl:"Market Cap",val:pricePrefix+parseFloat(cap).toLocaleString("en-US",{notation:"compact",maximumFractionDigits:1}),col:"",desc:"Total value of all shares.",edu:"market-cap"});
-      if(w52hi) yahooItems.push({lbl:"52w High",val:pricePrefix+parseFloat(w52hi).toFixed(2),col:"",desc:"Highest price in the last year.",edu:"break-even"});
-      if(w52lo) yahooItems.push({lbl:"52w Low",val:pricePrefix+parseFloat(w52lo).toFixed(2),col:"",desc:"Lowest price in the last year.",edu:"break-even"});
-      if(meta.currency) yahooItems.push({lbl:"Currency",val:meta.currency,col:"",desc:"Currency this stock trades in.",edu:"what-is-a-stock"});
-      if(meta.exchangeName||meta.fullExchangeName) yahooItems.push({lbl:"Exchange",val:meta.exchangeName||meta.fullExchangeName,col:"",desc:"Stock exchange this is listed on.",edu:"what-is-a-stock"});
-      if(body && yahooItems.length>=2){
-        // Only overwrite if current content is sparse (≤2 fund-boxes = just position data)
-        const existing = body.querySelectorAll('.fund-box').length;
-        if(yahooItems.length > existing){
-          if(src) src.textContent="Yahoo";
-          const html='<div class="fund-grid">'+yahooItems.map(i=>'<div class="fund-box" '+(i.edu?'onclick="goEduFromStock(\''+i.edu+'\',\''+tk+'\')"':'')+'><div class="fund-lbl">'+i.lbl+'</div><div class="fund-val '+i.col+'">'+i.val+'</div><div class="fund-desc">'+i.desc+'</div>'+(i.edu?'<div class="fund-learn">Learn more \u2192</div>':'')+'</div>').join('')+'</div>';
-          body.innerHTML=html;
-          if(!_fundCache[tk]||_fundCache[tk+"_src"]==="Yahoo"){_fundCache[tk]=html;_fundCache[tk+"_src"]="Yahoo";}
-        }
-      }
-    }
-  }catch(e){
-    const holding=H.find(item=>item.ticker===tk),px=document.getElementById("live-px");
-    const prefix=marketCurrencyPrefix(holding?.currency||'');
+    meta=result.meta||{};pricePrefix=marketCurrencyPrefix(meta.currency);
+  }catch(error){
+    const holding=H.find(item=>item.ticker===tk),px=document.getElementById("live-px"),prefix=marketCurrencyPrefix(holding?.currency||'');
     if(px)px.textContent=holding?.currentPrice>0?prefix+holding.currentPrice.toFixed(2):"—";
     const wrap=document.querySelector("#sc")?.closest(".cwrap");
-    if(wrap)wrap.innerHTML='<div class="invest-market-unavailable"><span>Chart temporarily unavailable</span><p>Dayframe kept your verified holding figures below. Try the chart again shortly.</p></div>';
+    if(wrap)wrap.innerHTML='<div class="invest-market-unavailable"><span>Chart unavailable for this listing</span><p>Dayframe could not match '+hubEsc(tk)+' to a verified market chart. Your Trading 212 figures are still shown.</p></div>';
     const body=document.getElementById("fund-body");
     if(body&&holding){
       const items=[
@@ -8040,12 +7977,39 @@ async function loadChart(tk,h){
         {lbl:"Quantity",val:holding.quantity?holding.quantity.toLocaleString("en-GB",{maximumFractionDigits:6}):"—",desc:"Shares from Trading 212."},
         {lbl:"Average Price",val:holding.averagePrice>0?prefix+holding.averagePrice.toFixed(2):"—",desc:"Average price paid."}
       ];
-      body.innerHTML='<div class="fund-grid">'+items.map(item=>'<div class="fund-box"><div class="fund-lbl">'+item.lbl+'</div><div class="fund-val">'+item.val+'</div><div class="fund-desc">'+item.desc+'</div></div>').join('')+'</div><div class="invest-market-unavailable compact"><span>Market feed unavailable</span><p>No figures have been estimated or invented.</p></div>';
+      body.innerHTML='<div class="fund-grid">'+items.map(item=>'<div class="fund-box"><div class="fund-lbl">'+item.lbl+'</div><div class="fund-val">'+item.val+'</div><div class="fund-desc">'+item.desc+'</div></div>').join('')+'</div>';
     }else if(body)body.innerHTML='<div class="invest-market-unavailable compact"><span>Market numbers unavailable</span><p>Try again shortly or check the company’s exchange listing.</p></div>';
     const src=document.getElementById("fund-src");if(src)src.textContent=holding?"Trading 212":"Unavailable";
+    return;
   }
+  const px=document.getElementById("live-px");if(px)px.textContent=pricePrefix+cur.toFixed(2);
+  try{setRSI(calcRSI(vp).slice(-1)[0])}catch(error){}
+  const sup=Math.min(...vp)*1.02,rrs=Math.max(...vp)*0.98;
+  const ma=prices.map((_,index)=>{const windowPrices=prices.slice(Math.max(0,index-6),index+1).filter(value=>Number.isFinite(value));return windowPrices.length>=3?+(windowPrices.reduce((sum,value)=>sum+value,0)/windowPrices.length).toFixed(2):null});
+  try{drawChart(labels,prices,sup,rrs,ma,pricePrefix)}catch(error){
+    const wrap=document.querySelector("#sc")?.closest(".cwrap");
+    if(wrap)wrap.innerHTML='<div class="invest-market-unavailable"><span>Chart could not be drawn</span><p>The verified price is '+hubEsc(pricePrefix+cur.toFixed(2))+'. The numbers remain available alongside the chart.</p></div>';
+  }
+  try{detectChartPattern(vp,tk)}catch(error){}
+  try{
+    const body=document.getElementById("fund-body"),src=document.getElementById("fund-src");
+    const w52hi=meta.fiftyTwoWeekHigh||meta["52WeekHigh"],w52lo=meta.fiftyTwoWeekLow||meta["52WeekLow"],cap=meta.marketCap,t212h=H.find(item=>item.ticker===tk),items=[];
+    if(t212h&&t212h.val>0){
+      items.push({lbl:"Your Value",val:"£"+t212h.val.toFixed(2),col:"",desc:"Current value of your holding.",edu:"what-is-a-stock"});
+      items.push({lbl:"Your Return",val:(t212h.gainPct>=0?"+":"")+t212h.gainPct.toFixed(1)+"%",col:t212h.gainPct>=0?"pos":"neg",desc:"Your total return since buying.",edu:"what-is-a-stock"});
+    }
+    items.push({lbl:"Price",val:pricePrefix+cur.toFixed(2),col:"",desc:"Latest verified market price.",edu:"what-is-a-stock"});
+    if(cap)items.push({lbl:"Market Cap",val:pricePrefix+parseFloat(cap).toLocaleString("en-US",{notation:"compact",maximumFractionDigits:1}),col:"",desc:"Total value of all shares.",edu:"market-cap"});
+    if(w52hi)items.push({lbl:"52w High",val:pricePrefix+parseFloat(w52hi).toFixed(2),col:"",desc:"Highest price in the last year.",edu:"break-even"});
+    if(w52lo)items.push({lbl:"52w Low",val:pricePrefix+parseFloat(w52lo).toFixed(2),col:"",desc:"Lowest price in the last year.",edu:"break-even"});
+    if(meta.currency)items.push({lbl:"Currency",val:meta.currency,col:"",desc:"Currency this stock trades in.",edu:"what-is-a-stock"});
+    if(meta.exchangeName||meta.fullExchangeName)items.push({lbl:"Exchange",val:meta.exchangeName||meta.fullExchangeName,col:"",desc:"Stock exchange this is listed on.",edu:"what-is-a-stock"});
+    if(body&&items.length){
+      if(src)src.textContent="Yahoo";
+      body.innerHTML='<div class="fund-grid">'+items.map(item=>'<div class="fund-box" '+(item.edu?'onclick="goEduFromStock(\''+item.edu+'\',\''+tk+'\')"':'')+'><div class="fund-lbl">'+item.lbl+'</div><div class="fund-val '+item.col+'">'+item.val+'</div><div class="fund-desc">'+item.desc+'</div>'+(item.edu?'<div class="fund-learn">Learn more →</div>':'')+'</div>').join('')+'</div>';
+    }
+  }catch(error){}
 }
-
 function marketCurrencyPrefix(code){return ({USD:'$',GBP:'£',GBp:'p',EUR:'€',SEK:'SEK ',CAD:'C$',AUD:'A$',JPY:'¥'})[String(code||'')]||(code?String(code)+' ':'')}
 function drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix='$'){
   const ctx=c.getContext("2d"),ratio=Math.min(window.devicePixelRatio||1,2);
@@ -8070,25 +8034,8 @@ function drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix='$'){
 }
 function drawChart(labels,prices,sup,res,ma,pricePrefix='$'){
   if(chartInst&&typeof chartInst.destroy==="function"){chartInst.destroy();chartInst=null}
-  const c=document.getElementById("sc");if(!c)return;
-  if(typeof window.Chart==="function"){
-    try{
-      chartInst=new window.Chart(c.getContext("2d"),{
-        type:"line",
-        data:{labels,datasets:[
-          {label:"Price",data:prices,borderColor:"#1d4ed8",backgroundColor:"rgba(29,78,216,.06)",borderWidth:2,pointRadius:0,pointHoverRadius:4,fill:true,tension:.3,spanGaps:true},
-          {label:"Support",data:new Array(labels.length).fill(sup),borderColor:"rgba(21,128,61,.5)",borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
-          {label:"Resistance",data:new Array(labels.length).fill(res),borderColor:"rgba(185,28,28,.5)",borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
-          {label:"50d MA",data:ma,borderColor:"rgba(180,83,9,.7)",borderWidth:1.5,pointRadius:0,fill:false,tension:.3,spanGaps:true}
-        ]},
-        options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
-          plugins:{legend:{display:false},tooltip:{backgroundColor:"#fff",borderColor:"#e4e7ef",borderWidth:1,titleColor:"#5a6478",bodyColor:"#0d1117",padding:10,callbacks:{label:item=>item.dataset.label+": "+pricePrefix+(item.parsed.y||0).toFixed(2)}}},
-          scales:{x:{grid:{color:"rgba(0,0,0,.04)"},ticks:{color:"#9aa0b4",font:{size:10},maxTicksLimit:8}},y:{grid:{color:"rgba(0,0,0,.04)"},ticks:{color:"#9aa0b4",font:{size:10},callback:value=>pricePrefix+Number(value).toFixed(2)}}}}
-      });
-      return;
-    }catch(e){chartInst=null}
-  }
-  drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix);
+  const canvas=document.getElementById("sc");if(!canvas)return;
+  drawNativePriceChart(canvas,labels,prices,sup,res,ma,pricePrefix);
 }
 
 async function loadAnalyst(tk,h,isCov){
