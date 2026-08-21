@@ -7934,7 +7934,7 @@ async function loadChart(tk,h){
   let res,meta,prices,labels,vp,cur,pricePrefix;
   try{
     const search=searchHint?'&search='+encodeURIComponent(searchHint):'';
-    const response=await fetch(SRV+"/api/investing/prices/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk"+search);
+    const response=await fetch("/api/investing/prices/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk"+search);
     if(!response.ok)throw new Error("market data unavailable");
     const data=await response.json(),result=data?.chart?.result?.[0];
     if(!result)throw new Error("no data");
