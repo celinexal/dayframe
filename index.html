@@ -3970,42 +3970,62 @@ async function doSignup(){
   if(!name||!email||!pass){authErr('signup','Please fill in all fields.');return;}
   if(pass.length<8){authErr('signup','Password must be at least 8 characters.');return;}
   authSetLoading('signup',true);
-  if(SUPABASE_URL && SUPABASE_KEY){
-    try{
-      const redirectTo=location.origin+'/';
-      const r=await fetch(SUPABASE_URL+'/auth/v1/signup?redirect_to='+encodeURIComponent(redirectTo),{
-        method:'POST',
-        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
-        body:JSON.stringify({email,password:pass,data:{name}})
-      });
-      let d={};try{d=await r.json()}catch(_){}
-      if(!r.ok || d.error || d.message){
-        const raw=String(d.message||d.error_description||d.error||d.code||'').toLowerCase();
-        let msg='We couldn’t create your account. Try again.';
-        if(raw.includes('already') || raw.includes('registered') || raw.includes('exists')) msg='An account may already exist for this email. Try logging in or reset your password.';
-        else if(raw.includes('password')) msg='Choose a stronger password with at least 8 characters.';
-        else if(raw.includes('email')) msg='Enter a valid email address.';
-        authErr('signup',msg);authSetLoading('signup',false);return;
-      }
-      // If email confirmation required
-      if(d.user && !d.session){
-        authSetLoading('signup',false);
-        document.getElementById('signup-err').classList.remove('show');
-        document.getElementById('auth-signup').innerHTML=`
-          <div style="text-align:center;padding:20px 0">
-            <div style="font-size:40px;margin-bottom:16px">📬</div>
-            <div class="auth-form-title">Check your email</div>
-            <div class="auth-form-sub">We sent a confirmation link to <strong>${email}</strong>. Click it to activate your account, then come back and sign in.</div>
-            <div style="margin-top:24px"><span style="color:var(--bl);cursor:pointer;font-weight:600;font-size:13px" onclick="authTab('login')">← Back to sign in</span></div>
-          </div>`;
-        return;
-      }
-      if(d.session){
-        localStorage.setItem('dayframe_session',JSON.stringify({access_token:d.session.access_token,refresh_token:d.session.refresh_token,user:d.user,email,name,expires_at:dfSessionExpiry(d.session)}));
-        await authSuccess(name);
-      }
-    }catch(e){authErr('signup','Network error. Try again.');authSetLoading('signup',false);}
-  } else {authErr('signup','Account service is not configured.');authSetLoading('signup',false);}
+  let timeoutId=null;
+  try{
+    if(!SUPABASE_URL || !SUPABASE_KEY){
+      authErr('signup','Account service is not configured.');
+      return;
+    }
+    const controller=new AbortController();
+    timeoutId=setTimeout(()=>controller.abort(),10000);
+    const redirectTo=location.origin+'/';
+    const r=await fetch(SUPABASE_URL+'/auth/v1/signup?redirect_to='+encodeURIComponent(redirectTo),{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+      body:JSON.stringify({email,password:pass,data:{name}}),
+      signal:controller.signal
+    });
+    let d={};
+    try{d=await r.json()}catch(_){}
+    if(!r.ok || d.error || d.error_description){
+      const raw=String(d.message||d.error_description||d.error||d.code||'').toLowerCase();
+      let msg='We couldn’t create your account. Try again.';
+      if(r.status===429) msg='Too many confirmation emails were requested. Please wait a while, then try again.';
+      else if(raw.includes('already') || raw.includes('registered') || raw.includes('exists')) msg='An account may already exist for this email. Try signing in or reset your password.';
+      else if(raw.includes('password')) msg='Choose a stronger password with at least 8 characters.';
+      else if(raw.includes('email')) msg='Enter a valid email address.';
+      authErr('signup',msg);
+      return;
+    }
+    const session=d.session || (d.access_token ? d : null);
+    const user=d.user || (session && session.user) || (d.id ? d : null);
+    if(session && session.access_token){
+      localStorage.setItem('dayframe_session',JSON.stringify({
+        access_token:session.access_token,
+        refresh_token:session.refresh_token,
+        user,
+        email:(user && user.email) || email,
+        name,
+        expires_at:dfSessionExpiry(session)
+      }));
+      await authSuccess(name);
+      return;
+    }
+    document.getElementById('signup-err').classList.remove('show');
+    document.getElementById('auth-signup').innerHTML=`
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:40px;margin-bottom:16px">📬</div>
+        <div class="auth-form-title">Check your email</div>
+        <div class="auth-form-sub">If this email still needs confirming, we’ve sent a link. If you’ve already confirmed it, sign in instead.</div>
+        <div style="margin-top:24px"><span style="color:var(--bl);cursor:pointer;font-weight:600;font-size:13px" onclick="authTab('login')">← Back to sign in</span></div>
+      </div>`;
+  }catch(e){
+    if(e && e.name==='AbortError') authErr('signup','Account creation took too long. Please try again.');
+    else authErr('signup','Network error. Try again.');
+  }finally{
+    if(timeoutId!==null) clearTimeout(timeoutId);
+    authSetLoading('signup',false);
+  }
 }
 
 let passwordRecoveryAccessToken='';
