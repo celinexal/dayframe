@@ -1689,6 +1689,56 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media(max-width:760px){.home-glance-grid.home-visible-1,.home-glance-grid.home-visible-2,.home-glance-grid.home-visible-3{grid-template-columns:1fr!important}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
+
+<style id="dayframe-mockup-amendments">
+/* Home: progressive onboarding and a useful daily digest */
+.home-live-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;height:100%}
+.home-setup-card{display:none;align-self:stretch;padding:18px;border:1px solid rgba(255,255,255,.13);border-radius:18px;background:rgba(255,255,255,.085);backdrop-filter:blur(7px)}
+.home-setup-card.show{display:block}.home-setup-card>strong{display:block;margin-bottom:12px;font-family:var(--fd);font-size:18px;color:#fff}
+.home-setup-step{width:100%;display:flex;align-items:center;gap:10px;padding:9px 10px;border:0;border-radius:11px;background:transparent;color:rgba(255,255,255,.8);font:650 11px var(--ff);text-align:left;cursor:pointer}
+.home-setup-step:hover{background:rgba(255,255,255,.08)}.home-setup-step i{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border:1px solid rgba(255,255,255,.22);border-radius:50%;font-style:normal;font-size:9px}
+.home-setup-step.done{opacity:.66}.home-setup-step.done i{border-color:#68d4aa;background:rgba(58,191,139,.2);color:#aef0d2}
+.home-setup-nudge{display:none;grid-column:1/-1;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;padding:11px 13px;border:1px solid rgba(255,255,255,.12);border-radius:13px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);font-size:10.5px}
+.home-setup-nudge.show{display:flex}.home-setup-nudge button{border:0;background:transparent;color:#fff;font:800 10px var(--ff);cursor:pointer;white-space:nowrap}
+.home-digest-card{margin:18px 0 25px;padding:18px 20px;border:1px solid #e5e7f0;border-radius:20px;background:rgba(255,255,255,.9);box-shadow:0 10px 28px rgba(40,45,75,.06)}
+.home-digest-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid #eef0f5}.home-digest-head>div{display:flex;align-items:baseline;gap:6px}.home-digest-head span{font-size:9px;font-weight:850;letter-spacing:.8px;text-transform:uppercase;color:#8a91a5}.home-digest-head strong{font-size:14px;color:#30364b}.home-digest-head small{font-size:9.5px;color:#a1a6b5}
+.home-digest-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:13px}.home-digest-item{display:flex;align-items:center;gap:10px;min-width:0;padding:11px;border:1px solid #eceef4;border-radius:14px;background:#fbfcff}.home-digest-icon{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:10px;font-size:13px}.home-digest-icon.task{background:#eaf1ff;color:#4c77dd}.home-digest-icon.bill{background:#e9faf3;color:#15956e}.home-digest-icon.bible{background:#f4edff;color:#8856d7}.home-digest-copy{min-width:0}.home-digest-copy strong,.home-digest-copy span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.home-digest-copy strong{font-size:10.5px;color:#41495f}.home-digest-copy span{margin-top:3px;font-size:8.7px;color:#99a0b0}
+
+/* Money: the same left-side navigation pattern as Driving and Investing */
+.money-page>.life-wrap{display:grid;grid-template-columns:184px minmax(0,1fr);gap:18px;align-items:start}
+.money-page .money-tabs{grid-column:1;grid-row:1/span 20;position:sticky;top:82px;display:flex;flex-direction:column;gap:5px;margin:0;padding:10px;border:1px solid #e3e7f0;border-radius:18px;background:rgba(255,255,255,.88);box-shadow:0 9px 26px rgba(46,54,83,.06)}
+.money-page .money-tab{width:100%;min-height:39px;justify-content:flex-start;padding:0 12px;border:0;border-radius:11px;background:transparent;text-align:left;font:720 10.5px var(--ff);color:#6e778b}
+.money-page .money-tab:hover{background:#f4f5fb;color:#3f485d}.money-page .money-tab.on{background:linear-gradient(135deg,#6559e8,#5469e7);color:#fff;box-shadow:0 7px 16px rgba(83,78,205,.2)}
+.money-page .money-metrics,.money-page .money-pane{grid-column:2;min-width:0}.money-page .money-metrics{margin-top:0}
+.money-page.money-compact .money-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px;border:1px solid #e5e8ef;border-radius:16px;background:rgba(255,255,255,.82);box-shadow:0 7px 18px rgba(43,52,83,.045)}
+.money-page.money-compact .money-metric{min-height:68px;padding:10px 12px;border:0;box-shadow:none;background:transparent}.money-page.money-compact .money-metric:nth-child(3),.money-page.money-compact .money-metric:nth-child(5){display:none}
+.money-page.money-compact .money-metric-icon{display:none}.money-page.money-compact .life-metric-label{font-size:8px}.money-page.money-compact .life-metric-value{font-size:17px}.money-page.money-compact .life-metric-sub{display:none}
+.money-credit .life-metric-value{color:#b97925!important}
+
+/* Security and privacy */
+button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-bottom:70px}.security-hero{position:relative;overflow:hidden;min-height:188px;margin-bottom:18px;padding:24px 27px;border-radius:24px;background:linear-gradient(135deg,#1f2350,#3d4382 58%,#6c70b7);color:#fff;box-shadow:0 18px 42px rgba(33,37,86,.2)}
+.security-back{position:relative;z-index:2;color:rgba(255,255,255,.72);border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.08)}.security-hero-copy{position:relative;z-index:2;max-width:650px;margin-top:23px}.security-hero-copy>span{font-size:8.5px;font-weight:850;letter-spacing:1px;text-transform:uppercase;color:#c7c9ff}.security-hero h1{margin:5px 0 7px;font-family:var(--fd);font-size:clamp(29px,2vw,39px)}.security-hero p{max-width:610px;margin:0;color:rgba(255,255,255,.7);font-size:12px;line-height:1.65}.security-hero-mark{position:absolute;right:42px;top:36px;display:grid;place-items:center;width:106px;height:106px;border:1px solid rgba(255,255,255,.17);border-radius:32px;background:rgba(255,255,255,.08);font-size:46px;color:#d9dcff;transform:rotate(8deg)}
+.security-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.security-card{padding:20px;border-radius:20px}.security-card-top{display:flex;align-items:center;gap:11px}.security-card-top>div:nth-child(2){min-width:0;flex:1}.security-card h2{margin:0;font-size:14px;color:#31384b}.security-card p{margin:3px 0 0;font-size:9.5px;color:#9199a9}.security-card-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:12px;font-size:15px;font-weight:800}.security-card-icon.lock{background:#eef0ff;color:#655bdc}.security-card-icon.shield{background:#fff2e8;color:#d37b32}.security-card-icon.session{background:#e9f7ff;color:#3c83bb}.security-card-icon.connected{background:#e8faf3;color:#15966d}.security-card-icon.data{background:#f5edff;color:#8659c6}.security-card-icon.mobile{background:#fff0f6;color:#c05d88}
+.security-status{flex:0 0 auto;padding:5px 8px;border-radius:999px;font-size:8px;font-weight:850}.security-status.good{background:#e8f8f1;color:#168762}.security-status.planned{background:#f1f2f6;color:#858c9d}.security-card-copy{margin:15px 0 13px;color:#70798b;font-size:10.5px;line-height:1.65}.security-action,.security-manage{border:0;border-radius:10px;background:#6259df;color:#fff;font:800 9.5px var(--ff);cursor:pointer}.security-action{min-height:36px;padding:0 13px}.security-action.ghost,.security-manage{border:1px solid #e0e3ef;background:#fff;color:#5f64ba}.security-manage{padding:7px 10px}.security-inline-status{min-height:14px;margin-top:8px;font-size:9px;color:#7c8495}.security-inline-status.ok{color:#168762}.security-inline-status.error{color:#c5505f}.security-session-row,.security-connection-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid #eef0f4;font-size:10px}.security-session-row{margin-top:12px}.security-session-row strong,.security-session-row span{display:block}.security-session-row div>span{margin-top:3px;color:#9ba1af;font-size:8.5px}.security-current{padding:5px 8px;border-radius:999px;background:#f1f3f8;color:#7b8394;font-size:8px!important}.security-connection-row span{display:flex;align-items:center;gap:7px;color:#687184}.security-connection-row i{width:7px;height:7px;border-radius:50%;background:#c6cad4}.security-connection-row i.on{background:#29ad7d;box-shadow:0 0 0 4px rgba(41,173,125,.1)}.security-connection-row strong{font-size:9px;color:#3d4558}.security-data-card{grid-column:1/-1}.security-private-note{display:flex;gap:12px;margin-top:15px;padding:16px 18px;border:1px solid #dfe7f1;border-radius:18px;background:#f7fbff;color:#647085}.security-private-note>span{color:#4c75c9}.security-private-note strong{display:block;font-size:10.5px;color:#3d485d}.security-private-note p{margin:3px 0 0;font-size:9.5px;line-height:1.55}
+
+/* Diary: separate prompt answer, custom moods, emoji, collapsed history and opt-in AI */
+.diary-custom-moods{display:contents}.diary-add-mood{border-style:dashed!important;color:#8a6d80!important}.diary-thought-card{margin:15px 0;padding:17px;border:1px solid #f0dce8;border-radius:17px;background:linear-gradient(135deg,#fff4f8,#fbf5ff)}.diary-thought-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.diary-thought-top>span{font-size:8px;font-weight:850;letter-spacing:.85px;text-transform:uppercase;color:#bd628d}.diary-thought-top button{border:0;background:transparent;color:#8a6f9f;font:800 9px var(--ff);cursor:pointer}.diary-thought-card>strong{display:block;margin-bottom:11px;font-family:var(--fd);font-size:16px;color:#5c4354}.diary-input-with-emoji{position:relative;display:flex;align-items:flex-start;gap:7px}.diary-input-with-emoji>textarea,.diary-input-with-emoji>input{flex:1;min-width:0}.diary-input-with-emoji>textarea:not(.diary-textarea){min-height:68px;width:100%;padding:11px 12px;border:1px solid #eadce5;border-radius:11px;outline:0;resize:vertical;background:#fff;color:#5f4f59;font:11px/1.55 var(--ff)}.diary-input-with-emoji>button{flex:0 0 34px;width:34px;height:34px;border:1px solid #e7dde4;border-radius:10px;background:#fff;font-size:15px;cursor:pointer}.diary-input-single{align-items:center}.diary-input-single .life-input{width:auto}.diary-emoji-popover{position:fixed;z-index:25000;display:none;grid-template-columns:repeat(6,34px);gap:4px;padding:8px;border:1px solid #e4dce2;border-radius:13px;background:#fff;box-shadow:0 15px 38px rgba(53,38,50,.2)}.diary-emoji-popover.show{display:grid}.diary-emoji-popover button{width:34px;height:34px;border:0;border-radius:8px;background:#faf7f9;font-size:17px;cursor:pointer}.diary-entry{position:relative}.diary-entry-body.collapsed{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.diary-entry-toggle{border:0;background:transparent;color:#7d66bd;font:800 8.5px var(--ff);cursor:pointer}.diary-entry-prompt-answer{margin-top:12px;padding:12px;border-left:3px solid #d9b3cb;border-radius:0 10px 10px 0;background:#fcf7fa}.diary-entry-prompt-answer span{display:block;margin-bottom:4px;font-size:8px;font-weight:850;letter-spacing:.6px;text-transform:uppercase;color:#b47a9c}.diary-entry-prompt-answer strong{font-size:10.5px;color:#6a5261}.diary-entry-prompt-answer p{margin:6px 0 0;font-size:11px;line-height:1.65;color:#756571}.diary-ai-offer{display:none;margin-top:15px;padding:17px;border:1px solid #e1ddf5;border-radius:17px;background:linear-gradient(135deg,#f8f6ff,#f4f6ff)}.diary-ai-offer.show{display:block}.diary-ai-offer-top{display:flex;align-items:flex-start;justify-content:space-between}.diary-ai-offer-top div{display:flex;flex-direction:column;gap:2px}.diary-ai-offer-top span{font-size:7.5px;font-weight:850;letter-spacing:.8px;text-transform:uppercase;color:#8a80d5}.diary-ai-offer-top strong{font-size:13px;color:#494264}.diary-ai-offer-top>button{border:0;background:transparent;color:#9892a8;font-size:18px;cursor:pointer}.diary-ai-offer>p{margin:10px 0;color:#7a7489;font-size:10px;line-height:1.55}.diary-ai-primary{width:100%;min-height:38px;border:0;border-radius:11px;background:linear-gradient(135deg,#6657e8,#536ce9);color:#fff;font:800 10px var(--ff);cursor:pointer}.diary-ai-primary:disabled{opacity:.6}.diary-ai-personalize{margin-top:10px}.diary-ai-personalize summary{cursor:pointer;font-size:9px;font-weight:750;color:#6e64b0}.diary-ai-personalize summary span{font-weight:500;color:#a09bad}.diary-ai-personalize textarea{width:100%;min-height:60px;margin-top:8px;padding:10px;border:1px solid #e1deed;border-radius:10px;resize:vertical;font:10px/1.5 var(--ff)}.diary-ai-personalize label{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:8.5px;color:#858091}.diary-ai-privacy{margin-top:9px;font-size:8px;line-height:1.45;color:#9b96a8}.diary-ai-result{display:none;margin-top:13px;padding:13px;border-left:3px solid #6a5dea;border-radius:0 11px 11px 0;background:#fff;color:#5f5970;font-size:10.5px;line-height:1.65}.diary-ai-result.show{display:block}.diary-ai-result>span{display:block;margin-bottom:5px;font-size:7.5px;font-weight:850;letter-spacing:.75px;text-transform:uppercase;color:#7669cf}.diary-ai-result small{display:block;margin-top:9px;padding-top:8px;border-top:1px solid #edeaf4;color:#aaa5b3;font-size:7.8px}
+
+/* Bible Study: explanation remains clearly separate from Scripture */
+.bible-explain-wrap{margin:15px 0 2px;padding-top:14px;border-top:1px solid #f0e8ed}.bible-explain-btn{min-height:38px;padding:0 14px;border:0;border-radius:11px;background:linear-gradient(135deg,#7252d8,#8c5ed1);color:#fff;font:800 9.5px var(--ff);cursor:pointer;box-shadow:0 8px 18px rgba(113,80,199,.18)}.bible-explain-btn:disabled{opacity:.62}.bible-explain-panel{display:none;margin-top:12px;padding:16px;border:1px solid #e5dcf0;border-radius:15px;background:linear-gradient(145deg,#fbf8ff,#f8f5fb)}.bible-explain-panel.show{display:block}.bible-explain-tag{display:inline-flex;padding:5px 8px;border-radius:999px;background:#eee7fb;color:#7958b6;font-size:7.5px;font-weight:850;letter-spacing:.6px;text-transform:uppercase}.bible-explain-section{margin-top:13px}.bible-explain-section strong{display:block;margin-bottom:5px;font-size:9px;color:#5a4868}.bible-explain-section p{margin:0;color:#76697a;font-size:10.5px;line-height:1.7}.bible-xrefs{display:flex;flex-wrap:wrap;gap:6px}.bible-xrefs span{padding:5px 8px;border:1px solid #ddd2ed;border-radius:8px;background:#fff;color:#7351a8;font-size:8.5px;font-weight:750}
+
+@media(max-width:940px){
+  .money-page>.life-wrap{display:block}.money-page .money-tabs{position:static;display:flex;flex-direction:row;overflow-x:auto;margin-bottom:12px;padding:6px}.money-page .money-tab{width:auto;min-width:max-content;padding:0 13px}
+  .money-page.money-compact .money-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .security-grid{grid-template-columns:1fr}.security-data-card{grid-column:auto}
+}
+@media(max-width:700px){
+  .home-digest-list{grid-template-columns:1fr}.home-digest-head small{display:none}.home-live-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .security-hero-mark{display:none}.security-hero{padding:21px}.security-grid{gap:10px}.security-card{padding:16px}
+  .money-page.money-compact .money-metrics{grid-template-columns:1fr 1fr}.money-page.money-compact .money-metric:nth-child(4){grid-column:1/-1}
+}
+@media(max-width:430px){.home-live-stats{grid-template-columns:1fr}.diary-emoji-popover{grid-template-columns:repeat(5,34px)}}
+</style>
 </head>
 <body>
 
@@ -1780,7 +1830,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <button class="df-nav-btn on" data-main-page="home" onclick="go('home')">Home</button><button class="df-nav-btn" data-main-page="money" onclick="go('money')">Money</button><button class="df-nav-btn" data-main-page="planner" onclick="go('planner')">Plans</button><button class="df-nav-btn" data-main-page="driving" onclick="go('driving')">Driving</button><button class="df-nav-btn" data-main-page="diary" onclick="go('diary')">Diary</button><button class="df-nav-btn" data-main-page="bible" onclick="go('bible')">Bible Study</button><button class="df-nav-btn" data-main-page="investing" onclick="go('dashboard')">Investing</button>
     </div>
   </div>
-  <div class="df-nav-right"><div class="df-user-pill"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></div><button class="df-logout" onclick="doLogout()">Log out</button></div>
+  <div class="df-nav-right"><button class="df-user-pill" type="button" onclick="go('security')" aria-label="Open account security and privacy"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></button><button class="df-logout" onclick="doLogout()">Log out</button></div>
 </div>
 
 <nav class="df-mobile-nav" aria-label="Main navigation">
@@ -1857,6 +1907,50 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   </section>
 </div>
 
+
+<!-- SECURITY & PRIVACY -->
+<div class="pg life-page security-page" id="pg-security"><div class="life-wrap security-wrap">
+  <section class="security-hero">
+    <button class="life-back security-back" type="button" onclick="go('home')">← Home</button>
+    <div class="security-hero-copy"><span>Account centre</span><h1>Security &amp; privacy</h1><p>See how your account is protected, manage active access and download the personal information stored inside Dayframe.</p></div>
+    <div class="security-hero-mark" aria-hidden="true">◇</div>
+  </section>
+  <div class="security-grid">
+    <section class="life-card security-card">
+      <div class="security-card-top"><div class="security-card-icon lock">⌁</div><div><h2>Password &amp; sign-in</h2><p id="security-account-email">Your signed-in account</p></div><span class="security-status good">Protected</span></div>
+      <div class="security-card-copy">Send yourself a secure link whenever you want to choose a new password.</div>
+      <button class="security-action" type="button" onclick="securitySendPasswordReset()">Send password reset email</button>
+      <div class="security-inline-status" id="security-password-status"></div>
+    </section>
+    <section class="life-card security-card">
+      <div class="security-card-top"><div class="security-card-icon shield">✦</div><div><h2>Two-step verification</h2><p>Authenticator app protection</p></div><span class="security-status planned">Planned</span></div>
+      <div class="security-card-copy">This needs a complete enrolment and sign-in challenge flow before it can safely be switched on. Dayframe will not show a decorative toggle that does nothing.</div>
+    </section>
+    <section class="life-card security-card">
+      <div class="security-card-top"><div class="security-card-icon session">◎</div><div><h2>Active sessions</h2><p>Control where your account stays signed in</p></div></div>
+      <div class="security-session-row"><div><strong id="security-device-name">This browser</strong><span id="security-device-meta">Active now</span></div><span class="security-current">This device</span></div>
+      <button class="security-action ghost" type="button" onclick="securitySignOutOthers()">Sign out other devices</button>
+      <div class="security-inline-status" id="security-session-status"></div>
+    </section>
+    <section class="life-card security-card">
+      <div class="security-card-top"><div class="security-card-icon connected">↗</div><div><h2>Connected accounts</h2><p>Your external data connections</p></div><button class="security-manage" type="button" onclick="go('money');moneyOpenTab('accounts')">Manage</button></div>
+      <div class="security-connection-row"><span><i id="security-bank-dot"></i>Open Banking</span><strong id="security-bank-status">Checking…</strong></div>
+      <div class="security-connection-row"><span><i id="security-t212-dot"></i>Trading 212</span><strong id="security-t212-status">Checking…</strong></div>
+    </section>
+    <section class="life-card security-card security-data-card">
+      <div class="security-card-top"><div class="security-card-icon data">⇩</div><div><h2>Your Dayframe data</h2><p>Keep a copy for yourself</p></div></div>
+      <div class="security-card-copy">Download your plans, goals, diary entries, Bible notes, manually tracked money data and preferences as a readable JSON file. Connected providers keep their own source records.</div>
+      <button class="security-action ghost" type="button" onclick="securityExportData()">Download my data</button>
+      <div class="security-inline-status" id="security-data-status"></div>
+    </section>
+    <section class="life-card security-card security-mobile-card">
+      <div class="security-card-top"><div class="security-card-icon mobile">◫</div><div><h2>Biometric app lock</h2><p>For the future Dayframe mobile app</p></div><span class="security-status planned">App feature</span></div>
+      <div class="security-card-copy">Face ID or fingerprint locking belongs in the native app, where it can protect Dayframe whenever the app is reopened or returns from the background.</div>
+    </section>
+  </div>
+  <div class="security-private-note"><span>◉</span><div><strong>Private by design</strong><p>Account-scoped Dayframe records are requested with your signed-in Supabase session; connections and saved content are not shared between users.</p></div></div>
+</div></div>
+
 <div class="driving-sidepanel" id="driving-sidepanel" aria-label="Driving navigation">
   <div class="driving-side-head"><div class="driving-side-kicker">Driving</div><div class="driving-side-title">Your driving hub</div></div>
   <nav class="driving-side-nav">
@@ -1888,11 +1982,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <p>Keep your money, plans, goals, driving admin and investments together — so you can see what needs attention and get on with your day.</p>
       </div>
       <div class="hub-hero-side">
-        <div class="hub-mini-stat"><div class="hub-mini-label">Tasks</div><div class="hub-mini-value" id="home-task-count">0</div><div class="hub-mini-sub">still to do</div></div>
-        <div class="hub-mini-stat"><div class="hub-mini-label">This month</div><div class="hub-mini-value" id="home-spent">£0</div><div class="hub-mini-sub">tracked spending</div></div>
-        <div class="hub-mini-stat"><div class="hub-mini-label">Goals</div><div class="hub-mini-value" id="home-goal-count">0</div><div class="hub-mini-sub">in progress</div></div>
-        <div class="hub-mini-stat"><div class="hub-mini-label">Journal</div><div class="hub-mini-value" id="home-diary-count">0</div><div class="hub-mini-sub">entries captured</div></div>
+        <div class="home-setup-card" id="home-setup-card"></div>
+        <div class="home-live-stats" id="home-live-stats">
+          <div class="hub-mini-stat"><div class="hub-mini-label">Tasks</div><div class="hub-mini-value" id="home-task-count">0</div><div class="hub-mini-sub">still to do</div></div>
+          <div class="hub-mini-stat"><div class="hub-mini-label">This month</div><div class="hub-mini-value" id="home-spent">£0</div><div class="hub-mini-sub">tracked spending</div></div>
+          <div class="hub-mini-stat"><div class="hub-mini-label">Goals</div><div class="hub-mini-value" id="home-goal-count">0</div><div class="hub-mini-sub">in progress</div></div>
+          <div class="hub-mini-stat"><div class="hub-mini-label">Journal</div><div class="hub-mini-value" id="home-diary-count">0</div><div class="hub-mini-sub">entries captured</div></div>
+        </div>
+        <div class="home-setup-nudge" id="home-setup-nudge"></div>
       </div>
+    </section>
+
+    <section class="home-digest-card" id="home-digest-card">
+      <div class="home-digest-head"><div><span>Today</span><strong>At a glance</strong></div><small>A calm view across Dayframe</small></div>
+      <div class="home-digest-list" id="home-daily-digest"></div>
     </section>
 
     <div class="hub-section-head"><div><div class="hub-section-title">Your spaces</div><div class="hub-section-sub">Everything has a place — open what you need.</div></div><button class="home-edit-button" type="button" onclick="homeOpenEditor()"><span>✦</span> Edit Home</button></div>
@@ -2324,12 +2427,26 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             <button class="diary-mood" data-mood="sad" onclick="diarySelectMood('sad',this)"><span>🌧️</span>Sad</button>
             <button class="diary-mood" data-mood="angry" onclick="diarySelectMood('angry',this)"><span>🔥</span>Angry</button>
             <button class="diary-mood" data-mood="lonely" onclick="diarySelectMood('lonely',this)"><span>🌙</span>Lonely</button>
+            <span id="diary-custom-moods" class="diary-custom-moods"></span>
+            <button class="diary-mood diary-add-mood" type="button" onclick="diaryAddCustomMood()"><span>＋</span>Add your own</button>
           </div>
           <input type="hidden" id="diary-mood" value="okay">
-          <div class="diary-prompt"><span>Today’s gentle prompt</span><strong id="diary-prompt"></strong></div>
-          <div class="life-field diary-title-field"><label>Title <em>optional</em></label><input class="life-input" id="diary-title" placeholder="Give this moment a name"></div>
-          <div class="life-field"><label>Your thoughts</label><textarea class="diary-textarea" id="diary-body" placeholder="Write whatever is here..." oninput="diaryCountWords()"></textarea></div>
+          <section class="diary-thought-card">
+            <div class="diary-thought-top"><span>Thought of the day</span><button type="button" onclick="diaryShufflePrompt()">↻ Shuffle</button></div>
+            <strong id="diary-prompt"></strong>
+            <div class="diary-input-with-emoji"><textarea id="diary-prompt-answer" placeholder="Type your answer…" oninput="diaryCountWords()"></textarea><button type="button" onclick="diaryToggleEmojiPicker('diary-prompt-answer',this)" aria-label="Add emoji to your answer">🙂</button></div>
+          </section>
+          <div class="life-field diary-title-field"><label>Title <em>optional</em></label><div class="diary-input-with-emoji diary-input-single"><input class="life-input" id="diary-title" placeholder="Give this moment a name"><button type="button" onclick="diaryToggleEmojiPicker('diary-title',this)" aria-label="Add emoji to the title">🙂</button></div></div>
+          <div class="life-field"><label>Your entry</label><div class="diary-input-with-emoji"><textarea class="diary-textarea" id="diary-body" placeholder="Write whatever is on your mind…" oninput="diaryCountWords()"></textarea><button type="button" onclick="diaryToggleEmojiPicker('diary-body',this)" aria-label="Add emoji to your entry">🙂</button></div></div>
           <div class="diary-composer-actions"><span class="diary-save-note">Saved entries sync securely to your Dayframe account.</span><button class="diary-save-btn" onclick="diarySaveEntry()">Save entry</button></div>
+          <section class="diary-ai-offer" id="diary-ai-offer">
+            <div class="diary-ai-offer-top"><div><span>Optional</span><strong>AI reflection</strong></div><button type="button" onclick="diaryDismissReflection()" aria-label="Dismiss AI reflection">×</button></div>
+            <p>Ask Dayframe AI for one gentle reflection on what you wrote. It only runs when you choose it.</p>
+            <button class="diary-ai-primary" type="button" onclick="diaryGenerateReflection()">Help me think it through</button>
+            <details class="diary-ai-personalize"><summary>＋ Personalize this <span>(optional)</span></summary><textarea id="diary-ai-context" placeholder="Anything about you or your situation that would help this land better?"></textarea><label><input type="checkbox" id="diary-ai-remember"> Remember this for next time</label></details>
+            <div class="diary-ai-privacy">Your saved entry and optional context are sent to Dayframe AI only when you press the button.</div>
+            <div class="diary-ai-result" id="diary-ai-result"></div>
+          </section>
         </div>
       </section>
 
@@ -2388,9 +2505,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <button class="bible-translation-new" type="button" data-bible-translation="NLT" onclick="bibleSelectTranslation('NLT')"><strong>NLT</strong><span>Easy modern English</span></button>
       </div>
       <div class="bible-reader bible-reader-new" id="bible-reader"><div class="bible-reader-loading"><div><i></i>Opening your reading…</div></div></div>
+      <div class="bible-explain-wrap">
+        <button class="bible-explain-btn" id="bible-explain-btn" type="button" onclick="bibleExplainPassage(false)">✦ Explain this passage</button>
+        <div class="bible-explain-panel" id="bible-explain-panel"></div>
+      </div>
       <div class="bible-selection-menu" id="bible-selection-menu" role="toolbar" aria-label="Selected Bible text actions">
         <button type="button" onclick="bibleSaveSelectionHighlight()">Highlight</button>
         <button type="button" onclick="bibleStartNoteFromSelection()">Add note</button>
+        <button type="button" onclick="bibleExplainPassage(true)">Explain</button>
       </div>
     </section>
 
@@ -3601,6 +3723,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <button type="button" onclick="dfMoreGo('diary')"><i>♡</i><span><strong>Diary</strong><small>Your private journal</small></span></button>
       <button type="button" onclick="dfMoreGo('dashboard')"><i>↗</i><span><strong>Investing</strong><small>Portfolio and analysis</small></span></button>
       <button type="button" onclick="homeOpenEditor()"><i>✦</i><span><strong>Edit Home</strong><small>Choose and reorder widgets</small></span></button>
+      <button type="button" onclick="dfMoreGo('security')"><i>◇</i><span><strong>Security &amp; privacy</strong><small>Sessions, password and your data</small></span></button>
       <button type="button" class="df-install-action" id="df-install-action" onclick="dfInstallApp()" hidden><i>↓</i><span><strong>Install Dayframe</strong><small>Add it to this device</small></span></button>
       <button type="button" class="danger" onclick="doLogout()"><i>↪</i><span><strong>Log out</strong><small>Leave this account safely</small></span></button>
     </div>
@@ -4867,7 +4990,7 @@ async function loadVIX(tk, sector, trend){
 
 // ── PERSONAL HUB DATA & RENDERING ──
 const HUB_STORE_KEY='dayframe_personal_hub_v1';
-const hubDefault=()=>({preferences:{home:{modules:['money','planner','driving','diary','bible','investing'],hidden:[],widgets:{coming:true,goals:true,diary:true}}},money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,regularBillSelections:[],regularBillsSource:'',previousRegularBillsSuggestion:0,savings:0,buffer:0,aiNote:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
+const hubDefault=()=>({preferences:{home:{modules:['money','planner','driving','diary','bible','investing'],hidden:[],widgets:{coming:true,goals:true,diary:true}}},money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,regularBillSelections:[],regularBillsSource:'',previousRegularBillsSuggestion:0,savings:0,buffer:0,aiNote:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],diaryCustomMoods:[],diaryAiContext:'',bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
 function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage.getItem(dfKey(HUB_STORE_KEY))||'{}'));}catch(e){return hubDefault();}}
 let _hubSyncTimer=null,_hubSyncChain=Promise.resolve(true);
 function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
@@ -5037,6 +5160,40 @@ function renderHome(){
  set('home-diary-status',diary.some(x=>x.date===today)?'Checked in today':diary.length?diary.length+' entr'+(diary.length===1?'y':'ies')+' saved':'Start with one thought');
  const bible=bibleState(d);set('home-bible-status',bible.lastRead?'Continue '+bible.lastRead:'Start with John 1');
  set('home-driving-status',drivingDates.length?drivingDates[0][0].toUpperCase()+' · '+hubPrettyDate(drivingDates[0][1]):'Add your vehicle dates');
+
+ const bankAccounts=typeof _moneyBankData!=='undefined'&&Array.isArray(_moneyBankData.accounts)?_moneyBankData.accounts:[];
+ const hasAccount=Boolean((d.accounts||[]).length||bankAccounts.length);
+ const plan=d.budgetPlan||{},hasBudget=Boolean((d.budgets||[]).length||Number(plan.income)||Number(plan.rent)||Number(plan.regularBills)||Number(plan.savings));
+ const hasGoal=Boolean((d.goals||[]).length),setupDone=[hasAccount,hasBudget,hasGoal].filter(Boolean).length;
+ const setup=document.getElementById('home-setup-card'),live=document.getElementById('home-live-stats'),nudge=document.getElementById('home-setup-nudge');
+ const setupSteps=[
+  {done:hasAccount,label:'Connect an account',note:'see real balances instead of zeros',action:"go('money');moneyOpenTab('accounts')"},
+  {done:hasBudget,label:'Set a monthly budget',note:'shape a plan around your income',action:"go('money');moneyOpenTab('budget')"},
+  {done:hasGoal,label:'Add your first goal',note:'big or small',action:"openPlannerGoals(true)"}
+ ];
+ if(setupDone===0){
+   if(setup){setup.classList.add('show');setup.innerHTML='<strong>Let’s get you set up</strong>'+setupSteps.map((x,i)=>'<button class="home-setup-step'+(x.done?' done':'')+'" type="button" onclick="'+x.action+'"><i>'+(x.done?'✓':i+1)+'</i><span><b>'+hubEsc(x.label)+'</b> — '+hubEsc(x.note)+'</span></button>').join('')}
+   if(live)live.style.display='none';if(nudge)nudge.classList.remove('show');
+ }else{
+   if(setup){setup.classList.remove('show');setup.innerHTML=''}if(live)live.style.display='grid';
+   const next=setupSteps.find(x=>!x.done);
+   if(nudge&&next){nudge.classList.add('show');nudge.innerHTML='<span>'+hubEsc(next.label)+' when you’re ready — '+hubEsc(next.note)+'.</span><button type="button" onclick="'+next.action+'">Open →</button>'}
+   else if(nudge){nudge.classList.remove('show');nudge.innerHTML=''}
+ }
+
+ const digest=document.getElementById('home-daily-digest');
+ if(digest){
+   const items=[];
+   if(todayTasks[0])items.push({kind:'task',icon:'✓',title:todayTasks[0].title,meta:'Plans · due today'});
+   else items.push({kind:'task',icon:'✓',title:'Nothing urgent on your list',meta:open.length?open.length+' task'+(open.length===1?'':'s')+' waiting':'Your schedule is clear'});
+   const soonBill=dueBillItems.slice().sort((a,b)=>a.meta.days-b.meta.days)[0];
+   if(soonBill)items.push({kind:'bill',icon:'£',title:(soonBill.bill.name||'Bill')+(soonBill.meta.days===0?' is due today':' is coming up'),meta:'Money · '+hubMoney(soonBill.bill.amount||0)+(soonBill.meta.days>0?' in '+soonBill.meta.days+' day'+(soonBill.meta.days===1?'':'s'):'')});
+   else items.push({kind:'bill',icon:'£',title:hasAccount?'No bills due soon':'Connect Money when you’re ready',meta:hasAccount?'Your next 30 days are clear':'Add an account for useful reminders'});
+   let dailyRef='John 1:1';
+   if(typeof BIBLE_DAILY_REFS!=='undefined'&&BIBLE_DAILY_REFS.length){const day=Math.floor(new Date(today+'T12:00:00').getTime()/86400000),pick=BIBLE_DAILY_REFS[Math.abs(day)%BIBLE_DAILY_REFS.length];dailyRef=pick[0]+' '+pick[1]+':'+pick[2]}
+   items.push({kind:'bible',icon:'✦',title:'Today’s verse is ready',meta:'Bible Study · '+dailyRef});
+   digest.innerHTML=items.slice(0,3).map(x=>'<button type="button" class="home-digest-item" onclick="'+(x.kind==='task'?"go('planner')":x.kind==='bill'?"go('money')":"go('bible')")+'"><span class="home-digest-icon '+x.kind+'">'+x.icon+'</span><span class="home-digest-copy"><strong>'+hubEsc(x.title)+'</strong><span>'+hubEsc(x.meta)+'</span></span></button>').join('');
+ }
  const upcoming=[
   ...open.filter(t=>t.date).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
   ...drivingDates.map(x=>({title:x[0].toUpperCase()+' renewal',date:x[1],type:'My Car',kind:'car'})),
@@ -5047,7 +5204,7 @@ function renderHome(){
  const gp=document.getElementById('home-goal-progress');
  if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="openPlannerGoals(true)">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span><div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
  const jg=document.getElementById('home-journal-glance');
- if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong><p>'+hubEsc((todayEntry.body||'').slice(0,125))+(String(todayEntry.body||'').length>125?'…':'')+'</p></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}} homeApplyPreferences(d);
+ if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong><p>'+hubEsc((todayEntry.body||todayEntry.promptAnswer||'').slice(0,125))+(String(todayEntry.body||todayEntry.promptAnswer||'').length>125?'…':'')+'</p></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}} homeApplyPreferences(d);
 }
 
 
@@ -5308,7 +5465,7 @@ function moneyEstimatePayoff(plan){
  if(months>=600)return {never:true};
  const d=new Date();d.setMonth(d.getMonth()+Math.max(1,months));return d
 }
-function moneyOpenTab(name,btn){document.querySelectorAll('.money-pane').forEach(p=>p.classList.remove('on'));const pane=document.getElementById('money-pane-'+name);if(pane)pane.classList.add('on');document.querySelectorAll('.money-tab').forEach(t=>t.classList.remove('on'));if(btn)btn.classList.add('on');else{const target=document.querySelector('.money-tab[data-money-tab="'+name+'"]');if(target)target.classList.add('on')}}
+function moneyOpenTab(name,btn){document.querySelectorAll('.money-pane').forEach(p=>p.classList.remove('on'));const pane=document.getElementById('money-pane-'+name);if(pane)pane.classList.add('on');document.querySelectorAll('.money-tab').forEach(t=>t.classList.remove('on'));if(btn)btn.classList.add('on');else{const target=document.querySelector('.money-tab[data-money-tab="'+name+'"]');if(target)target.classList.add('on')}document.getElementById('pg-money')?.classList.toggle('money-compact',name!=='overview')}
 function moneyQuick(tab,formId){moneyOpenTab(tab);if(formId)toggleLifeForm(formId,true)}
 function moneyPrimaryAction(){const active=document.querySelector('.money-tab.on')?.dataset.moneyTab||'overview';const map={overview:['accounts','money-account-form'],accounts:['accounts','money-account-form'],budget:['budget','money-budget-form'],credit:['credit','money-credit-form'],bills:['bills','money-bill-form'],transactions:['transactions','money-form']};const target=map[active]||map.overview;if(target[1]==='money-account-form')moneyBeginNewManualAccount();else moneyQuick(target[0],target[1])}
 function moneyPresetAccount(provider,type){moneyResetAccountForm();const p=document.getElementById('money-account-provider'),t=document.getElementById('money-account-type');if(p){const has=[...p.options].some(o=>o.value===provider||o.text===provider);p.value=has?provider:'custom';if(!has){const custom=document.getElementById('money-account-custom');if(custom)custom.value=provider}}if(t)t.value=type||'bank';moneyQuick('accounts','money-account-form')}
@@ -5636,8 +5793,13 @@ const DIARY_MOODS={
  bright:{emoji:'☀️',label:'Bright',score:5},
  low:{emoji:'🌧️',label:'Low',score:2}
 };
-let _diarySearch='';
-function diaryMoodMeta(key){return DIARY_MOODS[key]||DIARY_MOODS.okay}
+let _diarySearch='',_diaryReflectionEntryId=null;
+const _diaryExpanded=new Set();
+function diaryMoodMeta(key){
+ if(DIARY_MOODS[key])return DIARY_MOODS[key];
+ const custom=(hubLoad().diaryCustomMoods||[]).find(x=>x.key===key);
+ return custom?{emoji:custom.emoji||'✨',label:custom.label||'My mood',score:3}:DIARY_MOODS.okay;
+}
 function diaryPromptFor(date){
  const d=new Date((date||hubDateISO())+'T12:00:00'),start=new Date(d.getFullYear(),0,0);
  const day=Math.floor((d-start)/86400000);
@@ -5648,35 +5810,78 @@ function diarySelectMood(key,btn){
  document.querySelectorAll('.diary-mood').forEach(b=>b.classList.toggle('on',b.dataset.mood===key));
  if(btn)btn.blur()
 }
+function diaryRenderCustomMoods(){
+ const host=document.getElementById('diary-custom-moods');if(!host)return;
+ host.innerHTML=(hubLoad().diaryCustomMoods||[]).map(x=>'<button class="diary-mood" data-mood="'+hubEsc(x.key)+'" onclick="diarySelectMood(\''+hubEsc(x.key)+'\',this)"><span>'+hubEsc(x.emoji||'✨')+'</span>'+hubEsc(x.label)+'</button>').join('');
+}
+function diaryAddCustomMood(){
+ const raw=prompt('What would you call this feeling?');if(!raw)return;const label=raw.trim().slice(0,28);if(!label)return;
+ const d=hubLoad();d.diaryCustomMoods=Array.isArray(d.diaryCustomMoods)?d.diaryCustomMoods:[];const existing=d.diaryCustomMoods.find(x=>x.label.toLowerCase()===label.toLowerCase());
+ const mood=existing||{key:'custom-'+Date.now(),label,emoji:'✨'};if(!existing)d.diaryCustomMoods.push(mood);hubSave(d);diaryRenderCustomMoods();diarySelectMood(mood.key,document.querySelector('.diary-mood[data-mood="'+mood.key+'"]'));hubToast('Mood added')
+}
 function diaryRefreshPrompt(){const e=document.getElementById('diary-prompt'),date=document.getElementById('diary-date')?.value||hubDateISO();if(e)e.textContent=diaryPromptFor(date)}
-function diaryUsePrompt(index){const e=document.getElementById('diary-prompt');if(e)e.textContent=DIARY_PROMPTS[index]||diaryPromptFor();document.getElementById('diary-body')?.focus()}
-function diaryCountWords(){const body=document.getElementById('diary-body')?.value.trim()||'',count=body?body.split(/\s+/).length:0,note=document.getElementById('diary-word-note');if(note)note.textContent=count?count+' word'+(count===1?'':'s'):'Take your time'}
+function diaryShufflePrompt(){
+ const e=document.getElementById('diary-prompt');if(!e)return;const choices=DIARY_PROMPTS.filter(x=>x!==e.textContent);e.textContent=choices[Math.floor(Math.random()*choices.length)]||diaryPromptFor();document.getElementById('diary-prompt-answer')?.focus()
+}
+function diaryUsePrompt(index){const e=document.getElementById('diary-prompt');if(e)e.textContent=DIARY_PROMPTS[index]||diaryPromptFor();document.getElementById('diary-prompt-answer')?.focus()}
+function diaryToggleEmojiPicker(targetId,button){
+ let picker=document.getElementById('diary-emoji-popover');if(!picker){picker=document.createElement('div');picker.id='diary-emoji-popover';picker.className='diary-emoji-popover';picker.innerHTML=['😀','😊','🥲','😴','😤','❤️','✨','🙏','🌿','🌙','☀️','💭','🎉','💛','🫶','🌸','💪','🕊️'].map(x=>'<button type="button" onclick="diaryInsertEmoji(\''+x+'\')">'+x+'</button>').join('');document.body.appendChild(picker)}
+ if(picker.classList.contains('show')&&picker.dataset.target===targetId){picker.classList.remove('show');return}
+ picker.dataset.target=targetId;const r=button.getBoundingClientRect(),width=236;picker.style.left=Math.max(8,Math.min(window.innerWidth-width-8,r.right-width))+'px';picker.style.top=Math.min(window.innerHeight-160,r.bottom+7)+'px';picker.classList.add('show')
+}
+function diaryInsertEmoji(emoji){
+ const picker=document.getElementById('diary-emoji-popover'),target=document.getElementById(picker?.dataset.target||'');if(!target)return;
+ const start=Number.isFinite(target.selectionStart)?target.selectionStart:target.value.length,end=Number.isFinite(target.selectionEnd)?target.selectionEnd:start;
+ target.value=target.value.slice(0,start)+emoji+target.value.slice(end);target.focus();target.selectionStart=target.selectionEnd=start+emoji.length;picker.classList.remove('show');target.dispatchEvent(new Event('input',{bubbles:true}))
+}
+function diaryCountWords(){const body=[document.getElementById('diary-prompt-answer')?.value,document.getElementById('diary-body')?.value].filter(Boolean).join(' ').trim(),count=body?body.split(/\s+/).length:0,note=document.getElementById('diary-word-note');if(note)note.textContent=count?count+' word'+(count===1?'':'s'):'Take your time'}
+function diaryDismissReflection(){const offer=document.getElementById('diary-ai-offer');if(offer)offer.classList.remove('show');_diaryReflectionEntryId=null}
+function diaryOfferReflection(id,reflection=''){
+ _diaryReflectionEntryId=Number(id)||null;const offer=document.getElementById('diary-ai-offer'),result=document.getElementById('diary-ai-result'),context=document.getElementById('diary-ai-context');if(!offer)return;
+ offer.classList.add('show');if(context)context.value=hubLoad().diaryAiContext||'';if(result){result.classList.toggle('show',Boolean(reflection));result.innerHTML=reflection?'<span>Reflection</span>'+hubEsc(reflection).replace(/\n/g,'<br>')+'<small>Generated support, not a substitute for professional care.</small>':''}
+ offer.scrollIntoView({behavior:'smooth',block:'nearest'})
+}
 function diaryResetComposer(){
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v};
- set('diary-edit-id','');set('diary-date',hubDateISO());set('diary-title','');set('diary-body','');set('diary-mood','okay');
- diarySelectMood('okay');diaryRefreshPrompt();diaryCountWords();document.getElementById('diary-title')?.focus()
+ set('diary-edit-id','');set('diary-date',hubDateISO());set('diary-title','');set('diary-body','');set('diary-prompt-answer','');set('diary-mood','okay');
+ diarySelectMood('okay');diaryRefreshPrompt();diaryCountWords();diaryDismissReflection();document.getElementById('diary-title')?.focus()
 }
 function diarySaveEntry(){
- const body=document.getElementById('diary-body')?.value.trim()||'',title=document.getElementById('diary-title')?.value.trim()||'',date=document.getElementById('diary-date')?.value||hubDateISO(),mood=document.getElementById('diary-mood')?.value||'okay',prompt=document.getElementById('diary-prompt')?.textContent||diaryPromptFor(date),editId=Number(document.getElementById('diary-edit-id')?.value)||null;
- if(!body)return hubToast('Write a little something first');
+ const body=document.getElementById('diary-body')?.value.trim()||'',promptAnswer=document.getElementById('diary-prompt-answer')?.value.trim()||'',title=document.getElementById('diary-title')?.value.trim()||'',date=document.getElementById('diary-date')?.value||hubDateISO(),mood=document.getElementById('diary-mood')?.value||'okay',prompt=document.getElementById('diary-prompt')?.textContent||diaryPromptFor(date),editId=Number(document.getElementById('diary-edit-id')?.value)||null;
+ if(!body&&!promptAnswer)return hubToast('Write a little something first');
  const d=hubLoad();d.diary=Array.isArray(d.diary)?d.diary:[];
- const entry={id:editId||Date.now(),date,title,body,mood,prompt,updatedAt:new Date().toISOString()};
+ const old=d.diary.find(x=>Number(x.id)===Number(editId));
+ const entry={id:editId||Date.now(),date,title,body,promptAnswer,mood,prompt,aiReflection:old?.aiReflection||'',updatedAt:new Date().toISOString()};
  const i=d.diary.findIndex(x=>Number(x.id)===Number(editId));
  if(i>=0)d.diary[i]=entry;else d.diary.unshift(entry);
  d.diary.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.id)-Number(a.id));
- hubSave(d);diaryResetComposer();renderDiary();renderHome();hubToast(editId?'Entry updated':'Entry saved privately')
+ hubSave(d);diaryResetComposer();renderDiary();renderHome();diaryOfferReflection(entry.id,entry.aiReflection);hubToast(editId?'Entry updated':'Entry saved privately')
+}
+async function diaryGenerateReflection(){
+ const id=_diaryReflectionEntryId,d=hubLoad(),entry=(d.diary||[]).find(x=>Number(x.id)===Number(id));if(!entry)return hubToast('Save your entry first');
+ const button=document.querySelector('.diary-ai-primary'),result=document.getElementById('diary-ai-result'),context=document.getElementById('diary-ai-context')?.value.trim()||'',remember=document.getElementById('diary-ai-remember')?.checked;
+ if(button){button.disabled=true;button.textContent='Thinking gently…'}if(result){result.classList.add('show');result.innerHTML='<span>Reflection</span>Taking a moment with what you wrote…'}
+ const prompt='You are Dayframe, a calm journaling reflection aid. Respond to this private diary entry with one empathetic observation and one gentle open question. Do not diagnose, moralise, claim to be a therapist, or give medical advice. Keep it under 95 words.\n\nPrompt: '+(entry.prompt||'')+'\nAnswer: '+(entry.promptAnswer||'')+'\nEntry: '+(entry.body||'')+(context?'\nOptional context supplied by the writer: '+context:'');
+ try{
+  const reflection=await callClaude(prompt);if(!reflection)throw new Error('No reflection was returned.');
+  entry.aiReflection=String(reflection).trim();if(remember)d.diaryAiContext=context;hubSave(d);
+  if(result){result.classList.add('show');result.innerHTML='<span>Reflection</span>'+hubEsc(entry.aiReflection).replace(/\n/g,'<br>')+'<small>Generated support, not a substitute for professional care.</small>'}
+  renderDiary();
+ }catch(e){if(result){result.classList.add('show');result.innerHTML='<span>Reflection unavailable</span>'+hubEsc(e.message||'Please try again in a moment.')}}
+ finally{if(button){button.disabled=false;button.textContent='Help me think it through'}}
 }
 function diaryEdit(id){
  const x=(hubLoad().diary||[]).find(e=>Number(e.id)===Number(id));if(!x)return;
  const set=(key,v)=>{const e=document.getElementById(key);if(e)e.value=v||''};
- set('diary-edit-id',x.id);set('diary-date',x.date);set('diary-title',x.title);set('diary-body',x.body);set('diary-mood',x.mood||'okay');
- diarySelectMood(x.mood||'okay');const p=document.getElementById('diary-prompt');if(p)p.textContent=x.prompt||diaryPromptFor(x.date);diaryCountWords();
+ set('diary-edit-id',x.id);set('diary-date',x.date);set('diary-title',x.title);set('diary-body',x.body);set('diary-prompt-answer',x.promptAnswer);set('diary-mood',x.mood||'okay');
+ diarySelectMood(x.mood||'okay');const p=document.getElementById('diary-prompt');if(p)p.textContent=x.prompt||diaryPromptFor(x.date);diaryCountWords();if(x.aiReflection)diaryOfferReflection(x.id,x.aiReflection);else diaryDismissReflection();
  document.querySelector('.diary-composer')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('diary-body')?.focus(),250)
 }
 function diaryDelete(id){
  if(!confirm('Delete this diary entry?'))return;
- const d=hubLoad();d.diary=(d.diary||[]).filter(x=>Number(x.id)!==Number(id));hubSave(d);renderDiary();renderHome();hubToast('Entry deleted')
+ const d=hubLoad();d.diary=(d.diary||[]).filter(x=>Number(x.id)!==Number(id));hubSave(d);_diaryExpanded.delete(Number(id));renderDiary();renderHome();hubToast('Entry deleted')
 }
+function diaryToggleEntry(id){const key=Number(id);if(_diaryExpanded.has(key))_diaryExpanded.delete(key);else _diaryExpanded.add(key);renderDiary()}
 function diarySearch(value){_diarySearch=String(value||'').trim().toLowerCase();renderDiary()}
 function diaryStreak(entries){
  const dates=new Set(entries.map(x=>x.date).filter(Boolean));let cursor=new Date(hubDateISO()+'T12:00:00'),count=0;
@@ -5687,16 +5892,21 @@ function diaryStreak(entries){
 function renderDiary(){
  const d=hubLoad(),entries=(d.diary||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.id)-Number(a.id)),today=hubDateISO(),month=today.slice(0,7);
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
- set('diary-total',entries.length);const streak=diaryStreak(entries);set('diary-streak',streak+' day'+(streak===1?'':'s'));set('diary-month',entries.filter(x=>(x.date||'').slice(0,7)===month).length);
+ diaryRenderCustomMoods();set('diary-total',entries.length);const streak=diaryStreak(entries);set('diary-streak',streak+' day'+(streak===1?'':'s'));set('diary-month',entries.filter(x=>(x.date||'').slice(0,7)===month).length);
  const latest=entries[0],latestMood=latest?diaryMoodMeta(latest.mood):null;set('diary-latest-mood',latestMood?latestMood.emoji+' '+latestMood.label:'—');
  const dateInput=document.getElementById('diary-date');if(dateInput&&!dateInput.value)dateInput.value=today;if(document.getElementById('diary-prompt')&&!document.getElementById('diary-prompt').textContent)diaryRefreshPrompt();
  const week=document.getElementById('diary-week');
  if(week){let cells='';for(let i=6;i>=0;i--){const day=new Date(today+'T12:00:00');day.setDate(day.getDate()-i);const iso=hubDateISO(day),entry=entries.find(x=>x.date===iso),m=entry?diaryMoodMeta(entry.mood):null;cells+='<div class="diary-day'+(iso===today?' today':'')+'"><span>'+day.toLocaleDateString('en-GB',{weekday:'short'}).slice(0,2)+'</span><i>'+(m?m.emoji:'·')+'</i><small>'+day.getDate()+'</small></div>'}week.innerHTML=cells}
  const list=document.getElementById('diary-list');if(!list)return;
- const filtered=_diarySearch?entries.filter(x=>[x.title,x.body,x.mood,x.date].join(' ').toLowerCase().includes(_diarySearch)):entries;
+ const filtered=_diarySearch?entries.filter(x=>[x.title,x.body,x.promptAnswer,x.mood,x.date].join(' ').toLowerCase().includes(_diarySearch)):entries;
  if(!filtered.length){list.innerHTML='<div class="life-empty diary-empty"><div class="life-empty-icon">♡</div><strong>'+(_diarySearch?'No matching entries':'Your first page is waiting')+'</strong>'+(_diarySearch?'Try a different word.':'Write one honest sentence. That is enough.')+'</div>';return}
- list.innerHTML=filtered.map(x=>{const m=diaryMoodMeta(x.mood),words=(x.body||'').trim()?x.body.trim().split(/\s+/).length:0;return '<article class="diary-entry"><div class="diary-entry-top"><div class="diary-entry-mood">'+m.emoji+'</div><div class="diary-entry-heading"><span>'+new Date((x.date||today)+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</span><strong>'+hubEsc(x.title||m.label+' thoughts')+'</strong></div><div class="diary-entry-actions"><button onclick="diaryEdit('+Number(x.id)+')">Edit</button><button class="delete" onclick="diaryDelete('+Number(x.id)+')">×</button></div></div><div class="diary-entry-body">'+hubEsc(x.body||'').replace(/\n/g,'<br>')+'</div><div class="diary-entry-foot"><span>'+m.label+'</span><span>'+words+' word'+(words===1?'':'s')+'</span></div></article>'}).join('')
+ list.innerHTML=filtered.map(x=>{const m=diaryMoodMeta(x.mood),copy=x.body||x.promptAnswer||'',words=[x.body,x.promptAnswer].filter(Boolean).join(' ').trim().split(/\s+/).filter(Boolean).length,expanded=_diaryExpanded.has(Number(x.id)),date=new Date((x.date||today)+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+   const promptBlock=expanded&&x.promptAnswer?'<div class="diary-entry-prompt-answer"><span>'+hubEsc(x.prompt||'Thought of the day')+'</span><p>'+hubEsc(x.promptAnswer).replace(/\n/g,'<br>')+'</p></div>':'';
+   const aiBlock=expanded&&x.aiReflection?'<div class="diary-entry-prompt-answer"><span>AI reflection</span><p>'+hubEsc(x.aiReflection).replace(/\n/g,'<br>')+'</p></div>':'';
+   return '<article class="diary-entry"><div class="diary-entry-top"><div class="diary-entry-mood">'+m.emoji+'</div><div class="diary-entry-heading"><span>'+date+'</span><strong>'+hubEsc(x.title||m.label+' thoughts')+'</strong></div><div class="diary-entry-actions"><button class="diary-entry-toggle" onclick="diaryToggleEntry('+Number(x.id)+')">'+(expanded?'Collapse ↑':'Expand ↓')+'</button><button onclick="diaryEdit('+Number(x.id)+')">Edit</button><button class="delete" onclick="diaryDelete('+Number(x.id)+')">×</button></div></div><div class="diary-entry-body'+(expanded?'':' collapsed')+'">'+hubEsc(copy).replace(/\n/g,'<br>')+'</div>'+promptBlock+aiBlock+'<div class="diary-entry-foot"><span>'+m.label+'</span><span>'+words+' word'+(words===1?'':'s')+'</span></div></article>'
+ }).join('')
 }
+
 
 const BIBLE_BOOKS=[
  ['Genesis',50],['Exodus',40],['Leviticus',27],['Numbers',36],['Deuteronomy',34],['Joshua',24],['Judges',21],['Ruth',4],['1 Samuel',31],['2 Samuel',24],['1 Kings',22],['2 Kings',25],['1 Chronicles',29],['2 Chronicles',36],['Ezra',10],['Nehemiah',13],['Esther',10],['Job',42],['Psalms',150],['Proverbs',31],['Ecclesiastes',12],['Song of Solomon',8],['Isaiah',66],['Jeremiah',52],['Lamentations',5],['Ezekiel',48],['Daniel',12],['Hosea',14],['Joel',3],['Amos',9],['Obadiah',1],['Jonah',4],['Micah',7],['Nahum',3],['Habakkuk',3],['Zephaniah',3],['Haggai',2],['Zechariah',14],['Malachi',4],['Matthew',28],['Mark',16],['Luke',24],['John',21],['Acts',28],['Romans',16],['1 Corinthians',16],['2 Corinthians',13],['Galatians',6],['Ephesians',6],['Philippians',4],['Colossians',4],['1 Thessalonians',5],['2 Thessalonians',3],['1 Timothy',6],['2 Timothy',4],['Titus',3],['Philemon',1],['Hebrews',13],['James',5],['1 Peter',5],['2 Peter',3],['1 John',5],['2 John',1],['3 John',1],['Jude',1],['Revelation',22]
@@ -5829,6 +6039,27 @@ function bibleApplyHighlights(b){
   segments.reverse().forEach(segment=>{const node=segment.node;if(!node.parentNode)return;node.splitText(segment.to);const selected=node.splitText(segment.from),mark=document.createElement('mark');mark.className='bible-highlight';mark.dataset.highlightId=String(h.id);mark.title='Click to remove highlight';selected.parentNode.replaceChild(mark,selected);mark.appendChild(selected)})
  })
 }
+
+function bibleAiSection(parsed,key,fallback=''){
+ const value=parsed&&typeof parsed[key]==='string'?parsed[key].trim():fallback;return value;
+}
+async function bibleExplainPassage(fromSelection=false){
+ const panel=document.getElementById('bible-explain-panel'),button=document.getElementById('bible-explain-btn'),b=bibleState(),selected=fromSelection?_bibleSelection:null,root=bibleReaderTextRoot(),reference=selected?.passage||bibleRef(b.book,b.chapter),passage=(selected?.text||root?.innerText||'').trim().slice(0,6500);
+ if(!panel)return;if(!passage){panel.classList.add('show');panel.innerHTML='<div class="bible-explain-section"><strong>Open the passage first</strong><p>Once the Scripture text is visible, Dayframe can help you study it.</p></div>';return}
+ if(button){button.disabled=true;button.textContent='Explaining…'}panel.classList.add('show');panel.innerHTML='<span class="bible-explain-tag">AI-generated study aid · not doctrine</span><div class="bible-explain-section"><p>Looking at '+hubEsc(reference)+' in context…</p></div>';
+ const prompt='Explain this Bible passage as a careful study aid for a Christian reader. Return valid JSON only with keys "context", "meaning", and "cross_references" (an array of 2 to 4 Bible references). Distinguish the text from interpretation, avoid claiming one disputed interpretation is unquestionably correct, and do not invent historical facts. Use plain English and keep context and meaning under 90 words each. Translation: '+b.translation+'. Reference: '+reference+'. Passage: '+passage;
+ try{
+  const raw=await callClaude(prompt);if(!raw)throw new Error('No explanation was returned.');
+  let parsed=null;try{const match=String(raw).match(/\{[\s\S]*\}/);if(match)parsed=JSON.parse(match[0])}catch(_){}
+  const context=bibleAiSection(parsed,'context',''),meaning=bibleAiSection(parsed,'meaning',parsed?'':String(raw).trim()),refs=Array.isArray(parsed?.cross_references)?parsed.cross_references.slice(0,4):[];
+  panel.innerHTML='<span class="bible-explain-tag">AI-generated study aid · not doctrine</span>'+
+   (context?'<div class="bible-explain-section"><strong>Context</strong><p>'+hubEsc(context)+'</p></div>':'')+
+   (meaning?'<div class="bible-explain-section"><strong>What it may be saying</strong><p>'+hubEsc(meaning)+'</p></div>':'')+
+   (refs.length?'<div class="bible-explain-section"><strong>Cross-references</strong><div class="bible-xrefs">'+refs.map(x=>'<span>'+hubEsc(x)+'</span>').join('')+'</div></div>':'');
+  if(fromSelection){window.getSelection?.().removeAllRanges();bibleHideSelectionMenu();_bibleSelection=null}
+ }catch(e){panel.innerHTML='<span class="bible-explain-tag">Study aid unavailable</span><div class="bible-explain-section"><p>'+hubEsc(e.message||'Please try again in a moment.')+'</p></div>'}
+ finally{if(button){button.disabled=false;button.textContent='✦ Explain this passage'}}
+}
 function bibleSaveSelectionHighlight(){
  const selected=_bibleSelection;if(!selected)return;
  const d=hubLoad(),b=bibleState(d),overlap=b.highlights.some(h=>h.translation===selected.translation&&h.book===selected.book&&Number(h.chapter)===Number(selected.chapter)&&!(selected.end<=Number(h.start)||selected.start>=Number(h.end)));
@@ -5883,7 +6114,56 @@ function renderBible(){
  const d=hubLoad(),b=bibleState(d);biblePrepareSelectors(b);bibleRenderPath(b);bibleRenderNotes(b);bibleLoadVerseOfDay();const p=document.getElementById('bible-note-passage');if(p&&!document.getElementById('bible-note-id')?.value)p.value=bibleRef(b.book,b.chapter);bibleShowReader()
 }
 
-function renderLifePage(name){if(name==='home')renderHome();if(name==='money')renderMoney();if(name==='planner')renderPlanner();if(name==='driving-car')renderDriving();if(name==='diary')renderDiary();if(name==='bible')renderBible();}
+
+function securitySetStatus(id,message,tone=''){
+ const el=document.getElementById(id);if(!el)return;el.textContent=message||'';el.className='security-inline-status'+(tone?' '+tone:'');
+}
+function securityDeviceLabel(){
+ const ua=navigator.userAgent||'';let browser='Browser';
+ if(/Edg\//.test(ua))browser='Edge';else if(/Chrome\//.test(ua))browser='Chrome';else if(/Firefox\//.test(ua))browser='Firefox';else if(/Safari\//.test(ua))browser='Safari';
+ const platform=navigator.userAgentData?.platform||navigator.platform||'';return browser+(platform?' · '+platform:'');
+}
+async function securityRender(){
+ const session=await dfRefreshSession(false),email=document.getElementById('security-account-email');
+ if(email)email.textContent=session?.user?.email||'Your signed-in account';
+ const device=document.getElementById('security-device-name');if(device)device.textContent=securityDeviceLabel();
+ const meta=document.getElementById('security-device-meta');if(meta)meta.textContent='Active now · current session';
+ await Promise.allSettled([moneyLoadBankData(false),loadT212Status()]);
+ const bankCount=Array.isArray(_moneyBankData.connections)&&_moneyBankData.connections.length?_moneyBankData.connections.length:(Array.isArray(_moneyBankData.accounts)&&_moneyBankData.accounts.length?1:0);
+ const bankStatus=document.getElementById('security-bank-status'),bankDot=document.getElementById('security-bank-dot');
+ if(bankStatus)bankStatus.textContent=bankCount?bankCount+' connection'+(bankCount===1?'':'s'):'Not connected';if(bankDot)bankDot.classList.toggle('on',bankCount>0);
+ const tStatus=document.getElementById('security-t212-status'),tDot=document.getElementById('security-t212-dot');
+ if(tStatus)tStatus.textContent=t212Connected?'Connected · read only':'Not connected';if(tDot)tDot.classList.toggle('on',t212Connected);
+}
+async function securitySendPasswordReset(){
+ securitySetStatus('security-password-status','Sending…');
+ try{
+  const session=await dfRefreshSession(false),email=session?.user?.email;if(!email)throw new Error('Sign in again first.');
+  const redirectTo=location.origin+'/';
+  const r=await fetch(SUPABASE_URL+'/auth/v1/recover?redirect_to='+encodeURIComponent(redirectTo),{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({email})});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||d.error||'The email could not be sent.');
+  securitySetStatus('security-password-status','Password reset email sent.','ok');
+ }catch(e){securitySetStatus('security-password-status',String(e.message||'The email could not be sent.'),'error')}
+}
+async function securitySignOutOthers(){
+ securitySetStatus('security-session-status','Signing out other devices…');
+ try{
+  const session=await dfRefreshSession(false);if(!session?.access_token)throw new Error('Sign in again first.');
+  const r=await fetch(SUPABASE_URL+'/auth/v1/logout?scope=others',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+session.access_token}});
+  if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.message||d.error||'Other sessions could not be signed out.')}
+  securitySetStatus('security-session-status','Other devices have been signed out. This browser stays active.','ok');
+ }catch(e){securitySetStatus('security-session-status',String(e.message||'Other sessions could not be signed out.'),'error')}
+}
+function securityExportData(){
+ try{
+  const session=dfSession(),payload={dayframe_export_version:1,exported_at:new Date().toISOString(),account:{id:session?.user?.id||null,email:session?.user?.email||session?.email||null},data:hubLoad()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='dayframe-data-'+hubDateISO()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  securitySetStatus('security-data-status','Your download is ready.','ok');
+ }catch(e){securitySetStatus('security-data-status','Your data could not be downloaded.','error')}
+}
+
+function renderLifePage(name){if(name==='home')renderHome();if(name==='money')renderMoney();if(name==='planner')renderPlanner();if(name==='driving-car')renderDriving();if(name==='diary')renderDiary();if(name==='bible')renderBible();if(name==='security')securityRender();}
 setTimeout(()=>personalHubInit(),0);
 
 let _currentPage = 'home';
