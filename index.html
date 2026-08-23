@@ -7094,13 +7094,32 @@ function renderTargetCard(body, tk, mean, low, high, px, rating, source) {
 }
 
 
+const RESEARCH_IDENTITY_FACTS={
+  NBIS:'Nebius Group provides AI-focused cloud infrastructure and related technology services.',
+  AEHR:'Aehr Test Systems makes semiconductor test and burn-in equipment, including systems used for silicon carbide and other devices.',
+  AAOI:'Applied Optoelectronics, Inc. designs and manufactures fiber-optic networking products used in internet data centres, cable broadband and telecommunications.',
+  RKLB:'Rocket Lab provides launch services, spacecraft and space systems.',
+  KXIAY:'Kioxia Holdings develops and manufactures NAND flash memory and solid-state storage products.',
+  SIVE:'Sivers Semiconductors develops wireless radio-frequency and photonics semiconductor technologies.',
+  ONDS:'Ondas Holdings develops private wireless networking and autonomous drone platforms.',
+  NAK:'Northern Dynasty Minerals is a mineral exploration company focused on the Pebble project in Alaska.',
+  CCCX:'Infleqtion develops quantum technology, including quantum computing, sensing and timing systems.',
+  MRAM:'Everspin Technologies develops and manufactures magnetoresistive random-access memory products.',
+  NOK:'Nokia provides telecommunications network infrastructure, software and related services.',
+  IQEL:'IQE manufactures advanced compound-semiconductor wafer products.',
+  OPTT:'Ocean Power Technologies develops marine power, data and autonomous maritime solutions.',
+  NVDA:'NVIDIA designs accelerated-computing hardware and software, including graphics processors and AI platforms.',
+  AAPL:'Apple designs consumer devices, operating systems and digital services.',
+  MSFT:'Microsoft develops software, cloud infrastructure and digital services.',
+  AMD:'AMD designs processors, graphics chips and other semiconductor products.'
+};
 function researchBriefSections(text){
   const keys=['BUSINESS','STRENGTHS','RISKS','CATALYSTS','NUMBERS','QUESTIONS'];
   const parts=Object.fromEntries(keys.map(key=>[key,'']));
   const clean=String(text||'').replace(/\r/g,'').replace(/\*\*/g,'').trim();
   if(!clean)return parts;
   const headings='BUSINESS(?:\\s+MODEL)?|STRENGTHS(?:\\s+AND\\s+ADVANTAGES)?|RISKS|CATALYSTS|NUMBERS(?:\\s+TO\\s+CHECK)?|QUESTIONS';
-  const marker=new RegExp('(?:^|\\n|\\s)(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?('+headings+')(?:\\s*(?::|[-–—])\\s*|\\s*(?=\\n|$))','gim');
+  const marker=new RegExp('(?:^|\\n|\\s)(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?('+headings+')(?:\\s*\\([^\\n)]*\\))?(?:\\s*(?::|[-–—])\\s*|\\s*(?=\\n|$))','gim');
   const matches=[...clean.matchAll(marker)];
   const keyFor=value=>{
     const heading=String(value||'').trim().toUpperCase();
@@ -7130,14 +7149,14 @@ function researchBriefSections(text){
 async function loadResearchBrief(tk,h){
   const host=document.getElementById('research-brief-body');if(!host)return;
   if(!aiKey){host.innerHTML='<div class="invest-brief-error">Dayframe AI is temporarily unavailable. Try again shortly.</div>';return}
-  const held=h&&h.val>0,company=String(h?.name||'').trim(),identity=[company&&company!==tk?'company name '+company:'',h?.isin?'ISIN '+h.isin:'',h?.currency?'trading currency '+h.currency:''].filter(Boolean).join(', ');
+  const held=h&&h.val>0,company=String(h?.name||'').trim(),identity=[company&&company!==tk?'company name '+company:'',h?.isin?'ISIN '+h.isin:''].filter(Boolean).join(', '),identityFact=RESEARCH_IDENTITY_FACTS[tk]||'';
   const context=held?'The user holds it: value £'+h.val.toFixed(2)+', portfolio weight '+h.pct.toFixed(1)+'%, return '+(h.gainPct>=0?'+':'')+h.gainPct.toFixed(1)+'%.':'The user does not currently hold it in their connected portfolio.';
-  const prompt='Write the final answer immediately, without showing reasoning. Create a calm beginner-friendly educational company research brief for ticker '+tk+(identity?' ('+identity+')':'')+'. '+context+' The ticker may be used by more than one exchange, so use the supplied company name and ISIN as the identity; if identity is still ambiguous, say so clearly instead of guessing. Do not tell the user to buy or sell. Do not invent prices, news, figures or targets. Use plain English and exactly these headings, each under 45 words:\nBUSINESS:\nSTRENGTHS:\nRISKS:\nCATALYSTS:\nNUMBERS:\nQUESTIONS:';
+  const prompt='Write the final answer immediately, without showing reasoning. Create a calm beginner-friendly educational research guide for ticker '+tk+(identity?' ('+identity+')':'')+'. '+context+(identityFact?' Verified company identity anchor: '+identityFact:' No verified business description is available, so tell the reader to confirm the company identity before relying on the guide.')+' Never substitute a different company, exchange or business for the supplied identity. BUSINESS may only restate the verified identity anchor; if none is supplied, say identity needs checking. For STRENGTHS, RISKS and CATALYSTS, describe items the reader should investigate rather than claiming unverified facts. NUMBERS must name three metrics to find in the latest company filing without supplying values. Do not name contracts, customers, live prices, news, financial values, dates or analyst targets. Do not tell the user to buy or sell. Use plain English and exactly these headings with no extra text in the heading, each under 45 words:\nBUSINESS:\nSTRENGTHS:\nRISKS:\nCATALYSTS:\nNUMBERS:\nQUESTIONS:';
   host.innerHTML='<div class="invest-brief-loading"><span class="spin"></span><div><strong>Building '+hubEsc(tk)+' research brief</strong><small>Using the company identity from your holding, not the ticker alone.</small></div></div>';
   try{
     let result=await callClaude(prompt);
     if(!result){
-      const fallbackPrompt='Answer immediately in under 220 words. Research '+tk+(identity?' ('+identity+')':'')+' for a beginner. If the identity is ambiguous, explain that. Return these labels with useful text: BUSINESS, STRENGTHS, RISKS, CATALYSTS, NUMBERS, QUESTIONS. Educational only; no buy or sell advice and no invented live facts.';
+      const fallbackPrompt='Answer immediately in under 180 words. Create an educational research checklist for '+tk+(identity?' ('+identity+')':'')+'. '+(identityFact?'Use only this verified identity: '+identityFact:'State that the company identity must be confirmed.')+' Do not provide financial values, contracts, customers, dates or live facts. Return exactly: BUSINESS, STRENGTHS, RISKS, CATALYSTS, NUMBERS, QUESTIONS. No buy or sell advice.';
       result=await callClaude(fallbackPrompt);
     }
     if(!result)throw new Error('Dayframe AI returned an empty response. Please retry once; your holding and connection are still fine.');
