@@ -7170,7 +7170,7 @@ async function loadResearchBrief(tk,h){
       {key:'QUESTIONS',num:'06',title:'Questions before acting',tone:'slate'}
     ];
     const valid=defs.filter(d=>sections[d.key]);
-    host.innerHTML=valid.length?'<div class="invest-brief-grid">'+valid.map(d=>'<article class="invest-brief-item '+d.tone+'"><div><b>'+d.num+'</b><span>'+d.title+'</span></div><p>'+hubEsc(sections[d.key]).replace(/\n/g,'<br>')+'</p></article>').join('')+'</div><div class="invest-brief-foot"><span>AI study aid · company identity taken from your holding · verify changing facts</span></div>':'<div class="invest-brief-item blue"><div><b>01</b><span>Research summary</span></div><p>'+hubEsc(result).replace(/\n/g,'<br>')+'</p></div>';
+    host.innerHTML=valid.length?'<div class="invest-brief-grid">'+valid.map(d=>'<article class="invest-brief-item '+d.tone+'"><div><b>'+d.num+'</b><span>'+d.title+'</span></div><p>'+hubEsc(sections[d.key]).replace(/\n/g,'<br>')+'</p></article>').join('')+'</div><div class="invest-brief-foot"><span>AI study aid · '+(held?'company identity taken from your holding':'confirm the company identity before relying on this guide')+' · verify changing facts</span></div>':'<div class="invest-brief-item blue"><div><b>01</b><span>Research summary</span></div><p>'+hubEsc(result).replace(/\n/g,'<br>')+'</p></div>';
   }catch(e){host.innerHTML='<div class="invest-brief-error">'+hubEsc(e.message||'Could not create the brief.')+' <button type="button" class="invest-brief-retry" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'))">Retry</button></div>'}
 }
 async function loadStraightTalk(tk, h){
