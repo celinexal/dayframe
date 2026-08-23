@@ -1740,6 +1740,17 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 @media(max-width:430px){.diary-emoji-popover{grid-template-columns:repeat(5,34px)}}
 @media(max-width:340px){.home-live-stats{grid-template-columns:1fr}}
 </style>
+<style id="dayframe-goals-bible-polish">
+.life-custom-type{display:none}.life-custom-type.show{display:flex}
+.goal-category{display:inline-flex;margin-bottom:5px;padding:4px 7px;border-radius:999px;background:#f0edff;color:#6b5ed0;font-size:8px;font-weight:850;letter-spacing:.55px;text-transform:uppercase}
+.bible-study-side{position:sticky;top:82px;align-self:start;display:flex;flex-direction:column;gap:14px;min-width:0}
+.bible-explain-side{overflow:hidden;padding:18px;background:linear-gradient(150deg,#fff,#fbf7ff);box-shadow:inset 0 3px 0 #8262a1,0 14px 36px rgba(52,41,67,.07)}
+.bible-explain-side-head>span{font-size:8px;font-weight:850;letter-spacing:.8px;text-transform:uppercase;color:#8a6ca3}.bible-explain-side-head>strong{display:block;margin-top:4px;font-family:var(--fd);font-size:16px;color:#4c3e58}.bible-explain-side-head>p{margin:5px 0 0;font-size:10px;line-height:1.55;color:#8b7e8e}
+.bible-explain-side .bible-explain-wrap{margin:14px 0 0;padding-top:13px}.bible-explain-side .bible-explain-btn{width:100%}.bible-explain-side .bible-explain-panel{padding:13px}
+.bible-note-side{position:static!important;top:auto!important}.bible-note-side>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;cursor:pointer;background:linear-gradient(180deg,#fff,#fcf8ff)}.bible-note-side>summary::-webkit-details-marker{display:none}.bible-note-side>summary span{display:flex;flex-direction:column;gap:3px}.bible-note-side>summary strong{font-size:13px;color:#4c3e58}.bible-note-side>summary small{font-size:9px;line-height:1.45;color:#918694}.bible-note-side>summary i{font-style:normal;font-size:9px;font-weight:800;color:#76599a}.bible-note-side[open]>summary i{font-size:0}.bible-note-side[open]>summary i::after{content:"Close ▴";font-size:9px}.bible-note-top-action{display:flex;justify-content:flex-end;margin-bottom:10px}.invest-brief-retry{margin-left:8px;border:1px solid #e3b9c1;border-radius:8px;background:#fff;color:#9c3d4f;padding:6px 9px;font-weight:800;cursor:pointer}
+@media(max-width:1120px){.bible-study-side{position:relative;top:auto}.bible-explain-side{order:1}.bible-note-side{order:2}}
+@media(max-width:700px){.planner-goals-card .life-form-grid{grid-template-columns:1fr}.bible-explain-side{padding:15px}}
+</style>
 </head>
 <body>
 
@@ -1984,19 +1995,8 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       </div>
       <div class="hub-hero-side">
         <div class="home-setup-card" id="home-setup-card"></div>
-        <div class="home-live-stats" id="home-live-stats">
-          <div class="hub-mini-stat"><div class="hub-mini-label">Tasks</div><div class="hub-mini-value" id="home-task-count">0</div><div class="hub-mini-sub">still to do</div></div>
-          <div class="hub-mini-stat"><div class="hub-mini-label">This month</div><div class="hub-mini-value" id="home-spent">£0</div><div class="hub-mini-sub">tracked spending</div></div>
-          <div class="hub-mini-stat"><div class="hub-mini-label">Goals</div><div class="hub-mini-value" id="home-goal-count">0</div><div class="hub-mini-sub">in progress</div></div>
-          <div class="hub-mini-stat"><div class="hub-mini-label">Journal</div><div class="hub-mini-value" id="home-diary-count">0</div><div class="hub-mini-sub">entries captured</div></div>
-        </div>
         <div class="home-setup-nudge" id="home-setup-nudge"></div>
       </div>
-    </section>
-
-    <section class="home-digest-card" id="home-digest-card">
-      <div class="home-digest-head"><div><span>Today</span><strong>At a glance</strong></div><small>A calm view across Dayframe</small></div>
-      <div class="home-digest-list" id="home-daily-digest"></div>
     </section>
 
     <div class="hub-section-head"><div><div class="hub-section-title">Your spaces</div><div class="hub-section-sub">Everything has a place — open what you need.</div></div><button class="home-edit-button" type="button" onclick="homeOpenEditor()"><span>✦</span> Edit Home</button></div>
@@ -2232,7 +2232,8 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
             <div class="life-form-grid">
               <div class="life-field"><label>Task</label><input class="life-input" id="task-title" placeholder="What needs doing?"></div>
               <div class="life-field"><label>Due date</label><input class="life-input" id="task-date" type="date"></div>
-              <div class="life-field"><label>Area</label><select class="life-select" id="task-area"><option>Personal</option><option>Work</option><option>Money</option><option>Driving</option><option>Health</option><option>Other</option></select></div>
+              <div class="life-field"><label>Area</label><select class="life-select" id="task-area" onchange="taskAreaChanged()"><option>Personal</option><option>Work</option><option>Money</option><option>Driving</option><option>Health &amp; wellbeing</option><option>Learning</option><option>Faith</option><option value="custom">Something else…</option></select></div>
+              <div class="life-field life-custom-type" id="task-custom-area-wrap"><label>Your area</label><input class="life-input" id="task-custom-area" placeholder="e.g. Family, Home or Side project"></div>
               <div class="life-field"><label>Priority</label><select class="life-select" id="task-priority"><option>Normal</option><option>High</option><option>Low</option></select></div>
             </div>
             <div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('task-form',false)">Cancel</button><button class="life-btn-primary" onclick="addTask()">Add task</button></div>
@@ -2257,9 +2258,11 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
         <div class="life-card-body">
           <div class="life-form" id="goal-form">
             <div class="life-form-grid">
-              <div class="life-field"><label>Goal</label><input class="life-input" id="goal-name" placeholder="e.g. Holiday fund"></div>
-              <div class="life-field"><label>Type</label><select class="life-select" id="goal-type"><option value="money">Money</option><option value="progress">Progress</option></select></div>
-              <div class="life-field"><label>Target</label><input class="life-input" id="goal-target" type="number" step="0.01" placeholder="1000"></div>
+              <div class="life-field"><label>Goal</label><input class="life-input" id="goal-name" placeholder="e.g. Pass my driving test"></div>
+              <div class="life-field"><label>Category</label><select class="life-select" id="goal-category" onchange="goalCategoryChanged()"><option>Personal</option><option>Driving</option><option>Money</option><option>Health &amp; wellbeing</option><option>Learning</option><option>Career</option><option>Faith</option><option value="custom">Something else…</option></select></div>
+              <div class="life-field life-custom-type" id="goal-custom-category-wrap"><label>Your category</label><input class="life-input" id="goal-custom-category" placeholder="e.g. Family or Creativity"></div>
+              <div class="life-field"><label>Track this as</label><select class="life-select" id="goal-type"><option value="progress">Percentage / progress</option><option value="money">Money</option></select></div>
+              <div class="life-field"><label>Target</label><input class="life-input" id="goal-target" type="number" step="0.01" placeholder="100"></div>
               <div class="life-field"><label>Current</label><input class="life-input" id="goal-current" type="number" step="0.01" placeholder="0"></div>
             </div>
             <div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('goal-form',false)">Cancel</button><button class="life-btn-primary" onclick="addGoal()">Save goal</button></div>
@@ -2268,11 +2271,11 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
         </div>
       </section>
       <aside class="planner-goal-snapshot">
-        <div class="planner-goal-snapshot-kicker">Goal totals</div>
-        <h3>Your money goals</h3>
-        <p>The combined target and current progress from the money goals you have added.</p>
-        <div class="planner-goal-mini"><span>Money goal targets</span><strong id="goals-target">£0</strong></div>
-        <div class="planner-goal-mini"><span>Saved so far</span><strong id="goals-current">£0</strong></div>
+        <div class="planner-goal-snapshot-kicker">Big picture</div>
+        <h3>All your goals</h3>
+        <p>Driving, learning, money or something entirely your own — they all belong here.</p>
+        <div class="planner-goal-mini"><span>Active goals</span><strong id="goals-target">0</strong></div>
+        <div class="planner-goal-mini"><span>Average progress</span><strong id="goals-current">0%</strong></div>
       </aside>
     </div>
   </section>
@@ -2442,9 +2445,9 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
           <div class="diary-composer-actions"><span class="diary-save-note">Saved entries sync securely to your Dayframe account.</span><button class="diary-save-btn" onclick="diarySaveEntry()">Save entry</button></div>
           <section class="diary-ai-offer" id="diary-ai-offer">
             <div class="diary-ai-offer-top"><div><span>Optional</span><strong>AI reflection</strong></div><button type="button" onclick="diaryDismissReflection()" aria-label="Dismiss AI reflection">×</button></div>
-            <p>Ask Dayframe AI for one gentle reflection on what you wrote. It only runs when you choose it.</p>
+            <p>Ask Dayframe AI for a thoughtful reflection and some gentle, practical advice. It only runs when you choose it.</p>
             <button class="diary-ai-primary" type="button" onclick="diaryGenerateReflection()">Help me think it through</button>
-            <details class="diary-ai-personalize"><summary>＋ Personalize this <span>(optional)</span></summary><textarea id="diary-ai-context" placeholder="Anything about you or your situation that would help this land better?"></textarea><label><input type="checkbox" id="diary-ai-remember"> Remember this for next time</label></details>
+            <details class="diary-ai-personalize"><summary>＋ Personalize this <span>(optional)</span></summary><textarea id="diary-ai-context" placeholder="Anything about you or your situation you’d like Dayframe to consider?"></textarea><label><input type="checkbox" id="diary-ai-remember"> Remember this for next time</label></details>
             <div class="diary-ai-privacy">Your saved entry and optional context are sent to Dayframe AI only when you press the button.</div>
             <div class="diary-ai-result" id="diary-ai-result"></div>
           </section>
@@ -2506,10 +2509,6 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
         <button class="bible-translation-new" type="button" data-bible-translation="NLT" onclick="bibleSelectTranslation('NLT')"><strong>NLT</strong><span>Easy modern English</span></button>
       </div>
       <div class="bible-reader bible-reader-new" id="bible-reader"><div class="bible-reader-loading"><div><i></i>Opening your reading…</div></div></div>
-      <div class="bible-explain-wrap">
-        <button class="bible-explain-btn" id="bible-explain-btn" type="button" onclick="bibleExplainPassage(false)">✦ Explain this passage</button>
-        <div class="bible-explain-panel" id="bible-explain-panel"></div>
-      </div>
       <div class="bible-selection-menu" id="bible-selection-menu" role="toolbar" aria-label="Selected Bible text actions">
         <button type="button" onclick="bibleSaveSelectionHighlight()">Highlight</button>
         <button type="button" onclick="bibleStartNoteFromSelection()">Add note</button>
@@ -2517,9 +2516,18 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       </div>
     </section>
 
-    <aside class="life-card bible-note-composer bible-note-side" id="bible-note-side">
-      <div class="life-card-head"><div><div class="life-card-title">Study note</div><div class="life-card-sub">Select text in the reader, then choose “Add note”.</div></div><button class="diary-new-btn" type="button" onclick="bibleClearNote()">New</button></div>
-      <div class="life-card-body">
+    <aside class="bible-study-side">
+      <section class="life-card bible-explain-side">
+        <div class="bible-explain-side-head"><span>Passage guide</span><strong>Understand what you’re reading</strong><p>A plain-English study aid for the open passage or the words you select.</p></div>
+        <div class="bible-explain-wrap">
+          <button class="bible-explain-btn" id="bible-explain-btn" type="button" onclick="bibleExplainPassage(false)">✦ Explain this passage</button>
+          <div class="bible-explain-panel" id="bible-explain-panel"></div>
+        </div>
+      </section>
+      <details class="life-card bible-note-composer bible-note-side" id="bible-note-side">
+        <summary><span><strong>Study note</strong><small>Select text and add your thoughts when you want to.</small></span><i>Open ▾</i></summary>
+        <div class="life-card-body">
+          <div class="bible-note-top-action"><button class="diary-new-btn" type="button" onclick="bibleClearNote()">New note</button></div>
         <input type="hidden" id="bible-note-id">
         <div class="bible-selection-preview" id="bible-selection-preview"><span>Selected passage</span><p>Your selected words will appear here.</p></div>
         <div class="bible-note-form">
@@ -2529,7 +2537,9 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
           <div class="life-field wide"><label>Your thoughts</label><textarea class="bible-note-textarea" id="bible-note-body" placeholder="What stood out to you?"></textarea></div>
         </div>
         <div class="bible-note-actions"><span>Private to your account.</span><button type="button" onclick="bibleSaveNote()">Save note</button></div>
-      </div>
+
+        </div>
+      </details>
     </aside>
   </div>
 
@@ -5205,7 +5215,7 @@ function renderHome(){
  const gp=document.getElementById('home-goal-progress');
  if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="openPlannerGoals(true)">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span><div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
  const jg=document.getElementById('home-journal-glance');
- if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong><p>'+hubEsc((todayEntry.body||todayEntry.promptAnswer||'').slice(0,125))+(String(todayEntry.body||todayEntry.promptAnswer||'').length>125?'…':'')+'</p></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}} homeApplyPreferences(d);
+ if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}} homeApplyPreferences(d);
 }
 
 
@@ -5639,12 +5649,13 @@ function moneyToggleAccountsOverview(){_moneyAccountsExpanded=!_moneyAccountsExp
 function moneyConnectionStatusHtml(bankAccounts){
  const connections=_moneyBankData.connections||[],attention=connections.filter(x=>x.status&&x.status!=='active');
  const connected=connections.filter(x=>x.status==='active'),hasLive=bankAccounts.length>0||connected.length>0;
- const state=_moneyBankData.error?'Refresh failed':attention.length?'Attention needed':hasLive?'Connected':'Not connected';
- const stateClass=(_moneyBankData.error||attention.length)?'attention':hasLive?'live':'';
+ const issueStatus=String(attention[0]?.status||'').toLowerCase(),needsReconnect=Boolean(_moneyBankData.error||attention.length);
+ const state=_moneyBankData.error?'Could not refresh':issueStatus.includes('expired')?'Connection expired':issueStatus.includes('pending')?'Connection not finished':attention.length?'Reconnect bank':hasLive?'Connected':'Not connected';
+ const stateClass=needsReconnect?'attention':hasLive?'live':'';
  const cardCount=bankAccounts.filter(x=>x.type==='credit-card').length,bankCount=bankAccounts.length-cardCount;
  const coverage=hasLive?bankCount+' bank'+(bankCount===1?'':'s')+(cardCount?' · '+cardCount+' card'+(cardCount===1?'':'s'):''):'No live accounts';
- const detail=_moneyBankData.error||attention.length?'Your saved connection is still here. Reconnect if refreshing continues to fail.':hasLive?'Balances and transactions update securely through Open Banking.':'Manual accounts remain available without a bank connection.';
- return '<div class="money-connection-board"><div class="money-connection-cell"><span>Status</span><strong class="'+stateClass+'">'+hubEsc(state)+'</strong></div><div class="money-connection-cell"><span>Last synced</span><strong>'+hubEsc(dfSyncLabel(_moneyBankData.refreshedAt))+'</strong></div><div class="money-connection-cell"><span>Included</span><strong>'+hubEsc(coverage)+'</strong></div><div class="money-connection-actions">'+(hasLive?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':'')+'<button class="money-sync-btn" onclick="moneyOpenConnectModal()">'+((attention.length||_moneyBankData.error)?'Reconnect':'Add account')+'</button></div></div><div class="money-sync-note">'+hubEsc(detail)+'</div>'
+ const detail=_moneyBankData.error?'We could not refresh your bank data. Your saved accounts are still here; reconnect if Refresh keeps failing.':issueStatus.includes('pending')?'The bank sign-in was not completed, so this account has not been added yet. Continue the connection to finish it.':attention.length?'Your bank has asked Dayframe to reconnect before it can update balances and transactions.':hasLive?'Balances and transactions update securely through Open Banking.':'Manual accounts remain available without a bank connection.';
+ return '<div class="money-connection-board"><div class="money-connection-cell"><span>Status</span><strong class="'+stateClass+'">'+hubEsc(state)+'</strong></div><div class="money-connection-cell"><span>Last synced</span><strong>'+hubEsc(dfSyncLabel(_moneyBankData.refreshedAt))+'</strong></div><div class="money-connection-cell"><span>Included</span><strong>'+hubEsc(coverage)+'</strong></div><div class="money-connection-actions">'+(hasLive?'<button class="money-sync-btn" onclick="moneyRefreshBankData()">↻ Refresh</button>':'')+'<button class="money-sync-btn" onclick="moneyOpenConnectModal()">'+(needsReconnect?'Reconnect':'Add account')+'</button></div></div><div class="money-sync-note">'+hubEsc(detail)+'</div>'
 }
 function renderMoney(){
  const d=hubLoad(); d.accounts=d.accounts||[]; d.budgets=d.budgets||[]; d.budgetPlan=d.budgetPlan||{income:0,rent:0,regularBills:0,savings:0,buffer:0,aiNote:'',autoNote:''};d.budgetPlan.regularBillSelections=Array.isArray(d.budgetPlan.regularBillSelections)?d.budgetPlan.regularBillSelections:[];d.budgetPlan.regularBillsSource=d.budgetPlan.regularBillsSource||'';d.budgetPlan.previousRegularBillsSuggestion=Number(d.budgetPlan.previousRegularBillsSuggestion)||0; d.customCategories=d.customCategories||[]; d.transactionCategoryOverrides=d.transactionCategoryOverrides||{}; d.transactionCategoryRules=d.transactionCategoryRules||{}; d.creditPaymentMatches=d.creditPaymentMatches||{}; d.creditStrategy=d.creditStrategy||'avalanche'; d.creditPlans=d.creditPlans||[]; d.bills=d.bills||[]; moneyRenderCategoryOptions(d);moneyRenderAccountOptions(d);moneyApplyBudgetAutoSuggestions(d);
@@ -5715,7 +5726,9 @@ function renderMoney(){
  if(!_moneyBankLoaded&&!_moneyBankLoading)setTimeout(()=>moneyLoadBankData(),0);
 }
 
-function addTask(){const title=document.getElementById('task-title').value.trim(),date=document.getElementById('task-date').value,area=document.getElementById('task-area').value,priority=document.getElementById('task-priority').value;if(!title)return hubToast('Add a task name');const d=hubLoad();d.tasks.unshift({id:Date.now(),title,date,area,priority,done:false});hubSave(d);document.getElementById('task-title').value='';document.getElementById('task-date').value='';toggleLifeForm('task-form',false);renderPlanner();renderHome();hubToast('Task added')}
+function taskAreaChanged(){const custom=document.getElementById('task-area')?.value==='custom',wrap=document.getElementById('task-custom-area-wrap');if(wrap)wrap.classList.toggle('show',custom);if(custom)setTimeout(()=>document.getElementById('task-custom-area')?.focus(),0)}
+function goalCategoryChanged(){const custom=document.getElementById('goal-category')?.value==='custom',wrap=document.getElementById('goal-custom-category-wrap');if(wrap)wrap.classList.toggle('show',custom);if(custom)setTimeout(()=>document.getElementById('goal-custom-category')?.focus(),0)}
+function addTask(){const title=document.getElementById('task-title').value.trim(),date=document.getElementById('task-date').value,areaChoice=document.getElementById('task-area').value,customArea=document.getElementById('task-custom-area')?.value.trim()||'',area=areaChoice==='custom'?customArea:areaChoice,priority=document.getElementById('task-priority').value;if(!title)return hubToast('Add a task name');if(!area)return hubToast('Name your task area');const d=hubLoad();d.tasks.unshift({id:Date.now(),title,date,area,priority,done:false});hubSave(d);document.getElementById('task-title').value='';document.getElementById('task-date').value='';document.getElementById('task-area').value='Personal';if(document.getElementById('task-custom-area'))document.getElementById('task-custom-area').value='';taskAreaChanged();toggleLifeForm('task-form',false);renderPlanner();renderHome();hubToast('Task added')}
 function toggleTask(id){const d=hubLoad(),t=d.tasks.find(x=>x.id===id);if(t)t.done=!t.done;hubSave(d);renderPlanner();renderHome()}
 function deleteTask(id){const d=hubLoad();d.tasks=d.tasks.filter(x=>x.id!==id);hubSave(d);renderPlanner();renderHome()}
 function openPlannerGoals(openForm=false){go('planner');setTimeout(()=>{document.getElementById('planner-goals')?.scrollIntoView({behavior:'smooth',block:'start'});if(openForm)toggleLifeForm('goal-form',true)},140)}
@@ -5762,10 +5775,10 @@ function saveVehicle(){const d=hubLoad();d.vehicle=d.vehicle||{};d.vehicle.name=
 function saveDrivingNotes(v){const d=hubLoad();d.vehicle=d.vehicle||{};d.vehicle.notes=v;d.vehicle.dates=d.vehicle.dates||{};hubSave(d)}
 function editRenewal(type){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};const current=d.vehicle?.dates?.[type]||'';const v=prompt(labels[type]+' date (YYYY-MM-DD)',current);if(v===null)return;if(v && !/^\d{4}-\d{2}-\d{2}$/.test(v))return hubToast('Use YYYY-MM-DD');d.vehicle=d.vehicle||{};d.vehicle.dates=d.vehicle.dates||{};d.vehicle.dates[type]=v;hubSave(d);renderDriving();renderHome()}
 function renderDriving(){const d=hubLoad(),v=d.vehicle||hubDefault().vehicle,dates=v.dates||{},set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};set('vehicle-name',v.name||'Not set');set('vehicle-reg',v.reg||'Add your car details');document.getElementById('vehicle-name-input').value=v.name||'';document.getElementById('vehicle-reg-input').value=v.reg||'';document.getElementById('driving-notes').value=v.notes||'';const entries=Object.entries(dates).filter(([,x])=>x).sort((a,b)=>a[1].localeCompare(b[1])),future=entries.filter(([,x])=>x>=hubDateISO());set('driving-count',entries.length);if(future.length){const day=hubDaysUntil(future[0][1]);set('driving-next',day===0?'Today':day===1?'Tomorrow':day+' days');set('driving-next-label',({mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'})[future[0][0]]+' · '+hubPrettyDate(future[0][1]));set('driving-status',day<=30?'Soon':'Clear')}else{set('driving-next','—');set('driving-next-label','No upcoming dates');set('driving-status','Clear')}const labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'},icons={mot:'M',tax:'£',insurance:'◇',service:'⌁'},grid=document.getElementById('renewal-grid');if(grid)grid.innerHTML=Object.keys(labels).map(k=>{const du=hubDaysUntil(dates[k]);return `<div class="renewal-card"><div class="renewal-top"><div class="renewal-name">${labels[k]}</div><button class="renewal-edit" onclick="editRenewal('${k}')">✎</button></div><div class="renewal-date">${dates[k]?hubPrettyDate(dates[k]):'Add date'}</div><div class="renewal-note">${dates[k]?(du<0?'Passed '+Math.abs(du)+' days ago':du===0?'Due today':du+' days away'):'Tap edit to save'}</div></div>`}).join('')}
-function addGoal(){const name=document.getElementById('goal-name').value.trim(),type=document.getElementById('goal-type').value,target=Number(document.getElementById('goal-target').value),current=Number(document.getElementById('goal-current').value)||0;if(!name||target<=0)return hubToast('Add a goal and target');const d=hubLoad();d.goals.unshift({id:Date.now(),name,type,target,current});hubSave(d);document.getElementById('goal-name').value='';document.getElementById('goal-target').value='';document.getElementById('goal-current').value='';toggleLifeForm('goal-form',false);renderGoals();renderHome();hubToast('Goal added')}
+function addGoal(){const name=document.getElementById('goal-name').value.trim(),type=document.getElementById('goal-type').value,categoryChoice=document.getElementById('goal-category')?.value||'Personal',customCategory=document.getElementById('goal-custom-category')?.value.trim()||'',category=categoryChoice==='custom'?customCategory:categoryChoice,target=Number(document.getElementById('goal-target').value),current=Number(document.getElementById('goal-current').value)||0;if(!name||target<=0)return hubToast('Add a goal and target');if(!category)return hubToast('Name your goal category');const d=hubLoad();d.goals.unshift({id:Date.now(),name,type,category,target,current});hubSave(d);document.getElementById('goal-name').value='';document.getElementById('goal-target').value='';document.getElementById('goal-current').value='';document.getElementById('goal-category').value='Personal';if(document.getElementById('goal-custom-category'))document.getElementById('goal-custom-category').value='';goalCategoryChanged();toggleLifeForm('goal-form',false);renderGoals();renderHome();hubToast('Goal added')}
 function updateGoal(id){const d=hubLoad(),g=d.goals.find(x=>x.id===id);if(!g)return;const v=prompt('Current progress',g.current);if(v===null)return;const n=Number(v);if(!Number.isFinite(n)||n<0)return hubToast('Enter a valid number');g.current=n;hubSave(d);renderGoals();renderHome()}
 function deleteGoal(id){const d=hubLoad();d.goals=d.goals.filter(x=>x.id!==id);hubSave(d);renderGoals();renderHome()}
-function renderGoals(){const d=hubLoad(),moneyGoals=d.goals.filter(x=>x.type==='money'),target=moneyGoals.reduce((a,x)=>a+Number(x.target),0),current=moneyGoals.reduce((a,x)=>a+Number(x.current),0),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('goals-count',d.goals.length);set('goals-target',hubMoney(target,0));set('goals-current',hubMoney(current,0));set('goals-progress',target?Math.round(current/target*100)+'%':'0%');const list=document.getElementById('goals-list');if(list)list.innerHTML=d.goals.length?d.goals.map(g=>{const pct=Math.max(0,Math.min(100,g.target?g.current/g.target*100:0));return `<div class="goal-card"><div class="goal-head"><div class="goal-name">${hubEsc(g.name)}</div><div style="display:flex;align-items:center;gap:3px"><button class="renewal-edit" onclick="updateGoal(${g.id})">✎</button><button class="life-row-delete" onclick="deleteGoal(${g.id})">×</button></div></div><div class="goal-amount">${g.type==='money'?hubMoney(g.current,0)+' of '+hubMoney(g.target,0):hubEsc(g.current)+' of '+hubEsc(g.target)}</div><div class="life-progress"><i style="width:${pct}%"></i></div><div class="goal-pct">${Math.round(pct)}%</div></div>`}).join(''):'<div class="life-empty"><div class="life-empty-icon">◎</div><strong>No goals yet</strong>Add something you want to work towards.</div>'}
+function renderGoals(){const d=hubLoad(),progress=d.goals.map(x=>Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0))),average=progress.length?Math.round(progress.reduce((a,x)=>a+x,0)/progress.length):0,set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('goals-count',d.goals.length);set('goals-target',d.goals.length);set('goals-current',average+'%');set('goals-progress',average+'%');const list=document.getElementById('goals-list');if(list)list.innerHTML=d.goals.length?d.goals.map(g=>{const pct=Math.max(0,Math.min(100,g.target?g.current/g.target*100:0)),category=g.category||(g.type==='money'?'Money':'Personal');return `<div class="goal-card"><div class="goal-head"><div><div class="goal-category">${hubEsc(category)}</div><div class="goal-name">${hubEsc(g.name)}</div></div><div style="display:flex;align-items:center;gap:3px"><button class="renewal-edit" onclick="updateGoal(${g.id})">✎</button><button class="life-row-delete" onclick="deleteGoal(${g.id})">×</button></div></div><div class="goal-amount">${g.type==='money'?hubMoney(g.current,0)+' of '+hubMoney(g.target,0):hubEsc(g.current)+' of '+hubEsc(g.target)}</div><div class="life-progress"><i style="width:${pct}%"></i></div><div class="goal-pct">${Math.round(pct)}%</div></div>`}).join(''):'<div class="life-empty"><div class="life-empty-icon">◎</div><strong>No goals yet</strong>Add something you want to work towards.</div>'}
 const DIARY_PROMPTS=[
  'What felt lighter today?',
  'What is taking up the most space in my mind?',
@@ -5862,7 +5875,7 @@ async function diaryGenerateReflection(){
  const id=_diaryReflectionEntryId,d=hubLoad(),entry=(d.diary||[]).find(x=>Number(x.id)===Number(id));if(!entry)return hubToast('Save your entry first');
  const button=document.querySelector('.diary-ai-primary'),result=document.getElementById('diary-ai-result'),context=document.getElementById('diary-ai-context')?.value.trim()||'',remember=document.getElementById('diary-ai-remember')?.checked;
  if(button){button.disabled=true;button.textContent='Thinking gently…'}if(result){result.classList.add('show');result.innerHTML='<span>Reflection</span>Taking a moment with what you wrote…'}
- const prompt='You are Dayframe, a calm journaling reflection aid. Respond to this private diary entry with one empathetic observation and one gentle open question. Do not diagnose, moralise, claim to be a therapist, or give medical advice. Keep it under 95 words.\n\nPrompt: '+(entry.prompt||'')+'\nAnswer: '+(entry.promptAnswer||'')+'\nEntry: '+(entry.body||'')+(context?'\nOptional context supplied by the writer: '+context:'');
+ const prompt='You are Dayframe, a calm journaling reflection aid. Respond with a warm reflection followed by gentle, practical advice the writer can use. Write 4 to 6 complete sentences across 2 short paragraphs, around 100 to 150 words. Do not end with a question and do not ask any questions. Do not diagnose, moralise, claim to be a therapist, or give medical advice.\n\nPrompt: '+(entry.prompt||'')+'\nAnswer: '+(entry.promptAnswer||'')+'\nEntry: '+(entry.body||'')+(context?'\nOptional context supplied by the writer: '+context:'');
  try{
   const reflection=await callClaude(prompt);if(!reflection)throw new Error('No reflection was returned.');
   entry.aiReflection=String(reflection).trim();if(remember)d.diaryAiContext=context;hubSave(d);
@@ -6068,7 +6081,7 @@ function bibleSaveSelectionHighlight(){
  b.highlights.push({...selected,id:Date.now(),createdAt:new Date().toISOString()});d.bible=b;hubSave(d);bibleApplyHighlights(b);window.getSelection?.().removeAllRanges();bibleHideSelectionMenu();_bibleSelection=null;hubToast('Highlight saved')
 }
 function bibleStartNoteFromSelection(){
- const selected=_bibleSelection;if(!selected)return;const passage=selected.passage||bibleRef(selected.book,selected.chapter),p=document.getElementById('bible-note-passage'),body=document.getElementById('bible-note-body'),preview=document.getElementById('bible-selection-preview');
+ const selected=_bibleSelection;const noteSide=document.getElementById('bible-note-side');if(noteSide)noteSide.open=true;if(!selected)return;const passage=selected.passage||bibleRef(selected.book,selected.chapter),p=document.getElementById('bible-note-passage'),body=document.getElementById('bible-note-body'),preview=document.getElementById('bible-selection-preview');
  if(p)p.value=passage;if(body)body.value='“'+selected.text+'”\n\n'+(body.value||'');
  if(preview){preview.classList.add('show');preview.innerHTML='<span>'+hubEsc(passage)+'</span><p>'+hubEsc(selected.text)+'</p>'}
  window.getSelection?.().removeAllRanges();bibleHideSelectionMenu();_bibleSelection=null;document.getElementById('bible-note-side')?.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>body?.focus(),300)
@@ -6091,7 +6104,7 @@ function bibleTrackFums(token){
  window.fums('trackView',token)
 }
 function bibleStartNoteForPassage(){
- const b=bibleState(),p=document.getElementById('bible-note-passage');if(p)p.value=bibleRef(b.book,b.chapter);document.querySelector('.bible-note-composer')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('bible-note-body')?.focus(),250)
+ const b=bibleState(),p=document.getElementById('bible-note-passage');const noteSide=document.getElementById('bible-note-side');if(noteSide)noteSide.open=true;if(p)p.value=bibleRef(b.book,b.chapter);document.querySelector('.bible-note-composer')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('bible-note-body')?.focus(),250)
 }
 function bibleClearNote(){
  ['bible-note-id','bible-note-title','bible-note-body'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});const b=bibleState(),p=document.getElementById('bible-note-passage'),t=document.getElementById('bible-note-type'),preview=document.getElementById('bible-selection-preview');if(p)p.value=bibleRef(b.book,b.chapter);if(t)t.value='reflection';if(preview){preview.classList.remove('show');preview.innerHTML='<span>Selected passage</span><p>Your selected words will appear here.</p>'}
@@ -6101,7 +6114,7 @@ function bibleSaveNote(){
  const d=hubLoad(),b=bibleState(d),existing=id?b.notes.find(x=>String(x.id)===String(id)):null;if(existing){existing.title=title;existing.body=body;existing.passage=passage;existing.type=type;existing.updatedAt=new Date().toISOString()}else b.notes.push({id:Date.now(),title,body,passage,type,createdAt:new Date().toISOString()});d.bible=b;hubSave(d);bibleClearNote();bibleRenderNotes(b);hubToast(existing?'Note updated':'Note saved privately')
 }
 function bibleEditNote(id){
- const b=bibleState(),n=b.notes.find(x=>String(x.id)===String(id));if(!n)return;document.getElementById('bible-note-id').value=n.id;document.getElementById('bible-note-title').value=n.title||'';document.getElementById('bible-note-body').value=n.body||'';document.getElementById('bible-note-passage').value=n.passage||'';document.getElementById('bible-note-type').value=n.type||'reflection';document.getElementById('bible-selection-preview')?.classList.remove('show');document.getElementById('bible-note-side')?.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>document.getElementById('bible-note-body')?.focus(),250)
+ const b=bibleState(),n=b.notes.find(x=>String(x.id)===String(id));const noteSide=document.getElementById('bible-note-side');if(noteSide)noteSide.open=true;if(!n)return;document.getElementById('bible-note-id').value=n.id;document.getElementById('bible-note-title').value=n.title||'';document.getElementById('bible-note-body').value=n.body||'';document.getElementById('bible-note-passage').value=n.passage||'';document.getElementById('bible-note-type').value=n.type||'reflection';document.getElementById('bible-selection-preview')?.classList.remove('show');document.getElementById('bible-note-side')?.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>document.getElementById('bible-note-body')?.focus(),250)
 }
 function bibleDeleteNote(id){
  if(!confirm('Delete this Bible study note?'))return;const d=hubLoad(),b=bibleState(d);b.notes=b.notes.filter(x=>String(x.id)!==String(id));d.bible=b;hubSave(d);bibleRenderNotes(b);hubToast('Note deleted')
@@ -7117,13 +7130,17 @@ function researchBriefSections(text){
 async function loadResearchBrief(tk,h){
   const host=document.getElementById('research-brief-body');if(!host)return;
   if(!aiKey){host.innerHTML='<div class="invest-brief-error">Dayframe AI is temporarily unavailable. Try again shortly.</div>';return}
-  const held=h&&h.val>0;
+  const held=h&&h.val>0,company=String(h?.name||'').trim(),identity=[company&&company!==tk?'company name '+company:'',h?.isin?'ISIN '+h.isin:'',h?.currency?'trading currency '+h.currency:''].filter(Boolean).join(', ');
   const context=held?'The user holds it: value £'+h.val.toFixed(2)+', portfolio weight '+h.pct.toFixed(1)+'%, return '+(h.gainPct>=0?'+':'')+h.gainPct.toFixed(1)+'%.':'The user does not currently hold it in their connected portfolio.';
-  const prompt='Create a calm, beginner-friendly educational company research brief for '+tk+' ('+(h?.name||tk)+'). '+context+' Do not tell the user to buy or sell. Do not invent live prices, breaking news, financial figures or analyst targets. If a fact may have changed, say what source the user should verify. Use plain English and exactly these headings, each under 65 words:\nBUSINESS: what the company sells and how it makes money\nSTRENGTHS: two concrete strengths\nRISKS: two company-specific risks\nCATALYSTS: what future events could improve or weaken the case\nNUMBERS: the three figures to check in the latest company report\nQUESTIONS: three questions to answer before investing more';
-  host.innerHTML='<div class="invest-brief-loading"><span class="spin"></span><div><strong>Building '+hubEsc(tk)+' research brief</strong><small>One AI request — repeat visits use the saved result.</small></div></div>';
+  const prompt='Write the final answer immediately, without showing reasoning. Create a calm beginner-friendly educational company research brief for ticker '+tk+(identity?' ('+identity+')':'')+'. '+context+' The ticker may be used by more than one exchange, so use the supplied company name and ISIN as the identity; if identity is still ambiguous, say so clearly instead of guessing. Do not tell the user to buy or sell. Do not invent prices, news, figures or targets. Use plain English and exactly these headings, each under 45 words:\nBUSINESS:\nSTRENGTHS:\nRISKS:\nCATALYSTS:\nNUMBERS:\nQUESTIONS:';
+  host.innerHTML='<div class="invest-brief-loading"><span class="spin"></span><div><strong>Building '+hubEsc(tk)+' research brief</strong><small>Using the company identity from your holding, not the ticker alone.</small></div></div>';
   try{
-    const result=await callClaude(prompt);
-    if(!result)throw new Error('No research brief was returned.');
+    let result=await callClaude(prompt);
+    if(!result){
+      const fallbackPrompt='Answer immediately in under 220 words. Research '+tk+(identity?' ('+identity+')':'')+' for a beginner. If the identity is ambiguous, explain that. Return these labels with useful text: BUSINESS, STRENGTHS, RISKS, CATALYSTS, NUMBERS, QUESTIONS. Educational only; no buy or sell advice and no invented live facts.';
+      result=await callClaude(fallbackPrompt);
+    }
+    if(!result)throw new Error('Dayframe AI returned an empty response. Please retry once; your holding and connection are still fine.');
     const sections=researchBriefSections(result);
     const defs=[
       {key:'BUSINESS',num:'01',title:'What the business does',tone:'blue'},
@@ -7134,11 +7151,9 @@ async function loadResearchBrief(tk,h){
       {key:'QUESTIONS',num:'06',title:'Questions before acting',tone:'slate'}
     ];
     const valid=defs.filter(d=>sections[d.key]);
-    if(!valid.length){host.innerHTML='<div class="invest-brief-item blue"><div><b>01</b><span>Research summary</span></div><p>'+hubEsc(result).replace(/\\n/g,'<br>')+'</p></div>';return}
-    host.innerHTML='<div class="invest-brief-grid">'+valid.map(d=>'<article class="invest-brief-item '+d.tone+'"><div><b>'+d.num+'</b><span>'+d.title+'</span></div><p>'+hubEsc(sections[d.key]).replace(/\n/g,'<br>')+'</p></article>').join('')+'</div><div class="invest-brief-foot"><span>AI explanation · facts that may have changed still need checking · saved for six hours</span></div>';
-  }catch(e){host.innerHTML='<div class="invest-brief-error">'+hubEsc(e.message||'Could not create the brief.')+'</div>'}
+    host.innerHTML=valid.length?'<div class="invest-brief-grid">'+valid.map(d=>'<article class="invest-brief-item '+d.tone+'"><div><b>'+d.num+'</b><span>'+d.title+'</span></div><p>'+hubEsc(sections[d.key]).replace(/\n/g,'<br>')+'</p></article>').join('')+'</div><div class="invest-brief-foot"><span>AI study aid · company identity taken from your holding · verify changing facts</span></div>':'<div class="invest-brief-item blue"><div><b>01</b><span>Research summary</span></div><p>'+hubEsc(result).replace(/\n/g,'<br>')+'</p></div>';
+  }catch(e){host.innerHTML='<div class="invest-brief-error">'+hubEsc(e.message||'Could not create the brief.')+' <button type="button" class="invest-brief-retry" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'))">Retry</button></div>'}
 }
-
 async function loadStraightTalk(tk, h){
   const body = document.getElementById('straight-talk-body');
   if(!body) return;
@@ -8532,7 +8547,7 @@ async function _performAIRequest(prompt){
     throw new Error('Dayframe AI is taking a short break. Try again in '+_aiWaitLabel(retryMs)+'.');
   }
   if(!r.ok||d.error)throw new Error(d?.error?.message||d?.error||'Dayframe AI could not load this.');
-  return d?.choices?.[0]?.message?.content||null;
+  const content=d?.choices?.[0]?.message?.content??d?.output_text??d?.response??null;if(Array.isArray(content))return content.map(part=>part?.text||part?.content||'').join('').trim()||null;return typeof content==='string'?content.trim()||null:null;
 }
 async function callClaude(prompt){
   if(!aiKey)return null;
