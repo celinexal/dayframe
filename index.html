@@ -6697,7 +6697,7 @@ function go(name,btn){
   document.querySelectorAll('.driving-side-nav button').forEach(b=>b.classList.toggle('on',b.dataset.drivingPage===name));
   renderLifePage(name);
   if(name==='driving-theory')setTimeout(syncTheoryFrameSession,120);
-  if(window.innerWidth<=768) closeSB();
+  if(window.innerWidth<=768 && typeof closeSB==='function') closeSB();
   if(name==='charts'){rCF();if(activeTk)openChart(activeTk);}
   if(name==='intel'&&!intelScanned&&aiKey){intelScanned=true;setTimeout(()=>runIntelScan(),400);}
   if(name==='health') rHealth();
