@@ -7344,7 +7344,7 @@ async function openChart(tk){
 
   _html += '</div>'; // end view-deepdive
 
-  _html += '<div class="invest-analysis-disclaimer">Market data and news: Yahoo Finance · US filings and reported facts: SEC EDGAR · Interpretation: Dayframe AI · Decision support, not financial advice</div>';
+  _html += '<div class="invest-analysis-disclaimer">Market data and news: Yahoo Finance · US filings and reported figures: SEC EDGAR or Nasdaq fallback · Interpretation: Dayframe AI · Decision support, not financial advice</div>';
 
   document.getElementById("ccontent").innerHTML = _html;
 
@@ -7545,7 +7545,7 @@ function researchFallbackBrief(tk,data,h){
 }
 function researchEvidencePack(data,h){
   const market=data?.market||null;
-  const sourceRows=(data?.sources||[]).filter(item=>researchSafeUrl(item.url)).slice(0,24);
+  const sourceRows=(data?.sources||[]).filter(item=>researchSafeUrl(item.url)).slice(0,18);
   const sourceId=url=>{
     const safe=researchSafeUrl(url),index=sourceRows.findIndex(item=>researchSafeUrl(item.url)===safe);
     return index>=0?'S'+(index+1):'';
@@ -7558,9 +7558,9 @@ function researchEvidencePack(data,h){
     average_price:Number(h.averagePrice||0),
     quantity:Number(h.quantity||0)
   }:{held:false};
-  const filings=(data?.filings||[]).slice(0,8).map(item=>({source:sourceId(item.url),id:item.id,form:item.form,filed:item.published_at,report_date:item.report_date,title:item.title,url:item.url,evidence:String(item.evidence||'').slice(0,6000)}));
-  const financials=(data?.financials||[]).slice(0,12).map(item=>({source:sourceId(item.source_url),label:item.label,value:item.value,reported_value:item.reported_value,unit:item.unit,period_start:item.period_start,period_end:item.period_end,filed:item.filed,form:item.form,tag:item.tag,source_url:item.source_url}));
-  const news=(data?.news||[]).slice(0,10).map(item=>({source:sourceId(item.url),id:item.id,title:item.title,publisher:item.publisher,published_at:item.published_at,url:item.url}));
+  const filings=(data?.filings||[]).slice(0,5).map(item=>({source:sourceId(item.url),id:item.id,form:item.form,filed:item.published_at,report_date:item.report_date,title:item.title,url:item.url,evidence:String(item.evidence||'').slice(0,2200)}));
+  const financials=(data?.financials||[]).slice(0,10).map(item=>({source:sourceId(item.source_url),label:item.label,value:item.value,reported_value:item.reported_value,unit:item.unit,period_start:item.period_start,period_end:item.period_end,filed:item.filed,form:item.form,tag:item.tag,source_url:item.source_url}));
+  const news=(data?.news||[]).slice(0,8).map(item=>({source:sourceId(item.url),id:item.id,title:item.title,publisher:item.publisher,published_at:item.published_at,url:item.url}));
   const sources=sourceRows.map((item,index)=>({id:'S'+(index+1),type:item.type,title:item.title,publisher:item.publisher,published_at:item.published_at,url:item.url}));
   return JSON.stringify({
     captured_at:data?.captured_at,
@@ -7573,7 +7573,7 @@ function researchEvidencePack(data,h){
     filings,
     news,
     sources
-  }).slice(0,56000);
+  }).slice(0,21000);
 }
 function researchStanceClass(value){
   const text=String(value||'').toLowerCase();
@@ -7627,7 +7627,7 @@ async function loadResearchBrief(tk,h,force=false){
     'EVIDENCE PACK:\n'+evidence;
   if(force)prompt+='\n\nREFRESH_REQUESTED_AT:'+new Date().toISOString();
   try{
-    const result=await callClaude(prompt,1600);
+    const result=await callClaude(prompt,1400);
     if(!result)throw new Error('Dayframe AI returned an empty response.');
     const generated=researchBriefSections(result);
     const generatedCount=Object.values(generated).filter(Boolean).length;
