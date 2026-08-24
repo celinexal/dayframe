@@ -117,6 +117,281 @@ async function getMarketChart(url){
   data.dayframe={requested_symbol:symbol,resolved_symbol:resolvedSymbol,used_search:resolvedSymbol!==symbol};
   return json(data,200,{'cache-control':'public, max-age=60, s-maxage=300'});
 }
+
+const STOCK_RESEARCH_FORMS=new Set(['10-K','10-Q','8-K','20-F','40-F','6-K','S-1','S-3','424B2','424B3','424B5','DEF 14A']);
+const STOCK_RESEARCH_SEC_HEADERS={accept:'application/json,text/html;q=0.9,*/*;q=0.5','user-agent':'Dayframe/1.0 (+https://github.com/celinexal/dayframe)'};
+async function readResearchBody(response,maxBytes){
+  const declared=Number(response.headers.get('content-length')||0);
+  if(declared&&declared>maxBytes)throw new Error('Research source exceeded its size limit.');
+  if(!response.body){
+    const text=await response.text();
+    if(new TextEncoder().encode(text).byteLength>maxBytes)throw new Error('Research source exceeded its size limit.');
+    return text;
+  }
+  const reader=response.body.getReader(),decoder=new TextDecoder();
+  let total=0,text='';
+  while(true){
+    const part=await reader.read();
+    if(part.done)break;
+    total+=part.value.byteLength;
+    if(total>maxBytes){await reader.cancel();throw new Error('Research source exceeded its size limit.')}
+    text+=decoder.decode(part.value,{stream:true});
+  }
+  return text+decoder.decode();
+}
+function researchHttpsUrl(value){
+  try{const url=new URL(String(value||''));return url.protocol==='https:'?url.toString():''}catch(e){return ''}
+}
+function researchPlainText(value){
+  return String(value||'')
+    .replace(/<script[\s\S]*?<\/script>/gi,' ')
+    .replace(/<style[\s\S]*?<\/style>/gi,' ')
+    .replace(/<[^>]+>/g,' ')
+    .replace(/&#(\d+);/g,(all,num)=>String.fromCharCode(Number(num)||32))
+    .replace(/&nbsp;|&#160;/gi,' ')
+    .replace(/&amp;/gi,'&')
+    .replace(/&quot;/gi,'"')
+    .replace(/&#39;|&apos;/gi,"'")
+    .replace(/&lt;/gi,'<')
+    .replace(/&gt;/gi,'>')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function researchEvidenceWindows(value){
+  const text=researchPlainText(value).slice(0,700000);
+  if(!text)return '';
+  const lower=text.toLowerCase(),terms=['at-the-market','dilution','equity offering','share offering','capital expenditure','liquidity','cash and cash equivalents','working capital','customer concentration','revenue','gross margin','guidance','material agreement','risk factors'];
+  const windows=[];
+  for(const term of terms){
+    let from=0;
+    while(windows.length<8){
+      const index=lower.indexOf(term,from);if(index<0)break;
+      const start=Math.max(0,index-350),end=Math.min(text.length,index+1150);
+      const excerpt=text.slice(start,end).trim();
+      if(excerpt&&!windows.some(existing=>existing.includes(excerpt.slice(0,120))))windows.push(excerpt);
+      from=index+term.length;
+    }
+    if(windows.length>=8)break;
+  }
+  return (windows.length?windows.join('\n…\n'):text.slice(0,4200)).slice(0,9000);
+}
+function researchPercentChange(values,periods){
+  if(values.length<2)return null;
+  const end=values[values.length-1],start=values[Math.max(0,values.length-1-periods)];
+  return Number.isFinite(start)&&start!==0?+(((end-start)/start)*100).toFixed(2):null;
+}
+function researchQuantile(values,q){
+  if(!values.length)return null;
+  const sorted=[...values].sort((a,b)=>a-b),position=(sorted.length-1)*q,base=Math.floor(position),rest=position-base;
+  return +(sorted[base]+((sorted[base+1]-sorted[base])*rest||0)).toFixed(4);
+}
+function researchRsi(values,period=14){
+  if(values.length<period+1)return null;
+  const slice=values.slice(-(period+1));let gain=0,loss=0;
+  for(let i=1;i<slice.length;i++){const change=slice[i]-slice[i-1];if(change>=0)gain+=change;else loss-=change}
+  if(loss===0)return 100;
+  const rs=(gain/period)/(loss/period);
+  return +(100-(100/(1+rs))).toFixed(1);
+}
+function researchMarketSnapshot(data,resolvedSymbol){
+  const result=data?.chart?.result?.[0],meta=result?.meta||{},quotes=result?.indicators?.quote?.[0]?.close||[],timestamps=result?.timestamp||[];
+  const points=[];
+  for(let i=0;i<quotes.length;i++){const value=Number(quotes[i]);if(Number.isFinite(value))points.push({value,date:timestamps[i]?new Date(timestamps[i]*1000).toISOString():''})}
+  const values=points.map(point=>point.value),recent=values.slice(-26),latest=values[values.length-1];
+  return {
+    symbol:resolvedSymbol,
+    currency:String(meta.currency||''),
+    exchange:String(meta.fullExchangeName||meta.exchangeName||''),
+    price:Number.isFinite(Number(latest))?+Number(latest).toFixed(4):null,
+    previous_close:Number.isFinite(Number(meta.chartPreviousClose))?+Number(meta.chartPreviousClose).toFixed(4):null,
+    market_cap:Number.isFinite(Number(meta.marketCap))?Number(meta.marketCap):null,
+    fifty_two_week_high:Number.isFinite(Number(meta.fiftyTwoWeekHigh))?Number(meta.fiftyTwoWeekHigh):null,
+    fifty_two_week_low:Number.isFinite(Number(meta.fiftyTwoWeekLow))?Number(meta.fiftyTwoWeekLow):null,
+    four_week_change_pct:researchPercentChange(values,4),
+    thirteen_week_change_pct:researchPercentChange(values,13),
+    twenty_six_week_change_pct:researchPercentChange(values,26),
+    one_year_change_pct:researchPercentChange(values,52),
+    recent_support:researchQuantile(recent,.2),
+    recent_resistance:researchQuantile(recent,.8),
+    rsi_14_week:researchRsi(values,14),
+    price_as_of:points[points.length-1]?.date||''
+  };
+}
+async function fetchYahooResearchNews(symbol){
+  const response=await fetch('https://query1.finance.yahoo.com/v1/finance/search?q='+encodeURIComponent(symbol)+'&quotesCount=1&newsCount=10',{
+    headers:{accept:'application/json','user-agent':'Mozilla/5.0 Dayframe/1.0'},
+    cf:{cacheEverything:true,cacheTtl:300}
+  });
+  if(!response.ok)return [];
+  const text=await readResearchBody(response,900000);
+  let data;try{data=JSON.parse(text)}catch(e){return []}
+  const rows=Array.isArray(data?.news)?data.news:[];
+  return rows.slice(0,10).map(item=>({
+    id:'N'+String(item.uuid||crypto.randomUUID()).slice(0,24),
+    type:'news',
+    title:String(item.title||'').slice(0,260),
+    publisher:String(item.publisher||'Yahoo Finance').slice(0,100),
+    published_at:Number(item.providerPublishTime)?new Date(Number(item.providerPublishTime)*1000).toISOString():'',
+    url:researchHttpsUrl(item.link),
+    related_tickers:Array.isArray(item.relatedTickers)?item.relatedTickers.slice(0,8):[]
+  })).filter(item=>item.title&&item.url);
+}
+async function fetchSecTickerRecord(symbol){
+  const ticker=String(symbol||'').toUpperCase().replace(/^\^/,'').split(/[.\-]/)[0];
+  if(!/^[A-Z0-9]{1,10}$/.test(ticker))return null;
+  const response=await fetch('https://www.sec.gov/files/company_tickers.json',{headers:STOCK_RESEARCH_SEC_HEADERS,cf:{cacheEverything:true,cacheTtl:86400}});
+  if(!response.ok)return null;
+  const text=await readResearchBody(response,1500000);
+  let data;try{data=JSON.parse(text)}catch(e){return null}
+  const row=Object.values(data||{}).find(item=>String(item?.ticker||'').toUpperCase()===ticker);
+  return row?{ticker,company_name:String(row.title||ticker),cik:Number(row.cik_str)||0}:null;
+}
+function secFilingUrl(cik,accession,primaryDocument){
+  const compact=String(accession||'').replace(/-/g,''),document=String(primaryDocument||'').replace(/^\/+/,'');
+  return cik&&compact&&document?'https://www.sec.gov/Archives/edgar/data/'+Number(cik)+'/'+compact+'/'+document:'';
+}
+async function fetchSecSubmissions(record){
+  if(!record?.cik)return {filings:[],company_name:record?.company_name||''};
+  const cik=String(record.cik).padStart(10,'0');
+  const response=await fetch('https://data.sec.gov/submissions/CIK'+cik+'.json',{headers:STOCK_RESEARCH_SEC_HEADERS,cf:{cacheEverything:true,cacheTtl:300}});
+  if(!response.ok)return {filings:[],company_name:record.company_name};
+  const text=await readResearchBody(response,3000000);
+  let data;try{data=JSON.parse(text)}catch(e){return {filings:[],company_name:record.company_name}}
+  const recent=data?.filings?.recent||{},forms=recent.form||[],filings=[];
+  for(let i=0;i<forms.length&&filings.length<12;i++){
+    const form=String(forms[i]||'').toUpperCase();if(!STOCK_RESEARCH_FORMS.has(form))continue;
+    const accession=String(recent.accessionNumber?.[i]||''),primary=String(recent.primaryDocument?.[i]||''),url=secFilingUrl(record.cik,accession,primary);
+    if(!url)continue;
+    filings.push({
+      id:'F'+accession.replace(/-/g,''),
+      type:'filing',
+      form,
+      title:form+' filing',
+      publisher:'SEC EDGAR',
+      published_at:String(recent.filingDate?.[i]||''),
+      report_date:String(recent.reportDate?.[i]||''),
+      accession,
+      url
+    });
+  }
+  return {filings,company_name:String(data?.name||record.company_name||record.ticker)};
+}
+async function fetchFilingEvidence(filings){
+  const priority=[
+    filings[0],
+    filings.find(item=>/^(10-K|10-Q|20-F|40-F)$/.test(String(item.form||''))),
+    filings.find(item=>/^(S-1|S-3|424B2|424B3|424B5)$/.test(String(item.form||''))),
+    filings.find(item=>/^(8-K|6-K)$/.test(String(item.form||'')))
+  ].filter(Boolean);
+  const selected=[...priority,...filings].filter((item,index,array)=>array.findIndex(other=>other.url===item.url)===index).slice(0,4);
+  const settled=await Promise.allSettled(selected.map(async filing=>{
+    const response=await fetch(filing.url,{headers:{...STOCK_RESEARCH_SEC_HEADERS,accept:'text/html,*/*;q=0.5'},cf:{cacheEverything:true,cacheTtl:3600}});
+    if(!response.ok)return {...filing,evidence:''};
+    const body=await readResearchBody(response,900000);
+    return {...filing,evidence:researchEvidenceWindows(body)};
+  }));
+  return settled.map((result,index)=>result.status==='fulfilled'?result.value:{...selected[index],evidence:''});
+}
+async function fetchSecConcept(cik,definition){
+  const cikText=String(cik).padStart(10,'0'),choices=definition.tags||[];
+  for(const choice of choices){
+    const namespace=choice.namespace||'us-gaap',tag=choice.tag;
+    let response;
+    try{response=await fetch('https://data.sec.gov/api/xbrl/companyconcept/CIK'+cikText+'/'+namespace+'/'+tag+'.json',{headers:STOCK_RESEARCH_SEC_HEADERS,cf:{cacheEverything:true,cacheTtl:900}})}catch(e){continue}
+    if(!response.ok)continue;
+    let data;try{data=JSON.parse(await readResearchBody(response,750000))}catch(e){continue}
+    const rows=[];
+    for(const [unit,entries] of Object.entries(data?.units||{})){
+      for(const entry of (Array.isArray(entries)?entries:[])){
+        if(!['10-K','10-Q','20-F','40-F','6-K'].includes(String(entry?.form||'')))continue;
+        const value=Number(entry?.val);if(!Number.isFinite(value))continue;
+        rows.push({...entry,unit,value});
+      }
+    }
+    rows.sort((a,b)=>String(b.filed||'').localeCompare(String(a.filed||''))||String(b.end||'').localeCompare(String(a.end||'')));
+    const latest=rows.find(row=>row.frame)||rows[0];
+    if(latest)return {
+      label:definition.label,
+      value:latest.value,
+      unit:String(latest.unit||''),
+      period_start:String(latest.start||''),
+      period_end:String(latest.end||''),
+      filed:String(latest.filed||''),
+      form:String(latest.form||''),
+      accession:String(latest.accn||''),
+      taxonomy:namespace,
+      tag
+    };
+  }
+  return null;
+}
+async function fetchSecFinancialFacts(cik){
+  if(!cik)return [];
+  const definitions=[
+    {label:'Revenue',tags:[{tag:'RevenueFromContractWithCustomerExcludingAssessedTax'},{tag:'Revenues'},{tag:'SalesRevenueNet'}]},
+    {label:'Gross profit',tags:[{tag:'GrossProfit'}]},
+    {label:'Operating income',tags:[{tag:'OperatingIncomeLoss'}]},
+    {label:'Net income',tags:[{tag:'NetIncomeLoss'}]},
+    {label:'Cash and equivalents',tags:[{tag:'CashAndCashEquivalentsAtCarryingValue'}]},
+    {label:'Stockholders equity',tags:[{tag:'StockholdersEquity'}]},
+    {label:'Total liabilities',tags:[{tag:'Liabilities'}]},
+    {label:'Shares outstanding',tags:[{namespace:'dei',tag:'EntityCommonStockSharesOutstanding'}]}
+  ];
+  const settled=await Promise.allSettled(definitions.map(definition=>fetchSecConcept(cik,definition)));
+  return settled.filter(result=>result.status==='fulfilled'&&result.value).map(result=>result.value);
+}
+async function getStockResearch(url){
+  const prefix='/api/investing/research/',requested=marketTickerFromPath(url.pathname,prefix);
+  if(!requested)return json({error:'Enter a valid market ticker.'},400);
+  const search=String(url.searchParams.get('search')||'').trim().slice(0,120);
+  let marketData,resolvedSymbol=requested,lastError;
+  try{marketData=await fetchYahooChartData(requested,'1y','1wk')}catch(error){lastError=error}
+  if(!marketData&&search){
+    const resolved=await resolveYahooSymbol(search);
+    if(resolved){try{marketData=await fetchYahooChartData(resolved,'1y','1wk');resolvedSymbol=resolved}catch(error){lastError=error}}
+  }
+  const secRecordPromise=fetchSecTickerRecord(resolvedSymbol);
+  const newsPromise=fetchYahooResearchNews(resolvedSymbol);
+  const [secRecordResult,newsResult]=await Promise.allSettled([secRecordPromise,newsPromise]);
+  const secRecord=secRecordResult.status==='fulfilled'?secRecordResult.value:null;
+  const news=newsResult.status==='fulfilled'?newsResult.value:[];
+  let companyName=secRecord?.company_name||search||requested,filings=[],financials=[];
+  if(secRecord){
+    const submissions=await fetchSecSubmissions(secRecord);
+    companyName=submissions.company_name||companyName;
+    const [filingResult,factsResult]=await Promise.allSettled([
+      fetchFilingEvidence(submissions.filings),
+      fetchSecFinancialFacts(secRecord.cik)
+    ]);
+    filings=filingResult.status==='fulfilled'?filingResult.value:submissions.filings.slice(0,3);
+    financials=factsResult.status==='fulfilled'?factsResult.value:[];
+  }
+  const market=marketData?researchMarketSnapshot(marketData,resolvedSymbol):null;
+  const secCompanyUrl=secRecord?.cik?'https://www.sec.gov/edgar/browse/?CIK='+String(secRecord.cik).padStart(10,'0')+'&owner=exclude&action=getcompany':'';
+  const sources=[
+    ...(secCompanyUrl?[{id:'S-SEC',type:'regulator',title:companyName+' filings',publisher:'SEC EDGAR',published_at:'',url:secCompanyUrl}]:[]),
+    ...filings.map(({evidence,...filing})=>filing),
+    ...news,
+    ...(market?[{id:'S-MARKET',type:'market',title:resolvedSymbol+' market data',publisher:'Yahoo Finance',published_at:market.price_as_of,url:'https://finance.yahoo.com/quote/'+encodeURIComponent(resolvedSymbol)}]:[])
+  ].filter(source=>source.url);
+  if(!market&&!filings.length&&!news.length){
+    console.warn(JSON.stringify({event:'stock_research_unavailable',symbol:requested,status:lastError?.status||0}));
+    return json({error:'Current research sources are unavailable for this listing.'},lastError?.status===404?404:502);
+  }
+  return json({
+    requested_symbol:requested,
+    resolved_symbol:resolvedSymbol,
+    company_name:companyName,
+    captured_at:new Date(Math.floor(Date.now()/300000)*300000).toISOString(),
+    market,
+    financials,
+    filings,
+    news,
+    sources:sources.slice(0,24),
+    source_note:'Market data and news are provided by Yahoo Finance. US regulatory filings and XBRL facts come from SEC EDGAR.'
+  },200,{'cache-control':'public, max-age=60, s-maxage=300'});
+}
+
 async function getMarketVix(){
   try{
     const data=await fetchYahooChartData('^VIX','1mo','1d');
@@ -143,6 +418,7 @@ export default {
       if(url.pathname==='/api/investing/t212/pies'&&request.method==='GET')return getT212Pies(request,env);
       if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
       if(url.pathname==='/api/ai/groq'&&request.method==='POST')return proxySharedGroq(request);
+      if(url.pathname.startsWith('/api/investing/research/')&&request.method==='GET')return getStockResearch(url);
       if((url.pathname.startsWith('/api/investing/prices/')||url.pathname.startsWith('/api/market/chart/'))&&request.method==='GET')return getMarketChart(url);
       if(url.pathname==='/api/vix'&&request.method==='GET')return getMarketVix();
       if(url.pathname==='/api/bible/kjv')return request.method==='GET'?getKJVChapter(url):json({error:'Method not allowed'},405,{allow:'GET'});
