@@ -7602,9 +7602,13 @@ const RESEARCH_IDENTITY_FACTS={
 function researchBriefSections(text){
   const keys=['STANCE','CONFIDENCE','PLAIN_ENGLISH_SUMMARY','WHY_NOW','WHAT_CHANGED','BUSINESS','FINANCIAL_HEALTH','CAPITAL_AND_DILUTION','BULL_CASE','BEAR_CASE','CATALYSTS','VALUATION_AND_TARGET','ACTION_PLAN','THESIS_BREAKERS'];
   const parts=Object.fromEntries(keys.map(key=>[key,'']));
-  const clean=String(text||'').replace(/\r/g,'').replace(/\*\*/g,'').trim();
+  let clean=String(text||'').replace(/\r/g,'').replace(/\*\*/g,'').trim();
   if(!clean)return parts;
   const headings=keys.map(key=>key.replace(/_/g,'[ _]+')).join('|');
+  // Models occasionally place the next ALL-CAPS heading after a sentence instead of on a new line.
+  // Split that format first so one section cannot swallow the next one.
+  const inlineMarker=new RegExp('(?<!\\d)([^\\n])(?:[ \\t]+)(?=(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?(?:'+headings+')(?:\\s*(?::|[-–—])\\s*))','gm');
+  clean=clean.replace(inlineMarker,'$1\n');
   const marker=new RegExp('(?:^|\\n)\\s*(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?('+headings+')(?:\\s*(?::|[-–—])\\s*|\\s*(?=\\n|$))','gim');
   const matches=[...clean.matchAll(marker)];
   matches.forEach((match,index)=>{
