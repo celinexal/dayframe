@@ -5616,14 +5616,15 @@ function renderCreditPriorityGuide(d){
 }
 function moneyGuessBillCategory(name,rawCategory){const s=String(name||'').toLowerCase();if(/netflix|spotify|disney|prime|apple\.com\/bill|subscription|youtube|patreon/.test(s))return 'Subscriptions';if(/rent|mortgage/.test(s))return 'Rent';if(/insurance|aviva|axa|admiral|direct line/.test(s))return 'Insurance';if(/vodafone|three|o2|ee |giffgaff|mobile/.test(s))return 'Phone';if(/british gas|edf|octopus|utility|water|energy|council tax/.test(s))return 'Utilities';if(/broadband|internet|bt |virgin media|sky/.test(s))return 'Internet';const cat=moneyNormaliseCategory(rawCategory);return ['Bills & Utilities','Entertainment'].includes(cat)?(cat==='Entertainment'?'Subscriptions':'Utilities'):cat||'Other'}
 function moneyMonthIndex(monthKey){const match=String(monthKey||'').match(/^(\d{4})-(\d{2})$/);return match?Number(match[1])*12+Number(match[2])-1:NaN}
+function moneyRecurringMerchantKey(value){return String(value||'').toLowerCase().replace(/\b(visa|mastercard|amex)?\s*purchase\b/g,' ').replace(/\b(apple\s*pay|google\s*pay|contactless|faster payments?|direct debit|dd|ref|card payment)\b/g,' ').replace(/\b\d{4}-\d{2}-\d{2}\b/g,' ').replace(/\b\d{4,}\b/g,' ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()}
 function moneyFindBillSuggestions(d){
- const existing=new Set((d.bills||[]).map(x=>String(x.name||'').toLowerCase().replace(/[^a-z0-9]+/g,''))),groups={},todayIndex=moneyMonthIndex(hubDateISO().slice(0,7));
+ const existing=new Set((d.bills||[]).map(x=>moneyRecurringMerchantKey(x.name)).filter(Boolean)),groups={},todayIndex=moneyMonthIndex(hubDateISO().slice(0,7));
  (_moneyBankData.transactions||[]).forEach(raw=>{
   const overrideKey='bank:'+String(raw.id),t={...raw,category:moneyNormaliseCategory((d.transactionCategoryOverrides||{})[overrideKey]||moneyRuleCategory(d,raw)||raw.category||'Other')},direction=String(t.direction||'').toLowerCase();
   if(['income','credit'].includes(direction)||moneyIsTransferCategory(t.category))return;
   const name=moneyPrettyMerchant(t.merchant||t.description||'').trim(),date=String(t.timestamp||'').slice(0,10),amount=Math.abs(Number(t.amount||0));
-  if(!name||!date||!amount||/klarna|clearpay|paypal\s*(pay\s*in\s*3)?/i.test(name))return;
-  const key=name.toLowerCase().replace(/\b(ref|card|payment|direct debit|dd)\b/g,'').replace(/[^a-z]+/g,' ').replace(/\s+/g,' ').trim();if(key.length<3)return;
+  if(!name||!date||!amount||/klarna|clearpay|paypal\s*(pay\s*in\s*3)?|purchase interest|interest charged|late payment fee|overdraft fee|cash advance/i.test(name))return;
+  const key=moneyRecurringMerchantKey(name);if(key.length<3)return;
   (groups[key]||(groups[key]={name,category:t.category,items:[]})).items.push({amount,date,month:date.slice(0,7)})
  });
  return Object.values(groups).map(g=>{
@@ -5637,7 +5638,7 @@ function moneyFindBillSuggestions(d){
   if(maxDev>Math.max(3,avg*.2))return null;
   const dueDays=items.map(item=>Number(item.date.slice(8,10))||1),latest=items[items.length-1];
   return {name:g.name,amount:Math.round(avg*100)/100,category:moneyGuessBillCategory(g.name,g.category),dueDay:Number(latest.date.slice(8,10))||1,count:months.length,cadence:'Monthly',dayRange:Math.max(...dueDays)-Math.min(...dueDays)}
- }).filter(Boolean).filter(x=>!existing.has(x.name.toLowerCase().replace(/[^a-z0-9]+/g,''))).sort((a,b)=>b.count-a.count||a.dayRange-b.dayRange||b.amount-a.amount).slice(0,6)
+ }).filter(Boolean).filter(x=>!existing.has(moneyRecurringMerchantKey(x.name))).sort((a,b)=>b.count-a.count||a.dayRange-b.dayRange||b.amount-a.amount).slice(0,6)
 }
 function moneyBudgetAutoSuggestions(d){
  const bankTx=(_moneyBankData.transactions||[]).map(t=>{const key='bank:'+String(t.id);return {...t,category:moneyNormaliseCategory((d.transactionCategoryOverrides||{})[key]||moneyRuleCategory(d,t)||t.category||'Other')}}),normalise=v=>String(v||'').toLowerCase().replace(/\b(ref|card|payment|direct debit|dd|faster payments?)\b/g,'').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
