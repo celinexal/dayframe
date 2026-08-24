@@ -285,7 +285,9 @@ async function fetchFilingEvidence(filings){
   ].filter(Boolean);
   const selected=[...priority,...filings].filter((item,index,array)=>array.findIndex(other=>other.url===item.url)===index).slice(0,4);
   const settled=await Promise.allSettled(selected.map(async filing=>{
-    const response=await fetch(filing.url,{headers:{...STOCK_RESEARCH_SEC_HEADERS,accept:'text/html,*/*;q=0.5'},cf:{cacheEverything:true,cacheTtl:3600}});
+    let filingHeaders={...STOCK_RESEARCH_SEC_HEADERS,accept:'text/html,*/*;q=0.5'};
+    try{if(!new URL(filing.url).hostname.endsWith('sec.gov'))filingHeaders={...STOCK_RESEARCH_NASDAQ_HEADERS,accept:'text/html,*/*;q=0.5'}}catch(e){}
+    const response=await fetch(filing.url,{headers:filingHeaders,cf:{cacheEverything:true,cacheTtl:3600}});
     if(!response.ok)return {...filing,evidence:''};
     const body=await readResearchBody(response,900000);
     return {...filing,evidence:researchEvidenceWindows(body)};
@@ -340,6 +342,91 @@ async function fetchSecFinancialFacts(cik){
   const settled=await Promise.allSettled(definitions.map(definition=>fetchSecConcept(cik,definition)));
   return settled.filter(result=>result.status==='fulfilled'&&result.value).map(result=>result.value);
 }
+const STOCK_RESEARCH_NASDAQ_HEADERS={
+  'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Dayframe/1.0',
+  accept:'application/json, text/plain, */*',
+  origin:'https://www.nasdaq.com',
+  referer:'https://www.nasdaq.com/'
+};
+function researchIsoDate(value){
+  const text=String(value||'').trim();if(!text)return '';
+  const match=text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(match)return match[3]+'-'+match[1].padStart(2,'0')+'-'+match[2].padStart(2,'0');
+  const date=new Date(text);return Number.isNaN(date.getTime())?'':date.toISOString().slice(0,10);
+}
+function nasdaqFinancialRows(data,symbol){
+  const wanted=new Set(['Total Revenue','Gross Profit','Operating Income','Net Income','Cash and Cash Equivalents','Long-Term Debt','Total Liabilities','Stock Holders Equity','Capital Expenditures','Net Cash Flow-Operating','Sale and Purchase of Stock']);
+  const tables=['incomeStatementTable','balanceSheetTable','cashFlowTable'],rows=[];
+  for(const tableName of tables){
+    const table=data?.[tableName]||{},period=researchIsoDate(table?.headers?.value2);
+    for(const row of (Array.isArray(table.rows)?table.rows:[])){
+      const label=String(row?.value1||'').trim(),reported=String(row?.value2||'').trim();
+      if(!wanted.has(label)||!reported||reported==='--')continue;
+      rows.push({
+        label,
+        reported_value:reported,
+        unit:'USD thousands as displayed by Nasdaq',
+        period_start:'',
+        period_end:period,
+        filed:'',
+        form:'Annual financial table',
+        accession:'',
+        taxonomy:'Nasdaq',
+        tag:tableName,
+        source_url:'https://www.nasdaq.com/market-activity/stocks/'+encodeURIComponent(String(symbol||'').toLowerCase())+'/financials'
+      });
+    }
+  }
+  return rows;
+}
+function nasdaqFilingRows(data){
+  const rows=Array.isArray(data?.rows)?data.rows:[],filings=[];
+  for(let i=0;i<rows.length&&filings.length<14;i++){
+    const row=rows[i]||{},form=String(row.formType||'').toUpperCase();
+    if(!STOCK_RESEARCH_FORMS.has(form))continue;
+    const url=researchHttpsUrl(row?.view?.htmlLink||row?.view?.pdfLink);
+    if(!url)continue;
+    filings.push({
+      id:'F-NASDAQ-'+i+'-'+form.replace(/\s+/g,''),
+      type:'filing',
+      form,
+      title:form+' filing',
+      publisher:'SEC filing via Nasdaq',
+      published_at:researchIsoDate(row.filed),
+      report_date:researchIsoDate(row.period),
+      accession:'',
+      url
+    });
+  }
+  return filings;
+}
+async function fetchNasdaqResearch(symbol){
+  const ticker=String(symbol||'').toUpperCase().replace(/^\^/,'').split(/[.]/)[0];
+  if(!/^[A-Z0-9-]{1,12}$/.test(ticker))return {company_name:'',filings:[],financials:[],sources:[]};
+  const base='https://api.nasdaq.com/api/company/'+encodeURIComponent(ticker);
+  const [filingResult,financialResult]=await Promise.allSettled([
+    fetch(base+'/sec-filings?limit=50',{headers:STOCK_RESEARCH_NASDAQ_HEADERS,cf:{cacheEverything:true,cacheTtl:300}}),
+    fetch(base+'/financials?frequency=1',{headers:STOCK_RESEARCH_NASDAQ_HEADERS,cf:{cacheEverything:true,cacheTtl:900}})
+  ]);
+  let filingData=null,financialData=null;
+  if(filingResult.status==='fulfilled'&&filingResult.value.ok){
+    try{filingData=JSON.parse(await readResearchBody(filingResult.value,1200000))?.data||null}catch(e){}
+  }
+  if(financialResult.status==='fulfilled'&&financialResult.value.ok){
+    try{financialData=JSON.parse(await readResearchBody(financialResult.value,1200000))?.data||null}catch(e){}
+  }
+  const rawFilings=nasdaqFilingRows(filingData),filings=rawFilings.length?await fetchFilingEvidence(rawFilings):[];
+  const financials=nasdaqFinancialRows(financialData,ticker);
+  const companyName=String(rawFilings[0]?.company_name||filingData?.rows?.[0]?.companyName||'').trim();
+  const financialUrl='https://www.nasdaq.com/market-activity/stocks/'+encodeURIComponent(ticker.toLowerCase())+'/financials';
+  return {
+    company_name:companyName,
+    filings,
+    financials,
+    sources:financials.length?[{id:'S-NASDAQ-FIN',type:'financials',title:ticker+' annual financials',publisher:'Nasdaq',published_at:financials[0]?.period_end||'',url:financialUrl}]:[]
+  };
+}
+
 async function getStockResearch(url){
   const prefix='/api/investing/research/',requested=marketTickerFromPath(url.pathname,prefix);
   if(!requested)return json({error:'Enter a valid market ticker.'},400);
@@ -350,12 +437,15 @@ async function getStockResearch(url){
     const resolved=await resolveYahooSymbol(search);
     if(resolved){try{marketData=await fetchYahooChartData(resolved,'1y','1wk');resolvedSymbol=resolved}catch(error){lastError=error}}
   }
-  const secRecordPromise=fetchSecTickerRecord(resolvedSymbol);
-  const newsPromise=fetchYahooResearchNews(resolvedSymbol);
-  const [secRecordResult,newsResult]=await Promise.allSettled([secRecordPromise,newsPromise]);
+  const [secRecordResult,newsResult,nasdaqResult]=await Promise.allSettled([
+    fetchSecTickerRecord(resolvedSymbol),
+    fetchYahooResearchNews(resolvedSymbol),
+    fetchNasdaqResearch(resolvedSymbol)
+  ]);
   const secRecord=secRecordResult.status==='fulfilled'?secRecordResult.value:null;
   const news=newsResult.status==='fulfilled'?newsResult.value:[];
-  let companyName=secRecord?.company_name||search||requested,filings=[],financials=[];
+  const nasdaq=nasdaqResult.status==='fulfilled'?nasdaqResult.value:{company_name:'',filings:[],financials:[],sources:[]};
+  let companyName=secRecord?.company_name||nasdaq.company_name||search||requested,filings=nasdaq.filings||[],financials=nasdaq.financials||[];
   if(secRecord){
     const submissions=await fetchSecSubmissions(secRecord);
     companyName=submissions.company_name||companyName;
@@ -363,13 +453,17 @@ async function getStockResearch(url){
       fetchFilingEvidence(submissions.filings),
       fetchSecFinancialFacts(secRecord.cik)
     ]);
-    filings=filingResult.status==='fulfilled'?filingResult.value:submissions.filings.slice(0,3);
-    financials=factsResult.status==='fulfilled'?factsResult.value:[];
+    const secFilings=filingResult.status==='fulfilled'?filingResult.value:submissions.filings.slice(0,3);
+    const secFacts=factsResult.status==='fulfilled'?factsResult.value:[];
+    if(secFilings.length)filings=secFilings;
+    if(secFacts.length)financials=secFacts;
   }
   const market=marketData?researchMarketSnapshot(marketData,resolvedSymbol):null;
   const secCompanyUrl=secRecord?.cik?'https://www.sec.gov/edgar/browse/?CIK='+String(secRecord.cik).padStart(10,'0')+'&owner=exclude&action=getcompany':'';
+  if(secCompanyUrl)financials=financials.map(item=>item.source_url?item:{...item,source_url:secCompanyUrl});
   const sources=[
     ...(secCompanyUrl?[{id:'S-SEC',type:'regulator',title:companyName+' filings',publisher:'SEC EDGAR',published_at:'',url:secCompanyUrl}]:[]),
+    ...(nasdaq.sources||[]),
     ...filings.map(({evidence,...filing})=>filing),
     ...news,
     ...(market?[{id:'S-MARKET',type:'market',title:resolvedSymbol+' market data',publisher:'Yahoo Finance',published_at:market.price_as_of,url:'https://finance.yahoo.com/quote/'+encodeURIComponent(resolvedSymbol)}]:[])
@@ -388,7 +482,7 @@ async function getStockResearch(url){
     filings,
     news,
     sources:sources.slice(0,24),
-    source_note:'Market data and news are provided by Yahoo Finance. US regulatory filings and XBRL facts come from SEC EDGAR.'
+    source_note:'Market data and news are provided by Yahoo Finance. US filing links and annual financial tables are provided by SEC EDGAR when available, with Nasdaq and QuoteMedia as a fallback.'
   },200,{'cache-control':'public, max-age=60, s-maxage=300'});
 }
 
