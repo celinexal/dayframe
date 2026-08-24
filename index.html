@@ -7468,11 +7468,11 @@ function researchBriefSections(text){
   const parts=Object.fromEntries(keys.map(key=>[key,'']));
   const clean=String(text||'').replace(/\r/g,'').replace(/\*\*/g,'').trim();
   if(!clean)return parts;
-  const headings=keys.join('|');
+  const headings=keys.map(key=>key.replace(/_/g,'[ _]+')).join('|');
   const marker=new RegExp('(?:^|\\n)\\s*(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?('+headings+')(?:\\s*(?::|[-–—])\\s*|\\s*(?=\\n|$))','gim');
   const matches=[...clean.matchAll(marker)];
   matches.forEach((match,index)=>{
-    const key=String(match[1]||'').trim().toUpperCase();
+    const key=String(match[1]||'').trim().toUpperCase().replace(/\s+/g,'_');
     const start=(match.index||0)+match[0].length,end=index+1<matches.length?(matches[index+1].index||clean.length):clean.length;
     const value=clean.slice(start,end).replace(/^[-•*]\s*/gm,'').trim();
     if(keys.includes(key)&&value)parts[key]=value;
@@ -7508,6 +7508,11 @@ function researchCompactNumber(value,unit){
   if(/SHARES/i.test(String(unit||'')))return formatted+' shares';
   return formatted+(unit?' '+unit:'');
 }
+function researchFactValue(item){
+  const reported=String(item?.reported_value||'').trim();
+  if(reported)return reported+(item?.unit?' ('+String(item.unit)+')':'');
+  return researchCompactNumber(item?.value,item?.unit);
+}
 function researchMarketLine(data){
   const market=data?.market;if(!market)return 'Verified market data was unavailable.';
   const prefix=marketCurrencyPrefix(market.currency),items=[];
@@ -7528,7 +7533,7 @@ function researchFallbackBrief(tk,data,h){
     WHY_NOW:researchMarketLine(data),
     WHAT_CHANGED:recentNews.length?recentNews.join(' | '):'No dated news headline was returned, so do not assume the story has recently changed.',
     BUSINESS:(data?.company_name||tk)+' is the matched company. Confirm the listing and read the latest annual or quarterly filing before relying on the thesis.',
-    FINANCIAL_HEALTH:financials.length?financials.map(item=>item.label+': '+researchCompactNumber(item.value,item.unit)+' ('+item.form+', period ending '+researchSourceDate(item.period_end)+')').join(' · '):'Current SEC financial facts were unavailable. Revenue, cash, profitability, debt and share count still need checking.',
+    FINANCIAL_HEALTH:financials.length?financials.map(item=>item.label+': '+researchFactValue(item)+' ('+item.form+', period ending '+researchSourceDate(item.period_end)+')').join(' · '):'Current SEC financial facts were unavailable. Revenue, cash, profitability, debt and share count still need checking.',
     CAPITAL_AND_DILUTION:offering?'A recent registration or prospectus appears in the filing list. Open it and check the maximum shares, use of proceeds and whether the programme has actually been used.':'No recent offering form was identified in the returned filing list, but share count and cash runway still need checking.',
     BULL_CASE:'The bull case needs evidence that demand, margins and cash generation are improving faster than dilution or debt is increasing.',
     BEAR_CASE:'The bear case is weakening demand, missed guidance, shrinking cash runway, customer concentration or new shares being issued without an adequate return on the capital raised.',
@@ -7540,6 +7545,11 @@ function researchFallbackBrief(tk,data,h){
 }
 function researchEvidencePack(data,h){
   const market=data?.market||null;
+  const sourceRows=(data?.sources||[]).filter(item=>researchSafeUrl(item.url)).slice(0,24);
+  const sourceId=url=>{
+    const safe=researchSafeUrl(url),index=sourceRows.findIndex(item=>researchSafeUrl(item.url)===safe);
+    return index>=0?'S'+(index+1):'';
+  };
   const position=h&&Number(h.val)>0?{
     held:true,
     value_gbp:Number(h.val||0),
@@ -7548,19 +7558,22 @@ function researchEvidencePack(data,h){
     average_price:Number(h.averagePrice||0),
     quantity:Number(h.quantity||0)
   }:{held:false};
-  const filings=(data?.filings||[]).slice(0,6).map(item=>({id:item.id,form:item.form,filed:item.published_at,report_date:item.report_date,title:item.title,url:item.url,evidence:String(item.evidence||'').slice(0,6000)}));
-  const financials=(data?.financials||[]).slice(0,10).map(item=>({label:item.label,value:item.value,unit:item.unit,period_start:item.period_start,period_end:item.period_end,filed:item.filed,form:item.form,tag:item.tag}));
-  const news=(data?.news||[]).slice(0,10).map(item=>({id:item.id,title:item.title,publisher:item.publisher,published_at:item.published_at,url:item.url}));
+  const filings=(data?.filings||[]).slice(0,8).map(item=>({source:sourceId(item.url),id:item.id,form:item.form,filed:item.published_at,report_date:item.report_date,title:item.title,url:item.url,evidence:String(item.evidence||'').slice(0,6000)}));
+  const financials=(data?.financials||[]).slice(0,12).map(item=>({source:sourceId(item.source_url),label:item.label,value:item.value,reported_value:item.reported_value,unit:item.unit,period_start:item.period_start,period_end:item.period_end,filed:item.filed,form:item.form,tag:item.tag,source_url:item.source_url}));
+  const news=(data?.news||[]).slice(0,10).map(item=>({source:sourceId(item.url),id:item.id,title:item.title,publisher:item.publisher,published_at:item.published_at,url:item.url}));
+  const sources=sourceRows.map((item,index)=>({id:'S'+(index+1),type:item.type,title:item.title,publisher:item.publisher,published_at:item.published_at,url:item.url}));
   return JSON.stringify({
     captured_at:data?.captured_at,
     ticker:data?.resolved_symbol||data?.requested_symbol,
     company:data?.company_name,
     market,
+    market_source:sourceRows.find((item)=>item.type==='market')?sourceId(sourceRows.find((item)=>item.type==='market').url):'',
     position,
     financials,
     filings,
-    news
-  }).slice(0,52000);
+    news,
+    sources
+  }).slice(0,56000);
 }
 function researchStanceClass(value){
   const text=String(value||'').toLowerCase();
@@ -7607,7 +7620,7 @@ async function loadResearchBrief(tk,h,force=false){
     return;
   }
   const evidence=researchEvidencePack(data,h);
-  let prompt='You are Dayframe’s evidence-grounded stock analyst. Write the final answer immediately and use ONLY the EVIDENCE PACK below as factual support. Do not use remembered company facts, prices, dates, contracts, customers or analyst targets. If a claim is not supported, say the evidence is insufficient. Distinguish a filing from a news headline and never treat a headline as proof. The user wants practical decision support, but do not promise returns.\n\n'+
+  let prompt='You are Dayframe’s evidence-grounded stock analyst. Write the final answer immediately and use ONLY the EVIDENCE PACK below as factual support. Do not use remembered company facts, prices, dates, contracts, customers or analyst targets. If a claim is not supported, say the evidence is insufficient. Distinguish a filing from a news headline and never treat a headline as proof. The user wants practical decision support, but do not promise returns. Cite factual claims with the supplied source labels in square brackets, for example [S2]. Never invent a source label.\n\n'+
     'Choose one stance: ADD CAUTIOUSLY, HOLD, TRIM, EXIT, or WATCH. EXIT requires clear thesis-breaking evidence; a price loss alone is not evidence. Position return must not determine the fundamental stance. For VALUATION_AND_TARGET, give a number or range only when the supplied financial or market evidence supports a named method. Clearly label a chart level as technical, not a fundamental valuation. Otherwise say there is no defensible target yet and name the missing data. ACTION_PLAN must explicitly include: Add only if; Hold while; Trim if; Exit or review if.\n\n'+
     'Return exactly these headings, with substantive plain-English analysis under each. No markdown table and no extra headings:\n'+
     'STANCE:\nCONFIDENCE:\nWHY_NOW:\nWHAT_CHANGED:\nBUSINESS:\nFINANCIAL_HEALTH:\nCAPITAL_AND_DILUTION:\nBULL_CASE:\nBEAR_CASE:\nCATALYSTS:\nVALUATION_AND_TARGET:\nACTION_PLAN:\nTHESIS_BREAKERS:\n\n'+
@@ -7616,9 +7629,13 @@ async function loadResearchBrief(tk,h,force=false){
   try{
     const result=await callClaude(prompt,1600);
     if(!result)throw new Error('Dayframe AI returned an empty response.');
-    const sections=researchBriefSections(result);
-    if(!sections.STANCE||Object.values(sections).filter(Boolean).length<7)throw new Error('The detailed analysis was incomplete.');
-    renderResearchBrief(host,sections,data,h,'',false,tk);
+    const generated=researchBriefSections(result);
+    const generatedCount=Object.values(generated).filter(Boolean).length;
+    if(generatedCount<3)throw new Error('Dayframe AI did not return enough usable analysis.');
+    const sections={...fallback};
+    Object.keys(generated).forEach(key=>{if(generated[key])sections[key]=generated[key]});
+    const note=generatedCount<10?'Some sections use Dayframe’s evidence-only framework because the AI response ended early.':'';
+    renderResearchBrief(host,sections,data,h,note,false,tk);
   }catch(error){
     renderResearchBrief(host,fallback,data,h,String(error?.message||error)+' The current evidence and a cautious decision framework are still available.',true,tk);
   }
