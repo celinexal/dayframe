@@ -1824,6 +1824,26 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 @media(max-width:1120px){.bible-study-side{position:relative;top:auto}.bible-explain-side{order:1}.bible-note-side{order:2}}
 @media(max-width:700px){.planner-goals-card .life-form-grid{grid-template-columns:1fr}.bible-explain-side{padding:15px}}
 </style>
+
+<style id="invest-research-depth-upgrade">
+.invest-deep-research{border:1px solid #dfe4f3;box-shadow:0 18px 42px rgba(31,44,88,.08)}
+.invest-deep-research .invest-research-brief-head{background:linear-gradient(120deg,#eff3ff 0%,#fff 65%,#f5efff 100%)}
+.invest-brief-preview-deep{grid-template-columns:repeat(8,minmax(0,1fr))}
+.invest-decision-snapshot{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr) auto;gap:10px;align-items:stretch;margin-bottom:14px}
+.invest-decision-snapshot>div{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:14px 15px;border:1px solid #e1e5ef;border-radius:14px;background:#fafbfe}
+.invest-decision-snapshot span,.invest-research-sources>div>span{font-size:9px;font-weight:850;letter-spacing:.8px;text-transform:uppercase;color:#7d879c}
+.invest-decision-snapshot strong{font-size:13px;line-height:1.45;color:#25304d}.invest-decision-snapshot strong.add{color:#168063}.invest-decision-snapshot strong.hold{color:#4f5fc1}.invest-decision-snapshot strong.trim{color:#a56b14}.invest-decision-snapshot strong.exit{color:#b44156}.invest-decision-snapshot strong.watch{color:#6659c7}
+.invest-decision-snapshot small{font-size:9.5px;line-height:1.45;color:#8b95a7}
+.invest-decision-snapshot>button{border:0;border-radius:14px;background:#26356f;color:#fff;padding:0 14px;font:800 10px var(--ff);cursor:pointer;white-space:nowrap}
+.invest-brief-grid-deep{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.invest-brief-grid-deep .invest-brief-item{padding:17px}.invest-brief-grid-deep .invest-brief-item p{font-size:12px;line-height:1.72}
+.invest-research-sources{margin-top:15px;padding:16px;border:1px solid #e2e6ef;border-radius:16px;background:linear-gradient(155deg,#fafbff,#f5f7fc)}
+.invest-research-sources>div:first-child{margin-bottom:11px}.invest-research-sources h3{font-family:var(--fd);font-size:16px;color:#25304d;margin:3px 0}.invest-research-sources p{font-size:10px;color:#8b95a7;margin:0}
+.invest-source-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.invest-source-list a{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e3e7ef;border-radius:11px;background:#fff;color:inherit;text-decoration:none}.invest-source-list a:hover{border-color:#7a86db;box-shadow:0 8px 18px rgba(48,61,119,.08)}
+.invest-source-list a>b{display:grid;place-items:center;width:27px;height:27px;border-radius:8px;background:#eef1ff;color:#5969bf;font-size:8px}.invest-source-list strong{display:block;font-size:10px;line-height:1.35;color:#37425b}.invest-source-list small{display:block;margin-top:2px;font-size:8.5px;color:#929baa}.invest-source-list i{font-style:normal;color:#6877cd}.invest-source-empty{padding:12px;border:1px dashed #d8dce8;border-radius:11px;background:#fff;color:#8b94a6;font-size:10px}
+.invest-brief-retry{margin-left:6px;border:0;border-radius:8px;background:#a94455;color:#fff;padding:6px 9px;font:800 9px var(--ff);cursor:pointer}
+@media(max-width:980px){.invest-brief-preview-deep{grid-template-columns:repeat(4,1fr)}.invest-decision-snapshot{grid-template-columns:1fr 1fr}.invest-decision-snapshot>button{grid-column:1/-1;min-height:40px}}
+@media(max-width:700px){.invest-brief-grid-deep,.invest-source-list,.invest-decision-snapshot{grid-template-columns:1fr}.invest-decision-snapshot>button{grid-column:auto;min-height:42px}.invest-brief-preview-deep{grid-template-columns:repeat(2,1fr)}}
+</style>
 </head>
 <body>
 
@@ -7241,11 +7261,11 @@ async function openChart(tk){
   _html += '<div id="view-overview">';
 
   // ── RESEARCH BRIEF ─────────────────────────────────────────────────────
-  _html += '<div class="invest-research-brief dash-card" id="research-brief-card">';
-  _html += '<div class="invest-research-brief-head"><div><span>One clear report</span><h2>Company research brief</h2><p>Business model, strengths, risks, catalysts, numbers to check and questions to ask.</p></div><span class="invest-source-pill">AI explanation</span></div>';
+  _html += '<div class="invest-research-brief dash-card invest-deep-research" id="research-brief-card">';
+  _html += '<div class="invest-research-brief-head"><div><span>Evidence-backed decision support</span><h2>Stock decision analysis</h2><p>What changed, financial health, dilution, catalysts, valuation, target logic and clear conditions for adding, holding, trimming or exiting.</p></div><span class="invest-source-pill">Live sources</span></div>';
   _html += '<div id="research-brief-body" class="invest-research-brief-body">';
-  _html += '<div class="invest-brief-preview"><div><b>01</b><span>Business</span></div><div><b>02</b><span>Strengths</span></div><div><b>03</b><span>Risks</span></div><div><b>04</b><span>Catalysts</span></div><div><b>05</b><span>Numbers</span></div><div><b>06</b><span>Questions</span></div></div>';
-  _html += '<div class="invest-brief-cta"><p>Generated only when you ask and saved for six hours to reduce repeated AI requests.</p><button type="button" onclick="loadResearchBrief(\''+tk+'\',stockContext(\''+tk+'\'))">Create research brief</button></div>';
+  _html += '<div class="invest-brief-preview invest-brief-preview-deep"><div><b>01</b><span>Now</span></div><div><b>02</b><span>Financials</span></div><div><b>03</b><span>Capital</span></div><div><b>04</b><span>Bull / bear</span></div><div><b>05</b><span>Catalysts</span></div><div><b>06</b><span>Target</span></div><div><b>07</b><span>Action plan</span></div><div><b>08</b><span>Sources</span></div></div>';
+  _html += '<div class="invest-brief-cta"><p>Uses current market data, recent company filings and dated headlines. Every source appears below the analysis.</p><button type="button" onclick="loadResearchBrief(\''+tk+'\',stockContext(\''+tk+'\'))">Build full analysis</button></div>';
   _html += '</div></div>';
 
   // ── YOUR POSITION ────────────────────────────────────────────────────
@@ -7324,7 +7344,7 @@ async function openChart(tk){
 
   _html += '</div>'; // end view-deepdive
 
-  _html += '<div class="invest-analysis-disclaimer">Market chart: Yahoo Finance · Company brief: Dayframe AI · Educational research, not financial advice</div>';
+  _html += '<div class="invest-analysis-disclaimer">Market data and news: Yahoo Finance · US filings and reported facts: SEC EDGAR · Interpretation: Dayframe AI · Decision support, not financial advice</div>';
 
   document.getElementById("ccontent").innerHTML = _html;
 
@@ -7444,79 +7464,163 @@ const RESEARCH_IDENTITY_FACTS={
   AMD:'AMD designs processors, graphics chips and other semiconductor products.'
 };
 function researchBriefSections(text){
-  const keys=['BUSINESS','STRENGTHS','RISKS','CATALYSTS','NUMBERS','QUESTIONS'];
+  const keys=['STANCE','CONFIDENCE','WHY_NOW','WHAT_CHANGED','BUSINESS','FINANCIAL_HEALTH','CAPITAL_AND_DILUTION','BULL_CASE','BEAR_CASE','CATALYSTS','VALUATION_AND_TARGET','ACTION_PLAN','THESIS_BREAKERS'];
   const parts=Object.fromEntries(keys.map(key=>[key,'']));
   const clean=String(text||'').replace(/\r/g,'').replace(/\*\*/g,'').trim();
   if(!clean)return parts;
-  const headings='BUSINESS(?:\\s+MODEL)?|STRENGTHS(?:\\s+AND\\s+ADVANTAGES)?|RISKS|CATALYSTS|NUMBERS(?:\\s+TO\\s+CHECK)?|QUESTIONS';
-  const marker=new RegExp('(?:^|\\n|\\s)(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?('+headings+')(?:\\s*\\([^\\n)]*\\))?(?:\\s*(?::|[-–—])\\s*|\\s*(?=\\n|$))','gim');
+  const headings=keys.join('|');
+  const marker=new RegExp('(?:^|\\n)\\s*(?:#{1,6}\\s*)?(?:\\d+[.)]\\s*)?('+headings+')(?:\\s*(?::|[-–—])\\s*|\\s*(?=\\n|$))','gim');
   const matches=[...clean.matchAll(marker)];
-  const keyFor=value=>{
-    const heading=String(value||'').trim().toUpperCase();
-    if(heading.startsWith('BUSINESS'))return 'BUSINESS';
-    if(heading.startsWith('STRENGTHS'))return 'STRENGTHS';
-    if(heading.startsWith('NUMBERS'))return 'NUMBERS';
-    return keys.includes(heading)?heading:'';
-  };
   matches.forEach((match,index)=>{
-    const key=keyFor(match[1]);if(!key)return;
+    const key=String(match[1]||'').trim().toUpperCase();
     const start=(match.index||0)+match[0].length,end=index+1<matches.length?(matches[index+1].index||clean.length):clean.length;
-    const value=clean.slice(start,end).replace(/^[-•*]\\s*/gm,'').trim();
-    if(value)parts[key]=value;
+    const value=clean.slice(start,end).replace(/^[-•*]\s*/gm,'').trim();
+    if(keys.includes(key)&&value)parts[key]=value;
   });
-  if(!Object.values(parts).some(Boolean)){
-    const inline=new RegExp('('+headings+')\\s*(?::|[-–—])\\s*','gim'),inlineMatches=[...clean.matchAll(inline)];
-    inlineMatches.forEach((match,index)=>{
-      const key=keyFor(match[1]);if(!key)return;
-      const start=(match.index||0)+match[0].length,end=index+1<inlineMatches.length?(inlineMatches[index+1].index||clean.length):clean.length;
-      const value=clean.slice(start,end).replace(/^[-•*]\\s*/gm,'').trim();
-      if(value)parts[key]=value;
-    });
-  }
-  if(!Object.values(parts).some(Boolean))parts.BUSINESS=clean;
+  if(!Object.values(parts).some(Boolean))parts.WHY_NOW=clean;
   return parts;
 }
 const RESEARCH_BRIEF_DEFS=[
-  {key:'BUSINESS',num:'01',title:'What the business does',tone:'blue'},
-  {key:'STRENGTHS',num:'02',title:'What could go well',tone:'green'},
-  {key:'RISKS',num:'03',title:'What could go wrong',tone:'rose'},
-  {key:'CATALYSTS',num:'04',title:'What to watch next',tone:'violet'},
-  {key:'NUMBERS',num:'05',title:'Numbers to verify',tone:'amber'},
-  {key:'QUESTIONS',num:'06',title:'Questions before acting',tone:'slate'}
+  {key:'WHY_NOW',num:'01',title:'Why this matters now',tone:'blue'},
+  {key:'WHAT_CHANGED',num:'02',title:'What changed',tone:'violet'},
+  {key:'BUSINESS',num:'03',title:'Business and thesis',tone:'slate'},
+  {key:'FINANCIAL_HEALTH',num:'04',title:'Financial health',tone:'amber'},
+  {key:'CAPITAL_AND_DILUTION',num:'05',title:'Capital and dilution',tone:'rose'},
+  {key:'BULL_CASE',num:'06',title:'Bull case',tone:'green'},
+  {key:'BEAR_CASE',num:'07',title:'Bear case',tone:'rose'},
+  {key:'CATALYSTS',num:'08',title:'Catalysts to watch',tone:'violet'},
+  {key:'VALUATION_AND_TARGET',num:'09',title:'Valuation and target',tone:'blue'},
+  {key:'ACTION_PLAN',num:'10',title:'What would change the action',tone:'green'},
+  {key:'THESIS_BREAKERS',num:'11',title:'Thesis breakers',tone:'rose'}
 ];
-function researchFallbackBrief(tk,identityFact){
+function researchSafeUrl(value){
+  try{const url=new URL(String(value||''));return url.protocol==='https:'?url.toString():''}catch(e){return ''}
+}
+function researchSourceDate(value){
+  const raw=String(value||'');if(!raw)return '';
+  const date=new Date(raw.length===10?raw+'T12:00:00Z':raw);
+  return Number.isNaN(date.getTime())?raw:date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function researchCompactNumber(value,unit){
+  const number=Number(value);if(!Number.isFinite(number))return '—';
+  const formatted=Math.abs(number)>=1000000?number.toLocaleString('en-GB',{notation:'compact',maximumFractionDigits:2}):number.toLocaleString('en-GB',{maximumFractionDigits:2});
+  if(String(unit||'').toUpperCase()==='USD')return '$'+formatted;
+  if(/SHARES/i.test(String(unit||'')))return formatted+' shares';
+  return formatted+(unit?' '+unit:'');
+}
+function researchMarketLine(data){
+  const market=data?.market;if(!market)return 'Verified market data was unavailable.';
+  const prefix=marketCurrencyPrefix(market.currency),items=[];
+  if(Number.isFinite(Number(market.price)))items.push('price '+prefix+Number(market.price).toFixed(2));
+  if(Number.isFinite(Number(market.fifty_two_week_low))&&Number.isFinite(Number(market.fifty_two_week_high)))items.push('52-week range '+prefix+Number(market.fifty_two_week_low).toFixed(2)+'–'+prefix+Number(market.fifty_two_week_high).toFixed(2));
+  if(Number.isFinite(Number(market.recent_support)))items.push('recent support about '+prefix+Number(market.recent_support).toFixed(2));
+  if(Number.isFinite(Number(market.recent_resistance)))items.push('recent resistance about '+prefix+Number(market.recent_resistance).toFixed(2));
+  return items.join(' · ')||'Verified market data was limited.';
+}
+function researchFallbackBrief(tk,data,h){
+  const held=Number(h?.val||0)>0,financials=(data?.financials||[]).slice(0,5);
+  const recentNews=(data?.news||[]).slice(0,3).map(item=>item.title).filter(Boolean);
+  const recentFilings=(data?.filings||[]).slice(0,4);
+  const offering=recentFilings.some(item=>/S-1|S-3|424B/i.test(String(item.form||'')));
   return {
-    BUSINESS:identityFact||'Confirm the company name, exchange and ISIN before relying on research for '+tk+'.',
-    STRENGTHS:'Check recent company filings for demand growth, improving margins, repeat customers and enough funding to carry out the plan.',
-    RISKS:'Review cash use, customer concentration, competition, dilution risk and whether forecasts have repeatedly changed.',
-    CATALYSTS:'Track the next results, product milestones, customer announcements and guidance updates. Verify every date with the company.',
-    NUMBERS:'Find revenue growth, gross margin and cash runway in the latest filing, then compare each with the previous two reporting periods.',
-    QUESTIONS:'What must improve for the business to succeed? What evidence would challenge the investment case? Which result would matter most next?'
-  }
+    STANCE:held?'Hold / review':'Watch',
+    CONFIDENCE:'Low until the filings and latest company update are read in full',
+    WHY_NOW:researchMarketLine(data),
+    WHAT_CHANGED:recentNews.length?recentNews.join(' | '):'No dated news headline was returned, so do not assume the story has recently changed.',
+    BUSINESS:(data?.company_name||tk)+' is the matched company. Confirm the listing and read the latest annual or quarterly filing before relying on the thesis.',
+    FINANCIAL_HEALTH:financials.length?financials.map(item=>item.label+': '+researchCompactNumber(item.value,item.unit)+' ('+item.form+', period ending '+researchSourceDate(item.period_end)+')').join(' · '):'Current SEC financial facts were unavailable. Revenue, cash, profitability, debt and share count still need checking.',
+    CAPITAL_AND_DILUTION:offering?'A recent registration or prospectus appears in the filing list. Open it and check the maximum shares, use of proceeds and whether the programme has actually been used.':'No recent offering form was identified in the returned filing list, but share count and cash runway still need checking.',
+    BULL_CASE:'The bull case needs evidence that demand, margins and cash generation are improving faster than dilution or debt is increasing.',
+    BEAR_CASE:'The bear case is weakening demand, missed guidance, shrinking cash runway, customer concentration or new shares being issued without an adequate return on the capital raised.',
+    CATALYSTS:'Use the dated news and filing list below to identify the next results, product milestone, financing update or regulatory event.',
+    VALUATION_AND_TARGET:researchMarketLine(data)+'. These are technical reference levels, not a fundamental valuation. There is not enough verified valuation data here for a defensible price target.',
+    ACTION_PLAN:(held?'Hold while the thesis remains supported. ':'Watch until the thesis is supported. ')+'Add only after a specific positive filing or result confirms the case. Trim if valuation or position size rises faster than evidence. Exit or fully review if a thesis breaker occurs.',
+    THESIS_BREAKERS:'A material guidance cut, financing on unexpectedly poor terms, persistent cash burn without progress, loss of a key customer, or evidence that the main product or capacity plan is not producing the expected returns.'
+  };
 }
-function renderResearchBrief(host,sections,held,note='',canRetry=false,tk=''){
-  const valid=RESEARCH_BRIEF_DEFS.filter(d=>sections[d.key]);
-  host.innerHTML='<div class="invest-brief-grid">'+valid.map(d=>'<article class="invest-brief-item '+d.tone+'"><div><b>'+d.num+'</b><span>'+d.title+'</span></div><p>'+hubEsc(sections[d.key]).replace(/\n/g,'<br>')+'</p></article>').join('')+'</div>'+(note?'<div class="invest-brief-error" style="margin-top:10px">'+hubEsc(note)+(canRetry?' <button type="button" class="invest-brief-retry" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'))">Try AI again</button>':'')+'</div>':'')+'<div class="invest-brief-foot"><span>'+(note?'Research checklist':'AI study aid')+' · '+(held?'company identity taken from your holding':'confirm the company identity before relying on this guide')+' · verify changing facts</span></div>'
+function researchEvidencePack(data,h){
+  const market=data?.market||null;
+  const position=h&&Number(h.val)>0?{
+    held:true,
+    value_gbp:Number(h.val||0),
+    return_pct:Number(h.gainPct||0),
+    portfolio_weight_pct:Number(h.pct||0),
+    average_price:Number(h.averagePrice||0),
+    quantity:Number(h.quantity||0)
+  }:{held:false};
+  const filings=(data?.filings||[]).slice(0,6).map(item=>({id:item.id,form:item.form,filed:item.published_at,report_date:item.report_date,title:item.title,url:item.url,evidence:String(item.evidence||'').slice(0,6000)}));
+  const financials=(data?.financials||[]).slice(0,10).map(item=>({label:item.label,value:item.value,unit:item.unit,period_start:item.period_start,period_end:item.period_end,filed:item.filed,form:item.form,tag:item.tag}));
+  const news=(data?.news||[]).slice(0,10).map(item=>({id:item.id,title:item.title,publisher:item.publisher,published_at:item.published_at,url:item.url}));
+  return JSON.stringify({
+    captured_at:data?.captured_at,
+    ticker:data?.resolved_symbol||data?.requested_symbol,
+    company:data?.company_name,
+    market,
+    position,
+    financials,
+    filings,
+    news
+  }).slice(0,52000);
 }
-async function loadResearchBrief(tk,h){
+function researchStanceClass(value){
+  const text=String(value||'').toLowerCase();
+  if(/sell|exit|avoid/.test(text))return 'exit';
+  if(/trim|reduce/.test(text))return 'trim';
+  if(/add|buy/.test(text))return 'add';
+  if(/hold/.test(text))return 'hold';
+  return 'watch';
+}
+function renderResearchSources(data){
+  const sources=(data?.sources||[]).filter(item=>researchSafeUrl(item.url)).slice(0,16);
+  if(!sources.length)return '<div class="invest-source-empty">No source links were returned. Treat the analysis as incomplete.</div>';
+  return '<div class="invest-source-list">'+sources.map((source,index)=>{
+    const date=researchSourceDate(source.published_at),meta=[source.publisher,date].filter(Boolean).join(' · ');
+    return '<a href="'+hubEsc(researchSafeUrl(source.url))+'" target="_blank" rel="noopener noreferrer"><b>S'+(index+1)+'</b><span><strong>'+hubEsc(source.title||'Open source')+'</strong><small>'+hubEsc(meta)+'</small></span><i>↗</i></a>';
+  }).join('')+'</div>';
+}
+function renderResearchBrief(host,sections,data,h,note='',canRetry=false,tk=''){
+  const valid=RESEARCH_BRIEF_DEFS.filter(def=>sections[def.key]);
+  const stance=sections.STANCE||'Watch',confidence=sections.CONFIDENCE||'Evidence still limited',market=researchMarketLine(data),updated=researchSourceDate(data?.captured_at);
+  host.innerHTML='<div class="invest-decision-snapshot"><div><span>Current stance</span><strong class="'+researchStanceClass(stance)+'">'+hubEsc(stance)+'</strong><small>'+hubEsc(confidence)+'</small></div><div><span>Market reference</span><strong>'+hubEsc(market)+'</strong><small>'+(updated?'Sources refreshed '+hubEsc(updated):'Refresh the evidence before acting')+'</small></div><button type="button" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'),true)">↻ Update analysis</button></div>'+
+    '<div class="invest-brief-grid invest-brief-grid-deep">'+valid.map(def=>'<article class="invest-brief-item '+def.tone+'"><div><b>'+def.num+'</b><span>'+def.title+'</span></div><p>'+hubEsc(sections[def.key]).replace(/\n/g,'<br>')+'</p></article>').join('')+'</div>'+
+    '<section class="invest-research-sources"><div><span>Evidence</span><h3>Sources used</h3><p>Open the filing or article to verify the detail and context yourself.</p></div>'+renderResearchSources(data)+'</section>'+
+    (note?'<div class="invest-brief-error" style="margin-top:10px">'+hubEsc(note)+(canRetry?' <button type="button" class="invest-brief-retry" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'),true)">Try again</button>':'')+'</div>':'')+
+    '<div class="invest-brief-foot"><span>Decision support, not a guarantee or regulated financial recommendation · figures can change · read primary filings before acting</span></div>';
+}
+async function loadResearchBrief(tk,h,force=false){
   const host=document.getElementById('research-brief-body');if(!host)return;
-  const held=h&&h.val>0,company=String(h?.name||'').trim(),identity=[company&&company!==tk?'company name '+company:'',h?.isin?'ISIN '+h.isin:''].filter(Boolean).join(', '),identityFact=RESEARCH_IDENTITY_FACTS[tk]||'',fallback=researchFallbackBrief(tk,identityFact);
-  if(!aiKey){renderResearchBrief(host,fallback,held,'Dayframe AI is temporarily unavailable, so this research checklist is shown instead.',false,tk);return}
-  const context=held?'The company appears in the user\'s connected portfolio.':'The user does not currently hold it in their connected portfolio.';
-  const prompt='Write the final answer immediately, without showing reasoning. Create a calm beginner-friendly educational research guide for ticker '+tk+(identity?' ('+identity+')':'')+'. '+context+(identityFact?' Verified company identity anchor: '+identityFact:' No verified business description is available, so tell the reader to confirm the company identity before relying on the guide.')+' Never substitute a different company, exchange or business for the supplied identity. BUSINESS may only restate the verified identity anchor; if none is supplied, say identity needs checking. For STRENGTHS, RISKS and CATALYSTS, describe items the reader should investigate rather than claiming unverified facts. NUMBERS must name three metrics to find in the latest company filing without supplying values. Do not name contracts, customers, live prices, news, financial values, dates or analyst targets. Do not tell the user to buy or sell. Use plain English and exactly these headings with no extra text in the heading, each under 45 words:\nBUSINESS:\nSTRENGTHS:\nRISKS:\nCATALYSTS:\nNUMBERS:\nQUESTIONS:';
-  const compactPrompt='Answer immediately in under 180 words. Create an educational research checklist for '+tk+(identity?' ('+identity+')':'')+'. '+(identityFact?'Use only this verified identity: '+identityFact:'State that the company identity must be confirmed.')+' Do not provide financial values, contracts, customers, dates or live facts. Return exactly: BUSINESS, STRENGTHS, RISKS, CATALYSTS, NUMBERS, QUESTIONS. No buy or sell advice.';
-  host.innerHTML='<div class="invest-brief-loading"><span class="spin"></span><div><strong>Building '+hubEsc(tk)+' research brief</strong><small>Using the company identity from your holding, not the ticker alone.</small></div></div>';
+  const company=String(h?.name||'').trim(),search=[company,h?.isin].filter(Boolean).join(' ');
+  host.innerHTML='<div class="invest-brief-loading"><span class="spin"></span><div><strong>Gathering current evidence for '+hubEsc(tk)+'</strong><small>Checking market data, dated headlines and recent regulatory filings.</small></div></div>';
+  let data;
   try{
-    let result='';
-    try{result=await callClaude(prompt)}catch(firstError){if(/cooling down|short break|rate limit|429/i.test(String(firstError?.message||firstError)))throw firstError;result=await callClaude(compactPrompt)}
-    if(!result)result=await callClaude(compactPrompt);
+    const response=await fetch('/api/investing/research/'+encodeURIComponent(marketSymbolFor(tk))+'?search='+encodeURIComponent(search));
+    data=await response.json().catch(()=>null);
+    if(!response.ok||!data)throw new Error(data?.error||'Current sources could not be loaded.');
+  }catch(error){
+    const fallback=researchFallbackBrief(tk,{company_name:company||tk,market:null,financials:[],filings:[],news:[],sources:[]},h);
+    renderResearchBrief(host,fallback,{company_name:company||tk,market:null,sources:[]},h,String(error?.message||error),true,tk);
+    return;
+  }
+  const fallback=researchFallbackBrief(tk,data,h);
+  if(!aiKey){
+    renderResearchBrief(host,fallback,data,h,'Dayframe AI is temporarily unavailable, so the current evidence and a cautious decision framework are shown instead.',false,tk);
+    return;
+  }
+  const evidence=researchEvidencePack(data,h);
+  let prompt='You are Dayframe’s evidence-grounded stock analyst. Write the final answer immediately and use ONLY the EVIDENCE PACK below as factual support. Do not use remembered company facts, prices, dates, contracts, customers or analyst targets. If a claim is not supported, say the evidence is insufficient. Distinguish a filing from a news headline and never treat a headline as proof. The user wants practical decision support, but do not promise returns.\n\n'+
+    'Choose one stance: ADD CAUTIOUSLY, HOLD, TRIM, EXIT, or WATCH. EXIT requires clear thesis-breaking evidence; a price loss alone is not evidence. Position return must not determine the fundamental stance. For VALUATION_AND_TARGET, give a number or range only when the supplied financial or market evidence supports a named method. Clearly label a chart level as technical, not a fundamental valuation. Otherwise say there is no defensible target yet and name the missing data. ACTION_PLAN must explicitly include: Add only if; Hold while; Trim if; Exit or review if.\n\n'+
+    'Return exactly these headings, with substantive plain-English analysis under each. No markdown table and no extra headings:\n'+
+    'STANCE:\nCONFIDENCE:\nWHY_NOW:\nWHAT_CHANGED:\nBUSINESS:\nFINANCIAL_HEALTH:\nCAPITAL_AND_DILUTION:\nBULL_CASE:\nBEAR_CASE:\nCATALYSTS:\nVALUATION_AND_TARGET:\nACTION_PLAN:\nTHESIS_BREAKERS:\n\n'+
+    'EVIDENCE PACK:\n'+evidence;
+  if(force)prompt+='\n\nREFRESH_REQUESTED_AT:'+new Date().toISOString();
+  try{
+    const result=await callClaude(prompt,1600);
     if(!result)throw new Error('Dayframe AI returned an empty response.');
     const sections=researchBriefSections(result);
-    if(!Object.values(sections).some(Boolean))throw new Error('Dayframe AI returned an incomplete response.');
-    renderResearchBrief(host,sections,held,'',false,tk);
-  }catch(e){
-    const reason=String(e?.message||'Dayframe AI could not create this brief.');
-    renderResearchBrief(host,fallback,held,reason+' A research checklist is available now.',true,tk)
+    if(!sections.STANCE||Object.values(sections).filter(Boolean).length<7)throw new Error('The detailed analysis was incomplete.');
+    renderResearchBrief(host,sections,data,h,'',false,tk);
+  }catch(error){
+    renderResearchBrief(host,fallback,data,h,String(error?.message||error)+' The current evidence and a cautious decision framework are still available.',true,tk);
   }
 }
 async function loadStraightTalk(tk, h){
@@ -8897,13 +9001,13 @@ function _aiWaitLabel(ms){
   const seconds=Math.max(1,Math.ceil(ms/1000));
   return seconds>=60?Math.ceil(seconds/60)+' minute'+(seconds>60?'s':''):seconds+' seconds';
 }
-async function _performAIRequest(prompt){
+async function _performAIRequest(prompt,maxTokens=700){
   const cooldownWait=_aiCooldownUntil-Date.now();
   if(cooldownWait>0)throw new Error('Dayframe AI is cooling down. Try again in '+_aiWaitLabel(cooldownWait)+'.');
   const spacingWait=Math.max(0,_aiNextRequestAt-Date.now());
   if(spacingWait)await _aiWait(spacingWait);
   _aiNextRequestAt=Date.now()+_AI_REQUEST_GAP;
-  const r=await dfBankFetch("/api/ai/groq",{method:"POST",body:JSON.stringify({max_tokens:700,messages:[{role:"user",content:prompt}]})});
+  const r=await dfBankFetch("/api/ai/groq",{method:"POST",body:JSON.stringify({max_tokens:Math.max(200,Math.min(1800,Number(maxTokens)||700)),messages:[{role:"user",content:prompt}]})});
   const d=await r.json().catch(()=>({}));
   if(r.status===429){
     const retryHeader=Number(r.headers.get('retry-after'));
@@ -8914,24 +9018,26 @@ async function _performAIRequest(prompt){
   if(!r.ok||d.error)throw new Error(d?.error?.message||d?.error||'Dayframe AI could not load this.');
   const content=d?.choices?.[0]?.message?.content??d?.output_text??d?.response??null;if(Array.isArray(content))return content.map(part=>part?.text||part?.content||'').join('').trim()||null;return typeof content==='string'?content.trim()||null:null;
 }
-async function callClaude(prompt){
+async function callClaude(prompt,maxTokens=700){
   if(!aiKey)return null;
-  const cached=_getCached(prompt);
+  const safeMax=Math.max(200,Math.min(1800,Number(maxTokens)||700));
+  const cachePrompt=safeMax===700?prompt:prompt+'\n[dayframe-response-budget:'+safeMax+']';
+  const cached=_getCached(cachePrompt);
   if(cached)return cached;
-  if(_aiInFlight.has(prompt))return _aiInFlight.get(prompt);
+  if(_aiInFlight.has(cachePrompt))return _aiInFlight.get(cachePrompt);
   const task=(async()=>{
     const previous=_aiQueue.catch(()=>{});
     let release;
     _aiQueue=new Promise(resolve=>{release=resolve});
     await previous;
     try{
-      const result=await _performAIRequest(prompt);
-      if(result)_setCache(prompt,result);
+      const result=await _performAIRequest(prompt,safeMax);
+      if(result)_setCache(cachePrompt,result);
       return result;
     }finally{release()}
   })();
-  _aiInFlight.set(prompt,task);
-  try{return await task}finally{_aiInFlight.delete(prompt)}
+  _aiInFlight.set(cachePrompt,task);
+  try{return await task}finally{_aiInFlight.delete(cachePrompt)}
 }
 function noKey(el){el.innerHTML=`<div class="ban"><span>💡</span><div><strong>Dayframe AI is temporarily unavailable.</strong> Please try again in a moment.</div></div>`;}
 
