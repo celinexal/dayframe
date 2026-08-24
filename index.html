@@ -7622,8 +7622,8 @@ async function loadResearchBrief(tk,h,force=false){
   const evidence=researchEvidencePack(data,h);
   let prompt='You are Dayframe’s evidence-grounded stock analyst. Write the final answer immediately and use ONLY the EVIDENCE PACK below as factual support. Do not use remembered company facts, prices, dates, contracts, customers or analyst targets. If a claim is not supported, say the evidence is insufficient. Distinguish a filing from a news headline and never treat a headline as proof. The user wants practical decision support, but do not promise returns. Cite factual claims with the supplied source labels in square brackets, for example [S2]. Never invent a source label.\n\n'+
     'Choose one stance: ADD CAUTIOUSLY, HOLD, TRIM, EXIT, or WATCH. EXIT requires clear thesis-breaking evidence; a price loss alone is not evidence. Position return must not determine the fundamental stance. For VALUATION_AND_TARGET, give a number or range only when the supplied financial or market evidence supports a named method. Clearly label a chart level as technical, not a fundamental valuation. Otherwise say there is no defensible target yet and name the missing data. ACTION_PLAN must explicitly include: Add only if; Hold while; Trim if; Exit or review if.\n\n'+
-    'Return exactly these headings, with substantive plain-English analysis under each. No markdown table and no extra headings:\n'+
-    'STANCE:\nCONFIDENCE:\nWHY_NOW:\nWHAT_CHANGED:\nBUSINESS:\nFINANCIAL_HEALTH:\nCAPITAL_AND_DILUTION:\nBULL_CASE:\nBEAR_CASE:\nCATALYSTS:\nVALUATION_AND_TARGET:\nACTION_PLAN:\nTHESIS_BREAKERS:\n\n'+
+    'Return exactly these headings. Keep every section under 70 words, use plain English, no markdown table and no extra headings. Prioritise decision conditions before background:\n'+
+    'STANCE:\nCONFIDENCE:\nWHY_NOW:\nACTION_PLAN:\nVALUATION_AND_TARGET:\nTHESIS_BREAKERS:\nWHAT_CHANGED:\nCAPITAL_AND_DILUTION:\nFINANCIAL_HEALTH:\nBULL_CASE:\nBEAR_CASE:\nCATALYSTS:\nBUSINESS:\n\n'+
     'EVIDENCE PACK:\n'+evidence;
   if(force)prompt+='\n\nREFRESH_REQUESTED_AT:'+new Date().toISOString();
   try{
