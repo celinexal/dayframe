@@ -1859,6 +1859,65 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 @media(max-width:900px){.invest-decision-overview,.invest-action-plan{grid-template-columns:1fr 1fr}.invest-decision-overview>button,.invest-action-plan>button{grid-column:1/-1;min-height:40px}.invest-market-reference-head{flex-direction:column;gap:8px}#pg-dashboard .dash-grid-3{grid-template-columns:1fr}.portfolio-dashboard-header{padding:28px}}
 @media(max-width:700px){.pay3-form-grid,.pay3-plan-list,.invest-decision-overview,.invest-action-plan,.invest-market-ref-grid{grid-template-columns:1fr}.invest-decision-overview>button,.invest-action-plan>button{grid-column:auto;min-height:42px}.pay3-plan-status{align-items:flex-start;flex-direction:column}.pay3-plan-actions{width:100%;justify-content:flex-start}#pg-dashboard .mrow{grid-template-columns:repeat(2,minmax(0,1fr))}.portfolio-dashboard-header{align-items:flex-start;flex-direction:column}.dash-sync-pill{width:100%}}
 @media(max-width:480px){#pg-dashboard .mrow{grid-template-columns:1fr}.invest-market-ref-card>small{min-height:0}}
+
+/* Dayframe: assessed learning and interactive chart guidance */
+#edu-selected:empty{display:none}
+.edu-selected-lesson{margin:18px 0 24px;overflow:hidden;border:1px solid #c7d2fe;background:linear-gradient(145deg,#fff 0%,#f8f7ff 54%,#f0fdf7 100%);box-shadow:0 18px 45px rgba(79,70,229,.09)}
+.edu-selected-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding:22px 24px;border-bottom:1px solid rgba(148,163,184,.2)}
+.edu-selected-head span{display:block;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6d5bd0;margin-bottom:6px}
+.edu-selected-head h3{margin:0;font-size:23px;line-height:1.2;color:var(--tx)}
+.edu-selected-head>b{font-size:11px;color:#087f5b;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:999px;padding:7px 10px;white-space:nowrap}
+.edu-selected-body{padding:22px 24px;font-size:14px;line-height:1.78;color:var(--t2)}
+.edu-selected-body p:first-child{margin-top:0}.edu-selected-body p:last-child{margin-bottom:0}
+.edu-selected-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 24px;border-top:1px solid rgba(148,163,184,.2)}
+.edu-selected-actions .btn{margin-left:auto}
+.edu-return{border:0;border-radius:999px;padding:9px 15px;background:var(--bl);color:#fff;font:700 12px var(--ff);cursor:pointer}
+.edu-quiz{margin:0 24px 22px;padding:18px;border:1px solid #d8d4ff;border-radius:16px;background:rgba(255,255,255,.84)}
+.edu-quiz-kicker{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6d5bd0}
+.edu-quiz h4{font-size:15px;margin:5px 0 13px;color:var(--tx)}
+.edu-quiz-options{display:grid;gap:9px}
+.edu-quiz-option{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:11px;background:#fff;color:var(--tx);cursor:pointer;font-family:var(--ff)}
+.edu-quiz-option>span{display:grid;place-items:center;flex:0 0 25px;height:25px;border-radius:8px;background:#f1f0ff;color:#635bcb;font-size:11px;font-weight:900}
+.edu-quiz-option>b{font-size:12px;line-height:1.55;font-weight:650}
+.edu-quiz-option:hover{border-color:#a5b4fc;transform:translateY(-1px)}
+.edu-quiz-option.correct{border-color:#6ee7b7;background:#ecfdf5}.edu-quiz-option.correct>span{background:#10b981;color:#fff}
+.edu-quiz-option.wrong{border-color:#fdba74;background:#fff7ed}.edu-quiz-option.wrong>span{background:#f97316;color:#fff}
+.edu-quiz-option:disabled{cursor:default;opacity:.78}
+.edu-quiz-feedback{margin-top:11px;font-size:11px;color:var(--t3)}
+.edu-quiz-feedback strong,.edu-quiz-feedback span{display:block}.edu-quiz-feedback.good strong{color:#087f5b}.edu-quiz-feedback.try strong{color:#c2410c}
+.edu-card-complete{display:inline-flex;margin:8px 0 0 6px;padding:3px 7px;border-radius:999px;background:#ecfdf5;color:#087f5b;font-size:9px;font-weight:800}
+.research-explain-output{padding:13px 14px 4px}
+.research-explain-cards,.research-explain-fallback{display:grid;gap:10px}
+.research-explain-cards section,.research-explain-fallback section,.research-explain-extra{padding:12px 13px;border:1px solid rgba(148,163,184,.24);border-radius:11px;background:rgba(255,255,255,.72)}
+.research-explain-cards strong,.research-explain-fallback strong,.research-explain-extra strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#635bcb;margin-bottom:5px}
+.research-explain-cards p,.research-explain-fallback p,.research-explain-extra p{margin:0!important;font-size:12px!important;line-height:1.7!important;color:var(--t2)!important}
+.research-explain-loading{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3)}
+.invest-brief-explainer>button{margin:10px 14px 14px}
+.chart-guide-buttons{display:flex!important;gap:7px!important;flex-wrap:wrap}
+.chart-guide-buttons button{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--bd);border-radius:999px;background:#fff;color:var(--t2);font:700 10px var(--ff);cursor:pointer}
+.chart-guide-buttons button:hover,.chart-guide-buttons button.on{border-color:#818cf8;background:#eef2ff;color:#3730a3}
+#sc .chart-guide{transition:opacity .18s ease,filter .18s ease;cursor:pointer}
+#sc .chart-guide.chart-muted{opacity:.12}
+#sc .chart-guide.chart-focused{opacity:1;filter:drop-shadow(0 0 4px rgba(79,70,229,.45))}
+.chart-term-explainer{margin-top:9px;padding:12px 13px;border:1px solid #c7d2fe;border-radius:11px;background:#f7f7ff}
+.chart-term-explainer>div>span{display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#635bcb}
+.chart-term-explainer strong{display:block;font-size:13px;color:var(--tx);margin:3px 0}
+.chart-term-explainer p{margin:0;font-size:11px;line-height:1.65;color:var(--t2)}
+.chart-term-explainer small{display:block;margin-top:5px;color:var(--t3)}
+.chart-term-explainer>button,.chart-pattern-guide{margin-top:9px;border:1px solid #c7d2fe;border-radius:999px;background:#fff;color:#4f46e5;padding:6px 10px;font:800 10px var(--ff);cursor:pointer}
+.fund-explain-cards{display:grid;gap:9px}
+.fund-explain-cards section{padding:11px 12px;border:1px solid var(--bd);border-radius:10px;background:#fff}
+.fund-explain-cards strong{display:block;font-size:11px;color:var(--tx);margin-bottom:4px}
+.fund-explain-cards p,.fund-ai-context p{margin:0;font-size:11px;line-height:1.65;color:var(--t2)}
+.fund-ai-context{margin-top:9px;padding-top:9px;border-top:1px solid var(--bd);font-size:10px;color:var(--t3)}
+.fund-ai-context strong{display:block;color:#635bcb;margin-bottom:4px}
+@media(max-width:700px){
+ .edu-selected-head,.edu-selected-body,.edu-selected-actions{padding-left:16px;padding-right:16px}
+ .edu-selected-head{flex-direction:column}.edu-selected-head h3{font-size:20px}
+ .edu-quiz{margin-left:16px;margin-right:16px;padding:14px}
+ .edu-selected-actions .btn{margin-left:0}
+ .chart-guide-buttons button{flex:1 1 calc(50% - 7px);justify-content:center}
+}
 </style>
 </head>
 <body>
@@ -2681,7 +2740,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 
     <aside class="bible-study-side">
       <section class="life-card bible-explain-side">
-        <div class="bible-explain-side-head"><span>Passage guide</span><strong>Understand what you’re reading</strong><p>A plain-English study aid for the open passage or the words you select.</p></div>
+        <div class="bible-explain-side-head"><span>Passage guide</span><strong>Understand what you’re reading</strong><p>A clear study aid for the open passage or the words you select.</p></div>
         <div class="bible-explain-wrap">
           <button class="bible-explain-btn" id="bible-explain-btn" type="button" onclick="bibleExplainPassage(false)">✦ Explain this passage</button>
           <div class="bible-explain-panel" id="bible-explain-panel"></div>
@@ -2814,7 +2873,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <div class="dash-card-head">
         <div>
           <div class="dash-card-title">Portfolio briefing</div>
-          <div style="font-size:11px;color:var(--t3);margin-top:1px">A plain-English summary of changes and risks</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:1px">A clear summary of changes and risks</div>
         </div>
         <button class="btn ba" style="font-size:11px;padding:5px 10px" onclick="runAISummary()">Get Brief</button>
       </div>
@@ -3743,12 +3802,12 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <div class="edu-hero-kicker">Dayframe learning</div>
       <div class="edu-hero-title">Invest with more understanding.</div>
       <div class="edu-hero-sub">Clear UK-focused lessons that explain the ideas behind your portfolio — without jargon, hype or pretending risk does not exist.</div>
-      <div class="edu-trust-row"><span>Plain English</span><span>Short lessons</span><span>Progress saved</span></div>
+      <div class="edu-trust-row"><span>Clear explanations</span><span>Short lessons</span><span>Checks completed</span></div>
     </div>
     <div class="edu-progress-card">
       <div class="edu-progress-top"><span>Your learning progress</span><strong id="edu-progress-value">0%</strong></div>
       <div class="edu-progress-track"><i id="edu-progress-bar"></i></div>
-      <p id="edu-progress-note">Open a lesson to begin.</p>
+      <p id="edu-progress-note">Pass a short check to begin.</p>
       <button onclick="eduContinue()">Continue learning →</button>
     </div>
   </section>
@@ -3759,13 +3818,14 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
   <div class="edu-path-grid">
     <button class="edu-path-card basics" onclick="eduFilter('basics',document.querySelector('.edu-nav-btn[data-edu-cat=basics]'))"><span>01</span><div><strong>Build the foundations</strong><small>Stocks, brokers, exchanges, ISAs and the language of investing.</small></div><i>→</i></button>
     <button class="edu-path-card risk" onclick="eduFilter('risk',document.querySelector('.edu-nav-btn[data-edu-cat=risk]'))"><span>02</span><div><strong>Protect yourself</strong><small>Risk, concentration, dilution and the warning signs to notice.</small></div><i>→</i></button>
-    <button class="edu-path-card analysis" onclick="eduFilter('analysis',document.querySelector('.edu-nav-btn[data-edu-cat=analysis]'))"><span>03</span><div><strong>Read a company</strong><small>Revenue, profit, valuation, earnings and a repeatable research process.</small></div><i>→</i></button>
+    <button class="edu-path-card analysis" onclick="eduFilter('analysis',document.querySelector('.edu-nav-btn[data-edu-cat=analysis]'))"><span>03</span><div><strong>Understand a company</strong><small>Revenue, profit, valuation, earnings and a repeatable research process.</small></div><i>→</i></button>
   </div>
-  <div class="edu-library-head"><div><span>Learning library</span><h2>Choose what you want to understand</h2></div><p>Opening a lesson marks it as read. You can return whenever you like.</p></div>
+  <div id="edu-selected"></div>
+  <div class="edu-library-head"><div><span>Learning library</span><h2>Choose what you want to understand</h2></div><p>Pass the short check at the end of a lesson to add it to your progress.</p></div>
   <div class="edu-nav">
     <button class="edu-nav-btn on" data-edu-cat="basics" onclick="eduFilter('basics',this)">The Basics</button>
     <button class="edu-nav-btn" data-edu-cat="risk" onclick="eduFilter('risk',this)">Risk & Safety</button>
-    <button class="edu-nav-btn" data-edu-cat="analysis" onclick="eduFilter('analysis',this)">Reading Stocks</button>
+    <button class="edu-nav-btn" data-edu-cat="analysis" onclick="eduFilter('analysis',this)">Company Research</button>
     <button class="edu-nav-btn" data-edu-cat="portfolio" onclick="eduFilter('portfolio',this)">Your Portfolio</button>
     <button class="edu-nav-btn" data-edu-cat="all" onclick="eduFilter('all',this)">All Topics</button>
   </div>
@@ -3806,7 +3866,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
     <div onclick="themeToggle('etf-what')" style="background:#fff;padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
       <div style="display:flex;align-items:center;gap:10px">
         <div style="width:10px;height:10px;background:#1d4ed8;border-radius:50%;flex-shrink:0"></div>
-        <div><div style="font-size:13px;font-weight:700;color:#0f172a">What exactly is an ETF?</div><div style="font-size:11px;color:#1d4ed8">Plain English — no jargon</div></div>
+        <div><div style="font-size:13px;font-weight:700;color:#0f172a">What exactly is an ETF?</div><div style="font-size:11px;color:#1d4ed8">Clear explanation — no jargon</div></div>
       </div>
       <span id="chev-etf-what" style="color:#94a3b8;font-size:12px;transition:transform .2s">▼</span>
     </div>
@@ -3886,7 +3946,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 </div>
 
 <div class="pg" id="pg-glossary">
-  <div class="ph"><div><div class="pt">Glossary</div><div class="ps">Every investing term explained in plain English</div></div></div>
+  <div class="ph"><div><div class="pt">Glossary</div><div class="ps">Every investing term explained in clear everyday language</div></div></div>
   <input class="gsearch" id="gsearch" placeholder="Search terms e.g. dilution, P/E, RSI..." oninput="filterGloss(this.value)"/>
   <div class="ggl" id="ggl"></div>
 </div>
@@ -5165,7 +5225,7 @@ async function loadVIX(tk, sector, trend){
 
 // ── PERSONAL HUB DATA & RENDERING ──
 const HUB_STORE_KEY='dayframe_personal_hub_v1';
-const hubDefault=()=>({preferences:{home:{modules:['money','planner','driving','diary','bible','investing'],hidden:[],widgets:{coming:true,goals:true,diary:true}}},money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,regularBillSelections:[],regularBillsSource:'',previousRegularBillsSuggestion:0,savingGoalSelections:[],savingsSource:'',incomeSource:'',savings:0,buffer:0,investing:0,extraCredit:0,startDay:1,aiNote:'',aiSuggestedAt:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},payInThreeMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],diaryCustomMoods:[],diaryAiContext:'',bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
+const hubDefault=()=>({preferences:{home:{modules:['money','planner','driving','diary','bible','investing'],hidden:[],widgets:{coming:true,goals:true,diary:true}}},money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,regularBillSelections:[],regularBillsSource:'',previousRegularBillsSuggestion:0,savingGoalSelections:[],savingsSource:'',incomeSource:'',savings:0,buffer:0,investing:0,extraCredit:0,startDay:1,aiNote:'',aiSuggestedAt:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},payInThreeMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],diaryCustomMoods:[],diaryAiContext:'',bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],learningPassed:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
 function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage.getItem(dfKey(HUB_STORE_KEY))||'{}'));}catch(e){return hubDefault();}}
 let _hubSyncTimer=null,_hubSyncChain=Promise.resolve(true);
 function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
@@ -6547,7 +6607,7 @@ async function bibleExplainPassage(fromSelection=false){
  const panel=document.getElementById('bible-explain-panel'),button=document.getElementById('bible-explain-btn'),b=bibleState(),selected=fromSelection?_bibleSelection:null,root=bibleReaderTextRoot(),reference=selected?.passage||bibleRef(b.book,b.chapter),passage=(selected?.text||root?.innerText||'').trim().slice(0,6500);
  if(!panel)return;if(!passage){panel.classList.add('show');panel.innerHTML='<div class="bible-explain-section"><strong>Open the passage first</strong><p>Once the Scripture text is visible, Dayframe can help you study it.</p></div>';return}
  if(button){button.disabled=true;button.textContent='Explaining…'}panel.classList.add('show');panel.innerHTML='<span class="bible-explain-tag">AI-generated study aid · not doctrine</span><div class="bible-explain-section"><p>Looking at '+hubEsc(reference)+' in context…</p></div>';
- const prompt='Explain this Bible passage as a careful study aid for a Christian reader. Return valid JSON only with keys "context", "meaning", and "cross_references" (an array of 2 to 4 Bible references). Distinguish the text from interpretation, avoid claiming one disputed interpretation is unquestionably correct, and do not invent historical facts. Use plain English and keep context and meaning under 90 words each. Translation: '+b.translation+'. Reference: '+reference+'. Passage: '+passage;
+ const prompt='Explain this Bible passage as a careful study aid for a Christian reader. Return valid JSON only with keys "context", "meaning", and "cross_references" (an array of 2 to 4 Bible references). Distinguish the text from interpretation, avoid claiming one disputed interpretation is unquestionably correct, and do not invent historical facts. Use clear everyday language and keep context and meaning under 90 words each. Translation: '+b.translation+'. Reference: '+reference+'. Passage: '+passage;
  try{
   const raw=await callClaude(prompt);if(!raw)throw new Error('No explanation was returned.');
   let parsed=null;try{const match=String(raw).match(/\{[\s\S]*\}/);if(match)parsed=JSON.parse(match[0])}catch(_){}
@@ -6957,7 +7017,7 @@ function showTrendlineExplainer(prices, trendlineHit, isBroken) {
     + tlLabel
     + '</svg>';
 
-  // Plain English breakdown
+  // Clear explanation breakdown
   const breakdown = isBroken
     ? '<div style="margin-top:10px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px">'
       + '<div style="font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">What trendline support means — and what it means when it breaks</div>'
@@ -7263,7 +7323,7 @@ function detectChartPattern(prices, tk){
       name: 'Descending triangle — Warning', col: '#dc2626', bg: '#fef2f2', border: '#fecaca',
       simple: 'Each rally is getting weaker — the stock keeps hitting a lower ceiling. Meanwhile the low point stays roughly flat.',
       whatItMeans: 'Like a ball bouncing lower and lower against a floor. Eventually the floor breaks.',
-      action: 'Watch the recent low closely. If the price breaks below it with volume, that is typically a sell signal.'
+      action: 'Watch whether the price closes below the recent low while trading activity rises. Some traders treat that as a warning that sellers are taking control—not an automatic instruction to sell.'
     };
   } else {
     pattern = {
@@ -7279,11 +7339,14 @@ function detectChartPattern(prices, tk){
   el.style.display = 'block';
   el.style.background = pattern.bg;
   el.style.border = '1px solid ' + pattern.border;
+  const guideTerm=pattern.name.includes('high')?'resistance':(pattern.name.includes('low')||pattern.name.includes('Descending'))?'support':pattern.name.includes('trend')?'price':'price';
+  const guideLabel=guideTerm==='resistance'?'Show the recent ceiling':guideTerm==='support'?'Show the recent low':'Show the price line';
   el.innerHTML =
     '<div style="font-size:10px;font-weight:700;color:'+pattern.col+';text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Chart pattern: '+pattern.name+'</div>'+
     '<div style="font-size:12px;color:var(--tx);margin-bottom:4px;font-weight:600">'+pattern.simple+'</div>'+
     '<div style="font-size:11px;color:var(--t2);margin-bottom:6px;line-height:1.6">'+pattern.whatItMeans+'</div>'+
-    '<div style="font-size:12px;color:'+pattern.col+';font-weight:600">&rarr; '+pattern.action+'</div>';
+    '<div style="font-size:12px;color:'+pattern.col+';font-weight:600">&rarr; '+pattern.action+'</div>'+
+    '<button type="button" class="chart-pattern-guide" onclick="focusChartGuide(\''+guideTerm+'\')">'+guideLabel+' on the chart →</button>';
 }
 
 function calcRSI(prices,n=14){
@@ -7398,9 +7461,9 @@ async function openChart(tk){
 
   // ── RESEARCH BRIEF ─────────────────────────────────────────────────────
   _html += '<div class="invest-research-brief dash-card invest-deep-research" id="research-brief-card">';
-  _html += '<div class="invest-research-brief-head"><div><span>Beginner-friendly decision support</span><h2>Stock analysis</h2><p>Start with a plain-English summary and decision plan. Open the detail only when you want to understand the evidence behind it.</p></div><span class="invest-source-pill">Live sources</span></div>';
+  _html += '<div class="invest-research-brief-head"><div><span>Beginner-friendly decision support</span><h2>Stock analysis</h2><p>Start with a clear summary and decision plan. Open the detail only when you want to understand the evidence behind it.</p></div><span class="invest-source-pill">Live sources</span></div>';
   _html += '<div id="research-brief-body" class="invest-research-brief-body">';
-  _html += '<div class="invest-brief-preview invest-brief-preview-deep"><div><b>01</b><span>Decision</span></div><div><b>02</b><span>Plain English</span></div><div><b>03</b><span>Evidence</span></div><div><b>04</b><span>Learn</span></div></div>';
+  _html += '<div class="invest-brief-preview invest-brief-preview-deep"><div><b>01</b><span>Decision</span></div><div><b>02</b><span>Clear summary</span></div><div><b>03</b><span>Evidence</span></div><div><b>04</b><span>Learn</span></div></div>';
   _html += '<div class="invest-brief-cta"><p>Uses current market data, recent filings and dated headlines. Important terms are explained, and every source appears below.</p><button type="button" onclick="loadResearchBrief(\''+tk+'\',stockContext(\''+tk+'\'))">Build full analysis</button></div>';
   _html += '</div></div>';
 
@@ -7446,7 +7509,8 @@ async function openChart(tk){
   _html += '<div class="dash-card-head"><div class="dash-card-title">6-month chart</div><span style="font-size:11px;color:var(--t3);font-weight:500">Yahoo Finance</span></div>';
   _html += '<div class="dash-card-body">';
   _html += '<div class="cwrap"><svg id="sc" viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Six-month price chart" style="display:block;width:100%;height:100%;overflow:visible"></svg></div>';
-  _html += '<div class="cleg" style="margin-top:8px"><span><span class="cdot" style="background:#4f46e5"></span>Price</span><span><span class="cdot" style="background:var(--gn)"></span>Support</span><span><span class="cdot" style="background:var(--rd)"></span>Resistance</span><span><span class="cdot" style="background:var(--am)"></span>50d MA</span></div>';
+  _html += '<div class="cleg chart-guide-buttons" style="margin-top:8px"><button type="button" data-chart-guide="price" onclick="focusChartGuide(\'price\')"><span class="cdot" style="background:#4f46e5"></span>Price line</button><button type="button" data-chart-guide="support" onclick="focusChartGuide(\'support\')"><span class="cdot" style="background:var(--gn)"></span>Recent low</button><button type="button" data-chart-guide="resistance" onclick="focusChartGuide(\'resistance\')"><span class="cdot" style="background:var(--rd)"></span>Recent ceiling</button><button type="button" data-chart-guide="average" onclick="focusChartGuide(\'average\')"><span class="cdot" style="background:var(--am)"></span>Average line</button></div>';
+  _html += '<div id="chart-term-explainer" class="chart-term-explainer" style="display:none"></div>';
   _html += '<div class="rsi-wrap" style="margin-top:14px">';
   _html += '<div style="font-size:11px;color:var(--t3);margin-bottom:8px">\uD83D\uDCC8 <strong style="color:var(--tx)">Momentum (RSI)</strong> \u2014 0\u2013100. Under 30 = beaten down. Over 70 = running hot.</div>';
   _html += '<div class="rsi-head"><span style="font-size:12px;font-weight:700;color:var(--t2)">RSI score</span><span id="rsi-v" style="font-weight:700">\u2014</span></div>';
@@ -7464,7 +7528,7 @@ async function openChart(tk){
   _html += '<span style="font-size:10px;font-weight:600;color:var(--t3);background:var(--sf2);padding:3px 8px;border-radius:20px;border:1px solid var(--bd)" id="fund-src">Loading...</span></div>';
   _html += '<div class="dash-card-body" style="max-height:420px;overflow-y:auto"><div id="fund-body"><div style="font-size:12px;color:var(--t3)">Loading market data…</div></div></div>';
   _html += '<div style="padding:10px 16px;border-top:1px solid var(--bd)">';
-  _html += '<button id="fund-explain-btn" onclick="explainFundamentals(\''+tk+'\')" style="width:100%;padding:9px;background:var(--blb);border:1px solid var(--blbr);border-radius:10px;font-size:13px;font-weight:700;color:var(--bl);cursor:pointer;font-family:var(--ff)">What do these numbers mean for '+tk+'?</button>';
+  _html += '<button id="fund-explain-btn" onclick="explainFundamentals(\''+tk+'\')" style="width:100%;padding:9px;background:var(--blb);border:1px solid var(--blbr);border-radius:10px;font-size:13px;font-weight:700;color:var(--bl);cursor:pointer;font-family:var(--ff)">Help me understand these numbers</button>';
   _html += '<div id="fund-explain" style="display:none;margin-top:10px;font-size:13px;color:var(--t2);line-height:1.75;padding:12px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px"></div>';
   _html += '</div>';
   _html += '</div>';
@@ -7621,17 +7685,17 @@ function researchBriefSections(text){
   return parts;
 }
 const RESEARCH_BRIEF_DEFS=[
-  {key:'WHY_NOW',num:'01',title:'Why it matters now',tone:'blue',guide:'This explains why the stock deserves attention today rather than at some unknown point in the future.',topic:'research-checklist'},
-  {key:'WHAT_CHANGED',num:'02',title:'What changed',tone:'violet',guide:'This separates genuinely new information from an old story that may already be reflected in the price.',topic:'research-checklist'},
-  {key:'BUSINESS',num:'03',title:'What the company does',tone:'slate',guide:'Start here: understand what the company sells, who pays it and what would make demand grow.',topic:'what-is-a-stock'},
-  {key:'FINANCIAL_HEALTH',num:'04',title:'Financial health',tone:'amber',guide:'This looks at sales, profit, cash, debt and cash flow together to judge whether the company can fund its plans.',topic:'financial-health'},
-  {key:'CAPITAL_AND_DILUTION',num:'05',title:'New shares and funding',tone:'rose',guide:'A company may raise cash by issuing new shares. That can help the business but reduces each existing shareholder’s percentage ownership.',topic:'dilution'},
-  {key:'BULL_CASE',num:'06',title:'Reasons it could go well',tone:'green',guide:'The bull case is the strongest evidence-based version of what could succeed. It is a possibility, not a prediction.',topic:'what-is-risk'},
-  {key:'BEAR_CASE',num:'07',title:'Risks and weak points',tone:'rose',guide:'The bear case asks what could disappoint, fail or make the current price too optimistic.',topic:'what-is-risk'},
-  {key:'CATALYSTS',num:'08',title:'What could move the price',tone:'violet',guide:'A catalyst is a future event—such as results, guidance or a product milestone—that could change what investors believe.',topic:'earnings'},
-  {key:'VALUATION_AND_TARGET',num:'09',title:'Is the price reasonable?',tone:'blue',guide:'Valuation compares the share price with the company’s sales, profit, cash flow and realistic growth. Chart levels alone are not valuation.',topic:'valuation-basics'},
-  {key:'ACTION_PLAN',num:'10',title:'Decision plan',tone:'green',guide:'These are conditions to review before adding, holding, trimming or exiting—not an instruction or guarantee.',topic:'position-sizing'},
-  {key:'THESIS_BREAKERS',num:'11',title:'Reasons to rethink completely',tone:'rose',guide:'A thesis breaker is evidence that the original reason for owning the stock may no longer be true.',topic:'research-checklist'}
+  {key:'WHY_NOW',num:'01',title:'Why it matters now',tone:'blue',guide:'This checks why the stock deserves attention now. A recent event matters only if it could change the company’s sales, costs, cash or future prospects.',next:'Check the date, the original source and whether the event changes the business rather than only the share price.',topic:'research-checklist'},
+  {key:'WHAT_CHANGED',num:'02',title:'What changed',tone:'violet',guide:'This separates new evidence from an old story. A share can move on information that investors already knew, so “new” and “important” are not the same thing.',next:'Compare the new fact with the previous results or guidance and ask what is genuinely different.',topic:'research-checklist'},
+  {key:'BUSINESS',num:'03',title:'What the company does',tone:'slate',guide:'This is the basic business model: what the company sells, who pays for it and why customers choose it. If that is unclear, the rest of the analysis is built on weak foundations.',next:'Try to name the product, customer, reason to buy and way the company gets paid in one sentence each.',topic:'what-is-a-stock'},
+  {key:'FINANCIAL_HEALTH',num:'04',title:'Financial health',tone:'amber',guide:'Sales show demand, profit shows what remains after costs, cash shows how long the company can operate and debt shows what it owes. One strong number does not cancel out weakness in the others.',next:'Look for improving sales and cash flow, enough cash to fund the plan, and debt the company can realistically repay.',topic:'financial-health'},
+  {key:'CAPITAL_AND_DILUTION',num:'05',title:'New shares and funding',tone:'rose',guide:'A company can raise money by creating and selling new shares. The cash may help the business, but every existing share then represents a slightly smaller piece of the company.',next:'Check how much cash was raised, what it will fund and how many new shares could be created.',topic:'dilution'},
+  {key:'BULL_CASE',num:'06',title:'Reasons it could go well',tone:'green',guide:'This is the strongest realistic case for success, supported by evidence rather than excitement. It describes what would need to happen; it is not a promise that it will happen.',next:'Identify the measurable result—such as revenue, orders or margins—that would prove this case is becoming real.',topic:'what-is-risk'},
+  {key:'BEAR_CASE',num:'07',title:'Risks and weak points',tone:'rose',guide:'This asks how the company or share price could disappoint. A useful risk is specific and measurable, not simply “the price could fall.”',next:'Ask which warning sign would appear first and whether the company has enough cash and time to recover.',topic:'what-is-risk'},
+  {key:'CATALYSTS',num:'08',title:'What could move the price',tone:'violet',guide:'A catalyst is a dated event that could change what investors believe, such as results, guidance, a contract or a product milestone. It can move the price up or down.',next:'Find the expected date and decide what good, neutral and disappointing outcomes would look like before the event.',topic:'earnings'},
+  {key:'VALUATION_AND_TARGET',num:'09',title:'Is the price reasonable?',tone:'blue',guide:'Valuation asks how much you are paying for the company’s sales, profit, cash flow and expected growth. A chart level shows where people traded; it does not show what the business is worth.',next:'Check which valuation method is being used and whether the company has enough reliable financial data to support it.',topic:'valuation-basics'},
+  {key:'ACTION_PLAN',num:'10',title:'Decision plan',tone:'green',guide:'A decision plan sets conditions for adding, holding, trimming or reviewing before emotion takes over. It is a checklist for future evidence, not an instruction or guarantee.',next:'Make every condition measurable and review it when new results arrive—not simply because the daily price changed.',topic:'position-sizing'},
+  {key:'THESIS_BREAKERS',num:'11',title:'Reasons to rethink completely',tone:'rose',guide:'A thesis breaker is evidence that the original reason for owning the stock may no longer be true. A temporary price fall is not automatically a broken thesis.',next:'Write down the business fact that would prove your original reason wrong, then monitor that fact over time.',topic:'research-checklist'}
 ]
 function researchSafeUrl(value){
   try{const url=new URL(String(value||''));return url.protocol==='https:'?url.toString():''}catch(e){return ''}
@@ -7742,12 +7806,49 @@ function researchMarketReferenceCards(data,tk){
  if(!rows.length)return '<div class="invest-market-ref-empty"><strong>Market reference unavailable</strong><span>Refresh the analysis later before using price levels.</span></div>';
  return '<div class="invest-market-ref-grid">'+rows.map(row=>'<button type="button" class="invest-market-ref-card '+row.tone+'" onclick="goEduFromStock(\''+row.topic+'\',\''+hubEsc(tk)+'\')"><span>'+hubEsc(row.label)+'</span><strong>'+hubEsc(row.value)+'</strong><small>'+hubEsc(row.help)+'</small><i>Learn what this means →</i></button>').join('')+'</div>'
 }
+const _researchExplainCache={};
+function researchExplainFallback(def){
+  return '<div class="research-explain-fallback"><section><strong>What this section is checking</strong><p>'+hubEsc(def?.guide||'This section checks one part of the investment case.')+'</p></section><section><strong>What to look for next</strong><p>'+hubEsc(def?.next||'Check the original evidence and compare it with the next company update.')+'</p></section></div>';
+}
+function researchExplainResult(text,def){
+  const clean=String(text||'').replace(/\*\*/g,'').replace(/#{1,6}\s*/g,'').trim();
+  const labels=[['WHAT IT SAYS','What it says'],['WHY IT MATTERS','Why it matters'],['WHAT TO CHECK','What to check next']];
+  const found=[];
+  labels.forEach((item,index)=>{
+    const next=labels[index+1]?.[0];
+    const pattern=next?new RegExp(item[0]+'\\s*:?\\s*([\\s\\S]*?)(?='+next+'\\s*:|$)','i'):new RegExp(item[0]+'\\s*:?\\s*([\\s\\S]*)','i');
+    const match=clean.match(pattern),value=match?match[1].replace(/^[:\s]+/,'').trim():'';
+    if(value)found.push({label:item[1],value});
+  });
+  if(found.length<2)return researchExplainFallback(def)+(clean?'<div class="research-explain-extra"><strong>Explanation</strong><p>'+hubEsc(clean).replace(/\n/g,'<br>')+'</p></div>':'');
+  return '<div class="research-explain-cards">'+found.map(item=>'<section><strong>'+item.label+'</strong><p>'+hubEsc(item.value).replace(/\n/g,'<br>')+'</p></section>').join('')+'</div>';
+}
+async function researchExplainSection(key,tk,details){
+  const output=details?.querySelector('.research-explain-output');if(!output||details.dataset.loading==='1'||details.dataset.loaded==='1')return;
+  const def=RESEARCH_BRIEF_DEFS.find(item=>item.key===key),answer=details.closest('.invest-brief-item')?.querySelector('.invest-brief-answer')?.innerText?.trim()||'';
+  const cacheKey=tk+'|'+key+'|'+answer;
+  details.dataset.loading='1';
+  output.innerHTML=researchExplainFallback(def)+'<div class="research-explain-loading"><span class="spin"></span>Adding an explanation of this exact result…</div>';
+  if(_researchExplainCache[cacheKey]){
+    output.innerHTML=_researchExplainCache[cacheKey];details.dataset.loaded='1';details.dataset.loading='0';return;
+  }
+  if(!aiKey){
+    const fallback=researchExplainFallback(def);_researchExplainCache[cacheKey]=fallback;output.innerHTML=fallback;details.dataset.loaded='1';details.dataset.loading='0';return;
+  }
+  try{
+    const prompt='Explain this exact stock-analysis section to someone completely new to investing. Use only the text supplied; do not add company facts. Define every investing term and explain what each number or comparison changes. Use one everyday example where helpful. Do not tell the reader to buy or sell. Keep it under 150 words. Reply with exactly these headings:\nWHAT IT SAYS:\nWHY IT MATTERS:\nWHAT TO CHECK:\n\nSECTION: '+(def?.title||key)+'\nTEXT: '+answer;
+    const result=await callClaude(prompt,650),html=result?researchExplainResult(result,def):researchExplainFallback(def);
+    _researchExplainCache[cacheKey]=html;output.innerHTML=html;details.dataset.loaded='1';
+  }catch(error){
+    const fallback=researchExplainFallback(def);_researchExplainCache[cacheKey]=fallback;output.innerHTML=fallback;details.dataset.loaded='1';
+  }finally{details.dataset.loading='0'}
+}
 function renderResearchBrief(host,sections,data,h,note='',canRetry=false,tk=''){
-  const valid=RESEARCH_BRIEF_DEFS.filter(def=>def.key!=='ACTION_PLAN'&&sections[def.key]),stance=sections.STANCE||'Watch',confidence=sections.CONFIDENCE||'Evidence still limited',plain=sections.PLAIN_ENGLISH_SUMMARY||sections.WHY_NOW||'Start with the decision conditions, then open the detail only where you need it.',action=sections.ACTION_PLAN||'Use the evidence below to decide what would make you add, hold, trim or fully review the position.',updated=researchSourceDate(data?.captured_at);
-  host.innerHTML='<section class="invest-decision-overview"><div class="invest-stance-block"><span>Current stance</span><strong class="'+researchStanceClass(stance)+'">'+hubEsc(stance)+'</strong><small>'+hubEsc(confidence)+'</small></div><div class="invest-beginner-summary"><span>In plain English</span><p>'+hubEsc(plain).replace(/\n/g,'<br>')+'</p></div><button type="button" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'),true)">↻ Update analysis</button></section>'+
-    '<section class="invest-action-plan"><div><span>Decision plan</span><h3>How to use this analysis</h3></div><p>'+hubEsc(action).replace(/\n/g,'<br>')+'</p><button type="button" onclick="goEduFromStock(\'position-sizing\',\''+hubEsc(tk)+'\')">Learn about position sizing →</button></section>'+
-    '<section class="invest-market-reference"><div class="invest-market-reference-head"><div><span>Market reference</span><h3>Price context, separated and explained</h3><p>These figures describe where the share price is—not whether the company is a good investment. Select a value to learn the term.</p></div><small>'+(updated?'Sources refreshed '+hubEsc(updated):'Refresh the evidence before acting')+'</small></div>'+researchMarketReferenceCards(data,tk)+'</section>'+
-    '<div class="invest-brief-grid invest-brief-grid-deep">'+valid.map(def=>'<article class="invest-brief-item '+def.tone+'"><div><b>'+def.num+'</b><span>'+def.title+'</span></div><p>'+hubEsc(sections[def.key]).replace(/\n/g,'<br>')+'</p><details class="invest-brief-explainer"><summary>Explain this in simple terms <i>＋</i></summary><div><p>'+hubEsc(def.guide)+'</p><button type="button" onclick="goEduFromStock(\''+def.topic+'\',\''+hubEsc(tk)+'\')">Learn this topic →</button></div></details></article>').join('')+'</div>'+
+  const valid=RESEARCH_BRIEF_DEFS.filter(def=>def.key!=='ACTION_PLAN'&&sections[def.key]),stance=sections.STANCE||'Watch',confidence=sections.CONFIDENCE||'Evidence still limited',summary=sections.PLAIN_ENGLISH_SUMMARY||sections.WHY_NOW||'Start with the decision conditions, then open the detail only where you need it.',action=sections.ACTION_PLAN||'Use the evidence below to decide what would make you add, hold, trim or fully review the position.',updated=researchSourceDate(data?.captured_at);
+  host.innerHTML='<section class="invest-decision-overview"><div class="invest-stance-block"><span>Current stance</span><strong class="'+researchStanceClass(stance)+'">'+hubEsc(stance)+'</strong><small>'+hubEsc(confidence)+'</small></div><div class="invest-beginner-summary"><span>What this means</span><p>'+hubEsc(summary).replace(/\n/g,'<br>')+'</p></div><button type="button" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'),true)">↻ Update analysis</button></section>'+
+    '<section class="invest-action-plan"><div><span>Decision plan</span></div><p>'+hubEsc(action).replace(/\n/g,'<br>')+'</p><button type="button" onclick="goEduFromStock(\'position-sizing\',\''+hubEsc(tk)+'\')">Learn about position sizing →</button></section>'+
+    '<section class="invest-market-reference"><div class="invest-market-reference-head"><div><span>Market reference</span><h3>Price guide</h3><p>These figures show where the share price has traded. Select one to see what the term means.</p></div><small>'+(updated?'Sources refreshed '+hubEsc(updated):'Refresh the evidence before acting')+'</small></div>'+researchMarketReferenceCards(data,tk)+'</section>'+
+    '<div class="invest-brief-grid invest-brief-grid-deep">'+valid.map(def=>'<article class="invest-brief-item '+def.tone+'"><div><b>'+def.num+'</b><span>'+def.title+'</span></div><p class="invest-brief-answer">'+hubEsc(sections[def.key]).replace(/\n/g,'<br>')+'</p><details class="invest-brief-explainer" ontoggle="if(this.open)researchExplainSection(\''+def.key+'\',\''+hubEsc(tk)+'\',this)"><summary>Explain this result <i>＋</i></summary><div class="research-explain-output">'+researchExplainFallback(def)+'</div><button type="button" onclick="goEduFromStock(\''+def.topic+'\',\''+hubEsc(tk)+'\')">Learn this topic →</button></details></article>').join('')+'</div>'+
     '<section class="invest-research-sources"><div><span>Evidence</span><h3>Sources used</h3><p>Open the filing or article to verify the detail and context yourself.</p></div>'+renderResearchSources(data)+'</section>'+
     (note?'<div class="invest-brief-error" style="margin-top:10px">'+hubEsc(note)+(canRetry?' <button type="button" class="invest-brief-retry" onclick="loadResearchBrief(\''+hubEsc(tk)+'\',stockContext(\''+hubEsc(tk)+'\'),true)">Try again</button>':'')+'</div>':'')+
     '<div class="invest-brief-foot"><span>Decision support, not a guarantee or regulated financial recommendation · figures can change · read primary filings before acting</span></div>';
@@ -7774,7 +7875,7 @@ async function loadResearchBrief(tk,h,force=false){
   const evidence=researchEvidencePack(data,h);
   let prompt='You are Dayframe’s evidence-grounded stock analyst. Write the final answer immediately and use ONLY the EVIDENCE PACK below as factual support. Do not use remembered company facts, prices, dates, contracts, customers or analyst targets. If a claim is not supported, say the evidence is insufficient. Distinguish a filing from a news headline and never treat a headline as proof. The user wants practical decision support for a complete beginner. Use everyday language and explain any unavoidable investing term the first time it appears. Do not promise returns. Cite factual claims with the supplied source labels in square brackets, for example [S2]. Never invent a source label.\n\n'+
     'Choose one stance: ADD CAUTIOUSLY, HOLD, TRIM, EXIT, or WATCH. EXIT requires clear thesis-breaking evidence; a price loss alone is not evidence. Position return must not determine the fundamental stance. For VALUATION_AND_TARGET, give a number or range only when the supplied financial or market evidence supports a named method. Clearly label a chart level as technical, not a fundamental valuation. Otherwise say there is no defensible target yet and name the missing data. ACTION_PLAN must explicitly include: Add only if; Hold while; Trim if; Exit or review if.\n\n'+
-    'Return exactly these headings. Keep every section under 55 words, use plain English, no markdown table and no extra headings. PLAIN_ENGLISH_SUMMARY must be 3-5 short sentences that explain the whole conclusion without jargon. Prioritise decision conditions before background:\n'+
+    'Return exactly these headings. Keep every section under 55 words, use clear everyday language, no markdown table and no extra headings. PLAIN_ENGLISH_SUMMARY must be 3-5 short sentences that explain the whole conclusion without jargon. Prioritise decision conditions before background:\n'+
     'STANCE:\nCONFIDENCE:\nPLAIN_ENGLISH_SUMMARY:\nWHY_NOW:\nACTION_PLAN:\nVALUATION_AND_TARGET:\nTHESIS_BREAKERS:\nWHAT_CHANGED:\nCAPITAL_AND_DILUTION:\nFINANCIAL_HEALTH:\nBULL_CASE:\nBEAR_CASE:\nCATALYSTS:\nBUSINESS:\n\n'+
     'EVIDENCE PACK:\n'+evidence;
   if(force)prompt+='\n\nREFRESH_REQUESTED_AT:'+new Date().toISOString();
@@ -7890,7 +7991,7 @@ async function loadAbout(tk, h){
   }
   try{
     const result = await callClaude(
-      'Stock: '+tk+' ('+h.name+', sector: '+h.sector+'). Reply with ONLY these 4 lines, no preamble:\nWHAT: [what the company does in 1-2 sentences, plain English]\nMONEY: [how it makes money in 1-2 sentences]\nWHY: [the opportunity or why it matters for the future in 1-2 sentences]\nRISK: [the single biggest risk in 1-2 sentences]'
+      'Stock: '+tk+' ('+h.name+', sector: '+h.sector+'). Reply with ONLY these 4 lines, no preamble:\nWHAT: [what the company does in 1-2 sentences, clear everyday language]\nMONEY: [how it makes money in 1-2 sentences]\nWHY: [the opportunity or why it matters for the future in 1-2 sentences]\nRISK: [the single biggest risk in 1-2 sentences]'
     );
     if(!result){body.innerHTML='<div style="font-size:12px;color:var(--t3);padding:12px 0">Overview unavailable.</div>';return;}
     const clean = result.replace(/\*\*/g,'').replace(/\*/g,'').trim();
@@ -8026,8 +8127,8 @@ async function analyseTradeAlert() {
     'Break this down for me as if I am 16 years old and know nothing about trading or charts. Use this exact format:\n\n' +
     'STOCK: [Full company name and ticker symbol]\n' +
     'WHAT_THEY_ARE_DOING: [One plain sentence — buying now, waiting for a lower price, selling, or watching?]\n' +
-    'WHY: [Their reasoning in plain English. Explain EVERY chart term — trendline, Elliott Wave, MACD, Fibonacci, blue box, golden pocket, support, resistance — with a simple everyday analogy. Do not skip any terms.]\n' +
-    'THE_LEVELS: [If they mention specific prices, list each on its own line and explain what it means in plain English. e.g. Blue box $21-43: This is the zone where he wants to buy — like waiting for a sale price before buying.]\n' +
+    'WHY: [Their reasoning in clear everyday language. Explain EVERY chart term — trendline, Elliott Wave, MACD, Fibonacci, blue box, golden pocket, support, resistance — with a simple everyday analogy. Do not skip any terms.]\n' +
+    'THE_LEVELS: [If they mention specific prices, list each on its own line and explain what it means in clear everyday language. e.g. Blue box $21-43: This is the zone where he wants to buy — like waiting for a sale price before buying.]\n' +
     'DO_I_OWN_THIS: [Yes or No — do I already own this based on my holdings above? If yes, how does this call affect my existing position?]\n' +
     'SHOULD_I_COPY: [Direct: Yes / No / Maybe. One sentence why. Be honest about risk level.]\n' +
     'IF_YES_HOW: [If yes or maybe: exact buy price or zone, what % of portfolio to risk (be conservative), and what specific thing would make you sell/change your mind.]\n' +
@@ -8328,13 +8429,13 @@ async function loadNow(tk, h){
 
     const result = await callClaude(
       newsContext+'\n\n'+position+'\n\n'+
-      'Give me a concise stock briefing in plain English like you are texting a friend. Cover these 4 things:\n'+
+      'Give me a concise stock briefing in clear everyday language like you are texting a friend. Cover these 4 things:\n'+
       '1. LATEST: What is the single most important thing happening with this stock right now? Check for: earnings news, major orders, insider selling, share dilution plans, SEC filings, permit issues, lawsuits, analyst upgrades/downgrades. Use the headlines above if provided.\n'+
       '2. MACRO: What broader market or geopolitical conditions are affecting this stock right now?\n'+
       '3. WATCH: The single most important thing to watch in the next 2-4 weeks — could be a vote, earnings date, product launch, regulatory decision.\n'+
-      '4. ACTION: What is the most sensible thing to do right now? One plain English sentence. If there is a dilution risk, insider selling, or regulatory problem — say so directly.\n\n'+
+      '4. ACTION: What is the most sensible thing to do right now? One clear everyday language sentence. If there is a dilution risk, insider selling, or regulatory problem — say so directly.\n\n'+
       'Format EXACTLY:\nLATEST: [text]\nMACRO: [text]\nWATCH: [text]\nACTION: [text]\n\n'+
-      'No jargon. Plain English only. If something is a red flag, say it clearly.'
+      'No jargon. Clear explanation only. If something is a red flag, say it clearly.'
     );
 
     if(!result){ body.innerHTML='<div style="font-size:13px;color:var(--t3)">Could not load intel.</div>'; return; }
@@ -8421,7 +8522,7 @@ async function loadMacroEvents(){
       'TYPE 1 — ONGOING: Things happening right now (last 48 hours) affecting markets.\n'+
       'TYPE 2 — UPCOMING: Events in the next 7 days that could move markets.\n\n'+
       'Write like texting a friend who knows NOTHING about finance or politics. Zero jargon. '+
-      'If you use any term (tariff, Fed, inflation, yield), immediately explain it in plain English in brackets.\n\n'+
+      'If you use any term (tariff, Fed, inflation, yield), immediately explain it in clear everyday language in brackets.\n\n'+
       'For each item use EXACTLY this format:\n'+
       'EVENT: [What is happening — one plain sentence a 16 year old understands. Include HOW it has changed since last update if it has.]\n'+
       'TYPE: [ONGOING or UPCOMING]\n'+
@@ -8706,7 +8807,7 @@ function renderThemeStack(theme){
         (isOpen ?
           '<div style="background:'+layer.bg+';padding:16px;border-top:1px solid '+layer.border+'">'+
 
-            // Big emoji + plain English explanation
+            // Big emoji + clear everyday language explanation
             '<div style="display:flex;gap:14px;margin-bottom:16px">'+
               '<div style="font-size:42px;flex-shrink:0;line-height:1">'+layer.emoji+'</div>'+
               '<div style="font-size:13px;color:var(--t2);line-height:1.75">'+layer.plain+'</div>'+
@@ -8776,45 +8877,57 @@ function themeSlide(theme, dir, total){
   sessionStorage.setItem(key, next);
 }
 
-async function explainFundamentals(tk){
-  const btn = document.getElementById('fund-explain-btn');
-  const out = document.getElementById('fund-explain');
-  if(!out) return;
-  if(!aiKey){
-    out.style.display='block';
-    out.textContent='Dayframe AI is temporarily unavailable.';
-    return;
-  }
-  const boxes = document.querySelectorAll('#fund-body .fund-box');
-  const numbers = [];
-  boxes.forEach(function(b){
-    const lbl = b.querySelector('.fund-lbl');
-    const val = b.querySelector('.fund-val');
-    if(lbl && val) numbers.push(lbl.textContent.trim() + ': ' + val.textContent.trim());
-  });
-  if(!numbers.length){
-    out.style.display='block';
-    out.textContent='Numbers are still loading — try again in a moment.';
-    return;
-  }
-  if(btn){ btn.textContent='Thinking...'; btn.disabled=true; }
-  out.style.display='block';
-  out.innerHTML='<div class="ldg"><span class="spin"></span>Analysing...</div>';
-  try{
-    const prompt = 'Here are the key financial numbers for ' + tk + ':\n' + numbers.join('\n') + '\n\n' +
-      'Explain what these numbers tell us about this company in plain English — like explaining to someone new to investing. ' +
-      'Cover: what the size/valuation tells us, whether it looks cheap or expensive, how profitable it is, and the biggest thing to watch. ' +
-      'Be specific to these actual numbers, not generic. Under 80 words. No bullet points — 2-3 flowing sentences.';
-    const result = await callClaude(prompt);
-    if(btn){ btn.textContent='What do these numbers mean for '+tk+'?'; btn.disabled=false; }
-    if(!result){ out.textContent='Could not generate explanation.'; return; }
-    out.textContent = result.replace(/[*#]/g,'').trim();
-  }catch(e){
-    if(btn){ btn.textContent='What do these numbers mean for '+tk+'?'; btn.disabled=false; }
-    out.textContent='Could not load — try again.';
-  }
+function fundamentalMetricMap(numbers){
+  const map={};
+  numbers.forEach(line=>{const split=String(line).indexOf(':');if(split>0)map[String(line).slice(0,split).trim()]=String(line).slice(split+1).trim()});
+  return map;
 }
-
+function fundamentalNumeric(value){
+  const text=String(value||'').replace(/,/g,'').trim(),match=text.match(/-?\d+(?:\.\d+)?/);if(!match)return null;
+  let number=Number(match[0]);if(!Number.isFinite(number))return null;
+  if(/T\b/i.test(text))number*=1e12;else if(/B\b/i.test(text))number*=1e9;else if(/M\b/i.test(text))number*=1e6;else if(/K\b/i.test(text))number*=1e3;
+  return number;
+}
+function fundamentalFallbackExplanation(tk,numbers){
+  const map=fundamentalMetricMap(numbers),cards=[];
+  const price=fundamentalNumeric(map.Price),high=fundamentalNumeric(map['52w High']),low=fundamentalNumeric(map['52w Low']);
+  if(price!=null&&high!=null&&low!=null&&high>low){
+    const position=Math.max(0,Math.min(100,Math.round((price-low)/(high-low)*100))),where=position>=80?'near the upper end':position<=20?'near the lower end':'around the middle';
+    cards.push({title:'Where the price sits',text:'The current price is '+map.Price+', compared with a one-year low of '+map['52w Low']+' and high of '+map['52w High']+'. That places it about '+position+'% of the way through the range—'+where+'. This describes recent trading, not whether the company is cheap.'});
+  }
+  if(map['Your Return']||map['Your Value']){
+    const pieces=[];if(map['Your Value'])pieces.push('your holding is worth '+map['Your Value']);if(map['Your Return'])pieces.push('your return since buying is '+map['Your Return']);
+    cards.push({title:'Your position',text:pieces.join(' and ')+'. This is personal performance, not proof that the company’s future prospects improved or worsened.'});
+  }
+  if(map['Market Cap']){
+    const cap=fundamentalNumeric(map['Market Cap']),size=cap==null?'company size':cap<300e6?'a smaller company':cap<2e9?'a small-to-medium company':cap<10e9?'a medium-sized company':'a large company';
+    cards.push({title:'Company size',text:'Market cap is '+map['Market Cap']+', meaning the market currently values all shares together at roughly that amount. It suggests '+size+', but it does not tell you how much cash, profit or debt the company has.'});
+  }
+  const valuation=[map['P/E Ratio']&&'P/E '+map['P/E Ratio'],map['Fwd P/E']&&'forward P/E '+map['Fwd P/E'],map.EPS&&'EPS '+map.EPS].filter(Boolean);
+  if(valuation.length)cards.push({title:'Profit and valuation',text:valuation.join(', ')+'. P/E compares the share price with profit; EPS is profit allocated to each share. A negative EPS means the company is losing money, while a high P/E means investors are paying more for each unit of current profit.'});
+  const health=[map['Revenue (TTM)']&&'sales of '+map['Revenue (TTM)'],map['Gross Margin']&&'gross margin of '+map['Gross Margin'],map['Debt/Equity']&&'debt-to-equity of '+map['Debt/Equity']].filter(Boolean);
+  if(health.length)cards.push({title:'Business health',text:'The figures show '+health.join(', ')+'. Sales show demand, margin shows how much remains after direct product costs, and debt-to-equity compares borrowing with shareholder funding. They need to be read together.'});
+  const hasBusiness=map['Revenue (TTM)']||map['P/E Ratio']||map.EPS||map['Gross Margin']||map['Debt/Equity'];
+  cards.push({title:'What is still missing',text:hasBusiness?'These numbers are a starting point. Compare them with previous years, management guidance and cash flow before drawing a conclusion.':'Price, range and market cap describe the shares, but not the health of the business. Revenue, profit, cash flow, debt and recent filings are still needed before judging value.'});
+  return '<div class="fund-explain-cards">'+cards.map(card=>'<section><strong>'+hubEsc(card.title)+'</strong><p>'+hubEsc(card.text)+'</p></section>').join('')+'</div><div class="fund-ai-context" id="fund-ai-context-'+hubEsc(tk)+'"><span>Built from the figures currently shown.</span></div>';
+}
+async function explainFundamentals(tk){
+  const btn=document.getElementById('fund-explain-btn'),out=document.getElementById('fund-explain');if(!out)return;
+  const boxes=document.querySelectorAll('#fund-body .fund-box'),numbers=[];
+  boxes.forEach(box=>{const label=box.querySelector('.fund-lbl'),value=box.querySelector('.fund-val');if(label&&value)numbers.push(label.textContent.trim()+': '+value.textContent.trim())});
+  if(!numbers.length){out.style.display='block';out.textContent='The numbers are still loading. Try again in a moment.';return}
+  out.style.display='block';
+  out.innerHTML=fundamentalFallbackExplanation(tk,numbers);
+  if(btn){btn.textContent='Explanation shown';btn.disabled=true}
+  if(!aiKey)return;
+  const aiHost=document.getElementById('fund-ai-context-'+tk);if(aiHost)aiHost.innerHTML='<span class="spin"></span> Adding company-specific context…';
+  try{
+    const prompt='These are the figures currently shown for '+tk+':\n'+numbers.join('\n')+'\n\nExplain them to a complete beginner using only these figures. Define every financial term. Say what the figures show, why that matters, and what important information is missing before judging the company. Do not invent facts or give a buy/sell instruction. Use clear everyday language and stay under 130 words.';
+    const result=await callClaude(prompt,600);
+    if(aiHost)aiHost.innerHTML=result?'<strong>Extra context</strong><p>'+hubEsc(result.replace(/[*#]/g,'').trim()).replace(/\n/g,'<br>')+'</p>':'<span>The guide above remains available; no extra AI context was returned.</span>';
+  }catch(error){if(aiHost)aiHost.innerHTML='<span>The guide above remains available; extra AI context is temporarily unavailable.</span>'}
+  finally{if(btn){btn.textContent='Help me understand these numbers';btn.disabled=false}}
+}
 
 async function loadTwits(tk){
   const out=document.getElementById("twits-out");
@@ -8958,15 +9071,55 @@ function drawNativePriceChart(c,labels,prices,sup,res,ma,pricePrefix='$'){
   const pricePath=pathFor(prices),maPath=pathFor(ma);
   if(!pricePath)throw new Error("No price path");
   const finitePoints=prices.map((value,index)=>valid(value)?{index,value:Number(value)}:null).filter(Boolean);
-  const first=finitePoints[0],last=finitePoints[finitePoints.length-1];
+  const first=finitePoints[0],last=finitePoints[finitePoints.length-1],avgPoint=ma.map((value,index)=>valid(value)?{index,value:Number(value)}:null).filter(Boolean).slice(-1)[0];
   const areaPath=first&&last?pricePath+" L"+x(last.index).toFixed(1)+" "+(height-pad.bottom)+" L"+x(first.index).toFixed(1)+" "+(height-pad.bottom)+" Z":"";
   let grid="",axisLabels="";
   for(let i=0;i<=4;i++){const yy=pad.top+i*(height-pad.top-pad.bottom)/4,value=max-i*(max-min)/4;grid+='<line x1="'+pad.left+'" y1="'+yy.toFixed(1)+'" x2="'+(width-pad.right)+'" y2="'+yy.toFixed(1)+'" stroke="rgba(15,23,42,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>';axisLabels+='<text x="4" y="'+(yy+4).toFixed(1)+'" fill="#7b849a" font-size="10" font-family="system-ui,sans-serif">'+hubEsc(pricePrefix+value.toFixed(2))+'</text>'}
   const labelIndexes=[0,Math.round((labels.length-1)/2),labels.length-1].filter((value,index,array)=>array.indexOf(value)===index);
   const dateLabels=labelIndexes.map(index=>'<text x="'+x(index).toFixed(1)+'" y="'+(height-9)+'" fill="#7b849a" font-size="10" font-family="system-ui,sans-serif" text-anchor="'+(index===0?'start':index===labels.length-1?'end':'middle')+'">'+hubEsc(labels[index]||"")+'</text>').join("");
+  const guideLabel=(term,label,value,yy,color)=>{
+    const ly=Math.max(14,Math.min(height-pad.bottom-5,yy-6)),boxWidth=154,boxX=width-pad.right-boxWidth;
+    return '<g class="chart-guide chart-guide-'+term+'" data-guide="'+term+'" role="button" tabindex="0" onclick="focusChartGuide(\''+term+'\')"><rect x="'+boxX+'" y="'+(ly-11).toFixed(1)+'" width="'+boxWidth+'" height="18" rx="7" fill="white" fill-opacity=".92" stroke="'+color+'" stroke-opacity=".55"/><text x="'+(boxX+7)+'" y="'+(ly+2).toFixed(1)+'" fill="'+color+'" font-size="10" font-weight="700" font-family="system-ui,sans-serif">'+hubEsc(label+' · '+pricePrefix+Number(value).toFixed(2))+'</text></g>';
+  };
+  c.dataset.price=last?String(last.value):'';
+  c.dataset.support=String(sup);
+  c.dataset.resistance=String(res);
+  c.dataset.average=avgPoint?String(avgPoint.value):'';
+  c.dataset.prefix=pricePrefix;
   c.setAttribute("viewBox","0 0 "+width+" "+height);c.setAttribute("preserveAspectRatio","none");
-  c.innerHTML='<defs><linearGradient id="df-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity=".25"/><stop offset="100%" stop-color="#3b82f6" stop-opacity=".02"/></linearGradient></defs>'+grid+axisLabels+(areaPath?'<path d="'+areaPath+'" fill="url(#df-chart-fill)" stroke="none"/>':'')+'<path d="M'+pad.left+' '+y(sup).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(21,128,61,.68)" stroke-width="1.25" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/><path d="M'+pad.left+' '+y(res).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(185,28,28,.68)" stroke-width="1.25" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>'+(maPath?'<path d="'+maPath+'" fill="none" stroke="#b45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>':'')+'<path d="'+pricePath+'" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'+dateLabels;
+  c.innerHTML='<defs><linearGradient id="df-chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity=".25"/><stop offset="100%" stop-color="#3b82f6" stop-opacity=".02"/></linearGradient></defs>'+
+    grid+axisLabels+(areaPath?'<path d="'+areaPath+'" fill="url(#df-chart-fill)" stroke="none"/>':'')+
+    '<path class="chart-guide chart-guide-support" data-guide="support" d="M'+pad.left+' '+y(sup).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(21,128,61,.78)" stroke-width="1.6" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>'+
+    '<path class="chart-guide chart-guide-resistance" data-guide="resistance" d="M'+pad.left+' '+y(res).toFixed(1)+' H'+(width-pad.right)+'" fill="none" stroke="rgba(185,28,28,.78)" stroke-width="1.6" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>'+
+    (maPath?'<path class="chart-guide chart-guide-average" data-guide="average" d="'+maPath+'" fill="none" stroke="#b45309" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>':'')+
+    '<path class="chart-guide chart-guide-price" data-guide="price" d="'+pricePath+'" fill="none" stroke="#2563eb" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'+
+    (last?'<circle class="chart-guide chart-guide-price" data-guide="price" cx="'+x(last.index).toFixed(1)+'" cy="'+y(last.value).toFixed(1)+'" r="4" fill="#2563eb" stroke="white" stroke-width="2" vector-effect="non-scaling-stroke"/>':'')+
+    guideLabel('support','Recent low',sup,y(sup),'#15803d')+guideLabel('resistance','Recent ceiling',res,y(res),'#b91c1c')+dateLabels;
   chartInst={destroy(){if(c)c.innerHTML=""}};
+}
+function focusChartGuide(term){
+  const chart=document.getElementById('sc'),box=document.getElementById('chart-term-explainer');if(!chart||!box)return;
+  chart.querySelectorAll('.chart-guide').forEach(node=>{
+    const active=node.dataset.guide===term;
+    node.classList.toggle('chart-focused',active);
+    node.classList.toggle('chart-muted',!active);
+  });
+  document.querySelectorAll('[data-chart-guide]').forEach(button=>{const active=button.dataset.chartGuide===term;button.classList.toggle('on',active);button.setAttribute('aria-pressed',active?'true':'false')});
+  const prefix=chart.dataset.prefix||'',value=chart.dataset[term],formatted=value&&Number.isFinite(Number(value))?prefix+Number(value).toFixed(2):'not available';
+  const info={
+    price:['Price line','The blue line joins each weekly closing price. It shows the route the share price took; it does not explain why the business changed.','Latest point: '+formatted],
+    support:['Recent low','The green dashed line marks the lowest area in this six-month view. Traders call it support when buyers have previously stepped in there, but the line can still break.','Level shown: about '+formatted],
+    resistance:['Recent ceiling','The red dashed line marks the highest area in this six-month view. Traders call it resistance when previous rises stopped there; moving above it is possible and is not guaranteed.','Level shown: about '+formatted],
+    average:['Average line','The amber line smooths several weekly prices into an average. It helps you see the direction without every small jump; it is a guide, not a prediction.','Latest average: '+formatted]
+  }[term]||['Chart guide','Select a labelled part of the chart to understand it.',''];
+  box.style.display='block';
+  box.innerHTML='<div><span>Showing on the chart</span><strong>'+info[0]+'</strong><p>'+info[1]+'</p><small>'+info[2]+'</small></div><button type="button" onclick="clearChartGuide()">Show the whole chart</button>';
+}
+function clearChartGuide(){
+  const chart=document.getElementById('sc'),box=document.getElementById('chart-term-explainer');
+  chart?.querySelectorAll('.chart-guide').forEach(node=>node.classList.remove('chart-focused','chart-muted'));
+  document.querySelectorAll('[data-chart-guide]').forEach(button=>{button.classList.remove('on');button.setAttribute('aria-pressed','false')});
+  if(box)box.style.display='none';
 }
 function drawChart(labels,prices,sup,res,ma,pricePrefix='$'){
   if(chartInst&&typeof chartInst.destroy==="function"){chartInst.destroy();chartInst=null}
@@ -10093,22 +10246,32 @@ EDU_TOPICS.push(
 let eduActiveFilter = 'basics';
 let eduActiveTopic = null;
 let eduSearchQuery = '';
-function eduReadIds(){return Array.isArray(hubLoad().learningRead)?hubLoad().learningRead:[]}
-function eduMarkRead(id){if(!id)return;const d=hubLoad();d.learningRead=Array.isArray(d.learningRead)?d.learningRead:[];if(!d.learningRead.includes(id)){d.learningRead.push(id);hubSave(d)}renderEducationProgress()}
-function renderEducationProgress(){const read=eduReadIds().filter(id=>EDU_TOPICS.some(t=>t.id===id)),pct=EDU_TOPICS.length?Math.round(read.length/EDU_TOPICS.length*100):0;const value=document.getElementById('edu-progress-value'),bar=document.getElementById('edu-progress-bar'),note=document.getElementById('edu-progress-note');if(value)value.textContent=pct+'%';if(bar)bar.style.width=pct+'%';if(note)note.textContent=read.length?read.length+' of '+EDU_TOPICS.length+' lessons explored':'Open a lesson to begin.'}
-function eduContinue(){const read=new Set(eduReadIds()),next=EDU_TOPICS.find(t=>!read.has(t.id))||EDU_TOPICS[0];if(next)goEdu(next.id)}
+let eduQuizState = {};
+function eduPassedIds(){return Array.isArray(hubLoad().learningPassed)?hubLoad().learningPassed:[]}
+function eduPassLesson(id){
+  if(!id)return;
+  const d=hubLoad();
+  d.learningPassed=Array.isArray(d.learningPassed)?d.learningPassed:[];
+  if(!d.learningPassed.includes(id)){d.learningPassed.push(id);hubSave(d)}
+  renderEducationProgress();
+}
+function renderEducationProgress(){
+  const passed=eduPassedIds().filter(id=>EDU_TOPICS.some(t=>t.id===id)),pct=EDU_TOPICS.length?Math.round(passed.length/EDU_TOPICS.length*100):0;
+  const value=document.getElementById('edu-progress-value'),bar=document.getElementById('edu-progress-bar'),note=document.getElementById('edu-progress-note');
+  if(value)value.textContent=pct+'%';
+  if(bar)bar.style.width=pct+'%';
+  if(note)note.textContent=passed.length?passed.length+' of '+EDU_TOPICS.length+' lesson checks passed':'Pass a short check to begin.';
+}
+function eduContinue(){const passed=new Set(eduPassedIds()),next=EDU_TOPICS.find(t=>!passed.has(t.id))||EDU_TOPICS[0];if(next)goEdu(next.id)}
 function eduSearch(value){eduSearchQuery=String(value||'').trim().toLowerCase();eduActiveTopic=null;const el=document.getElementById('edu-content');if(el)eduRender(el)}
 
 function rEducation(){
   const el = document.getElementById('edu-content');
   if(!el) return;
-  // Ensure basics tab is active on first render
   eduActiveFilter = 'basics';
   eduSearchQuery = '';
   const search=document.getElementById('edu-search');if(search)search.value='';
-  document.querySelectorAll('.edu-nav-btn').forEach(b=>{
-    b.classList.toggle('on', b.textContent.trim()==='The Basics');
-  });
+  document.querySelectorAll('.edu-nav-btn').forEach(b=>b.classList.toggle('on',b.dataset.eduCat==='basics'));
   eduRender(el);
   renderEducationProgress();
 }
@@ -10137,9 +10300,8 @@ function goEduFromDive(topicId, fromDivePage){
 function goEdu(topicId){
   go('education', document.querySelector('.ni[onclick*=education]'));
   eduActiveTopic = topicId;
-  eduMarkRead(topicId);
   eduActiveFilter = 'all';
-  document.querySelectorAll('.edu-nav-btn').forEach((b,i)=>b.classList.toggle('on',i===0));
+  document.querySelectorAll('.edu-nav-btn').forEach(b=>b.classList.toggle('on',b.dataset.eduCat==='all'));
   const el = document.getElementById('edu-content');
   if(el) eduRender(el);
   setTimeout(()=>{
@@ -10148,58 +10310,74 @@ function goEdu(topicId){
   }, 100);
 }
 
+function eduQuizOptions(topic){
+  const same=EDU_TOPICS.filter(item=>item.id!==topic.id&&item.cat===topic.cat);
+  const others=[...same,...EDU_TOPICS.filter(item=>item.id!==topic.id&&item.cat!==topic.cat)];
+  const seen=new Set(),distractors=[];
+  for(const item of others){
+    const text=String(item.body||'').trim();
+    if(text&&!seen.has(text)){seen.add(text);distractors.push(text)}
+    if(distractors.length===2)break;
+  }
+  const options=[{text:topic.body,correct:true},...distractors.map(text=>({text,correct:false}))];
+  const shift=Math.abs(EDU_TOPICS.findIndex(item=>item.id===topic.id))%Math.max(options.length,1);
+  return options.slice(shift).concat(options.slice(0,shift));
+}
+function eduQuizMarkup(topic){
+  const passed=eduPassedIds().includes(topic.id),state=eduQuizState[topic.id]||null,options=eduQuizOptions(topic);
+  const feedback=passed
+    ? '<div class="edu-quiz-feedback good"><strong>Check passed</strong><span>This lesson now counts towards your progress.</span></div>'
+    : state&&!state.correct
+      ? '<div class="edu-quiz-feedback try"><strong>Not quite</strong><span>Read the lesson once more, then choose another answer.</span></div>'
+      : '<div class="edu-quiz-feedback"><span>Your progress only moves after the correct answer.</span></div>';
+  return '<section class="edu-quiz" aria-label="Lesson check"><div class="edu-quiz-kicker">Quick check</div><h4>Which statement best matches this lesson?</h4><div class="edu-quiz-options">'+options.map((option,index)=>{
+    const chosen=state&&state.selected===index,cls=chosen?(option.correct?' correct':' wrong'):'';
+    return '<button type="button" class="edu-quiz-option'+cls+'" onclick="eduCheckAnswer(\''+topic.id+'\','+index+')" '+(passed?'disabled':'')+'><span>'+String.fromCharCode(65+index)+'</span><b>'+hubEsc(option.text)+'</b></button>';
+  }).join('')+'</div>'+feedback+'</section>';
+}
+function eduCheckAnswer(id,index){
+  const topic=EDU_TOPICS.find(item=>item.id===id);if(!topic)return;
+  const option=eduQuizOptions(topic)[Number(index)],correct=!!option?.correct;
+  eduQuizState[id]={selected:Number(index),correct};
+  if(correct)eduPassLesson(id);
+  const el=document.getElementById('edu-content');if(el)eduRender(el);
+  setTimeout(()=>document.getElementById('edu-quiz-'+id)?.scrollIntoView({behavior:'smooth',block:'center'}),30);
+}
+
 function eduRender(el){
   const baseTopics = eduActiveFilter==='all' ? EDU_TOPICS : EDU_TOPICS.filter(t=>t.cat===eduActiveFilter);
   const topics = eduSearchQuery ? baseTopics.filter(t=>(t.title+' '+t.body+' '+t.cat).toLowerCase().includes(eduSearchQuery)) : baseTopics;
-  const readSet=new Set(eduReadIds());
+  const passedSet=new Set(eduPassedIds());
   const returnTicker = window._eduReturnTicker || null;
   const returnDive = window._eduReturnDive || null;
-
-  // Dive page labels for back button
+  const selected=document.getElementById('edu-selected');
   const diveLabels = {
-    'themes-hub':'Sector Themes',
-    'dive-photonics':'Optical Networking & CPO',
-    'dive-memory':'Memory & Storage',
-    'dive-spacedata':'Space & Earth Data',
-    'dive-energy':'Energy & Power',
-    'dive-health':'Healthcare & Biotech',
-    'dive-lidar':'LiDAR & Autonomy',
-    'dive-datacentre':'AI Data Centres',
-    'dive-defence':'National Security',
-    'dive-materials':'Critical Materials',
+    'themes-hub':'Sector Themes','dive-photonics':'Optical Networking & CPO','dive-memory':'Memory & Storage',
+    'dive-spacedata':'Space & Earth Data','dive-energy':'Energy & Power','dive-health':'Healthcare & Biotech',
+    'dive-lidar':'LiDAR & Autonomy','dive-datacentre':'AI Data Centres','dive-defence':'National Security','dive-materials':'Critical Materials'
   };
-
-  el.innerHTML = `<div class="edu-cards">${topics.map(t=>`
-    <div class="edu-card${eduActiveTopic===t.id?' highlight':''}${readSet.has(t.id)?' read':''}" onclick="eduOpenTopic('${t.id}')">
-      <div class="edu-card-icon">${t.icon}</div>
-      <div class="edu-card-title">${t.title}</div>
-      <div class="edu-card-body">${t.body}</div>
-      <span class="edu-card-tag ${t.tag}">${t.tag.charAt(0).toUpperCase()+t.tag.slice(1)}</span>
-    </div>`).join('')}</div>
-    ${eduActiveTopic ? `<div class="edu-detail dash-card" id="edu-detail-${eduActiveTopic}" style="margin-top:24px;padding:28px">
-      ${(()=>{ const t=EDU_TOPICS.find(x=>x.id===eduActiveTopic); return t?`<h3>${t.icon} ${t.title}</h3>${t.detail}`:''; })()}
-      <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        ${returnTicker ? `<button onclick="window._eduReturnTicker=null;openChart('${returnTicker}')" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;background:var(--bl);border:none;border-radius:20px;padding:8px 18px;cursor:pointer;font-family:var(--ff)">← Back to ${returnTicker}</button>` : ''}
-        ${returnDive ? `<button onclick="const d=window._eduReturnDive;window._eduReturnDive=null;go(d,document.querySelector('.ni[onclick*='+d+']'))" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;background:var(--bl);border:none;border-radius:20px;padding:8px 18px;cursor:pointer;font-family:var(--ff)">← Back to ${diveLabels[returnDive]||returnDive}</button>` : ''}
-        <button class="btn" onclick="window._eduReturnTicker=null;window._eduReturnDive=null;eduActiveTopic=null;eduRender(document.getElementById('edu-content'))" style="font-size:12px;margin-left:auto">All topics →</button>
-      </div>
-    </div>` : ''}`;
-  if(!topics.length)el.innerHTML='<div class="edu-no-results"><span>⌕</span><strong>No lessons found</strong><p>Try a broader word such as risk, fees or ISA.</p></div>';
+  const active=EDU_TOPICS.find(item=>item.id===eduActiveTopic);
+  if(selected){
+    selected.innerHTML=active?'<div class="edu-selected-lesson dash-card" id="edu-detail-'+active.id+'"><div class="edu-selected-head"><div><span>Selected lesson</span><h3>'+active.icon+' '+hubEsc(active.title)+'</h3></div>'+(passedSet.has(active.id)?'<b>✓ Check passed</b>':'')+'</div><div class="edu-selected-body">'+active.detail+'</div><div id="edu-quiz-'+active.id+'">'+eduQuizMarkup(active)+'</div><div class="edu-selected-actions">'+
+      (returnTicker?'<button class="edu-return" onclick="window._eduReturnTicker=null;openChart(\''+hubEsc(returnTicker)+'\')">← Back to '+hubEsc(returnTicker)+'</button>':'')+
+      (returnDive?'<button class="edu-return" onclick="const d=window._eduReturnDive;window._eduReturnDive=null;go(d,document.querySelector(\'.ni[onclick*=\'+d+\']\'))">← Back to '+hubEsc(diveLabels[returnDive]||returnDive)+'</button>':'')+
+      '<button class="btn" onclick="window._eduReturnTicker=null;window._eduReturnDive=null;eduActiveTopic=null;eduRender(document.getElementById(\'edu-content\'))">Close lesson</button></div></div>':'';
+  }
+  el.innerHTML = topics.length?'<div class="edu-cards">'+topics.map(t=>
+    '<div class="edu-card'+(eduActiveTopic===t.id?' highlight':'')+(passedSet.has(t.id)?' read':'')+'" onclick="eduOpenTopic(\''+t.id+'\')">'+
+      '<div class="edu-card-icon">'+t.icon+'</div><div class="edu-card-title">'+hubEsc(t.title)+'</div><div class="edu-card-body">'+hubEsc(t.body)+'</div>'+
+      '<span class="edu-card-tag '+t.tag+'">'+t.tag.charAt(0).toUpperCase()+t.tag.slice(1)+'</span>'+
+      (passedSet.has(t.id)?'<span class="edu-card-complete">✓ Check passed</span>':'')+
+    '</div>').join('')+'</div>'
+    :'<div class="edu-no-results"><span>⌕</span><strong>No lessons found</strong><p>Try a broader word such as risk, fees or ISA.</p></div>';
   renderEducationProgress();
 }
 
-
 function eduOpenTopic(id){
   eduActiveTopic = eduActiveTopic===id ? null : id;
-  if(eduActiveTopic)eduMarkRead(id);
   const el = document.getElementById('edu-content');
-  if(el){ eduRender(el); }
-  if(eduActiveTopic){
-    setTimeout(()=>{
-      const detail = document.getElementById('edu-detail-'+id);
-      if(detail) detail.scrollIntoView({behavior:'smooth', block:'start'});
-    }, 50);
-  }
+  if(el) eduRender(el);
+  if(eduActiveTopic)setTimeout(()=>document.getElementById('edu-detail-'+id)?.scrollIntoView({behavior:'smooth',block:'start'}),50);
 }
 
 // ── SECTOR THEME CHAINS ──
@@ -10433,7 +10611,7 @@ async function genToday(){
   const{score}=calcRiskScore();
   const topLosers=H.filter(h=>h.gain<0).sort((a,b)=>a.gainPct-b.gainPct).slice(0,2).map(h=>h.ticker).join(", ");
   const topWinners=H.filter(h=>h.gain>0).sort((a,b)=>b.gainPct-a.gainPct).slice(0,2).map(h=>h.ticker).join(", ");
-  const prompt=`I'm a beginner UK investor. My portfolio risk score is ${score}/10. My biggest losers are ${topLosers}. My biggest winners are ${topWinners}. I hold ${H.length} stocks including AXTI (CPO substrate play), AAOI (EML cycle — should sell before CPO transition), BURU (down 80%), SOFI (fintech down 31%), RKLB (space). Search for any major market news or events today. Then in exactly 2 sentences tell me: the single most important thing to watch or do today with my portfolio. Be very specific and plain English. Start directly with the action — no preamble.`;
+  const prompt=`I'm a beginner UK investor. My portfolio risk score is ${score}/10. My biggest losers are ${topLosers}. My biggest winners are ${topWinners}. I hold ${H.length} stocks including AXTI (CPO substrate play), AAOI (EML cycle — should sell before CPO transition), BURU (down 80%), SOFI (fintech down 31%), RKLB (space). Search for any major market news or events today. Then in exactly 2 sentences tell me: the single most important thing to watch or do today with my portfolio. Be very specific and clear everyday language. Start directly with the action — no preamble.`;
   try{
     const result=await callClaude(prompt);
     if(!result){textEl.textContent="Add your AI key to use this.";return;}
@@ -10471,7 +10649,7 @@ function showExplain(term, stockContext){
   if(stockContext && aiKey){
     aiSection.style.display = "block";
     aiText.innerHTML = '<span class="spin"></span>';
-    callClaude(`In 2 sentences, explain what "${term}" means specifically for the stock ${stockContext} right now, based on its current situation. Plain English, no jargon.`)
+    callClaude(`In 2 sentences, explain what "${term}" means specifically for the stock ${stockContext} right now, based on its current situation. Clear explanation, no jargon.`)
       .then(r => { if(r) aiText.textContent = r.replace(/\*\*([^*]+)\*\*/g,"$1").trim(); })
       .catch(() => { aiText.textContent = "Could not generate context."; });
   } else {
