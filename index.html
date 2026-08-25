@@ -10247,6 +10247,7 @@ let eduActiveFilter = 'basics';
 let eduActiveTopic = null;
 let eduSearchQuery = '';
 let eduQuizState = {};
+function eduTopics(){const seen=new Set();return EDU_TOPICS.filter(item=>item&&item.id&&!seen.has(item.id)&&seen.add(item.id))}
 function eduPassedIds(){return Array.isArray(hubLoad().learningPassed)?hubLoad().learningPassed:[]}
 function eduPassLesson(id){
   if(!id)return;
@@ -10256,13 +10257,13 @@ function eduPassLesson(id){
   renderEducationProgress();
 }
 function renderEducationProgress(){
-  const passed=eduPassedIds().filter(id=>EDU_TOPICS.some(t=>t.id===id)),pct=EDU_TOPICS.length?Math.round(passed.length/EDU_TOPICS.length*100):0;
+  const all=eduTopics(),passed=eduPassedIds().filter(id=>all.some(t=>t.id===id)),pct=all.length?Math.round(passed.length/all.length*100):0;
   const value=document.getElementById('edu-progress-value'),bar=document.getElementById('edu-progress-bar'),note=document.getElementById('edu-progress-note');
   if(value)value.textContent=pct+'%';
   if(bar)bar.style.width=pct+'%';
-  if(note)note.textContent=passed.length?passed.length+' of '+EDU_TOPICS.length+' lesson checks passed':'Pass a short check to begin.';
+  if(note)note.textContent=passed.length?passed.length+' of '+all.length+' lesson checks passed':'Pass a short check to begin.';
 }
-function eduContinue(){const passed=new Set(eduPassedIds()),next=EDU_TOPICS.find(t=>!passed.has(t.id))||EDU_TOPICS[0];if(next)goEdu(next.id)}
+function eduContinue(){const all=eduTopics(),passed=new Set(eduPassedIds()),next=all.find(t=>!passed.has(t.id))||all[0];if(next)goEdu(next.id)}
 function eduSearch(value){eduSearchQuery=String(value||'').trim().toLowerCase();eduActiveTopic=null;const el=document.getElementById('edu-content');if(el)eduRender(el)}
 
 function rEducation(){
@@ -10311,8 +10312,8 @@ function goEdu(topicId){
 }
 
 function eduQuizOptions(topic){
-  const same=EDU_TOPICS.filter(item=>item.id!==topic.id&&item.cat===topic.cat);
-  const others=[...same,...EDU_TOPICS.filter(item=>item.id!==topic.id&&item.cat!==topic.cat)];
+  const all=eduTopics(),same=all.filter(item=>item.id!==topic.id&&item.cat===topic.cat);
+  const others=[...same,...all.filter(item=>item.id!==topic.id&&item.cat!==topic.cat)];
   const seen=new Set(),distractors=[];
   for(const item of others){
     const text=String(item.body||'').trim();
@@ -10320,7 +10321,7 @@ function eduQuizOptions(topic){
     if(distractors.length===2)break;
   }
   const options=[{text:topic.body,correct:true},...distractors.map(text=>({text,correct:false}))];
-  const shift=Math.abs(EDU_TOPICS.findIndex(item=>item.id===topic.id))%Math.max(options.length,1);
+  const shift=Math.abs(eduTopics().findIndex(item=>item.id===topic.id))%Math.max(options.length,1);
   return options.slice(shift).concat(options.slice(0,shift));
 }
 function eduQuizMarkup(topic){
@@ -10336,7 +10337,7 @@ function eduQuizMarkup(topic){
   }).join('')+'</div>'+feedback+'</section>';
 }
 function eduCheckAnswer(id,index){
-  const topic=EDU_TOPICS.find(item=>item.id===id);if(!topic)return;
+  const topic=eduTopics().find(item=>item.id===id);if(!topic)return;
   const option=eduQuizOptions(topic)[Number(index)],correct=!!option?.correct;
   eduQuizState[id]={selected:Number(index),correct};
   if(correct)eduPassLesson(id);
@@ -10345,7 +10346,7 @@ function eduCheckAnswer(id,index){
 }
 
 function eduRender(el){
-  const baseTopics = eduActiveFilter==='all' ? EDU_TOPICS : EDU_TOPICS.filter(t=>t.cat===eduActiveFilter);
+  const allTopics=eduTopics(),baseTopics = eduActiveFilter==='all' ? allTopics : allTopics.filter(t=>t.cat===eduActiveFilter);
   const topics = eduSearchQuery ? baseTopics.filter(t=>(t.title+' '+t.body+' '+t.cat).toLowerCase().includes(eduSearchQuery)) : baseTopics;
   const passedSet=new Set(eduPassedIds());
   const returnTicker = window._eduReturnTicker || null;
@@ -10356,7 +10357,7 @@ function eduRender(el){
     'dive-spacedata':'Space & Earth Data','dive-energy':'Energy & Power','dive-health':'Healthcare & Biotech',
     'dive-lidar':'LiDAR & Autonomy','dive-datacentre':'AI Data Centres','dive-defence':'National Security','dive-materials':'Critical Materials'
   };
-  const active=EDU_TOPICS.find(item=>item.id===eduActiveTopic);
+  const active=allTopics.find(item=>item.id===eduActiveTopic);
   if(selected){
     selected.innerHTML=active?'<div class="edu-selected-lesson dash-card" id="edu-detail-'+active.id+'"><div class="edu-selected-head"><div><span>Selected lesson</span><h3>'+active.icon+' '+hubEsc(active.title)+'</h3></div>'+(passedSet.has(active.id)?'<b>✓ Check passed</b>':'')+'</div><div class="edu-selected-body">'+active.detail+'</div><div id="edu-quiz-'+active.id+'">'+eduQuizMarkup(active)+'</div><div class="edu-selected-actions">'+
       (returnTicker?'<button class="edu-return" onclick="window._eduReturnTicker=null;openChart(\''+hubEsc(returnTicker)+'\')">← Back to '+hubEsc(returnTicker)+'</button>':'')+
