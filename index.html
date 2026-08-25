@@ -7808,11 +7808,11 @@ function researchMarketReferenceCards(data,tk){
 }
 const _researchExplainCache={};
 function researchExplainFallback(def){
-  return '<div class="research-explain-fallback"><section><strong>What this section is checking</strong><p>'+hubEsc(def?.guide||'This section checks one part of the investment case.')+'</p></section><section><strong>What to look for next</strong><p>'+hubEsc(def?.next||'Check the original evidence and compare it with the next company update.')+'</p></section></div>';
+  return '<div class="research-explain-fallback"><section><strong>What this section means</strong><p>'+hubEsc(def?.guide||'This section explains one part of the investment case.')+'</p></section></div>';
 }
 function researchExplainResult(text,def){
   const clean=String(text||'').replace(/\*\*/g,'').replace(/#{1,6}\s*/g,'').trim();
-  const labels=[['WHAT IT SAYS','What it says'],['WHY IT MATTERS','Why it matters'],['WHAT TO CHECK','What to check next']];
+  const labels=[['WHAT IT SAYS','What it says'],['WHY IT MATTERS','Why it matters']];
   const found=[];
   labels.forEach((item,index)=>{
     const next=labels[index+1]?.[0];
@@ -7836,7 +7836,7 @@ async function researchExplainSection(key,tk,details){
     const fallback=researchExplainFallback(def);_researchExplainCache[cacheKey]=fallback;output.innerHTML=fallback;details.dataset.loaded='1';details.dataset.loading='0';return;
   }
   try{
-    const prompt='Explain this exact stock-analysis section to someone completely new to investing. Use only the text supplied; do not add company facts. Define every investing term and explain what each number or comparison changes. Use one everyday example where helpful. Do not tell the reader to buy or sell. Keep it under 150 words. Reply with exactly these headings:\nWHAT IT SAYS:\nWHY IT MATTERS:\nWHAT TO CHECK:\n\nSECTION: '+(def?.title||key)+'\nTEXT: '+answer;
+    const prompt='Explain this exact stock-analysis section to someone completely new to investing. Use only the text supplied; do not add company facts. Define every investing term and explain what each number or comparison changes. Use one everyday example where helpful. Do not tell the reader to buy or sell. Keep it under 150 words. Reply with exactly these headings:\nWHAT IT SAYS:\nWHY IT MATTERS:\n\nSECTION: '+(def?.title||key)+'\nTEXT: '+answer;
     const result=await callClaude(prompt,650),html=result?researchExplainResult(result,def):researchExplainFallback(def);
     _researchExplainCache[cacheKey]=html;output.innerHTML=html;details.dataset.loaded='1';
   }catch(error){
