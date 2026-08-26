@@ -1918,6 +1918,58 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
  .edu-selected-actions .btn{margin-left:0}
  .chart-guide-buttons button{flex:1 1 calc(50% - 7px);justify-content:center}
 }
+
+/* Dayframe security, readability and sync-state hardening — 2026-08-26 */
+.dayframe-sync-status{display:inline-flex;align-items:center;gap:6px;min-width:62px;justify-content:center;padding:6px 10px;border-radius:999px;background:#edf8f3;color:#21765a;font-size:11px;font-weight:700;white-space:nowrap}
+.dayframe-sync-status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.dayframe-sync-status[data-state="saving"]{background:#f5f2ff;color:#6f5aca}
+.dayframe-sync-status[data-state="offline"]{background:#fff2f2;color:#b54f5a}
+.security-action-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.security-action.danger{background:#a93f4c;color:#fff;border:1px solid #a93f4c}
+.security-action:disabled{opacity:.55;cursor:not-allowed}
+.security-danger-card{border-color:#f0ced2!important;background:linear-gradient(145deg,#fff,#fff8f8)!important}
+.security-delete-label{display:block;margin:14px 0 6px;font-size:12px;font-weight:700;color:#4c5363}
+.security-delete-input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d9dde8;border-radius:10px;background:#fff;color:#252936;font:inherit;font-size:14px;margin-bottom:10px}
+.security-delete-input:focus{outline:3px solid rgba(111,90,202,.14);border-color:#7867c7}
+.manual-holding-row{display:grid;grid-template-columns:minmax(76px,.7fr) minmax(110px,1fr) minmax(90px,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--sf)}
+.manual-holding-ticker{font-weight:800;color:var(--tx)}
+.manual-holding-value,.manual-holding-gain{font-size:12px;color:var(--t2)}
+.manual-holding-remove{min-width:44px;min-height:44px;border:1px solid var(--bd);border-radius:9px;background:var(--sf2);color:var(--rd);cursor:pointer}
+.macro-evidence-item{padding:14px 0;border-bottom:1px solid var(--bd)}
+.macro-evidence-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:11px;font-weight:800}
+.macro-evidence-item>strong{display:block;font-size:13px;line-height:1.5;color:var(--tx)}
+.macro-evidence-item p{font-size:12px;line-height:1.65;color:var(--t2);margin:7px 0 0}
+.macro-evidence-tickers{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.macro-evidence-tickers button{min-height:36px;padding:0 10px;border:1px solid var(--blbr);border-radius:999px;background:var(--blb);color:var(--bl);font-weight:700;cursor:pointer}
+.macro-evidence-foot{margin-top:10px;font-size:11px;color:var(--t3)}
+.chatter-evidence{display:grid;gap:10px}
+.chatter-evidence-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chatter-evidence-head strong{font:800 20px var(--fd);color:var(--tx)}
+.chatter-evidence-head span{font-size:12px;font-weight:700;color:var(--t2)}
+.chatter-evidence section,.chatter-summary{margin:0;padding:12px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--sf2);font-size:13px;line-height:1.65;color:var(--t2)}
+.chatter-evidence section b{display:block;margin-bottom:5px;color:var(--tx)}
+.chatter-evidence section p{margin:0}
+.chatter-evidence .chatter-stance{border-color:var(--gnbr);background:var(--gnb)}
+.chatter-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chatter-evidence>small{font-size:11px;color:var(--t3);line-height:1.5}
+.chatter-evidence>small button{border:0;background:none;color:var(--bl);font:inherit;font-weight:700;cursor:pointer}
+.chatter-sweep-list{display:grid;gap:7px}
+.chatter-sweep-row{display:grid;grid-template-columns:70px 82px 1fr;gap:10px;align-items:center;width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--sf2);text-align:left;cursor:pointer;color:var(--tx)}
+.chatter-sweep-row span{font-size:11px;font-weight:700;color:var(--am)}
+.chatter-sweep-row p{margin:0;font-size:12px;line-height:1.45;color:var(--t2)}
+@media(max-width:720px){
+ .dayframe-sync-status{font-size:10px;min-width:56px;padding:5px 8px}
+ .df-mobile-nav button{min-height:58px!important}
+ .df-mobile-nav small{font-size:11px!important;line-height:1.1!important}
+ .money-tab{min-height:44px!important;font-size:11px!important}
+ .security-action,.security-manage,.life-back{min-height:44px!important;font-size:12px!important}
+ .security-inline-status,.security-card-copy,.security-session-row,.security-connection-row{font-size:11px!important;line-height:1.5}
+ .security-session-row div>span,.security-current{font-size:10px!important}
+ .manual-holding-row{grid-template-columns:1fr 1fr}
+ .manual-holding-remove{grid-column:2;justify-self:end}
+ .chatter-two{grid-template-columns:1fr}
+ .chatter-sweep-row{grid-template-columns:58px 70px 1fr}
+}
 </style>
 </head>
 <body>
@@ -1972,7 +2024,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
         </form>
       </section>
     </main>
-    <footer class="auth-public-footer">Dayframe · Your information stays inside your account.</footer>
+    <footer class="auth-public-footer">Dayframe · Your records are private to your account. AI features send the text you choose to Groq for processing.</footer>
   </div>
 </div>
 
@@ -2010,7 +2062,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <button class="df-nav-btn on" data-main-page="home" onclick="go('home')">Home</button><button class="df-nav-btn" data-main-page="money" onclick="go('money')">Money</button><button class="df-nav-btn" data-main-page="planner" onclick="go('planner')">Plans</button><button class="df-nav-btn" data-main-page="driving" onclick="go('driving')">Driving</button><button class="df-nav-btn" data-main-page="diary" onclick="go('diary')">Diary</button><button class="df-nav-btn" data-main-page="bible" onclick="go('bible')">Bible Study</button><button class="df-nav-btn" data-main-page="investing" onclick="go('dashboard')">Investing</button>
     </div>
   </div>
-  <div class="df-nav-right"><button class="df-user-pill" type="button" onclick="go('security')" aria-label="Open account security and privacy"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></button><button class="df-logout" onclick="doLogout()">Log out</button></div>
+  <div class="df-nav-right"><span class="dayframe-sync-status" id="dayframe-sync-status" role="status" aria-live="polite">Saved</span><button class="df-user-pill" type="button" onclick="go('security')" aria-label="Open account security and privacy"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></button><button class="df-logout" onclick="doLogout()">Log out</button></div>
 </div>
 
 <nav class="df-mobile-nav" aria-label="Main navigation">
@@ -2109,8 +2161,8 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
     <section class="life-card security-card">
       <div class="security-card-top"><div class="security-card-icon session">◎</div><div><h2>Active sessions</h2><p>Control where your account stays signed in</p></div></div>
       <div class="security-session-row"><div><strong id="security-device-name">This browser</strong><span id="security-device-meta">Active now</span></div><span class="security-current">This device</span></div>
-      <button class="security-action ghost" type="button" onclick="securitySignOutOthers()">Sign out other devices</button>
-      <div class="security-inline-status" id="security-session-status"></div>
+      <div class="security-action-row"><button class="security-action ghost" type="button" onclick="securitySignOutOthers()">Sign out other devices</button><button class="security-action ghost" type="button" onclick="securityClearThisDevice()">Sign out and clear this device</button></div>
+      <div class="security-inline-status" id="security-session-status" role="status" aria-live="polite"></div>
     </section>
     <section class="life-card security-card">
       <div class="security-card-top"><div class="security-card-icon connected">↗</div><div><h2>Connected accounts</h2><p>Your external data connections</p></div><button class="security-manage" type="button" onclick="go('money');moneyOpenTab('accounts')">Manage</button></div>
@@ -2123,12 +2175,24 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <button class="security-action ghost" type="button" onclick="securityExportData()">Download my data</button>
       <div class="security-inline-status" id="security-data-status"></div>
     </section>
+    <section class="life-card security-card security-ai-card">
+      <div class="security-card-top"><div class="security-card-icon shield">AI</div><div><h2>How Dayframe AI uses data</h2><p>Only when you choose an AI feature</p></div><span class="security-status planned">Shared Groq service</span></div>
+      <div class="security-card-copy">The diary, budget, credit or investment text needed for your request is securely sent to Groq to generate the response. Do not include information you would not want processed by an external AI provider. Dayframe does not use AI requests to let another user see your account.</div>
+    </section>
+    <section class="life-card security-card security-danger-card">
+      <div class="security-card-top"><div class="security-card-icon lock">×</div><div><h2>Delete your account</h2><p>Permanently remove your Dayframe account and saved records</p></div></div>
+      <div class="security-card-copy">This permanently deletes your Dayframe profile, plans, diary, Bible notes, theory progress, bank connections and saved Trading 212 connection. Download your data first if you want a copy.</div>
+      <label class="security-delete-label" for="security-delete-password">Confirm with your password</label>
+      <input class="security-delete-input" id="security-delete-password" type="password" autocomplete="current-password" placeholder="Your Dayframe password">
+      <button class="security-action danger" id="security-delete-button" type="button" onclick="securityDeleteAccount()">Permanently delete my account</button>
+      <div class="security-inline-status" id="security-delete-status" role="status" aria-live="polite"></div>
+    </section>
     <section class="life-card security-card security-mobile-card">
       <div class="security-card-top"><div class="security-card-icon mobile">◫</div><div><h2>Biometric app lock</h2><p>For the future Dayframe mobile app</p></div><span class="security-status planned">App feature</span></div>
       <div class="security-card-copy">Face ID or fingerprint locking belongs in the native app, where it can protect Dayframe whenever the app is reopened or returns from the background.</div>
     </section>
   </div>
-  <div class="security-private-note"><span>◉</span><div><strong>Private by design</strong><p>Account-scoped Dayframe records are requested with your signed-in Supabase session; connections and saved content are not shared between users.</p></div></div>
+  <div class="security-private-note"><span>◉</span><div><strong>Private between Dayframe accounts</strong><p>Supabase row-level security keeps each user’s records separate. Selected AI requests are processed by Groq, and connected providers process the information needed for their service.</p></div></div>
 </div></div>
 
 <div class="driving-sidepanel" id="driving-sidepanel" aria-label="Driving navigation">
@@ -4469,31 +4533,57 @@ async function doUpdatePassword(){
 }
 
 async function authSuccess(name){
-  document.documentElement.classList.remove('df-session-pending');
-  document.getElementById('auth-screen').classList.add('hidden');
   const userEl=document.getElementById('sb-user-name');if(userEl)userEl.textContent=name;
   const avatarEl=document.getElementById('sb-user-avatar');if(avatarEl)avatarEl.textContent=(name||'U')[0].toUpperCase();
   const topName=document.getElementById('df-user-name');if(topName)topName.textContent=name||'Account';
   const topAvatar=document.getElementById('df-user-avatar');if(topAvatar)topAvatar.textContent=(name||'U')[0].toUpperCase();
   authSetLoading('login',false);authSetLoading('signup',false);
-  await loadHubFromSupabase();
-  await loadSettingsFromSupabase();
+  await Promise.allSettled([
+    loadHubFromSupabase(),
+    loadSettingsFromSupabase(),
+    moneyLoadBankData(false)
+  ]);
   personalHubInit(name);
   restoreT212Snapshot();
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.documentElement.classList.remove('df-session-pending');
   moneyHandleBankCallback();
   moneyHandleBankStart();
   const t212Status=await loadT212Status();
   if(t212Status.connected)setTimeout(()=>syncT212(),450);
 }
 
-async function doLogout(){
-  localStorage.removeItem('dayframe_session');
-  location.reload();
+async function dayframeClearUserDeviceData(userId){
+  const prefix='df_'+String(userId||'')+'_';
+  try{
+    Object.keys(localStorage).filter(key=>prefix.length>4&&key.startsWith(prefix)).forEach(key=>localStorage.removeItem(key));
+  }catch(e){}
+  try{
+    Object.keys(sessionStorage).filter(key=>prefix.length>4&&key.startsWith(prefix)).forEach(key=>sessionStorage.removeItem(key));
+  }catch(e){}
+  try{
+    if('caches' in window)caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('dayframe-')).map(key=>caches.delete(key))));
+  }catch(e){}
+}
+async function doLogout(clearDevice=false){
+  const current=dfSession(),userId=current?.user?.id||'';
+  try{
+    const session=await dfRefreshSession(false);
+    if(session?.access_token){
+      await fetch(SUPABASE_URL+'/auth/v1/logout?scope=local',{
+        method:'POST',
+        headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token}
+      });
+    }
+  }catch(e){
+    console.warn('Dayframe sign-out revocation was unavailable.');
+  }finally{
+    if(clearDevice)dayframeClearUserDeviceData(userId);
+    localStorage.removeItem('dayframe_session');
+    location.reload();
+  }
 }
 
-// Restore an existing session without flashing the login page or rotating a
-// still-valid refresh token. Invalid sessions are cleared; temporary network
-// failures keep the local session so a refresh never looks like a logout.
 (async function checkSession(){
   if(beginPasswordRecoveryFromUrl()){document.documentElement.classList.remove('df-session-pending');return}
   const raw=localStorage.getItem('dayframe_session');
@@ -4897,19 +4987,35 @@ function renderManualHoldingsList(){
   const el = document.getElementById('manual-holdings-list');
   if(!el) return;
   if(!_manualHoldings.length){
-    el.innerHTML = '';
+    el.replaceChildren();
     return;
   }
-  el.innerHTML = _manualHoldings.map(function(h,i){
-    return '<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border-radius:6px;padding:5px 8px">' +
-      '<span style="font-size:11px;font-weight:800;color:#93c5fd;flex:1">' + h.ticker + '</span>' +
-      '<span style="font-size:11px;color:rgba(255,255,255,.6)">£' + h.val.toFixed(0) + '</span>' +
-      '<span style="font-size:11px;color:' + (h.gain>=0?'#4ade80':'#f87171') + '">' + (h.gain>=0?'+':'') + '£' + Math.abs(h.gain).toFixed(0) + '</span>' +
-      '<span onclick="removeManualHolding(' + i + ')" style="font-size:14px;color:rgba(255,255,255,.4);cursor:pointer;padding:0 2px">×</span>' +
-      '</div>';
-  }).join('');
+  const fragment=document.createDocumentFragment();
+  _manualHoldings.forEach(function(h,i){
+    const row=document.createElement('div');
+    row.className='manual-holding-row';
+    const ticker=document.createElement('span');
+    ticker.className='manual-holding-ticker';
+    ticker.textContent=String(h.ticker||'');
+    const value=document.createElement('span');
+    value.className='manual-holding-value';
+    value.textContent='£'+Number(h.val||0).toFixed(0);
+    const gain=document.createElement('span');
+    gain.className='manual-holding-gain';
+    gain.classList.toggle('positive',Number(h.gain||0)>=0);
+    gain.classList.toggle('negative',Number(h.gain||0)<0);
+    gain.textContent=(Number(h.gain||0)>=0?'+':'−')+'£'+Math.abs(Number(h.gain||0)).toFixed(0);
+    const remove=document.createElement('button');
+    remove.type='button';
+    remove.className='manual-holding-remove';
+    remove.setAttribute('aria-label','Remove '+String(h.ticker||'')+' holding');
+    remove.textContent='×';
+    remove.addEventListener('click',function(){removeManualHolding(i)});
+    row.append(ticker,value,gain,remove);
+    fragment.appendChild(row);
+  });
+  el.replaceChildren(fragment);
 }
-
 function addManualHolding(){
   const tkEl = document.getElementById('mh-ticker');
   const valEl = document.getElementById('mh-val');
@@ -4918,7 +5024,7 @@ function addManualHolding(){
   const tk = (tkEl.value||'').trim().toUpperCase();
   const val = parseFloat(valEl.value)||0;
   const gain = parseFloat(gainEl.value)||0;
-  if(!tk || val<=0){ if(st) st.textContent='Enter a ticker and value'; return; }
+  if(!/^[A-Z0-9.^=-]{1,20}$/.test(tk) || val<=0){ if(st) st.textContent='Use a valid ticker (letters, numbers, dot or dash) and value'; return; }
   // Remove existing entry for same ticker
   _manualHoldings = _manualHoldings.filter(function(h){ return h.ticker !== tk; });
   _manualHoldings.push({ticker:tk, val:val, gain:gain});
@@ -5084,35 +5190,33 @@ async function syncT212(){
   }finally{if(spinner)spinner.style.display="none";_t212Syncing=false}
 }
 async function fetchWLNews(){
-  const out = document.getElementById("wl-news-out");
-  const sel = document.getElementById("news-ticker-sel");
-  const ticker = sel ? sel.value : "";
-  if(!ticker || !aiKey){out.innerHTML='<div style="color:var(--t3);font-size:13px">Select a stock and try Dayframe AI again</div>';return;}
-  out.innerHTML='<div class="ldg"><span class="spin"></span>Fetching news for '+ticker+'...</div>';
+  const out=document.getElementById('wl-news-out'),sel=document.getElementById('news-ticker-sel');
+  const ticker=String(sel?.value||'').toUpperCase().replace(/[^A-Z0-9.^=-]/g,'').slice(0,20);
+  if(!out)return;
+  if(!ticker){out.innerHTML='<div style="color:var(--t3);font-size:13px">Choose a holding first.</div>';return}
+  out.innerHTML='<div class="ldg"><span class="spin"></span>Checking dated sources for '+hubEsc(ticker)+'…</div>';
   try{
-    const result = await callClaude("Search for the latest news today about "+ticker+" stock. List 5 recent headlines with dates, one per line. For each say if it is: Bullish, Bearish or Neutral for the stock price. Format: DATE | HEADLINE | SIGNAL");
-    if(!result){out.innerHTML='<div style="color:var(--t3);font-size:13px">No results</div>';return;}
-    const lines = result.replace(/[*#]/g,"").split("\n").filter(l=>l.includes("|"));
-    if(lines.length){
-      out.innerHTML = lines.map(line=>{
-        const p = line.split("|").map(x=>x.trim());
-        const sig = (p[2]||"").toLowerCase();
-        const col = sig.includes("bull")?"var(--gn)":sig.includes("bear")?"var(--rd)":"var(--t3)";
-        const dot = sig.includes("bull")?"#16a34a":sig.includes("bear")?"#b91c1c":"#9aa0b4";
-        return'<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);align-items:flex-start">'+
-          '<div style="width:7px;height:7px;border-radius:50%;background:'+dot+';flex-shrink:0;margin-top:5px"></div>'+
-          '<div style="flex:1">'+
-            '<div style="font-size:11px;color:var(--t3);margin-bottom:2px">'+(p[0]||"")+'</div>'+
-            '<div style="font-size:13px;color:var(--tx);line-height:1.5">'+(p[1]||line)+'</div>'+
-          '</div>'+
-          '<span style="font-size:11px;font-weight:700;color:'+col+';flex-shrink:0">'+(p[2]||"")+'</span>'+
-        '</div>';
-      }).join("");
-    } else {
-      out.innerHTML='<div style="font-size:13px;color:var(--t2);line-height:1.7">'+result.replace(/[*#]/g,"")+'</div>';
-    }
-  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:13px">'+e.message+'</div>';}
+    const holding=H.find(h=>h.ticker===ticker),search=[holding?.name,holding?.isin].filter(Boolean).join(' ');
+    const r=await dfBankFetch('/api/investing/research/'+encodeURIComponent(marketSymbolFor(ticker))+'?search='+encodeURIComponent(search));
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(data.error||'Current news could not be loaded.');
+    const news=Array.isArray(data.news)?data.news.slice(0,8):[];
+    if(!news.length){out.innerHTML='<div style="color:var(--t3);font-size:13px">No recent, dated headlines were returned for this listing.</div>';return}
+    out.replaceChildren(...news.map(item=>{
+      const row=document.createElement('div');row.className='nitem';
+      const head=document.createElement('div');head.className='nhead';
+      const link=document.createElement('a');link.textContent=String(item.title||'Untitled report');
+      const url=String(item.url||'');
+      if(/^https?:\/\//i.test(url)){link.href=url;link.target='_blank';link.rel='noopener noreferrer'}
+      head.appendChild(link);
+      const meta=document.createElement('div');meta.className='nmeta';
+      const when=document.createElement('span');when.textContent=String(item.published_at||item.date||'Date unavailable');
+      const source=document.createElement('span');source.textContent=String(item.publisher||item.source||'Source');
+      meta.append(when,source);row.append(head,meta);return row;
+    }));
+  }catch(e){out.textContent=String(e.message||'Current news could not be loaded.')}
 }
+
 
 // ── SPACE SUPPLY CHAIN ──
 const SPACE_CHAIN = [
@@ -5219,7 +5323,7 @@ async function loadVIX(tk, sector, trend){
           (stockMsg ? '<div style="font-size:13px;color:var(--tx);font-weight:500;line-height:1.65;padding-top:8px;border-top:1px solid var(--bd)">'+tk+': '+stockMsg+'</div>' : '') +
         '</div>' +
       '</div>';
-  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:12px">'+e.message+'</div>';}
+  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:12px">'+hubEsc(e.message)+'</div>';}
 }
 
 
@@ -5228,28 +5332,45 @@ const HUB_STORE_KEY='dayframe_personal_hub_v1';
 const hubDefault=()=>({preferences:{home:{modules:['money','planner','driving','diary','bible','investing'],hidden:[],widgets:{coming:true,goals:true,diary:true}}},money:[],accounts:[],budgets:[],creditPlans:[],bills:[],budgetPlan:{income:0,rent:0,regularBills:0,regularBillSelections:[],regularBillsSource:'',previousRegularBillsSuggestion:0,savingGoalSelections:[],savingsSource:'',incomeSource:'',savings:0,buffer:0,investing:0,extraCredit:0,startDay:1,aiNote:'',aiSuggestedAt:'',autoNote:''},customCategories:[],transactionCategoryOverrides:{},transactionCategoryRules:{},creditPaymentMatches:{},payInThreeMatches:{},creditStrategy:'avalanche',tasks:[],goals:[],admin:[],diary:[],diaryCustomMoods:[],diaryAiContext:'',bible:{translation:'KJV',book:'John',chapter:1,readChapters:[],readHistory:[],notes:[],highlights:[],completedDays:[],startedAt:''},learningRead:[],learningPassed:[],drivingCosts:[],vehicle:{name:'',reg:'',dates:{mot:'',tax:'',insurance:'',service:''},notes:''}});
 function hubLoad(){try{return Object.assign(hubDefault(),JSON.parse(localStorage.getItem(dfKey(HUB_STORE_KEY))||'{}'));}catch(e){return hubDefault();}}
 let _hubSyncTimer=null,_hubSyncChain=Promise.resolve(true);
-function hubSave(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);_hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);}
-function hubSaveImmediate(d){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));clearTimeout(_hubSyncTimer);return syncHubToSupabase(d)}
+function hubSetSyncState(state){
+  const el=document.getElementById('dayframe-sync-status');if(!el)return;
+  const labels={saving:'Saving…',saved:'Saved',offline:'Not saved'};
+  el.textContent=labels[state]||labels.saved;
+  el.dataset.state=state||'saved';
+}
+function hubSave(d){
+  localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));
+  hubSetSyncState('saving');
+  clearTimeout(_hubSyncTimer);
+  _hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);
+}
+function hubSaveImmediate(d){
+  localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));
+  hubSetSyncState('saving');
+  clearTimeout(_hubSyncTimer);
+  return syncHubToSupabase(d);
+}
 function syncHubToSupabase(data){
   const run=async()=>{
     let session=await dfRefreshSession(false);
-    if(!session?.access_token||!session?.user?.id||session?._refreshInvalid)return false;
+    if(!session?.access_token||!session?.user?.id||session?._refreshInvalid){hubSetSyncState('offline');return false}
     const send=()=>fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?on_conflict=user_id',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:session.user.id,hub_data:data,updated_at:new Date().toISOString()})});
     try{
       let response=await send();
       if(response.status===401){
         session=await dfRefreshSession(true);
-        if(!session?.access_token||session?._refreshInvalid)return false;
+        if(!session?.access_token||session?._refreshInvalid){hubSetSyncState('offline');return false}
         response=await send();
       }
-      if(!response.ok){console.log('Dayframe data sync failed',response.status);return false}
-      return true;
-    }catch(e){console.log('Dayframe data sync error',e);return false}
+      if(!response.ok){console.warn('Dayframe data sync failed',response.status);hubSetSyncState('offline');return false}
+      hubSetSyncState('saved');return true;
+    }catch(e){console.warn('Dayframe data sync unavailable');hubSetSyncState('offline');return false}
   };
   const next=_hubSyncChain.catch(()=>false).then(run);
   _hubSyncChain=next;
   return next;
 }
+
 async function loadHubFromSupabase(){
   const s=await dfRefreshSession();if(!s?.access_token||!s?.user?.id)return;
   try{
@@ -6555,7 +6676,13 @@ async function bibleShowReader(force){
  host.innerHTML='<div class="bible-reader-loading"><div><i></i>Opening '+hubEsc(ref)+'…</div></div>';
  const endpoint=b.translation==='KJV'?'/api/bible/kjv?book='+encodeURIComponent(b.book)+'&chapter='+b.chapter:'/api/bible/licensed?translation='+encodeURIComponent(b.translation)+'&book='+encodeURIComponent(b.book)+'&chapter='+b.chapter;
  try{
-  const r=await fetch(endpoint,{headers:{accept:'application/json'}}),data=await r.json().catch(()=>({}));
+  const headers={accept:'application/json'};
+  if(b.translation!=='KJV'){
+    const session=await dfRefreshSession(false);
+    if(!session?.access_token)throw new Error('Sign in again to open this translation.');
+    headers.Authorization='Bearer '+session.access_token;
+  }
+  const r=await fetch(endpoint,{headers}),data=await r.json().catch(()=>({}));
   if(!r.ok){
    if(data.code==='BIBLE_LICENSE_NOT_CONFIGURED'||data.code==='BIBLE_TRANSLATION_NOT_LICENSED'){bibleRenderLicenseNeeded(b,data);return}
    throw new Error(data.error||'The chapter could not be opened.')
@@ -6563,6 +6690,7 @@ async function bibleShowReader(force){
   _bibleCache[key]=data;bibleRenderChapter(data,b)
  }catch(e){host.innerHTML='<div class="bible-reader-error"><strong>We could not open this chapter</strong><p>'+hubEsc(e.message||'Please check your connection and try again.')+'</p><button type="button" onclick="bibleShowReader(true)">Try again</button></div>'}
 }
+
 function bibleRenderChapter(data,b){
  const host=document.getElementById('bible-reader');if(!host)return;const name=b.translation==='KJV'?'King James Version':b.translation==='NIV'?'New International Version':b.translation==='NLT'?'New Living Translation':'The Message';
  let body='';
@@ -6714,14 +6842,66 @@ async function securitySignOutOthers(){
   securitySetStatus('security-session-status','Other devices have been signed out. This browser stays active.','ok');
  }catch(e){securitySetStatus('security-session-status',String(e.message||'Other sessions could not be signed out.'),'error')}
 }
-function securityExportData(){
+async function securityExportData(){
  try{
-  const session=dfSession(),payload={dayframe_export_version:1,exported_at:new Date().toISOString(),account:{id:session?.user?.id||null,email:session?.user?.email||session?.email||null},data:hubLoad()};
+  securitySetStatus('security-data-status','Preparing your download…');
+  const session=await dfRefreshSession(false);
+  if(!session?.user?.id)throw new Error('Sign in again first.');
+  await Promise.allSettled([moneyLoadBankData(false),loadT212Status()]);
+  const prefix='df_'+session.user.id+'_',device={};
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key||!key.startsWith(prefix))continue;
+    const raw=localStorage.getItem(key);
+    try{device[key.slice(prefix.length)]=JSON.parse(raw)}catch(e){device[key.slice(prefix.length)]=raw}
+  }
+  let theory=null;
+  try{
+    const r=await dfBankFetch('/api/driving/theory-data');
+    if(r.ok)theory=await r.json();
+  }catch(e){}
+  const payload={
+    dayframe_export_version:2,
+    exported_at:new Date().toISOString(),
+    account:{id:session.user.id,email:session.user.email||session.email||null},
+    hub:hubLoad(),
+    money:{accounts:_moneyBankData.accounts||[],transactions:_moneyBankData.transactions||[],connections:(_moneyBankData.connections||[]).map(c=>({id:c.id,provider:c.provider,status:c.status,created_at:c.created_at,updated_at:c.updated_at})),refreshed_at:_moneyBankData.refreshedAt||null},
+    theory,
+    device
+  };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='dayframe-data-'+hubDateISO()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   securitySetStatus('security-data-status','Your download is ready.','ok');
- }catch(e){securitySetStatus('security-data-status','Your data could not be downloaded.','error')}
+ }catch(e){securitySetStatus('security-data-status',String(e.message||'Your data could not be downloaded.'),'error')}
 }
+async function securityClearThisDevice(){
+  if(!confirm('Sign out and remove Dayframe data cached on this device? Your cloud data will stay in your account.'))return;
+  securitySetStatus('security-session-status','Clearing this device…');
+  await doLogout(true);
+}
+async function securityDeleteAccount(){
+  const password=document.getElementById('security-delete-password')?.value||'',button=document.getElementById('security-delete-button');
+  if(!password){securitySetStatus('security-delete-status','Enter your current password first.','error');return}
+  if(!confirm('Permanently delete your Dayframe account and all of its saved data? This cannot be undone.'))return;
+  if(button)button.disabled=true;securitySetStatus('security-delete-status','Confirming your password…');
+  try{
+    const current=dfSession(),email=current?.user?.email||current?.email;
+    if(!email)throw new Error('Sign in again first.');
+    const login=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const auth=await login.json().catch(()=>({}));
+    if(!login.ok||!auth.access_token)throw new Error('Your password was not accepted.');
+    const r=await fetch(SUPABASE_URL+'/functions/v1/dayframe-account',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+auth.access_token,'Content-Type':'application/json'},body:JSON.stringify({confirmation:'DELETE',password})});
+    const result=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(result.error||'Your account could not be deleted.');
+    await dayframeClearUserDeviceData(current?.user?.id);
+    localStorage.removeItem('dayframe_session');
+    location.reload();
+  }catch(e){
+    securitySetStatus('security-delete-status',String(e.message||'Your account could not be deleted.'),'error');
+    if(button)button.disabled=false;
+  }
+}
+
 
 function renderLifePage(name){if(name==='home')renderHome();if(name==='money')renderMoney();if(name==='planner')renderPlanner();if(name==='driving-car')renderDriving();if(name==='diary')renderDiary();if(name==='bible')renderBible();if(name==='security')securityRender();}
 setTimeout(()=>personalHubInit(),0);
@@ -7859,7 +8039,7 @@ async function loadResearchBrief(tk,h,force=false){
   host.innerHTML='<div class="invest-brief-loading"><span class="spin"></span><div><strong>Gathering current evidence for '+hubEsc(tk)+'</strong><small>Checking market data, dated headlines and recent regulatory filings.</small></div></div>';
   let data;
   try{
-    const response=await fetch('/api/investing/research/'+encodeURIComponent(marketSymbolFor(tk))+'?search='+encodeURIComponent(search));
+    const response=await dfBankFetch('/api/investing/research/'+encodeURIComponent(marketSymbolFor(tk))+'?search='+encodeURIComponent(search));
     data=await response.json().catch(()=>null);
     if(!response.ok||!data)throw new Error(data?.error||'Current sources could not be loaded.');
   }catch(error){
@@ -8143,7 +8323,7 @@ async function analyseTradeAlert() {
 
     const get = (text, key) => {
       const m = text.match(new RegExp(key + ':\s*([\s\S]*?)(?=\n[A-Z_]+:|---END---|$)'));
-      return m ? m[1].trim() : '';
+      return m ? hubEsc(m[1].trim()) : '';
     };
 
     const stock       = get(result, 'STOCK');
@@ -8203,7 +8383,7 @@ async function analyseTradeAlert() {
       '<div style="font-size:10px;color:var(--t3);margin-top:10px;padding:0 2px">Groq AI analysis &middot; not financial advice &middot; always do your own research before copying any trade</div>';
 
   } catch(e) {
-    out.innerHTML = '<div style="color:var(--rd);font-size:13px">Error: ' + e.message + '</div>';
+    out.innerHTML = '<div style="color:var(--rd);font-size:13px">Error: ' + hubEsc(e.message) + '</div>';
   }
 }
 
@@ -8382,7 +8562,7 @@ async function loadNow(tk, h){
   const body = document.getElementById('now-body');
   if(!body) return;
   if(!aiKey){
-    body.innerHTML='<div style="font-size:13px;color:var(--t3)">Add your Groq key in settings to see live intel.</div>';
+    body.innerHTML='<div style="font-size:13px;color:var(--t3)">Dayframe AI is temporarily unavailable.</div>';
     return;
   }
 
@@ -8440,7 +8620,7 @@ async function loadNow(tk, h){
 
     if(!result){ body.innerHTML='<div style="font-size:13px;color:var(--t3)">Could not load intel.</div>'; return; }
 
-    const get = (key) => { const m = result.match(new RegExp(key+':\\s*([\\s\\S]*?)(?=\\n[A-Z]+:|$)')); return m ? m[1].trim() : null; };
+    const get = (key) => { const m = result.match(new RegExp(key+':\\s*([\\s\\S]*?)(?=\\n[A-Z]+:|$)')); return m ? hubEsc(m[1].trim()) : null; };
     const latest = get('LATEST'), macro = get('MACRO'), watch = get('WATCH'), action = get('ACTION');
 
     const row = (icon, label, text, col) =>
@@ -8467,7 +8647,7 @@ async function loadNow(tk, h){
       sourceLabel;
 
   }catch(e){
-    body.innerHTML='<div style="font-size:13px;color:var(--rd)">Error: '+e.message+'</div>';
+    body.innerHTML='<div style="font-size:13px;color:var(--rd)">Error: '+hubEsc(e.message)+'</div>';
   }
 }
 
@@ -8485,113 +8665,39 @@ function toggleMacroCard(){
 }
 
 async function loadMacroEvents(){
-  const body = document.getElementById('macro-events-body');
-  if(!body) return;
-  if(!aiKey){
-    body.innerHTML='<div style="font-size:13px;color:var(--t3);padding:8px 0">Add your Groq key in settings to see macro events analysis.</div>';
-    return;
-  }
-  body.style.display = 'block';
-  body.innerHTML='<div class="ldg"><span class="spin"></span>Scanning world events for your stocks...</div>';
-
-  const tickers = H.length ? H.map(h=>h.ticker).join(', ') : 'AAOI, AXTI, RKLB, ASTS, MU, SOFI, IREN, BBAI';
-
+  const body=document.getElementById('macro-events-body');if(!body)return;
+  if(!aiKey){body.innerHTML='<div style="font-size:13px;color:var(--t3);padding:8px 0">Dayframe AI is temporarily unavailable.</div>';return}
+  body.style.display='block';body.innerHTML='<div class="ldg"><span class="spin"></span>Checking dated market headlines…</div>';
+  const tickers=(H.length?H.map(h=>h.ticker):[]).map(t=>String(t).toUpperCase().replace(/[^A-Z0-9.^=-]/g,'')).filter(Boolean).slice(0,30);
   try{
-    // Fetch live breaking news — cache-busted so we always get fresh headlines
-    let liveNews = '';
-    const today = new Date();
-    const todayStr = today.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    const cacheBust = '?cb='+today.toISOString().slice(0,13); // changes every hour
-    try{
-      const nr = await fetch(SRV+'/api/macro-news'+cacheBust);
-      const articles = await nr.json();
-      if(Array.isArray(articles) && articles.length){
-        liveNews = 'RSS headlines fetched right now:\n'+
-          articles.slice(0,12).map(a=>'- '+a.title+(a.desc?' — '+a.desc.substring(0,120):'')).join('\n')+'\n\n';
-      }
-    }catch(e){}
-
-    const result = await callClaude(
-      'TODAY IS '+todayStr+'. This is a live request — do not use old or cached information.\n\n'+
-      'I am a UK beginner investor holding: '+tickers+'.\n\n'+
-      liveNews+
-      'Using the RSS headlines above AND your most recent knowledge, identify what is actually moving markets TODAY — '+
-      'specifically: what has Trump said or done in the last 48 hours? What are the latest tariff, trade war, or geopolitical developments? '+
-      'What AI or tech spending news has broken this week? What macro events are coming in the next 7 days?\n\n'+
-      'Do NOT repeat old or generic events if there is more recent news. If something has changed or escalated since a previous report, say so explicitly.\n\n'+
-      'TYPE 1 — ONGOING: Things happening right now (last 48 hours) affecting markets.\n'+
-      'TYPE 2 — UPCOMING: Events in the next 7 days that could move markets.\n\n'+
-      'Write like texting a friend who knows NOTHING about finance or politics. Zero jargon. '+
-      'If you use any term (tariff, Fed, inflation, yield), immediately explain it in clear everyday language in brackets.\n\n'+
-      'For each item use EXACTLY this format:\n'+
-      'EVENT: [What is happening — one plain sentence a 16 year old understands. Include HOW it has changed since last update if it has.]\n'+
-      'TYPE: [ONGOING or UPCOMING]\n'+
-      'IMPACT: [UP or DOWN or MIXED]\n'+
-      'STOCKS: [comma separated tickers from my list most affected]\n'+
-      'REASON: [Why does this hit those stocks? One plain sentence, no jargon]\n'+
-      'ACTION: [What should I actually do or watch? One plain sentence]\n'+
-      '---\n\n'+
-      'Cover 4-5 items. Most recent and urgent first. Be direct and specific — not generic.'
+    const nr=await dfBankFetch('/api/macro-news?cb='+encodeURIComponent(new Date().toISOString().slice(0,13)));
+    const articles=await nr.json().catch(()=>[]);
+    if(!nr.ok||!Array.isArray(articles)||!articles.length)throw new Error('No current headlines were available.');
+    const evidence=articles.slice(0,12).map((a,i)=>'[H'+(i+1)+'] '+String(a.date||a.published_at||'date unavailable')+' | '+String(a.source||'source unavailable')+' | '+String(a.title||'')+(a.desc?' — '+String(a.desc).slice(0,180):'')).join('\n');
+    const result=await callClaude(
+      'Use ONLY the dated headline evidence below. Do not add facts from memory and do not pretend to know live information outside it. If the evidence is insufficient, say so. The user is a UK beginner investor and holds: '+tickers.join(', ')+'.\n\n'+
+      evidence+'\n\nReturn up to five items using exactly:\nEVENT: ...\nTYPE: ONGOING or UPCOMING\nIMPACT: UP or DOWN or MIXED\nSTOCKS: comma-separated tickers from the user list only\nREASON: explain simply why it may matter\nWATCH: what evidence to watch next, without telling the user to buy or sell\nSOURCE: one or more H labels\n---'
     );
-
-    if(!result){ body.innerHTML='<div style="font-size:13px;color:var(--t3)">Could not load. Try Refresh.</div>'; return; }
-
-    const events = result.split(/---+/).map(s=>s.trim()).filter(s=>s.length>20);
-    if(!events.length){ body.innerHTML='<div style="font-size:13px;color:var(--t3)">No major events found right now.</div>'; return; }
-
-    const get = (text, key) => { const m = text.match(new RegExp(key+':\\s*([^\\n]+)')); return m ? m[1].trim() : ''; };
-
-    const impactCol = (i) => i==='UP'?'var(--gn)':i==='DOWN'?'var(--rd)':'var(--am)';
-    const impactBg  = (i) => i==='UP'?'var(--gnb)':i==='DOWN'?'var(--rdb)':'var(--amb)';
-    const impactBr  = (i) => i==='UP'?'var(--gnbr)':i==='DOWN'?'var(--rdbr)':'var(--ambr)';
-    const impactIcon= (i) => i==='UP'?'📈':i==='DOWN'?'📉':'↔️';
-
-    body.innerHTML = events.map(ev=>{
-      const event  = get(ev,'EVENT');
-      const type   = get(ev,'TYPE').toUpperCase();
-      const impact = get(ev,'IMPACT').toUpperCase();
-      const stocks = get(ev,'STOCKS');
-      const reason = get(ev,'REASON');
-      const action = get(ev,'ACTION');
-      if(!event) return '';
-
-      const col = impactCol(impact);
-      const bg  = impactBg(impact);
-      const br  = impactBr(impact);
-      const icon= impactIcon(impact);
-      const typeBadge = type==='UPCOMING'
-        ? '<span style="font-size:10px;font-weight:700;background:#fffbeb;color:#b45309;border:1px solid #fcd34d;padding:2px 7px;border-radius:4px;margin-left:6px">UPCOMING</span>'
-        : '<span style="font-size:10px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:2px 7px;border-radius:4px;margin-left:6px">ONGOING</span>';
-
-      const stockTags = stocks ? stocks.split(',').map(t=>{
-        t = t.trim();
-        const owned = H.find(h=>h.ticker===t);
-        return '<span class="tc" style="cursor:pointer;font-size:11px;'+(owned?'border:2px solid var(--gn);':'')+'" onclick="openChart(\''+t+'\')">'+(owned?t+' ✓':t)+'</span>';
-      }).join(' ') : '';
-
-      return '<div style="padding:14px 0;border-bottom:1px solid var(--bd)">'+
-        '<div style="display:flex;align-items:flex-start;gap:10px">'+
-          '<div style="flex-shrink:0;padding:4px 8px;background:'+bg+';border:1px solid '+br+';border-radius:6px;font-size:11px;font-weight:700;color:'+col+'">'+icon+' '+impact+'</div>'+
-          '<div style="flex:1">'+
-            '<div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:5px;line-height:1.5">'+event+typeBadge+'</div>'+
-            (stockTags?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">'+stockTags+'</div>':'')+
-            '<div style="font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:6px">'+reason+'</div>'+
-            '<div style="font-size:12px;font-weight:600;color:'+col+'">→ '+action+'</div>'+
-          '</div>'+
-        '</div>'+
-      '</div>';
-    }).join('')+
-    '<div style="font-size:10px;color:var(--t3);margin-top:10px">Groq AI + live headlines · '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' · tap the card header to refresh · not financial advice</div>';
-
-  }catch(e){
-    body.innerHTML='<div style="font-size:13px;color:var(--rd)">Error: '+e.message+'</div>';
-  }
+    if(!result)throw new Error('No explanation was returned.');
+    const get=(part,key)=>{const m=part.match(new RegExp(key+':\\s*([^\\n]+)','i'));return m?m[1].trim():''};
+    const events=result.split(/---+/).map(part=>part.trim()).filter(part=>part.length>15);
+    if(!events.length)throw new Error('No current events could be confirmed.');
+    body.innerHTML=events.map(part=>{
+      const event=hubEsc(get(part,'EVENT')),type=hubEsc(get(part,'TYPE').toUpperCase()),impact=hubEsc(get(part,'IMPACT').toUpperCase());
+      const reason=hubEsc(get(part,'REASON')),watch=hubEsc(get(part,'WATCH')),source=hubEsc(get(part,'SOURCE'));
+      const stocks=get(part,'STOCKS').split(',').map(t=>t.trim().toUpperCase().replace(/[^A-Z0-9.^=-]/g,'')).filter(t=>tickers.includes(t));
+      const col=impact==='UP'?'var(--gn)':impact==='DOWN'?'var(--rd)':'var(--am)';
+      return '<article class="macro-evidence-item"><div class="macro-evidence-head"><span style="color:'+col+'">'+impact+'</span><small>'+type+'</small></div><strong>'+event+'</strong>'+
+        (stocks.length?'<div class="macro-evidence-tickers">'+stocks.map(t=>'<button type="button" onclick="openChart(\''+t+'\')">'+hubEsc(t)+'</button>').join('')+'</div>':'')+
+        '<p>'+reason+'</p><p><b>Watch:</b> '+watch+'</p><small>Evidence: '+source+'</small></article>';
+    }).join('')+'<div class="macro-evidence-foot">Based only on dated headlines fetched at '+hubEsc(new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}))+' · educational, not financial advice</div>';
+  }catch(e){body.innerHTML='<div style="font-size:13px;color:var(--rd)">'+hubEsc(e.message||'Current market context could not be loaded.')+'</div>'}
 }
 
 async function loadShortInterest(tk){
   const body = document.getElementById('short-body');
   if(!body) return;
-  if(!aiKey){body.innerHTML='<div style="font-size:13px;color:var(--t3)">Add your Groq key to see short interest analysis.</div>';return;}
+  if(!aiKey){body.innerHTML='<div style="font-size:13px;color:var(--t3)">Dayframe AI is temporarily unavailable.</div>';return;}
   body.innerHTML='<div class="ldg"><span class="spin"></span>Loading short interest data...</div>';
   try{
     const result = await callClaude(
@@ -8606,7 +8712,7 @@ async function loadShortInterest(tk){
     );
     if(!result){body.innerHTML='<div style="font-size:13px;color:var(--t3)">No data returned.</div>';return;}
 
-    const get=(key)=>{const m=result.match(new RegExp(key+':\\s*(.+)','i'));return m?m[1].trim().replace(/^\[|\]$/g,''):null;};
+    const get=(key)=>{const m=result.match(new RegExp(key+':\\s*(.+)','i'));return m?hubEsc(m[1].trim().replace(/^\[|\]$/g,'')):null;};
     const pctRaw=get('SHORT_PCT'), days=get('DAYS_TO_COVER'), level=get('LEVEL'),
           trend=get('TREND'), reason=get('REASON'), squeeze=get('SQUEEZE_RISK'), action=get('ACTION');
 
@@ -8642,7 +8748,7 @@ async function loadShortInterest(tk){
       </div>
       <div style="font-size:10px;color:var(--t3)">Groq AI · training data only · verify with Finviz or Ortex · <span onclick="goEduFromStock('short-selling','${tk}')" style="cursor:pointer;color:var(--bl);font-weight:600">What is short selling? →</span></div>`;
   }catch(e){
-    body.innerHTML=`<div style="font-size:13px;color:var(--rd)">${e.message}</div>`;
+    body.innerHTML=`<div style="font-size:13px;color:var(--rd)">${hubEsc(e.message)}</div>`;
   }
 }
 
@@ -8993,7 +9099,7 @@ async function loadTwits(tk){
     '</div>';
   }catch(e){
     if(loading)loading.style.display="none";
-    if(out)out.innerHTML='<div style="color:var(--rd);font-size:13px">Could not load social sentiment: '+e.message+'</div>';
+    if(out)out.innerHTML='<div style="color:var(--rd);font-size:13px">Could not load social sentiment: '+hubEsc(e.message)+'</div>';
   }
 }
 
@@ -9002,7 +9108,7 @@ async function loadChart(tk,h){
   let res,meta,prices,labels,vp,cur,pricePrefix;
   try{
     const search=searchHint?'&search='+encodeURIComponent(searchHint):'';
-    const response=await fetch("/api/investing/prices/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk"+search);
+    const response=await dfBankFetch("/api/investing/prices/"+encodeURIComponent(marketSymbol)+"?range=6mo&interval=1wk"+search);
     if(!response.ok)throw new Error("market data unavailable");
     const data=await response.json(),result=data?.chart?.result?.[0];
     if(!result)throw new Error("no data");
@@ -9156,7 +9262,7 @@ async function loadAnalyst(tk,h,isCov){
         "SELLS: [number]"
       );
       if(result){
-        const get=(key)=>{const m=result.match(new RegExp(key+":\\s*(.+)","i"));return m?m[1].trim():null;};
+        const get=(key)=>{const m=result.match(new RegExp(key+":\\s*(.+)","i"));return m?hubEsc(m[1].trim()):null;};
         const rating=get("RATING")||"Hold";
         const target=get("TARGET");
         const upsideRaw=get("UPSIDE");
@@ -9228,13 +9334,14 @@ function rCPO(){
 
 
 function cleanMD(text){
-  return text
+  return hubEsc(String(text??''))
     .replace(/\*\*([^*]+)\*\*/g,'$1')
     .replace(/\*([^*]+)\*/g,'$1')
     .replace(/##+ /g,'')
     .replace(/^- /gm,'')
     .trim();
 }
+
 
 function parseNewsItems(result){
   const clean=cleanMD(result);
@@ -9403,7 +9510,7 @@ async function runAISummary(){
       }
       return '<div style="display:flex;gap:10px;padding:10px 0;'+(i<defs.length-1?'border-bottom:1px solid var(--bd);':'')+'align-items:flex-start"><div style="font-size:18px;flex-shrink:0">'+s.icon+'</div><div style="flex:1"><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">'+s.label+'</div><div style="font-size:13px;color:var(--tx);line-height:1.65">'+content+'</div></div></div>';
     }).join('');
-  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:12px">'+e.message+'</div>';}
+  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:12px">'+hubEsc(e.message)+'</div>';}
 }
 
 async function runSig(){
@@ -9425,11 +9532,11 @@ async function runSig(){
     out.innerHTML=sig.length?sig.map(it=>{
       const cls=["BURU","NAK"].includes(it.t)?"dng":["AXTI","RKLB"].includes(it.t)?"suc":it.t==="AAOI"?"wrn":"inf";
       const am=it.tx.match(/\b(SELL|BUY MORE|HOLD|WATCH)\b/i);const ac=am?am[1].toUpperCase():null;
-      return`<div class="aip ${cls}"><div class="at">${it.t}</div><div class="ax">${it.tx}</div>${ac?`<span class="atag ${ac==="SELL"?"sell":ac==="BUY MORE"?"buy":ac==="WATCH"?"watch":"hold"}">${ac}</span>`:""}</div>`;
-    }).join(""):`<div class="ax" style="padding:10px 0">${result}</div>`;
+      return`<div class="aip ${cls}"><div class="at">${it.t}</div><div class="ax"${hubEsc(it.tx)}</div>${ac?`<span class="atag ${ac==="SELL"?"sell":ac==="BUY MORE"?"buy":ac==="WATCH"?"watch":"hold"}">${ac}</span>`:""}</div>`;
+    }).join(""):`<div class="ax" style="padding:10px 0"${cleanMD(result)}</div>`;
     sum.innerHTML=sumI?`<div class="ax" style="line-height:1.75;font-weight:400">${sumI.tx}</div>`:`<div style="color:var(--t3);font-size:13px;font-weight:500">No summary returned.</div>`;
     document.getElementById("sig-ts").textContent="Last run: "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px;padding:10px 0">Error: ${e.message}</div>`;}
+  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px;padding:10px 0">Error: ${hubEsc(e.message)}</div>`;}
   btn.disabled=false;btn.innerHTML="Run Analysis";
 }
 
@@ -9485,7 +9592,7 @@ async function fetchNews(){
     const isRateLimit = e.message&&e.message.includes('rate limit');
     out.innerHTML=isRateLimit
       ? '<div style="background:var(--amb);border:1px solid var(--ambr);border-radius:var(--rs);padding:14px 16px;font-size:13px;color:var(--am)">⏱️ <strong>Too many requests at once.</strong> Wait 60 seconds then try again. This happens when several AI features load simultaneously.</div>'
-      : `<div style="color:var(--rd);font-size:13px">Error: ${e.message}</div>`;
+      : `<div style="color:var(--rd);font-size:13px">Error: ${hubEsc(e.message)}</div>`;
   }
 }
 
@@ -9521,7 +9628,7 @@ async function loadReddit(){
       const prev=parseInt(s.rank_24h_ago||"999");const trendUp=prev>rank;
       return`<div class="reddit-row"><div class="reddit-rank">#${rank}</div><span class="tc">${s.ticker}</span><div class="reddit-name">${s.name||""}</div><div class="reddit-mentions">${s.mentions} mentions</div><div class="reddit-trend" style="color:${trendUp?"var(--gn)":"var(--rd)"};font-weight:600">${trendUp?"↑ rising":"↓ fading"}</div></div>`;
     }).join(""):`<div style="color:var(--t3);font-size:13px;padding:10px 0;font-weight:500">None of your current holdings appear in the top Reddit mentions right now.</div>`;
-  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px;font-weight:500">Could not load: ${e.message}</div>`;yours.innerHTML="";}
+  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px;font-weight:500">Could not load: ${hubEsc(e.message)}</div>`;yours.innerHTML="";}
 }
 
 async function redditAI(){
@@ -9546,8 +9653,8 @@ async function redditAI(){
     let cur=null,curL=[];
     for(const line of lines){const m=line.match(/^\[([A-Z0-9]+)\]/);if(m){if(cur)items.push({t:cur,tx:curL.join(" ")});cur=m[1];curL=[line.replace(/^\[[A-Z0-9]+\]\s*/,"").trim()].filter(Boolean);}else if(cur)curL.push(line.trim());}
     if(cur)items.push({t:cur,tx:curL.join(" ")});
-    out.innerHTML=items.length?items.map(it=>`<div class="aip inf" style="margin-bottom:10px"><div class="at">${it.t} — Reddit sentiment</div><div class="ax">${it.tx}</div></div>`).join(""):`<div class="ax" style="line-height:1.75">${result}</div>`;
-  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px">Error: ${e.message}</div>`;}
+    out.innerHTML=items.length?items.map(it=>`<div class="aip inf" style="margin-bottom:10px"><div class="at">${hubEsc(it.t)} — Reddit sentiment</div><div class="ax">${hubEsc(it.tx)}</div></div>`).join(""):`<div class="ax" style="line-height:1.75">${cleanMD(result)}</div>`;
+  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px">Error: ${hubEsc(e.message)}</div>`;}
   btn.disabled=false;btn.innerHTML="Search Reddit";
 }
 
@@ -9980,8 +10087,8 @@ async function analyseWL(){
     for(const line of lines){const m=line.match(/^\[([A-Z0-9]+)\]/);if(m){if(cur)items.push({t:cur,tx:curL.join(" ")});cur=m[1];curL=[line.replace(/^\[[A-Z0-9]+\]\s*/,"").trim()].filter(Boolean);}else if(cur)curL.push(line.trim());}
     if(cur)items.push({t:cur,tx:curL.join(" ")});
     out.innerHTML=items.length?`<div style="font-size:12px;color:var(--t3);margin-bottom:12px;font-weight:500">Deep analysis powered by Claude + live web search · ${new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</div>`+
-    items.map(it=>`<div class="aip inf" style="margin-bottom:12px"><div class="at">${it.t}</div><div class="ax">${it.tx}</div></div>`).join(""):`<div class="ax">${result}</div>`;
-  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px">Error: ${e.message}</div>`;}
+    items.map(it=>`<div class="aip inf" style="margin-bottom:12px"><div class="at">${it.t}</div><div class="ax"${hubEsc(it.tx)}</div></div>`).join(""):`<div class="ax"${cleanMD(result)}</div>`;
+  }catch(e){out.innerHTML=`<div style="color:var(--rd);font-size:13px">Error: ${hubEsc(e.message)}</div>`;}
 }
 
 // TRIGGERS
@@ -10781,208 +10888,7 @@ const SOURCES = [
 ];
 
 // Breaking news items — add new items here as they happen
-const BREAKING_NEWS = [
-  {
-    date: "Apr 25, 2026",
-    tag: "🧠 MU EARNINGS — STRUCTURAL SHIFT",
-    tagCol: "#7c3aed",
-    title: "Micron confirms structural memory transformation across every device category — the AI shift is here",
-    body: "Micron's April 2026 earnings call contained some of the most explicit confirmation of the AI memory demand thesis ever put on record. These are direct quotes:\n\nAutomotive: 'The average car today has less than L2 ADAS capability, containing approximately 16GB of DRAM, while vehicles with L4 autonomy require over 300GB.' That's a 20x increase per vehicle.\n\nRobots: 'Humanoid robots will be AI-enabled and powered by a compute platform that rivals a high-end L4-capable automobile, requiring significant memory and storage.'\n\nPCs: 'PCs with on-device agentic AI have recommended memory specs of at least 32GB, twice the average PC.'\n\nData centre LP DRAM: 'We sampled the industry's first 256GB LP-SOCAMM2 product, built on our 1y node, enabling 2TB of capacity per CPU. Quadrupling content from just a year ago.'\n\nData centre demand: 'AI server demand is driving DRAM and NAND data centre bit TAM to exceed 50% of industry TAM for the first time in calendar 2026.'\n\nMobile: Flagship smartphones shipping 12GB+ DRAM increased to nearly 80% of units in Q4, up from under 20% a year ago.\n\nThis is not a cyclical bounce. Every single end market is undergoing a structural step-change in memory content simultaneously. The floor has been raised permanently.",
-    stocks: ["MU", "SNDK"],
-    action: "MU and SNDK are your direct plays on this theme. If you don't have a memory position, this earnings call is the clearest buy thesis available. The data centre TAM crossing 50% of industry for the first time is a structural inflection — not a temporary cycle.",
-    actionCol: "#a78bfa"
-  },
-  {
-    date: "Apr 25, 2026",
-    tag: "⚠️ TRT DILUTION",
-    tagCol: "#dc2626",
-    title: "TRT just did a $10M share offering — 1,052,632 new shares hitting April 27",
-    body: "Trio-Tech International (TRT) announced a $10M registered direct offering closing April 27 2026, issuing 1,052,632 new shares to institutional investors.\n\nContext: TRT currently has a ~$50-80M market cap. Adding ~1M new shares is meaningful dilution — roughly 7-10% of existing shares depending on the exact share count. Registered direct offerings at small-caps like this typically price at or below market, meaning existing shareholders get diluted.\n\nThe two reads:\n• Bull case: Institutional investors participating in a direct offering at this size signals conviction. They're putting money in, not just talking. The cash raise gives TRT balance sheet strength to pursue capacity expansion — exactly what AEHR did to scale.\n• Bear case: They needed the money. If the AMD relationship was as locked in as the thesis suggests, they'd have negotiating leverage to avoid dilutive financing.\n\nTRT is on your watchlist (not held). The $5.3M AMD burn-in order thesis is unchanged. But the dilution changes the per-share maths — if you were considering entering, the offering price gives you a cleaner entry level reference than whatever the stock was trading at before.",
-    stocks: ["TRT"],
-    action: "Wait for the offering to close (April 27) and watch how the stock reacts. If it dips to the offering price or below, that's typically where institutional buyers have set their floor. Don't chase above the offering price in the days immediately after.",
-    actionCol: "#fca5a5"
-  },
-  {
-    date: "Apr 24, 2026",
-    tag: "🚨 AEHR CEO INSIDER SALE",
-    tagCol: "#dc2626",
-    title: "AEHR CEO just dumped 152,824 shares ($10.7M) in one transaction — same pattern that preceded 80% crash in 2023",
-    body: "This is the most important signal to track if you hold AEHR.\n\nOn April 10 2026, CEO Erickson Gayn sold 152,824 shares at $70.58 — disposing of 28% of his remaining holdings in a single transaction worth $10.7M.\n\nWhy the pattern matters: In 2023, he sold disciplined blocks at $30, $35, $40, and $45 — 50,000 shares each, clean limit orders. Then three days after his $45 sale, the stock moved above $50. He panicked and dumped 123,811 shares all at once. Two weeks later the stock hit its intraday high for the year. Then it fell 80% over the next eight months.\n\nThis time, he skipped the disciplined phase entirely. His first sale since 2024 was immediately a massive block dump at $70.58. The analyst who flagged this noted: 'Today is two weeks later' — echoing the same timing pattern from 2023.\n\nImportant context: Insider selling alone doesn't guarantee a crash. CEOs sell for many reasons — tax planning, diversification, personal needs. AEHR's fundamental thesis (CPO testing demand, $92M H2 bookings) is unchanged. But the behavioural pattern of a large unplanned block sale near a recent high has a specific track record here.",
-    stocks: ["AEHR"],
-    action: "Do not panic sell — but do not add. If you're in profit on AEHR, consider trimming to a size you'd be comfortable holding through a 40-50% pullback. The CPO testing thesis is intact. The CEO's selling behaviour at this price level is a yellow flag worth respecting. Watch the next 2-4 weeks closely.",
-    actionCol: "#fca5a5"
-  },
-  {
-    date: "Apr 24, 2026",
-    tag: "✅ POET MILESTONES",
-    tagCol: "#059669",
-    title: "POET Technologies confirms Marvell design-in, 30,000 units shipping 2026, Malaysia production starting Q2/Q3",
-    body: "A strong milestone update for POET Technologies, which sits at the heart of the CPO integration thesis.\n\nWhat's been confirmed in 2026 so far:\n• Officially confirmed as designed into Marvell ($MRVL) — previously a 'highly probable assumption', now confirmed\n• 30,000 units shipping this year (2026)\n• Malaysia production line starting Q2/Q3 2026\n• $430M in cash — well funded\n• New orders 'far in excess' of $5M this year\n• Expanded 1.6T ecosystem: new Lessengers and LITEON partnerships\n• Celestial AI invoice received, shipments expected next quarter\n\nWhy Marvell matters: Marvell is one of the dominant custom silicon companies for hyperscalers (Google, Microsoft, Amazon all use Marvell-designed chips). A confirmed design-in means POET's optical interposer architecture is embedded into products that will ship at hyperscaler scale — not just a prototype or pilot.\n\nThe 'POET is a POET killer' counter-narrative (from glass substrates) was addressed earlier — POET provides the engine (light source alignment), not the road (the waveguide). Glass substrates don't replace POET; they expand the surface POET can be integrated onto.",
-    stocks: ["LITE", "COHR", "TSEM", "AXTI"],
-    action: "POET itself trades on TSX Venture (POET.V) and OTC (POETF) — not on T212 or easily accessible. The indirect plays in your portfolio (LITE, COHR, TSEM, AXTI) all benefit from POET's validation of the CPO ecosystem. If POET is shipping 30,000 units in 2026, the laser supply chain (LITE, AAOI) is the next link in that chain.",
-    actionCol: "#6ee7b7"
-  },
-  {
-    date: "Apr 24, 2026",
-    tag: "✅ LPK THESIS CONFIRMED",
-    tagCol: "#78716c",
-    title: "Intel earnings call: CEO cited T-glass costs as H2 headwind — directly validates the LPKF glass substrate thesis",
-    body: "During Intel's April 23 earnings call, the CEO flagged 'substrates going up, T-glass going up, memory going up' as cost headwinds hitting gross margins in the second half of 2026.\n\nT-glass (tempered glass substrates) is exactly what LPKF's LIDE machines are used to process. Intel citing rising T-glass costs publicly confirms:\n1. Glass substrates are now in active production use at Intel scale (not just a roadmap item)\n2. Demand is high enough that prices are moving\n3. The transition from organic to glass substrates is happening now, not in 2028\n\nLPKF's market cap is still around €300M. They make the only industrial-scale machines (LIDE) that can drill the precise through-glass vias that glass substrates require. If Intel is already buying enough glass substrate volume to move costs, the equipment supplier to the glass substrate fabs is in an extremely early but confirmed position.\n\nThe analyst note that followed: 'Intel took off. Now they're saying there is a glass substrate bottleneck, which is exactly the thesis for the company, and it's still 300M market cap.'",
-    stocks: ["LPK"],
-    action: "This is exactly the kind of external confirmation you want for an early-stage thesis. LPK is Frankfurt-listed and not on T212, but accessible via Degiro or IBKR. The thesis has moved from 'this will happen' to 'Intel just confirmed it is happening'. Position sizing: still small and speculative, but the risk/reward has shifted.",
-    actionCol: "#a8a29e"
-  },
-  {
-    date: "Apr 23, 2026",
-    tag: "🚀 INTC EARNINGS",
-    tagCol: "#2563eb",
-    title: "Intel +14% after hours — CPU supply shortage running through 2027",
-    body: "Intel reported earnings today and jumped 14.47% after hours, driven by a CPU supply shortage that nobody was talking about a month ago.\n\nWhat's happening: Server CPU prices have jumped 10-20% since March. Intel and AMD are both planning further price hikes in Q3 2026. The shortage is expected to remain tight through 2026 and 2027 — Intel is quoting 6-month lead times, AMD 8-12 weeks.\n\nThe cause: Intel, AMD, and NVIDIA's upcoming Vera CPU are all competing for the same 3nm production capacity at TSMC simultaneously. The AI ASIC demand wave and mainstream CPU demand are colliding at the foundry level.\n\nThis is the same 'bottleneck rotation' pattern from Image 1 of your feed today: NVDA GPUs led, then memory, then power, then optical networking. Now CPUs are the constrained component. TSM is increasing capex in response.\n\nWhy this matters to you: TSEM (Tower Semiconductor) and TSM both benefit from increased foundry demand pressure. Your AAOI and LITE positions benefit from hyperscalers continuing to spend regardless of which component is bottlenecked — the overall AI buildout isn't slowing.",
-    stocks: ["TSEM", "AAOI", "LITE"],
-    action: "You don't hold INTC directly. The signal here is that foundry demand is tightening further — which is a tailwind for TSEM. If you've been watching TSEM, this adds to the case for the thesis.",
-    actionCol: "#60a5fa"
-  },
-  {
-    date: "Apr 23, 2026",
-    tag: "ℹ️ SOI UPDATE — LESS BAD THAN FLAGGED",
-    tagCol: "#d97706",
-    title: "SOI: GlobalWafers threat is to the wrong product — Photonics-SOI appears safe until 2029+",
-    body: "Update on the GlobalWafers / Soitec story flagged earlier. After further analysis, the threat is narrower than it initially appeared.\n\nWhat GlobalWafers actually has: Their terminated Soitec licence covered 200mm RF/power-SOI — the wafers used in 5G phone chips. This is around 90% of GlobalWafers' SOI revenue today. GlobalWafers' CEO confirmed they do NOT have a 300mm Photonics-SOI platform qualified with a Tier-1 foundry, and they do not possess SmartCut-equivalent IP for the ultra-thin layer transfer that Photonics-SOI requires. Consequently, GlobalWafers cannot meaningfully take market share from Soitec in the CPO space with what they have today.\n\nWhat could actually threaten Soitec in CPO:\n• Patent protection weakening (the most realistic near-term risk)\n• Alternative materials like TFLN — but not realistic before 2030+\n• Chinese manufacturers (e.g. NANOLN) claiming to use SmartCut processes without licensing — Soitec has not taken legal action, which is itself a concern worth watching\n\nThe RF/power-SOI business (5G phones) is seeing real competition from GlobalWafers. That's a headwind. But the CPO thesis — Photonics-SOI, 4x more material per chip — looks intact through 2029.\n\nThe honest summary: Soitec's CPO monopoly is probably safe for 3 years. The RF business faces real competition. Patent protection is the variable to watch.",
-    stocks: ["SOI"],
-    action: "SOI CPO thesis intact — hold if you have a position. The 'monopoly' label still roughly applies for Photonics-SOI specifically. Watch for any patent litigation news or NANOLN developments in China as early warning signals. The Morgan Stanley €70 target remains the bull case.",
-    actionCol: "#f59e0b"
-  },
-  {
-    date: "Apr 1, 2026",
-    tag: "⚠️ T1E EARNINGS",
-    tagCol: "#dc2626",
-    title: "T1 Energy Q4 miss: negative gross margins despite record revenue",
-    body: "T1 Energy reported Q4 revenue of $358.5M — below the $368M expectation but still a massive YoY step up. The problem was gross margins: -4.5% in Q4 (-$16.1M), after being positive all year (Q1: 33%, Q2: 25%, Q3: 10%).\n\nThe market did not price in negative gross margins. This means they're currently losing money on every panel they sell — a serious signal to watch.\n\nThe good news: management maintained all forward guidance. 2026 production target 3.1-4.2 GW unchanged. 2027 EBITDA target $375M-$450M unchanged. They're calling it a ramp-up cost issue, not a structural problem.",
-    stocks: ["T1E"],
-    action: "Watch Q1 2026 gross margins closely. If they return to positive, thesis intact. If negative again, the cost structure is broken — sell. Don't add more until margins recover.",
-    actionCol: "#f59e0b"
-  },
-  {
-    date: "Mar 27, 2026",
-    tag: "ONDS SETUP",
-    tagCol: "#7c3aed",
-    title: "ONDS: institutional ownership at ATH + 33% short interest — coiled spring",
-    body: "Ondas Holdings has two conflicting signals that make it worth watching:\n\n1. Institutional ownership just hit an all-time high — big money is accumulating\n2. Short interest is at 33.47% — a huge number of people are simultaneously betting it falls\n\nWhen institutional ownership rises while short interest is also high, something is building. Either the institutions are wrong, or there's a short squeeze coming when the catalyst hits. JPMorgan also acquired 2M shares recently — though some argue that was for short selling purposes.\n\nThe risk: the $1B raise from January has an institutional investor sitting on a $465M paper loss with cost basis of $16.45. Those warrants are deep out of the money at current prices. There's pressure from multiple directions.",
-    stocks: ["ONDS"],
-    action: "Speculative watch only — not in your portfolio. High short interest + institutional accumulation is a classic squeeze setup, but only if there's a catalyst. Monitor for contract announcements.",
-    actionCol: "#f59e0b"
-  },
-  {
-    date: "Apr 5, 2026",
-    tag: "⚠️ AXTI DILUTION RISK",
-    tagCol: "#dc2626",
-    title: "AXTI proposing 71% share increase — dilution risk before May 14 vote",
-    body: "Three warning signs are stacking up on AXTI right now:\n\n1. SHARE DILUTION: In its proxy statement for the May 14, 2026 annual meeting, AXT has proposed increasing authorised shares from 70 million to 120 million — a 71% increase. They haven't issued new shares yet, but asking for this permission signals the board wants flexibility to raise cash by selling equity. When companies do this, existing shareholders own a smaller slice of the same pie.\n\n2. CHINA PERMIT DELAYS: The Chinese government has been slow to grant permits needed for AXTI to ship sufficient quantities of Indium Phosphide. This is squeezing revenue. They have a backlog of $60M+ in orders they cannot fulfil fast enough.\n\n3. INSIDER SELLING: Company executives have been selling their own shares — the people who know the business best are reducing their positions.\n\nThese three things together tell a story: revenue is being squeezed by permit delays, cash may be running low, and a share issuance is likely coming to raise funds.",
-    stocks: ["AXTI"],
-    action: "Reduce position or wait until AFTER May 14 vote and any equity raise before adding more. The long-term thesis (InP bottleneck) is intact but near-term headwinds are real. Do not add more ahead of the dilution vote.",
-    actionCol: "#f59e0b"
-  },
-  {
-    date: "Mar 27, 2026",
-    tag: "⚠️ TSEM RISK",
-    tagCol: "#dc2626",
-    title: "GlobalFoundries files 11 patent infringement suits against Tower Semiconductor",
-    body: "GFS (GlobalFoundries) has filed patent infringement suits against TSEM at the ITC and in Texas federal court, alleging misuse of 11 US process patents. This is a direct competitive attack — GFS is a direct competitor in specialty foundry.\n\nWhat this means: Patent suits in the foundry industry are common but can be disruptive. The ITC filing is more serious — if successful, it could result in an import ban on TSEM products. However, foundry patent suits often settle via licensing agreements rather than production bans.\n\nThe cynical read: GFS is using legal tools because TSEM is winning the NVIDIA CPO contract and they aren't. This is a sign TSEM is the right partner, not that they're in the wrong.\n\nThis is a real risk to monitor but not a thesis-breaker today.",
-    stocks: ["TSEM","GFS"],
-    action: "Watch closely. If ITC rules against TSEM on import ban, that changes things materially. For now, hold. The suit is likely a competitive tactic that ends in a licensing agreement.",
-    actionCol: "#f59e0b"
-  },
-  {
-    date: "Apr 3, 2026",
-    tag: "AAOI — THE CASE FOR $50B",
-    tagCol: "#15803d",
-    title: "AAOI at $7B vs LITE at $59B and COHR at $49B — same business, same customers",
-    body: "All three companies supply optical infrastructure to AI data centres. All three are validated by the largest hyperscalers. Here is why AAOI is the most obvious valuation gap in the sector right now.\n\nThe growth comparison:\n• LITE grew revenue 65% last year\n• COHR grew 30%\n• AAOI grew 130% — twice as fast as LITE\n\nNVIDIA invested $2 billion in both LITE and COHR. AAOI just secured $124M in new 800G orders since mid-March alone from multiple separate hyperscalers, plus their first 1.6T volume order. CEO is 99% confident in $1B revenue in 2026. Monthly orders projected to hit $378M by mid-2027 — that's a $4.5B annualised run rate from a single product line.\n\nThe key edge: AAOI makes their own InP lasers in-house at their Sugar Land Texas facility. LITE and COHR both rely on external supply chains for this. That's a genuine manufacturing advantage.\n\nValuation gap: LITE trades at 25x forward revenue. AAOI trades at 7x. Same sector. Same customers. Same AI demand wave. AAOI growing faster than either.\n\nThe path to $50B on ~68M fully diluted shares:\n• $10B ($147/share) — $1B revenue confirmed. Already guided.\n• $20B ($294/share) — 800G and 1.6T scaling across 3+ hyperscalers. Already happening.\n• $30B ($441/share) — Sugar Land facility fully ramped. In construction now.\n• $40B ($588/share) — parity with COHR. Justified on faster growth alone.\n• $50B ($735/share) — parity with LITE. AAOI growing at 2x LITE's rate.",
-    stocks: ["AAOI","LITE","COHR"],
-    action: "This is the strongest bull case for AAOI. The valuation gap is real and documented. The risk is execution — can management actually deliver $1B revenue in 2026? Watch quarterly revenue prints. If they hit $250M+ per quarter, the re-rating accelerates.",
-    actionCol: "#4ade80"
-  },
-  {
-    date: "Apr 2, 2026",
-    tag: "AAOI MAJOR ORDER",
-    tagCol: "#15803d",
-    title: "AAOI gets $71M order — two hyperscalers both ordering and accelerating",
-    body: "In just 3 weeks, AAOI received three separate orders from the same undisclosed major hyperscaler:\n\n• March 9: First-ever volume order for 1.6T transceivers\n• March 23: New 800G volume order\n• April 2: Upsized $71M 800G order\n\nThe CEO confirmed they also shipped the first 10,000 units of an 800G order to a SECOND hyperscaler. That means two major hyperscalers are both ordering and accelerating at the same time.\n\nThe mystery customer placing all three orders is widely believed to be Oracle — which is currently mid-execution on the largest cloud buildout in its history. The order sizes, timing and acceleration all fit.\n\nAAOI also has their first 1.6T volume order already locked in, and broke ground on a 210,000 sq ft factory in February. The customer keeps coming back and ordering bigger every time.\n\nThis is the S-curve in action: 400G became 800G, 800G is becoming 1.6T, and 1.6T is the last stop before CPO takes over. AAOI is positioned at the peak of the current cycle.",
-    stocks: ["AAOI"],
-    action: "This is direct thesis confirmation. Two hyperscalers ordering simultaneously is not a fluke. Hold and watch the $85 support level — if it holds, the next leg up targets $100+.",
-    actionCol: "#4ade80"
-  },
-  {
-    date: "Mar 27, 2026",
-    tag: "AAOI UPDATE",
-    tagCol: "#15803d",
-    title: "AAOI down 12% — the S-curve chart shows where we are in the cycle",
-    body: "AAOI hit $99, down 12.76%. The key chart circulating shows overlapping technology S-curves:\n\n• 800G Transceivers (The Bedrock) — peaking around 2027-2028 at ~84 million units\n• 1.6T Transceivers (The Next Inflection) — ramping now through 2028-2029\n• LPO/LRO (The Intermediary) — current cycle Sivers is selling into\n• Co-Packaged Optics (The End-Game) — starts ramping 2028-2030\n\nWhere AAOI sits: They're in the 800G/1.6T pluggable transceiver phase — the current bedrock revenue. Management is guiding $5B run rate by 2027 (from ~$500M in 2025). That's 10x revenue growth. They also have their own domestic laser fabs which gives vertical integration most competitors lack.\n\nThe debate: Is AAOI just a pluggable play (gets replaced by CPO) or do they have a longer runway via vertical integration into CPO-adjacent products?",
-    stocks: ["AAOI","LITE","COHR","SIVE"],
-    action: "The selloff is macro/sector rotation, not AAOI-specific. If you're in profit, hold. The $5B revenue guidance by 2027 is the key number to track — if they deliver even half of that, current valuation is cheap.",
-    actionCol: "#4ade80"
-  },
-  {
-    date: "Mar 27, 2026",
-    tag: "SOI CATALYST",
-    tagCol: "#7c3aed",
-    title: "Morgan Stanley doubles SOI price target to €70. CPO = 4x more SOI per chip",
-    body: "Key new data point on Soitec (SOI):\n\nMorgan Stanley raised their price target on SOI to €70 (stock currently ~€34 — nearly 2x upside from their PT alone). The call: 'The mobile market remains weak, but growing confidence in Photonics SOI is shifting the medium-term outlook.'\n\nThe technical insight that makes this compelling: A pluggable transceiver or LPO uses approximately 50 square millimetres of Photonics-SOI per chip. A CPO switch package uses approximately 200 square millimetres. That means CPO = 4x more SOI material per chip than today's pluggables.\n\nSoitec is cheap at 3.6x EV/revenue right now because the mobile chip trough is weighing on it. But once CPO production ramps in 2027+, the SOI demand per chip quadruples. EV/EBITDA currently 6.5x — that's the valuation of a company nobody is paying attention to yet.\n\nSome analysts consider SOI to have one of the strongest structural positions in the photonics supply chain — a near-monopoly on a material that becomes 4x more valuable per chip as CPO scales.",
-    stocks: ["SOI","AXTI","SIVE","AAOI"],
-    action: "SOI is the sleeper CPO play. If you can access Euronext Paris, the Morgan Stanley PT implies significant upside. The 4x SOI per CPO chip is the key data point — this hasn't been priced in yet.",
-    actionCol: "#4ade80"
-  },
-  {
-    date: "Mar 26, 2026",
-    tag: "LITE PRODUCT",
-    tagCol: "#15803d",
-    title: "Lumentum announces 800mW Super-High-Power laser — highest power CPO laser in the market",
-    body: "LITE announced their 800mW Super-High-Power (SHP) laser at OFC — the 1310nm device delivers more than 1.0W optical power at 25°C and over 800mW at 50°C, with <100kHz linewidth. Built for co-packaged optics and silicon photonics architectures.\n\nThis matters because CPO requires higher power lasers than pluggables — the laser has to travel shorter distances but needs to be more precise and powerful for integration onto the switch chip. LITE is clearly ahead on the CPO laser roadmap.",
-    stocks: ["LITE","AXTI","COHR"],
-    action: "Hold LITE. This is product roadmap confirmation that they're building specifically for CPO. The Greensboro facility + 800mW laser = they are all-in on CPO.",
-    actionCol: "#4ade80"
-  },
-  {
-    date: "Mar 25, 2026",
-    tag: "MEMORY UPDATE",
-    tagCol: "#0891b2",
-    title: "TurboQuant FUD debunked — MU/SNDK sell-off was a buying opportunity",
-    body: "The market sold MU down 5.7% and WDC down 6.5% on a Google research paper about TurboQuant memory compression. The market misread it completely.\n\nWhat TurboQuant actually does: compresses KV cache to 3 bits. KV cache is ONE subcategory of memory used during inference only. It does not touch model weights. It does not touch training memory. It was only tested on models up to 8B parameters — no results on 70B+ models.\n\nMeanwhile BofA met with SanDisk management: SNDK confirmed INCREASED demand expectations for 2026/2027. Google's TurboQuant efficiency gains may actually increase overall demand via the Jevons paradox.",
-    stocks: ["MU","SNDK"],
-    action: "The sell-off was a misread. MU and SNDK fundamentals are intact. Track Samsung DRAM/NAND pricing announcements for Q3 — that's the real signal.",
-    actionCol: "#4ade80"
-  },
-  {
-    date: "Mar 25, 2026",
-    tag: "SPACE CATALYST",
-    tagCol: "#7c3aed",
-    title: "SpaceX IPO filing targets $1.5T–$1.75T — RKLB sector lift + $190M DoD contract win",
-    body: "SpaceX is reportedly filing for IPO this week targeting $1.5T–$1.75T valuation. RKLB market cap ~$40B — SpaceX is ~40x larger.\n\nRKLB just won $190M hypersonic block buy + DoD contracts totaling $805M+. Backlog now >$2B, 74% from space systems. SpaceX IPO hype lifts the entire sector.",
-    stocks: ["RKLB","ASTS","PL"],
-    action: "RKLB is in a momentum cycle. Don't chase — wait for SpaceX IPO news to fully price in, then look for pullback entries.",
-    actionCol: "#f59e0b"
-  },
-  {
-    date: "Mar 25, 2026",
-    tag: "CPO CONFIRMED",
-    tagCol: "#1d4ed8",
-    title: "LITE Greensboro + CK Capital: CPO supply chain is being locked up right now",
-    body: "LITE announced a 240,000 sq ft US facility in Greensboro NC for InP optical components — NVIDIA among expected customers. Production mid-2028.\n\nCK Capital: 'CPO is not a trend. It is the only solution to a physics problem that gets worse every time NVIDIA ships a new GPU. The supply chain for this transition is already being locked up. NVIDIA proved it with $4 billion in checks.'",
-    stocks: ["LITE","COHR","AAOI","AXTI","TSEM"],
-    action: "Hold all CPO supply chain positions. The buildout is confirmed and being locked in by NVIDIA capital commitments.",
-    actionCol: "#4ade80"
-  },
-  {
-    date: "Mar 20, 2026",
-    tag: "THESIS CONFIRMED",
-    tagCol: "#16a34a",
-    title: "Lumentum CEO: \"The thing that keeps me up at night most is: Substrates\"",
-    body: "AXTI makes the InP wafers that every photonics laser is grown on. The LITE CEO just said on their earnings call that substrates are his single biggest concern — direct confirmation from AXTI's biggest customer that AXTI controls the bottleneck.\n\nCPO has barely started ramping. When it goes to full volume, AXTI controls the pricing for every company in the AI photonics chain.",
-    stocks: ["AXTI","LITE","COHR","TSEM"],
-    action: "Hold AXTI. Thesis confirmed in real time from LITE's CEO. Do not sell into this news.",
-    actionCol: "#4ade80"
-  }
-];
+const BREAKING_NEWS = []; // Live, dated evidence is loaded instead of bundled market advice.
 
 function rBreakingNews(){
   const el = document.getElementById("intel-breaking");
@@ -11221,7 +11127,7 @@ End with [SUMMARY] one sentence on the biggest signal this week.`;
         const scls=sentiment==="BULLISH"?"scan-bull":sentiment==="BEARISH"?"scan-bear":"scan-neu";
         return`<div class="scan-result">
           <div class="scan-theme">${it.t}</div>
-          <div class="scan-text">${it.tx}</div>
+          <div class="scan-text"${hubEsc(it.tx)}</div>
           ${sentiment?`<div class="scan-signal ${scls}">Signal: ${sentiment}</div>`:""}
         </div>`;
       }).join("")+
@@ -11308,7 +11214,7 @@ async function runXAnalysts(){
     if(!analysts.length) html='<div style="font-size:13px;color:var(--t2);line-height:1.7;padding:10px 0">'+clean+'</div>';
     out.innerHTML=html;
     if(ts) ts.textContent="Last scanned "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:13px">Error: '+e.message+'</div>';}
+  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:13px">Error: '+hubEsc(e.message)+'</div>';}
   btn.disabled=false; spin.style.display="none";
 }
 
@@ -11423,7 +11329,7 @@ async function quickWLSnap(tk){
         '<span style="font-size:15px;font-weight:800">'+tk+'</span>'+
         '<button class="btn ba" style="font-size:11px;padding:5px 11px" data-open-chart="'+tk+'">Full Chart →</button>'+
       '</div>'+
-      '<div style="font-size:12px;color:var(--rd);margin-top:6px">'+e.message+'</div>';
+      '<div style="font-size:12px;color:var(--rd);margin-top:6px">'+hubEsc(e.message)+'</div>';
   }
 }
 
@@ -11499,7 +11405,7 @@ async function fetchMiniNews(){
     } else {
       out.innerHTML=`<div style="font-size:12px;color:var(--t2);line-height:1.7">${clean.substring(0,300)}</div>`;
     }
-  }catch(e){out.innerHTML=`<div style="font-size:12px;color:var(--rd)">${e.message}</div>`;}
+  }catch(e){out.innerHTML=`<div style="font-size:12px;color:var(--rd)">${hubEsc(e.message)}</div>`;}
 }
 
 function toggleNewsItem(idx){
@@ -11534,7 +11440,7 @@ async function loadPies(){
     }
     renderPies(pies);
   }catch(e){
-    out.innerHTML=`<div class="aip err"><div class="at">Error loading pies</div><div class="ax">${e.message}</div></div>`;
+    out.innerHTML=`<div class="aip err"><div class="at">Error loading pies</div><div class="ax">${hubEsc(e.message)}</div></div>`;
   }
   btn.disabled=false; spin.style.display="none";
 }
@@ -11624,7 +11530,7 @@ function renderPies(pies){
 async function suggestPieDistribution(){
   const out = document.getElementById('pie-suggest-out');
   const spin = document.getElementById('pie-suggest-spin');
-  if(!aiKey){out.innerHTML='<div class="ban"><span>💡</span><div>Add your Groq key in the sidebar to use this feature.</div></div>';return;}
+  if(!aiKey){out.innerHTML='<div class="ban"><span>💡</span><div>Dayframe AI is temporarily unavailable.</div></div>';return;}
   if(!H.length){out.innerHTML='<div style="color:var(--t3);font-size:13px;text-align:center;padding:12px">Sync T212 first to load your holdings.</div>';return;}
   spin.style.display='inline-block';
   out.innerHTML='<div class="ldg"><span class="spin"></span>Analysing your holdings...</div>';
@@ -11643,7 +11549,7 @@ async function suggestPieDistribution(){
     if(!result){out.innerHTML='<div style="color:var(--t3);font-size:13px">No suggestion returned.</div>';spin.style.display='none';return;}
 
     const pies = result.split(/\n---\n/).map(s=>s.trim()).filter(s=>s.includes('PIE:'));
-    if(!pies.length){out.innerHTML='<div style="font-size:13px;color:var(--t2);line-height:1.7">'+result.replace(/\*\*/g,'')+'</div>';spin.style.display='none';return;}
+    if(!pies.length){out.innerHTML='<div style="font-size:13px;color:var(--t2);line-height:1.7">'+cleanMD(result)+'</div>';spin.style.display='none';return;}
 
     const colors = ['var(--bl)','var(--pu)','var(--gn)','var(--am)'];
     const bgs = ['var(--blb)','var(--pub)','var(--gnb)','var(--amb)'];
@@ -11674,7 +11580,7 @@ async function suggestPieDistribution(){
       </div>`;
     }).join('')+'</div>';
   }catch(e){
-    out.innerHTML=`<div style="color:var(--rd);font-size:13px">${e.message}</div>`;
+    out.innerHTML=`<div style="color:var(--rd);font-size:13px">${hubEsc(e.message)}</div>`;
   }
   spin.style.display='none';
 }
@@ -11725,7 +11631,7 @@ async function analysePie(idx, holdings, pieName){
     }
     out.innerHTML=html;
   }catch(e){
-    out.innerHTML='<div style="color:var(--rd);font-size:12px">'+e.message+'</div>';
+    out.innerHTML='<div style="color:var(--rd);font-size:12px">'+hubEsc(e.message)+'</div>';
   }
   btn.disabled=false;
 }
@@ -11879,16 +11785,12 @@ function getSavedAccounts(){
 }
 
 function addChatterAccount(){
-  const inp = document.getElementById('account-inp');
-  if(!inp) return;
-  let val = inp.value.trim();
-  if(!val) return;
-  if(!val.startsWith('@')) val = '@'+val;
-  const saved = getSavedAccounts();
-  if(!saved.includes(val)) saved.push(val);
-  localStorage.setItem(dfKey('p_chatter_accounts'), JSON.stringify(saved));
-  inp.value = '';
-  renderSavedAccounts();
+  const inp=document.getElementById('account-inp');if(!inp)return;
+  const handle=inp.value.trim().replace(/^@/,'');
+  if(!/^[A-Za-z0-9_]{1,15}$/.test(handle)){hubToast('Enter a valid X username.');return}
+  const val='@'+handle,saved=getSavedAccounts().filter(v=>/^@[A-Za-z0-9_]{1,15}$/.test(v));
+  if(!saved.includes(val))saved.push(val);
+  localStorage.setItem(dfKey('p_chatter_accounts'),JSON.stringify(saved));inp.value='';renderSavedAccounts();
 }
 
 function removeChatterAccount(handle){
@@ -11898,18 +11800,15 @@ function removeChatterAccount(handle){
 }
 
 function renderSavedAccounts(){
-  const el = document.getElementById('saved-accounts-list');
-  if(!el) return;
-  const saved = getSavedAccounts();
-  if(!saved.length){
-    el.innerHTML='<span style="font-size:12px;color:var(--t3)">No custom accounts yet — add some above</span>';
-    return;
-  }
-  el.innerHTML = saved.map(a=>`
-    <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--blb);border:1px solid var(--blbr);border-radius:20px;font-size:12px;font-weight:600;color:var(--bl)">
-      ${a}
-      <span onclick="removeChatterAccount('${a}')" style="cursor:pointer;color:var(--t3);font-size:14px;line-height:1;margin-left:2px">×</span>
-    </span>`).join('');
+  const el=document.getElementById('saved-accounts-list');if(!el)return;
+  const saved=getSavedAccounts().filter(value=>/^@[A-Za-z0-9_]{1,15}$/.test(value));
+  if(!saved.length){const empty=document.createElement('span');empty.style.cssText='font-size:12px;color:var(--t3)';empty.textContent='No custom accounts yet';el.replaceChildren(empty);return}
+  el.replaceChildren(...saved.map(handle=>{
+    const pill=document.createElement('span');pill.style.cssText='display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:var(--blb);border:1px solid var(--blbr);border-radius:20px;font-size:12px;font-weight:600;color:var(--bl)';
+    const label=document.createTextNode(handle),button=document.createElement('button');button.type='button';button.textContent='×';button.setAttribute('aria-label','Remove '+handle);
+    button.style.cssText='cursor:pointer;color:var(--t3);font-size:14px;line-height:1;margin-left:2px;border:0;background:none';button.addEventListener('click',()=>removeChatterAccount(handle));
+    pill.append(label,button);return pill;
+  }));
 }
 
 function getAccountsForTicker(tk){
@@ -11923,7 +11822,7 @@ function getAccountsForTicker(tk){
 function initChatterPills(){
   const pills = document.getElementById('chatter-ticker-pills');
   if(!pills) return;
-  const tickers = [...new Set([...H.map(h=>h.ticker), ...WL])].slice(0, 16);
+  const tickers=[...new Set([...H.map(h=>h.ticker),...WL].map(t=>String(t||'').toUpperCase().replace(/[^A-Z0-9.^=-]/g,'')).filter(Boolean))].slice(0,16);
   pills.innerHTML = tickers.map(t=>`
     <button onclick="loadChatter('${t}')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--ff);transition:all .12s" onmouseover="this.style.background='var(--blb)';this.style.borderColor='var(--blbr)';this.style.color='var(--bl)'" onmouseout="this.style.background='var(--sf2)';this.style.borderColor='var(--bd)';this.style.color='var(--tx)'">${t}</button>
   `).join('');
@@ -11931,143 +11830,58 @@ function initChatterPills(){
 }
 
 async function loadChatter(tk){
-  if(!tk) return;
-  const out = document.getElementById('chatter-out');
-  if(!out) return;
-  if(!aiKey){out.innerHTML='<div class="ban"><span>💡</span><div>Add your Groq key in the sidebar to use Stock Chatter.</div></div>';return;}
-
-  // Highlight active pill
+  tk=String(tk||'').toUpperCase().replace(/[^A-Z0-9.^=-]/g,'').slice(0,20);if(!tk)return;
+  const out=document.getElementById('chatter-out');if(!out)return;
+  if(!aiKey){out.innerHTML='<div class="ban"><span>💡</span><div>Dayframe AI is temporarily unavailable.</div></div>';return}
   document.querySelectorAll('#chatter-ticker-pills button').forEach(b=>{
-    const active = b.textContent.trim()===tk;
-    b.style.background = active?'var(--bl)':'var(--sf2)';
-    b.style.borderColor = active?'var(--bl)':'var(--bd)';
-    b.style.color = active?'#fff':'var(--tx)';
+    const active=b.textContent.trim()===tk;b.style.background=active?'var(--bl)':'var(--sf2)';b.style.borderColor=active?'var(--bl)':'var(--bd)';b.style.color=active?'#fff':'var(--tx)';
   });
-
-  if(_chatterCache[tk]){out.innerHTML=_chatterCache[tk];return;}
-  out.innerHTML=`<div class="ldg"><span class="spin"></span>Asking Groq about $${tk}...</div>`;
-
-  const owned = H.find(h=>h.ticker===tk);
-  const ctx = owned ? ` I currently hold this stock at ${owned.gainPct>0?'+':''}${owned.gainPct.toFixed(1)}% return.` : '';
-  const accounts = getAccountsForTicker(tk);
-  const accountCtx = accounts.length
-    ? `\n\nFocus especially on perspectives from these financial X/Twitter accounts who cover this stock: ${accounts.join(', ')}. Frame the bull/bear debate through how these analysts typically think about it.`
-    : '';
-
+  if(_chatterCache[tk]){out.innerHTML=_chatterCache[tk];return}
+  out.innerHTML='<div class="ldg"><span class="spin"></span>Checking current evidence for $'+hubEsc(tk)+'…</div>';
+  const owned=H.find(h=>h.ticker===tk),search=[owned?.name,owned?.isin].filter(Boolean).join(' ');
   try{
-    const result = await callClaude(
-      `Summarise the current narrative and investor debate around $${tk} stock.${ctx}${accountCtx}\n\n`+
-      `Reply in EXACTLY this format with --- separators:\n`+
-      `PLAIN_ENGLISH: [2 sentences: what this company does and why investors care about it right now]\n`+
-      `BULL: [The bull case — what the bulls are most excited about right now]\n`+
-      `BEAR: [The bear case — the main concern or reason to be cautious]\n`+
-      `DEBATE: [The single question the market is currently arguing about — what's unresolved]\n`+
-      `VERDICT: [Strong Buy / Buy / Hold / Watch / Avoid — then one sentence reasoning]\n---\n`+
-      `CATALYST: [The next specific event that will move this stock significantly]\n`+
-      `TIMELINE: [When is this expected?]\n`+
-      `RISK: [The single biggest risk to the investment thesis]\n---\n`+
-      `ACCOUNTS: [The 2-3 best X/Twitter accounts to follow for this specific stock]\n`+
-      `SOURCES: [Best external sources for research on this stock — e.g. TrendForce, company IR, specific reports]`
+    const evidenceResponse=await dfBankFetch('/api/investing/research/'+encodeURIComponent(marketSymbolFor(tk))+'?search='+encodeURIComponent(search));
+    const evidenceData=await evidenceResponse.json().catch(()=>null);
+    if(!evidenceResponse.ok||!evidenceData)throw new Error(evidenceData?.error||'Current evidence could not be loaded.');
+    const evidence=researchEvidencePack(evidenceData,owned);
+    const result=await callClaude(
+      'Use ONLY this evidence pack. Never use remembered or training-data facts. If evidence is insufficient, say so. Explain every investing term for a beginner. Do not promise returns or give personalised financial advice.\n\n'+evidence+'\n\n'+
+      'Return exactly:\nSUMMARY: what the company does and why the evidence matters\nBULL: evidence supporting the optimistic case\nBEAR: evidence supporting the cautious case\nDEBATE: what remains uncertain\nSTANCE: Add, Hold, Reduce or Avoid, followed by a cautious evidence-based reason\nCATALYST: next dated event or evidence to watch\nRISK: biggest evidence-backed risk\nSOURCES: source labels from the evidence pack'
     );
-    if(!result){out.innerHTML='<div style="color:var(--t3);font-size:13px">No data returned.</div>';return;}
-
-    const sections = result.split(/\n---\n/).map(s=>s.trim()).filter(Boolean);
-    const get = (text, key) => {
-      const m = text.match(new RegExp(key+':\\s*(.+)','i'));
-      return m ? m[1].trim().replace(/^\[|\]$/g,'') : null;
-    };
-
-    const s0=sections[0]||'', s1=sections[1]||'', s2=sections[2]||'';
-    const plain=get(s0,'PLAIN_ENGLISH'), bull=get(s0,'BULL'), bear=get(s0,'BEAR');
-    const debate=get(s0,'DEBATE'), verdict=get(s0,'VERDICT');
-    const catalyst=get(s1,'CATALYST'), timeline=get(s1,'TIMELINE'), risk=get(s1,'RISK');
-    const accts=get(s2,'ACCOUNTS'), sources=get(s2,'SOURCES');
-
-    const vWords = (verdict||'').toLowerCase();
-    const vCol = vWords.includes('strong buy')||vWords.startsWith('buy') ? 'var(--gn)'
-                : vWords.includes('avoid')||vWords.startsWith('sell') ? 'var(--rd)' : 'var(--am)';
-    const vLabel = verdict ? verdict.split(' ').slice(0,vWords.startsWith('strong')?2:1).join(' ') : 'Hold';
-    const vReason = verdict ? verdict.split(' ').slice(vWords.startsWith('strong')?2:1).join(' ') : '';
-
-    const usedAccounts = [...new Set([...accounts, ...(accts?accts.split(/[,\s]+/).filter(a=>a.startsWith('@')):[]) ])].slice(0,5);
-
-    const html = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <span style="font-family:var(--fd);font-size:20px;font-weight:800;color:var(--tx)">$${tk}</span>
-        ${owned?`<span style="font-size:12px;font-weight:700;color:${owned.gainPct>=0?'var(--gn)':'var(--rd)'}">${owned.gainPct>=0?'+':''}${owned.gainPct.toFixed(1)}% held</span>`:''}
-        <div style="margin-left:auto;display:flex;gap:4px;flex-wrap:wrap">
-          ${usedAccounts.map(a=>`<span style="font-size:10px;font-weight:600;color:var(--bl);background:var(--blb);border:1px solid var(--blbr);padding:2px 7px;border-radius:20px">${a}</span>`).join('')}
-        </div>
-      </div>
-
-      ${plain?`<div style="font-size:13px;color:var(--t2);line-height:1.7;padding:12px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px">${plain}</div>`:''}
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        ${bull?`<div style="padding:12px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;border-left:3px solid var(--gn)"><div style="font-size:10px;font-weight:700;color:var(--gn);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📈 Bull case</div><div style="font-size:12px;color:var(--t2);line-height:1.65">${bull}</div></div>`:''}
-        ${bear?`<div style="padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;border-left:3px solid var(--rd)"><div style="font-size:10px;font-weight:700;color:var(--rd);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📉 Bear case</div><div style="font-size:12px;color:var(--t2);line-height:1.65">${bear}</div></div>`:''}
-      </div>
-
-      ${debate?`<div style="padding:12px 14px;background:var(--blb);border:1px solid var(--blbr);border-radius:10px;margin-bottom:8px;border-left:3px solid var(--bl)"><div style="font-size:10px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">🤔 The unresolved debate</div><div style="font-size:12px;color:var(--t2);line-height:1.65">${debate}</div></div>`:''}
-
-      ${verdict?`<div style="padding:12px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px"><div style="font-family:var(--fd);font-size:18px;font-weight:800;color:${vCol};flex-shrink:0;min-width:80px">${vLabel}</div><div style="font-size:12px;color:var(--t2);line-height:1.65;padding-top:2px">${vReason}</div></div>`:''}
-
-      <div style="display:grid;grid-template-columns:1fr 1fr ${sources?'1fr':''};gap:8px">
-        ${catalyst?`<div style="padding:10px 12px;background:var(--amb);border:1px solid var(--ambr);border-radius:8px"><div style="font-size:10px;font-weight:700;color:var(--am);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">🎯 Next catalyst</div><div style="font-size:12px;color:var(--tx);font-weight:600;line-height:1.5">${catalyst}</div>${timeline?`<div style="font-size:11px;color:var(--t3);margin-top:4px">${timeline}</div>`:''}</div>`:''}
-        ${risk?`<div style="padding:10px 12px;background:var(--rdb);border:1px solid var(--rdbr);border-radius:8px"><div style="font-size:10px;font-weight:700;color:var(--rd);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">⚠️ Biggest risk</div><div style="font-size:12px;color:var(--tx);font-weight:600;line-height:1.5">${risk}</div></div>`:''}
-        ${sources?`<div style="padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px"><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">📚 Best sources</div><div style="font-size:11px;color:var(--t2);line-height:1.6">${sources}</div></div>`:''}
-      </div>
-      <div style="font-size:10px;color:var(--t3);text-align:right;margin-top:8px;padding-top:6px;border-top:1px solid var(--bd)">Groq AI · based on training data · not financial advice · <span style="cursor:pointer;color:var(--bl)" onclick="delete _chatterCache['${tk}'];loadChatter('${tk}')">Refresh ↺</span></div>`;
-
-    out.innerHTML = html;
-    _chatterCache[tk] = html;
-  }catch(e){
-    out.innerHTML=`<div style="color:var(--rd);font-size:13px">${e.message}</div>`;
-  }
+    if(!result)throw new Error('No evidence-grounded explanation was returned.');
+    const get=key=>{const m=result.match(new RegExp(key+':\\s*([^\\n]+)','i'));return hubEsc(m?m[1].trim():'Evidence was insufficient.')};
+    const summary=get('SUMMARY'),bull=get('BULL'),bear=get('BEAR'),debate=get('DEBATE'),stance=get('STANCE'),catalyst=get('CATALYST'),risk=get('RISK'),sources=get('SOURCES');
+    const html='<div class="chatter-evidence">'+
+      '<div class="chatter-evidence-head"><strong>$'+hubEsc(tk)+'</strong>'+(owned?'<span>'+hubEsc((owned.gainPct>=0?'+':'')+owned.gainPct.toFixed(1)+'% held')+'</span>':'')+'</div>'+
+      '<p class="chatter-summary">'+summary+'</p><div class="chatter-two"><section><b>Bull case</b><p>'+bull+'</p></section><section><b>Bear case</b><p>'+bear+'</p></section></div>'+
+      '<section><b>What is unresolved</b><p>'+debate+'</p></section><section class="chatter-stance"><b>Research stance</b><p>'+stance+'</p></section>'+
+      '<div class="chatter-two"><section><b>Evidence to watch</b><p>'+catalyst+'</p></section><section><b>Biggest risk</b><p>'+risk+'</p></section></div>'+
+      '<small>Sources: '+sources+' · current evidence, educational only · <button type="button" onclick="delete _chatterCache[\''+tk+'\'];loadChatter(\''+tk+'\')">Refresh</button></small></div>';
+    out.innerHTML=html;_chatterCache[tk]=html;
+  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:13px">'+hubEsc(e.message||'Current evidence could not be loaded.')+'</div>'}
 }
 
 async function loadChatterSweep(){
-  const out = document.getElementById('sweep-out');
-  const spin = document.getElementById('sweep-spin');
-  if(!aiKey){out.innerHTML='<div class="ban"><span>💡</span><div>Dayframe AI is temporarily unavailable.</div></div>';return;}
-  if(!H.length){out.innerHTML='<div style="color:var(--t3);font-size:13px;text-align:center;padding:16px">Sync T212 first to load your holdings.</div>';return;}
-  spin.style.display='inline-block';
-  out.innerHTML='<div class="ldg"><span class="spin"></span>Sweeping all your holdings...</div>';
-  const tickers = H.slice(0,12).map(h=>h.ticker).join(', ');
+  const out=document.getElementById('sweep-out'),spin=document.getElementById('sweep-spin');if(!out)return;
+  if(!aiKey){out.innerHTML='<div class="ban"><span>💡</span><div>Dayframe AI is temporarily unavailable.</div></div>';return}
+  if(!H.length){out.innerHTML='<div style="color:var(--t3);font-size:13px;text-align:center;padding:16px">Sync Trading 212 first to load your holdings.</div>';return}
+  if(spin)spin.style.display='inline-block';
+  out.innerHTML='<div class="ldg"><span class="spin"></span>Summarising your holdings…</div>';
+  const tickers=H.slice(0,12).map(h=>String(h.ticker||'').toUpperCase().replace(/[^A-Z0-9.^=-]/g,'')).filter(Boolean);
   try{
-    const result = await callClaude(
-      `For each of these stocks: ${tickers}\n`+
-      `Give ONE line per stock in this exact format:\n`+
-      `TICKER: [Bullish/Bearish/Mixed] — [one sentence: the main thing being talked about right now]\n`+
-      `No preamble. No extra text. One line per ticker.`
-    );
-    if(!result){out.innerHTML='<div style="color:var(--t3);font-size:13px">No data.</div>';spin.style.display='none';return;}
-    const lines = result.replace(/\*\*/g,'').split('\n').filter(l=>l.includes(':')&&l.includes('—'));
-    out.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px">' +
-      lines.map(line=>{
-        const colonIdx = line.indexOf(':');
-        const dashIdx = line.indexOf('—');
-        if(colonIdx<0||dashIdx<0) return '';
-        const tk = line.slice(0,colonIdx).trim().replace(/[^A-Z0-9]/g,'');
-        const sentiment = line.slice(colonIdx+1,dashIdx).trim();
-        const desc = line.slice(dashIdx+1).trim();
-        const isPos = sentiment.toLowerCase().includes('bull');
-        const isNeg = sentiment.toLowerCase().includes('bear');
-        const bg = isPos?'#f0fdf4':isNeg?'#fef2f2':'var(--sf2)';
-        const border = isPos?'#bbf7d0':isNeg?'#fecaca':'var(--bd)';
-        const sentCol = isPos?'var(--gn)':isNeg?'var(--rd)':'var(--am)';
-        const owned = H.find(h=>h.ticker===tk);
-        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:${bg};border:1px solid ${border};border-radius:9px;cursor:pointer" onclick="loadChatter('${tk}');document.getElementById('sweep-out').scrollIntoView({behavior:'smooth'})">
-          <span style="font-size:12px;font-weight:800;color:var(--bl);min-width:44px">${tk}</span>
-          <span style="font-size:10px;font-weight:700;color:${sentCol};min-width:52px">${sentiment}</span>
-          <span style="font-size:12px;color:var(--t2);flex:1;line-height:1.4">${desc}</span>
-          ${owned?`<span style="font-size:11px;font-weight:700;color:${owned.gainPct>=0?'var(--gn)':'var(--rd)'};flex-shrink:0">${owned.gainPct>=0?'+':''}${owned.gainPct.toFixed(1)}%</span>`:''}
-        </div>`;
-      }).filter(Boolean).join('') + '</div>';
-  }catch(e){
-    out.innerHTML=`<div style="color:var(--rd);font-size:13px">${e.message}</div>`;
-  }
-  spin.style.display='none';
+    const result=await callClaude('For these ticker symbols only: '+tickers.join(', ')+'. Give a general, non-live portfolio review. Do not invent news or prices. Return one line per ticker exactly: TICKER: Positive/Mixed/Cautious — one sentence describing the main business or portfolio risk. Say Unknown when you lack evidence.');
+    if(!result)throw new Error('No summary was returned.');
+    const lines=result.replace(/\*\*/g,'').split('\n').filter(l=>l.includes(':')&&l.includes('—'));
+    out.innerHTML='<div class="chatter-sweep-list">'+lines.map(line=>{
+      const colon=line.indexOf(':'),dash=line.indexOf('—');if(colon<0||dash<0)return'';
+      const ticker=line.slice(0,colon).trim().toUpperCase().replace(/[^A-Z0-9.^=-]/g,'');if(!tickers.includes(ticker))return'';
+      const sentiment=hubEsc(line.slice(colon+1,dash).trim()),desc=hubEsc(line.slice(dash+1).trim());
+      return '<button type="button" class="chatter-sweep-row" onclick="loadChatter(\''+ticker+'\')"><strong>'+hubEsc(ticker)+'</strong><span>'+sentiment+'</span><p>'+desc+'</p></button>';
+    }).join('')+'</div>';
+  }catch(e){out.innerHTML='<div style="color:var(--rd);font-size:13px">'+hubEsc(e.message||'The summary could not be loaded.')+'</div>'}
+  if(spin)spin.style.display='none';
 }
+
 </script>
 </body>
 </html>

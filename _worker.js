@@ -501,7 +501,7 @@ export default {
   async fetch(request, env) {
     const url=new URL(request.url);
     try{
-      if(url.pathname==='/api/money/status')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env),api_version:'v1',build:'bank-cards-v6-20260820',return_origin:bankReturnOrigin(env)});
+      if(url.pathname==='/api/money/status'&&request.method==='GET')return json({configured:isConfigured(env),environment:bankMode(env),credentials_match_environment:credentialsMatchEnvironment(env)});
       if(url.pathname==='/api/money/connect'&&request.method==='POST')return startConnect(request,env);
       if(url.pathname==='/api/money/callback'&&request.method==='GET')return handleCallback(request,env);
       if(url.pathname==='/api/money/data'&&request.method==='GET')return getMoneyData(request,env);
@@ -512,16 +512,19 @@ export default {
       if(url.pathname==='/api/investing/t212/pies'&&request.method==='GET')return getT212Pies(request,env);
       if(url.pathname==='/api/investing/t212/connection'&&request.method==='DELETE')return disconnectT212(request,env);
       if(url.pathname==='/api/ai/groq'&&request.method==='POST')return proxySharedGroq(request);
-      if(url.pathname.startsWith('/api/investing/research/')&&request.method==='GET')return getStockResearch(url);
-      if((url.pathname.startsWith('/api/investing/prices/')||url.pathname.startsWith('/api/market/chart/'))&&request.method==='GET')return getMarketChart(url);
-      if(url.pathname==='/api/vix'&&request.method==='GET')return getMarketVix();
+      if(url.pathname.startsWith('/api/investing/research/')&&request.method==='GET')return signedEndpoint(request,()=>getStockResearch(url));
+      if((url.pathname.startsWith('/api/investing/prices/')||url.pathname.startsWith('/api/market/chart/'))&&request.method==='GET')return signedEndpoint(request,()=>getMarketChart(url));
+      if(url.pathname==='/api/vix'&&request.method==='GET')return signedEndpoint(request,()=>getMarketVix());
       if(url.pathname==='/api/bible/kjv')return request.method==='GET'?getKJVChapter(url):json({error:'Method not allowed'},405,{allow:'GET'});
-      if(url.pathname==='/api/bible/licensed')return request.method==='GET'?getLicensedBibleChapter(url,env):json({error:'Method not allowed'},405,{allow:'GET'});
+      if(url.pathname==='/api/bible/licensed')return request.method==='GET'?signedEndpoint(request,()=>getLicensedBibleChapter(url,env)):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
       if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request,env);
       if(url.pathname.startsWith('/api/'))return json({error:'Not found'},404);
       return env.ASSETS.fetch(request);
-    }catch(err){console.error('Dayframe API error',err);return json({error:'Something went wrong on the secure Dayframe service.'},500)}
+    }catch(err){
+      console.error(JSON.stringify({event:'dayframe_api_error',path:url.pathname,error:err instanceof Error?err.message:'unknown'}));
+      return json({error:'Something went wrong on the secure Dayframe service.'},500);
+    }
   }
 };
 function isConfigured(env){return !!(String(env.TRUELAYER_CLIENT_ID||'').trim()&&String(env.TRUELAYER_CLIENT_SECRET||'').trim()&&String(env.TRUELAYER_RETURN_URI||'').trim())}
@@ -540,7 +543,7 @@ function bankContinueUrl(env){
   const origin=bankReturnOrigin(env);if(!origin)return '';
   const target=new URL('/',origin);target.searchParams.set('bank_start','1');return target.toString();
 }
-function json(data,status=200,headers={}){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}})}
+function json(data,status=200,headers={}){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer',...headers}})}
 function cookieValue(request,name){const raw=request.headers.get('cookie')||'';const hit=raw.split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'='));return hit?decodeURIComponent(hit.slice(name.length+1)):''}
 function clearCookie(name){return `${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`}
 function bankStateCookie(value){return `${STATE_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=1800; HttpOnly; Secure; SameSite=Lax`}
@@ -567,6 +570,7 @@ async function encryptBlob(env,obj){const iv=crypto.getRandomValues(new Uint8Arr
 async function decryptBlob(env,s){try{const all=unb64u(s),iv=all.slice(0,12),cipher=all.slice(12);const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},await aesKey(env),cipher);return JSON.parse(new TextDecoder().decode(plain))}catch(e){return null}}
 function bearer(request){const h=request.headers.get('authorization')||'';return h.toLowerCase().startsWith('bearer ')?h.slice(7).trim():''}
 async function verifyUser(request){const token=bearer(request);if(!token)return null;const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON,authorization:'Bearer '+token}});if(!r.ok)return null;const user=await r.json().catch(()=>null);return user?.id?{user,token}:null}
+async function signedEndpoint(request,action){const auth=await verifyUser(request);if(!auth)return json({error:'Sign in to continue.'},401);return action(auth)}
 async function sbRest(path,jwt,opts={}){const headers={apikey:SUPABASE_ANON,authorization:'Bearer '+jwt,'content-type':'application/json',...(opts.headers||{})};return fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers})}
 function validateProfile(name,email){name=String(name||'').trim();email=String(email||'').trim();if(name.length<2||name.length>100)return 'Enter your name.';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return 'Enter a valid email address.';return ''}
 

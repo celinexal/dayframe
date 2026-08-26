@@ -1,4 +1,4 @@
-const DAYFRAME_CACHE='dayframe-shell-v1';
+const DAYFRAME_CACHE='dayframe-shell-v2';
 const DAYFRAME_SHELL=['/','/manifest.webmanifest','/dayframe-icon.svg'];
 
 self.addEventListener('install',event=>{
@@ -16,8 +16,10 @@ self.addEventListener('fetch',event=>{
   if(url.origin!==self.location.origin||url.pathname.startsWith('/api/'))return;
   if(request.mode==='navigate'){
     event.respondWith(fetch(request).then(response=>{
-      const copy=response.clone();
-      caches.open(DAYFRAME_CACHE).then(cache=>cache.put('/',copy));
+      if(response.ok){
+        const copy=response.clone();
+        caches.open(DAYFRAME_CACHE).then(cache=>cache.put('/',copy));
+      }
       return response;
     }).catch(()=>caches.match('/')));
     return;
