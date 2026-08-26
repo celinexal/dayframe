@@ -1,9 +1,10 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v6';
+const DAYFRAME_CACHE = 'dayframe-shell-v7';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js'];
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826-no-banners';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
-const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826';
+const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826-money-cleanup';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
+const DAYFRAME_DISMISSED_GUIDANCE_STYLE = '<style id="df-dismissed-guidance-style">#df-money-guidance,#df-invest-guidance{display:none!important}</style>';
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -30,6 +31,9 @@ async function withPolish(response) {
 
   let body = await response.text();
   const tags = [];
+  if (!body.includes('df-dismissed-guidance-style')) {
+    tags.push(DAYFRAME_DISMISSED_GUIDANCE_STYLE);
+  }
   if (!body.includes('dayframe-2026-polish.js')) {
     tags.push(`<script ${DAYFRAME_POLISH_MARKER} src="${DAYFRAME_POLISH_SRC}" defer></script>`);
   }
