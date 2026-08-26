@@ -1,1 +1,3 @@
-Deploy Theory Tracker readability update — 2026-08-18 15:38 BST.
+Deploy trigger for sourced news cards
+Base feature commit: fe72a6a9d81145eb6f483022425dc00bf03250ef
+Triggered at: 2026-08-26T16:12:00Z
