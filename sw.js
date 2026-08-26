@@ -1,7 +1,8 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v4';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js'];
+const DAYFRAME_CACHE = 'dayframe-shell-v5';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js'];
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826-news';
-const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826';
+const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
+const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 
 self.addEventListener('install', event => {
@@ -34,6 +35,9 @@ async function withPolish(response) {
   }
   if (!body.includes('dayframe-news-sources.js')) {
     tags.push(`<script data-dayframe-news-source-loader src="${DAYFRAME_NEWS_SRC}" defer></script>`);
+  }
+  if (!body.includes('dayframe-remove-panels.js')) {
+    tags.push(`<script data-dayframe-remove-panels-loader src="${DAYFRAME_REMOVE_PANELS_SRC}" defer></script>`);
   }
   if (tags.length) {
     const markup = tags.join('');
