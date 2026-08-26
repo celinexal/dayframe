@@ -1,6 +1,6 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v5';
+const DAYFRAME_CACHE = 'dayframe-shell-v6';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js'];
-const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826-news';
+const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826-no-banners';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
 const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
