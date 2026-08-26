@@ -94,22 +94,17 @@
     insertAfter('#pg-driving .driving-home-grid', markup, 'df-driving-guidance');
   }
 
+  function removeDismissedGuidance() {
+    document.getElementById('df-money-guidance')?.remove();
+    document.getElementById('df-invest-guidance')?.remove();
+  }
+
   function addMoneyGuidance() {
-    const markup = panel('df-money-guidance', 'Money habits', 'Small controls that help users stay in charge', [
-      card('green', 'Payday order', 'Set the month in this order: bills, credit minimums, sinking funds, essentials, then flexible spending. It keeps the important money separate.'),
-      card('amber', 'Sinking funds', 'Create pots for predictable costs such as MOT, insurance, annual subscriptions, holidays, school or Christmas so they do not become emergency credit.'),
-      card('blue', 'Subscription audit', 'Review Direct Debits, standing orders and recurring card payments every month. Cancel what no longer matches your actual life.'),
-    ], 'MoneyHelper recommends comparing income, outgoings and what is left, then deciding what should go to debt, savings or spending. Dayframe already has the right structure; these cards make the habit clearer.');
-    insertAfter('#pg-money .life-metrics.money-metrics', markup, 'df-money-guidance');
+    removeDismissedGuidance();
   }
 
   function addInvestingGuidance() {
-    const markup = panel('df-invest-guidance', 'Decision rules', 'Know what would make you trim, sell or wait', [
-      card('rose', 'Trim / sell triggers', 'Write the evidence that would break the thesis before you buy: dilution, missed guidance, worsening debt, lost customer, over-sized position or better use of cash.'),
-      card('violet', 'Research packet', 'Before adding risk, check fresh price data, recent filings or official updates, dated headlines, position size, liquidity and the bear case.'),
-      card('amber', 'AI is a filter', 'AI can summarise and compare sources, but it can be wrong or stale. Use it to ask better questions, then verify the original source.'),
-    ], 'FCA materials continue to frame high-risk investing as money users must be prepared to lose. Dayframe should keep language educational and avoid direct buy/sell commands.');
-    insertAfter('#pg-dashboard .invest-learn-bridge', markup, 'df-invest-guidance');
+    removeDismissedGuidance();
   }
 
   const replacements = new Map([
