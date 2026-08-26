@@ -11,7 +11,7 @@
     "minimal-ui"
   ],
   "background_color": "#f7f8fc",
-  "theme_color": "#6f66ee",
+  "theme_color": "#4B4FCA",
   "orientation": "portrait-primary",
   "categories": [
     "finance",
@@ -21,15 +21,9 @@
   "icons": [
     {
       "src": "/dayframe-icon.svg",
-      "sizes": "192x192",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/dayframe-icon.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
