@@ -1,31 +1,74 @@
-const DAYFRAME_CACHE='dayframe-shell-v2';
-const DAYFRAME_SHELL=['/','/manifest.webmanifest','/dayframe-icon.svg'];
+const DAYFRAME_CACHE = 'dayframe-shell-v3';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-2026-polish.js'];
+const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826';
+const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 
-self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(DAYFRAME_CACHE).then(cache=>cache.addAll(DAYFRAME_SHELL)).then(()=>self.skipWaiting()));
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(DAYFRAME_CACHE)
+      .then(cache => cache.addAll(DAYFRAME_SHELL))
+      .then(() => self.skipWaiting())
+  );
 });
 
-self.addEventListener('activate',event=>{
-  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('dayframe-shell-')&&key!==DAYFRAME_CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys
+        .filter(key => key.startsWith('dayframe-shell-') && key !== DAYFRAME_CACHE)
+        .map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
 });
 
-self.addEventListener('fetch',event=>{
-  const request=event.request;
-  if(request.method!=='GET')return;
-  const url=new URL(request.url);
-  if(url.origin!==self.location.origin||url.pathname.startsWith('/api/'))return;
-  if(request.mode==='navigate'){
-    event.respondWith(fetch(request).then(response=>{
-      if(response.ok){
-        const copy=response.clone();
-        caches.open(DAYFRAME_CACHE).then(cache=>cache.put('/',copy));
+async function withPolish(response) {
+  if (!response || !response.ok) return response;
+  const type = response.headers.get('content-type') || '';
+  if (!type.toLowerCase().includes('text/html')) return response;
+
+  let body = await response.text();
+  if (!body.includes('dayframe-2026-polish.js')) {
+    const tag = `<script ${DAYFRAME_POLISH_MARKER} src="${DAYFRAME_POLISH_SRC}" defer></script>`;
+    body = /<\/body>/i.test(body) ? body.replace(/<\/body>/i, `${tag}</body>`) : body + tag;
+  }
+
+  const headers = new Headers(response.headers);
+  headers.delete('content-length');
+  headers.set('cache-control', 'no-store');
+  return new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(DAYFRAME_CACHE).then(cache => cache.put('/', copy));
+        }
+        return withPolish(response);
+      } catch {
+        const cached = await caches.match('/');
+        return cached ? withPolish(cached) : cached;
       }
-      return response;
-    }).catch(()=>caches.match('/')));
+    })());
     return;
   }
-  event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
-    if(response.ok)caches.open(DAYFRAME_CACHE).then(cache=>cache.put(request,response.clone()));
-    return response;
-  })));
+
+  event.respondWith(
+    caches.match(request).then(cached => cached || fetch(request).then(response => {
+      if (response.ok) caches.open(DAYFRAME_CACHE).then(cache => cache.put(request, response.clone()));
+      return response;
+    }))
+  );
 });
