@@ -86,12 +86,20 @@
   }
 
   function addDrivingGuidance() {
+    const target = document.querySelector('#pg-driving-theory .driving-tracker-head');
+    const existing = document.getElementById('df-driving-guidance');
+    if (!target) {
+      existing?.remove();
+      return;
+    }
+    if (existing && existing.previousElementSibling === target) return;
+    existing?.remove();
     const markup = panel('df-driving-guidance', 'Official checks', 'Theory, hazard perception and first-car admin', [
       card('blue', 'Theory test facts', 'The car theory test is 50 multiple-choice questions in 57 minutes. The current pass mark is 43 out of 50.', 'https://www.gov.uk/theory-test/pass-mark-and-result', 'GOV.UK pass marks'),
       card('amber', 'Hazard perception', 'The hazard section has 14 video clips. There are 15 scoreable developing hazards, worth up to 5 marks each; the car pass mark is 44 out of 75.', 'https://www.gov.uk/theory-test/hazard-perception-test', 'GOV.UK hazards'),
       card('green', 'Practice rhythm', 'Keep a mistakes list, repeat weak Highway Code topics, and do hazard clips when you are awake enough to spot movement early.'),
-    ], 'The Highway Code was last shown by GOV.UK as updated on 22 October 2025 when this check was made. Dayframe should keep official links close to the driving tracker.');
-    insertAfter('#pg-driving .driving-home-grid', markup, 'df-driving-guidance');
+    ], 'GOV.UK lists The Highway Code as updated on 22 October 2025. Keeping these official links beside the theory tracker helps users verify the rules they are learning.');
+    insertAfter(target, markup, 'df-driving-guidance');
   }
 
   function removeDismissedGuidance() {
@@ -240,6 +248,9 @@
       observer._queued = false;
       softenDirectAdvice();
       addDrivingCostsNav();
+      addDrivingCostsCard();
+      addDrivingGuidance();
+      removeDismissedGuidance();
       patchWatchlistAI();
     });
   });
