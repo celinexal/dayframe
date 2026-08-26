@@ -1,6 +1,7 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v3';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-2026-polish.js'];
-const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826';
+const DAYFRAME_CACHE = 'dayframe-shell-v4';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js'];
+const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826-news';
+const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 
 self.addEventListener('install', event => {
@@ -27,9 +28,16 @@ async function withPolish(response) {
   if (!type.toLowerCase().includes('text/html')) return response;
 
   let body = await response.text();
+  const tags = [];
   if (!body.includes('dayframe-2026-polish.js')) {
-    const tag = `<script ${DAYFRAME_POLISH_MARKER} src="${DAYFRAME_POLISH_SRC}" defer></script>`;
-    body = /<\/body>/i.test(body) ? body.replace(/<\/body>/i, `${tag}</body>`) : body + tag;
+    tags.push(`<script ${DAYFRAME_POLISH_MARKER} src="${DAYFRAME_POLISH_SRC}" defer></script>`);
+  }
+  if (!body.includes('dayframe-news-sources.js')) {
+    tags.push(`<script data-dayframe-news-source-loader src="${DAYFRAME_NEWS_SRC}" defer></script>`);
+  }
+  if (tags.length) {
+    const markup = tags.join('');
+    body = /<\/body>/i.test(body) ? body.replace(/<\/body>/i, `${markup}</body>`) : body + markup;
   }
 
   const headers = new Headers(response.headers);
