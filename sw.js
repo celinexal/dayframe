@@ -1,4 +1,4 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v13';
+const DAYFRAME_CACHE = 'dayframe-shell-v14';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-category-budget-focus.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260826-theory-session';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826-theory-guidance';
@@ -6,7 +6,7 @@ const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-pa
 const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826-money-cleanup';
 const DAYFRAME_RISK_FIX_SRC = '/assets/dayframe-risk-holdings-fix.js?v=20260827-current-holdings';
 const DAYFRAME_CAR_COSTS_SRC = '/assets/dayframe-car-costs-merge.js?v=20260827-car-costs';
-const DAYFRAME_CATEGORY_BUDGET_SRC = '/assets/dayframe-category-budget-focus.js?v=20260827-category-budget';
+const DAYFRAME_CATEGORY_BUDGET_SRC = '/assets/dayframe-category-budget-focus.js?v=20260827-all-category-budgets';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 const DAYFRAME_DISMISSED_GUIDANCE_STYLE = '<style id="df-dismissed-guidance-style">#df-money-guidance,#df-invest-guidance{display:none!important}</style>';
 
