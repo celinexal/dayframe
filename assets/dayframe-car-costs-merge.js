@@ -28,14 +28,16 @@
   }
 
   function resetCarCopy() {
+    const heroText = 'Save your vehicle details, renewal dates and important notes once, then let Dayframe keep them ready when you need them.';
     const heroCopy = document.querySelector('#pg-driving-car .personal-hero-copy p');
-    if (heroCopy) {
-      heroCopy.textContent = 'Save your vehicle details, renewal dates and important notes once, then let Dayframe keep them ready when you need them.';
+    if (heroCopy && heroCopy.textContent !== heroText) {
+      heroCopy.textContent = heroText;
     }
 
+    const homeText = 'Store the details that matter and see every important renewal without searching through emails.';
     const homeDesc = document.querySelector('.driving-home-card.car .driving-home-desc');
-    if (homeDesc) {
-      homeDesc.textContent = 'Store the details that matter and see every important renewal without searching through emails.';
+    if (homeDesc && homeDesc.textContent !== homeText) {
+      homeDesc.textContent = homeText;
     }
 
     document.querySelectorAll('[data-car-cost-tag]').forEach((tag) => tag.remove());
@@ -103,5 +105,14 @@
   else apply();
   setTimeout(apply, 300);
   setTimeout(apply, 1200);
-  new MutationObserver(removeCostsUi).observe(document.documentElement, { childList: true, subtree: true });
+
+  let queued = false;
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      removeCostsUi();
+    });
+  }).observe(document.documentElement, { childList: true, subtree: true });
 })();
