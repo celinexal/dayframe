@@ -1,9 +1,10 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v10';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js'];
+const DAYFRAME_CACHE = 'dayframe-shell-v11';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260826-theory-session';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260826-theory-guidance';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
 const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826-money-cleanup';
+const DAYFRAME_RISK_FIX_SRC = '/assets/dayframe-risk-holdings-fix.js?v=20260827-current-holdings';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 const DAYFRAME_DISMISSED_GUIDANCE_STYLE = '<style id="df-dismissed-guidance-style">#df-money-guidance,#df-invest-guidance{display:none!important}</style>';
 
@@ -46,6 +47,9 @@ async function withPolish(response) {
   }
   if (!body.includes('dayframe-remove-panels.js')) {
     tags.push(`<script data-dayframe-remove-panels-loader src="${DAYFRAME_REMOVE_PANELS_SRC}" defer></script>`);
+  }
+  if (!body.includes('dayframe-risk-holdings-fix.js')) {
+    tags.push(`<script data-dayframe-risk-holdings-fix-loader src="${DAYFRAME_RISK_FIX_SRC}" defer></script>`);
   }
   if (tags.length) {
     const markup = tags.join('');
