@@ -108,10 +108,22 @@
       .df-category-budget-actions button{border:0;border-radius:10px;padding:9px 11px;font:800 11px var(--ff);cursor:pointer}
       .df-category-budget-primary{background:var(--bl);color:#fff}
       .df-category-budget-secondary{background:#f0f2f8;color:#596376}
+      .df-category-budget-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+      .df-category-budget-list{display:flex;flex-direction:column;gap:10px}
+      .df-category-budget-row{border:1px solid #edf0f6;border-radius:13px;background:#fff;padding:11px;cursor:pointer;text-align:left;font-family:var(--ff);transition:background .12s,border-color .12s,transform .12s}
+      .df-category-budget-row:hover,.df-category-budget-row:focus-visible{background:#fafbff;border-color:#dfe4f1;outline:none;transform:translateY(-1px)}
+      .df-category-budget-row-top{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;margin-bottom:8px}
+      .df-category-budget-row-name{font-size:12px;font-weight:850;color:#2e374a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .df-category-budget-row-state{font-size:10px;font-weight:850;white-space:nowrap;color:#19856a}
+      .df-category-budget-row-state.warn{color:#c96f1f}
+      .df-category-budget-row-state.bad{color:#d64f4f}
+      .df-category-budget-row-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;color:#8792a5;font-size:10px;font-weight:750}
+      .df-category-budget-row-meta span:last-child{text-align:right}
       @media(max-width:760px){
         .df-category-budget-status{grid-template-columns:1fr}
         .df-category-budget-pill{justify-self:start}
         .df-category-budget-stats{grid-template-columns:1fr}
+        .df-category-budget-summary{grid-template-columns:1fr}
       }
     `;
     document.head.appendChild(style);
@@ -164,6 +176,116 @@
     return (d.budgets || []).find((budget) => normaliseCategory(budget.category) === category);
   }
 
+  function spendingSummary(d, cycle) {
+    const rows = {};
+    [...localTransactions(d), ...bankTransactions(d)].forEach((item) => {
+      const category = normaliseCategory(item.category);
+      if (
+        item.type !== 'expense'
+        || !inCycle(item.date, cycle)
+        || TRANSFER_CATEGORIES.has(category)
+      ) return;
+      rows[category] = rows[category] || { category, spent: 0, count: 0 };
+      rows[category].spent += Number(item.amount || 0);
+      rows[category].count += 1;
+    });
+    return rows;
+  }
+
+  function categoryRow(d, category, current, previous) {
+    const budget = getBudget(d, category);
+    const limit = Math.max(0, Number(budget?.limit || 0));
+    const spent = current[category]?.spent || 0;
+    const count = current[category]?.count || 0;
+    const lastSpent = previous[category]?.spent || 0;
+    const remaining = limit - spent;
+    const pct = limit > 0 ? Math.round((spent / limit) * 100) : 0;
+    const width = Math.max(0, Math.min(100, pct));
+    const state = !limit ? 'warn' : remaining < -0.005 ? 'bad' : pct >= 85 ? 'warn' : 'good';
+    const label = !limit ? 'Set budget' : remaining < -0.005 ? money(Math.abs(remaining)) + ' over' : money(remaining) + ' left';
+    const meta = limit ? `${money(spent)} / ${money(limit)} &middot; ${pct}% used` : `${money(spent)} spent &middot; no limit`;
+    const progressClass = state === 'bad' ? 'bad' : state === 'warn' ? 'warn' : '';
+    return `
+      <button class="df-category-budget-row" type="button" onclick="moneyOpenTransactions('${encodeURIComponent(category)}','cycle')">
+        <div class="df-category-budget-row-top">
+          <div class="df-category-budget-row-name">${esc(category)}</div>
+          <div class="df-category-budget-row-state ${state === 'good' ? '' : state}">${label}</div>
+        </div>
+        <div class="df-category-budget-progress ${progressClass}"><i style="width:${width}%"></i></div>
+        <div class="df-category-budget-row-meta">
+          <span>${meta}</span>
+          <span>${esc(trendText(spent, lastSpent))}</span>
+        </div>
+        <div class="df-category-budget-row-meta">
+          <span>${count} transaction${count === 1 ? '' : 's'} this cycle</span>
+          <span>Last cycle ${money(lastSpent)}</span>
+        </div>
+      </button>
+    `;
+  }
+
+  function renderAllCategoriesPanel(d, cycle, prev, breakdown, title, sub) {
+    const current = spendingSummary(d, cycle);
+    const previous = spendingSummary(d, prev);
+    const categories = [...new Set([
+      ...(d.budgets || []).map((budget) => normaliseCategory(budget.category)),
+      ...Object.keys(current),
+      ...Object.keys(previous),
+    ])].filter((category) => category && !TRANSFER_CATEGORIES.has(category));
+    const rows = categories.map((category) => {
+      const budget = getBudget(d, category);
+      const limit = Math.max(0, Number(budget?.limit || 0));
+      const spent = current[category]?.spent || 0;
+      const lastSpent = previous[category]?.spent || 0;
+      const remaining = limit - spent;
+      return { category, limit, spent, lastSpent, remaining, hasBudget: limit > 0 };
+    }).sort((a, b) => {
+      const aOver = a.hasBudget && a.remaining < 0 ? 1 : 0;
+      const bOver = b.hasBudget && b.remaining < 0 ? 1 : 0;
+      if (aOver !== bOver) return bOver - aOver;
+      if (a.hasBudget !== b.hasBudget) return Number(b.hasBudget) - Number(a.hasBudget);
+      return b.spent - a.spent || a.category.localeCompare(b.category);
+    });
+
+    const totalLimit = rows.reduce((sum, row) => sum + row.limit, 0);
+    const totalSpent = rows.reduce((sum, row) => sum + row.spent, 0);
+    const totalRemaining = totalLimit - totalSpent;
+    const overCount = rows.filter((row) => row.hasBudget && row.remaining < -0.005).length;
+    const usedPct = totalLimit > 0 ? Math.round((totalSpent / totalLimit) * 100) : 0;
+    const headline = totalLimit > 0
+      ? totalRemaining < 0 ? money(Math.abs(totalRemaining)) + ' over total limits' : money(totalRemaining) + ' left total'
+      : money(totalSpent) + ' spent';
+    const state = overCount ? 'bad' : totalLimit && usedPct >= 85 ? 'warn' : totalLimit ? 'good' : 'warn';
+    const stateLabel = overCount ? overCount + ' over budget' : totalLimit ? usedPct + '% used' : 'Set budgets';
+
+    if (title) title.textContent = 'All category budgets';
+    if (sub) sub.textContent = 'Allocated, spent and compared with last cycle';
+
+    breakdown.innerHTML = `
+      <div class="df-category-budget-panel">
+        <div class="df-category-budget-status">
+          <div>
+            <div class="df-category-budget-kicker">Budget categories</div>
+            <div class="df-category-budget-title">${headline}</div>
+            <div class="df-category-budget-sub">${esc(cycleLabel(cycle))} &middot; tap a category to inspect its transactions.</div>
+          </div>
+          <div class="df-category-budget-pill ${state === 'good' ? '' : state}">${stateLabel}</div>
+        </div>
+        <div class="df-category-budget-summary">
+          <div class="df-category-budget-stat"><span>Allocated</span><strong>${totalLimit ? money(totalLimit) : 'Not set'}</strong><small>Across ${rows.filter((row) => row.hasBudget).length} budget${rows.filter((row) => row.hasBudget).length === 1 ? '' : 's'}</small></div>
+          <div class="df-category-budget-stat"><span>Spent</span><strong>${money(totalSpent)}</strong><small>${rows.length} categor${rows.length === 1 ? 'y' : 'ies'} with activity or budgets</small></div>
+          <div class="df-category-budget-stat"><span>Needs attention</span><strong>${overCount}</strong><small>Categories over budget</small></div>
+        </div>
+        <div class="df-category-budget-list">
+          ${rows.length ? rows.map((row) => categoryRow(d, row.category, current, previous)).join('') : '<div class="money-empty-soft"><strong>No category budgets yet</strong>Add category limits in Budget, then your spending will track here.</div>'}
+        </div>
+        <div class="df-category-budget-actions">
+          <button class="df-category-budget-primary" type="button" onclick="moneyOpenTab('budget')">Open Budget</button>
+        </div>
+      </div>
+    `;
+  }
+
   function trendText(current, previous) {
     const diff = current - previous;
     if (previous <= 0 && current <= 0) return 'No spending in either cycle';
@@ -182,16 +304,19 @@
     const title = card?.querySelector('.life-card-title');
     const sub = card?.querySelector('.life-card-sub');
     const category = currentSelectedCategory();
-
-    if (!category || !pane.classList.contains('on')) {
-      if (title) title.textContent = 'This budget cycle';
-      if (sub) sub.textContent = 'Where your spending is going';
-      return;
-    }
-
     const d = hubLoad();
     const cycle = cycleFor(new Date());
     const prev = previousCycle(cycle);
+
+    if (!pane.classList.contains('on')) {
+      return;
+    }
+
+    if (!category) {
+      renderAllCategoriesPanel(d, cycle, prev, breakdown, title, sub);
+      return;
+    }
+
     const budget = getBudget(d, category);
     const currentItems = spendingForCategory(d, category, cycle);
     const previousItems = spendingForCategory(d, category, prev);
