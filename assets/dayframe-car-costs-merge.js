@@ -17,10 +17,10 @@
     style.textContent = `
       #pg-driving-costs,
       #df-car-costs-section,
-      .driving-side-nav [data-driving-page="driving-costs"],
-      button[data-driving-page="driving-costs"],
-      button[onclick*="go('driving-costs')"],
-      button[onclick*='go("driving-costs")']{
+      [data-driving-page="driving-costs"],
+      [data-dayframe-polish="driving-costs-card"],
+      .df-polish-nav-costs,
+      [onclick*="driving-costs"]{
         display:none!important;
       }
     `;
@@ -43,26 +43,26 @@
     document.querySelectorAll('[data-car-cost-tag]').forEach((tag) => tag.remove());
   }
 
+  function removeNode(node) {
+    if (!node || node.matches('html,body,head,script,style')) return;
+    const target = node.closest('button,a,[role="button"],li') || node;
+    if (!target.matches('html,body,head,script,style')) target.remove();
+  }
+
   function removeCostsUi() {
     ensureStyle();
     resetCarCopy();
 
-    const mergedSection = byId('df-car-costs-section');
-    if (mergedSection) mergedSection.remove();
+    byId('df-car-costs-section')?.remove();
 
     const costsPage = byId('pg-driving-costs');
-    if (costsPage) {
-      costsPage.classList.remove('on');
-      costsPage.setAttribute('aria-hidden', 'true');
-      costsPage.style.display = 'none';
-    }
+    if (costsPage) costsPage.remove();
 
-    document.querySelectorAll('.driving-side-nav button').forEach((button) => {
-      const isCosts =
-        button.dataset.drivingPage === 'driving-costs' ||
-        /driving-costs/.test(button.getAttribute('onclick') || '') ||
-        button.textContent.trim().toLowerCase() === 'driving costs';
-      if (isCosts) button.remove();
+    document.querySelectorAll('[data-driving-page="driving-costs"], [data-dayframe-polish="driving-costs-card"], .df-polish-nav-costs, [onclick*="driving-costs"]').forEach(removeNode);
+
+    document.querySelectorAll('#driving-sidepanel *, .driving-side-nav *').forEach((node) => {
+      const text = (node.textContent || '').trim().toLowerCase();
+      if (text === 'driving costs') removeNode(node);
     });
   }
 
@@ -103,8 +103,7 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
   else apply();
-  setTimeout(apply, 300);
-  setTimeout(apply, 1200);
+  [50, 300, 1200, 2500, 5000].forEach((delay) => setTimeout(apply, delay));
 
   let queued = false;
   new MutationObserver(() => {
