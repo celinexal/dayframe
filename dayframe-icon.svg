@@ -12,6 +12,11 @@
       <stop offset=".62" stop-color="#FFB18F" stop-opacity=".12"/>
       <stop offset="1" stop-color="#FFB18F" stop-opacity="0"/>
     </radialGradient>
+    <radialGradient id="pinkSmudge" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(185 118) rotate(35) scale(238 176)">
+      <stop stop-color="#FF77BE" stop-opacity=".78"/>
+      <stop offset=".5" stop-color="#FF9AD3" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#FF9AD3" stop-opacity="0"/>
+    </radialGradient>
     <radialGradient id="coolGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(386 372) rotate(44) scale(218)">
       <stop stop-color="#7EE1C3" stop-opacity=".74"/>
       <stop offset=".58" stop-color="#7EE1C3" stop-opacity=".12"/>
@@ -36,6 +41,7 @@
 
   <rect width="512" height="512" rx="118" fill="url(#bg)"/>
   <rect width="512" height="512" rx="118" fill="url(#warmGlow)"/>
+  <rect width="512" height="512" rx="118" fill="url(#pinkSmudge)"/>
   <rect width="512" height="512" rx="118" fill="url(#coolGlow)"/>
   <path d="M78 142c55-56 117-83 186-83 77 0 139 31 187 94" fill="none" stroke="#FFFFFF" stroke-opacity=".12" stroke-width="22" stroke-linecap="round"/>
   <path d="M74 378c48 48 108 72 180 72 83 0 150-35 200-104" fill="none" stroke="#FFFFFF" stroke-opacity=".1" stroke-width="18" stroke-linecap="round"/>
@@ -53,7 +59,7 @@
 
   <circle cx="382" cy="132" r="24" fill="#FFE6AF"/>
   <circle cx="382" cy="132" r="9" fill="#FFFFFF"/>
-  <rect x="156" y="140" width="36" height="16" rx="8" fill="#FFB18F"/>
+  <rect x="156" y="140" width="36" height="16" rx="8" fill="#FF9AD3"/>
   <rect x="156" y="172" width="36" height="16" rx="8" fill="#8EE2C2"/>
   <rect x="156" y="204" width="36" height="16" rx="8" fill="#AAB1FF"/>
 </svg>
