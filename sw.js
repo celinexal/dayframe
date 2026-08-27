@@ -1,4 +1,4 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v25';
+const DAYFRAME_CACHE = 'dayframe-shell-v26';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260827-no-driving-costs';
@@ -9,10 +9,11 @@ const DAYFRAME_CAR_COSTS_SRC = '/assets/dayframe-car-costs-merge.js?v=20260827-d
 const DAYFRAME_CATEGORY_BUDGET_SRC = '/assets/dayframe-category-budget-focus.js?v=20260827-all-category-budgets';
 const DAYFRAME_TRANSACTIONS_CLEANUP_SRC = '/assets/dayframe-transactions-default-cleanup.js?v=20260827-default-transactions-clean-wide';
 const DAYFRAME_VISUAL_TIDY_SRC = '/assets/dayframe-visual-tidy.js?v=20260827-visual-tidy-fit';
-const DAYFRAME_VISUAL_CALM_SRC = '/assets/dayframe-visual-calm.js?v=20260827-visual-calm';
+const DAYFRAME_VISUAL_CALM_SRC = '/assets/dayframe-visual-calm.js?v=20260827-investing-cleanup';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 const DAYFRAME_DISMISSED_GUIDANCE_STYLE = '<style id="df-dismissed-guidance-style">#df-money-guidance,#df-invest-guidance{display:none!important}</style>';
 const DAYFRAME_DRIVING_COSTS_STYLE = '<style id="df-driving-costs-style">#pg-driving-costs,#df-car-costs-section,[data-driving-page="driving-costs"],[data-dayframe-polish="driving-costs-card"],.df-polish-nav-costs,[onclick*="driving-costs"]{display:none!important}</style>';
+const DAYFRAME_INVESTING_CLEANUP_STYLE = '<style id="df-investing-cleanup-style">#pg-dashboard .dash-market-context,.dash-market-context{display:none!important}</style>';
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -44,6 +45,9 @@ async function withPolish(response) {
   }
   if (!body.includes('df-driving-costs-style')) {
     tags.push(DAYFRAME_DRIVING_COSTS_STYLE);
+  }
+  if (!body.includes('df-investing-cleanup-style')) {
+    tags.push(DAYFRAME_INVESTING_CLEANUP_STYLE);
   }
   if (!body.includes('dayframe-theory-session.js')) {
     tags.push(`<script data-dayframe-theory-session-loader src="${DAYFRAME_THEORY_SESSION_SRC}" defer></script>`);
