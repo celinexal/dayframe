@@ -32,7 +32,6 @@
     .df-polish-card.rose{box-shadow:inset 0 3px 0 #db7483,0 8px 22px rgba(35,45,68,.045)}
     .df-polish-card.violet{box-shadow:inset 0 3px 0 #8a72da,0 8px 22px rgba(35,45,68,.045)}
     .df-polish-mini-note{margin-top:9px;padding:10px 11px;border:1px solid #e7ebf2;border-radius:12px;background:#fafbfe;color:#7f8899;font-size:9.5px;line-height:1.55}
-    .df-polish-nav-costs span{font-weight:900}
     @media(max-width:900px){.df-polish-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:620px){.df-polish-head{align-items:flex-start;flex-direction:column}.df-polish-grid{grid-template-columns:1fr}.df-polish-card{padding:13px}.df-polish-panel{margin:14px 0 18px}}
   `;
@@ -59,30 +58,30 @@
     node.insertAdjacentHTML('afterend', markup);
   }
 
+  function removeDrivingCostsEntry() {
+    const costsPage = document.getElementById('pg-driving-costs');
+    if (costsPage) costsPage.remove();
+    document.getElementById('df-car-costs-section')?.remove();
+    document.querySelectorAll('[data-driving-page="driving-costs"], [data-dayframe-polish="driving-costs-card"], .df-polish-nav-costs, [onclick*="driving-costs"]').forEach((node) => {
+      if (node.matches('#pg-driving-costs')) return;
+      const target = node.closest('button,a,[role="button"],li') || node;
+      target.remove();
+    });
+    document.querySelectorAll('#driving-sidepanel *, .driving-side-nav *').forEach((node) => {
+      const text = (node.textContent || '').trim().toLowerCase();
+      if (text === 'driving costs') {
+        const target = node.closest('button,a,[role="button"],li') || node;
+        target.remove();
+      }
+    });
+  }
+
   function addDrivingCostsNav() {
-    const nav = document.querySelector('.driving-side-nav');
-    if (!nav || nav.querySelector('[data-driving-page="driving-costs"]')) return;
-    nav.insertAdjacentHTML('beforeend', `<button class="df-polish-nav-costs" data-driving-page="driving-costs" onclick="go('driving-costs')"><span>C</span>Driving Costs</button>`);
+    removeDrivingCostsEntry();
   }
 
   function addDrivingCostsCard() {
-    const grid = document.querySelector('#pg-driving .driving-home-grid');
-    if (!grid || grid.querySelector('[data-dayframe-polish="driving-costs-card"]')) return;
-    grid.insertAdjacentHTML('beforeend', `
-      <button class="driving-home-card costs" data-dayframe-polish="driving-costs-card" onclick="go('driving-costs')">
-        <div class="driving-card-top">
-          <div class="driving-home-icon"><span style="font-weight:900;font-size:13px">GBP</span></div>
-          <div class="driving-card-number">03</div>
-        </div>
-        <div class="driving-home-copy">
-          <div class="driving-home-kicker">Your car budget</div>
-          <div class="driving-home-title">Driving Costs</div>
-          <div class="driving-home-desc">Track fuel, parking, insurance, repairs and the hidden costs that make driving expensive.</div>
-        </div>
-        <div class="driving-card-tags"><span class="driving-card-tag">Fuel</span><span class="driving-card-tag">Insurance</span><span class="driving-card-tag">MOT</span><span class="driving-card-tag">Repairs</span></div>
-        <div class="driving-home-arrow">→</div>
-      </button>
-    `);
+    removeDrivingCostsEntry();
   }
 
   function addDrivingGuidance() {
@@ -158,15 +157,12 @@
     if (typeof globalThis.go !== 'function' || globalThis.go.__dayframePolished) return;
     const original = globalThis.go;
     const wrapped = function patchedGo(name, btn) {
-      const result = original.apply(this, arguments);
       if (name === 'driving-costs') {
-        document.body.classList.add('driving-mode');
-        document.body.classList.remove('investing-mode');
-        document.querySelectorAll('.df-nav-btn[data-main-page]').forEach((b) => b.classList.remove('on'));
-        document.querySelector('.df-nav-btn[data-main-page="driving"]')?.classList.add('on');
-        document.querySelectorAll('.driving-side-nav button').forEach((b) => b.classList.toggle('on', b.dataset.drivingPage === 'driving-costs'));
-        document.querySelectorAll('.df-mobile-nav button[data-mobile-page]').forEach((b) => b.classList.toggle('on', b.dataset.mobilePage === 'more'));
+        const result = original.call(this, 'driving-car', btn);
+        requestAnimationFrame(applyPolish);
+        return result;
       }
+      const result = original.apply(this, arguments);
       requestAnimationFrame(applyPolish);
       return result;
     };
