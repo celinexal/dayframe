@@ -1,9 +1,9 @@
 {
-  "id": "/",
+  "id": "/?app=dayframe-2026",
   "name": "Dayframe",
   "short_name": "Dayframe",
   "description": "A private home for your money, plans, driving, diary, Bible study and investments.",
-  "start_url": "/",
+  "start_url": "/?app=dayframe-2026",
   "scope": "/",
   "display": "standalone",
   "display_override": [
@@ -20,7 +20,13 @@
   ],
   "icons": [
     {
-      "src": "/dayframe-icon.svg",
+      "src": "/dayframe-icon-2026.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/dayframe-icon.svg?v=20260827-taskbar",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
