@@ -33,6 +33,9 @@
       #money-pane-transactions.df-transactions-default-clean .life-grid{
         grid-template-columns:1fr!important;
       }
+      #money-pane-transactions.df-transactions-default-clean .money-pane-grid{
+        grid-template-columns:1fr!important;
+      }
       #money-pane-transactions .df-transactions-budget-side-hidden{
         display:none!important;
       }
