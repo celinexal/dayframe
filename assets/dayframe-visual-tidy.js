@@ -472,19 +472,20 @@
       @media(max-width:760px){
         #pg-dashboard .invest-learn-bridge.df-invest-learning-quiet{padding:14px;border-radius:14px}
         #pg-dashboard .df-invest-learning-quiet .invest-learn-links{
-          display:flex;
-          gap:8px;
-          overflow-x:auto;
-          padding-bottom:2px;
-          scrollbar-width:none;
+          display:grid;
+          grid-template-columns:repeat(3,minmax(0,1fr));
+          gap:7px;
+          overflow:visible;
+          padding-bottom:0;
         }
-        #pg-dashboard .df-invest-learning-quiet .invest-learn-links::-webkit-scrollbar{display:none}
         #pg-dashboard .df-invest-learning-quiet .invest-learn-links>button{
-          flex:0 0 155px;
-          min-height:56px;
-          grid-template-columns:auto 1fr;
-          padding:10px;
+          min-width:0;
+          min-height:58px;
+          grid-template-columns:1fr;
+          padding:9px;
         }
+        #pg-dashboard .df-invest-learning-quiet .invest-learn-icon{display:none}
+        #pg-dashboard .df-invest-learning-quiet .invest-learn-links strong{font-size:9.5px;line-height:1.25;white-space:normal}
         #pg-dashboard .df-invest-learning-quiet .invest-learn-links small,
         #pg-dashboard .df-invest-learning-quiet .invest-learn-links i{display:none}
         .df-budget-overview-summary{grid-template-columns:1fr 1fr}
