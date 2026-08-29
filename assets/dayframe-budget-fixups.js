@@ -54,22 +54,6 @@
     return count + ' ' + (count === 1 ? singular : plural);
   }
 
-  function billSuggestionCount(d) {
-    try {
-      if (typeof window.moneyFindBillSuggestions === 'function') {
-        return window.moneyFindBillSuggestions(d).length;
-      }
-    } catch (_) {}
-    try {
-      if (typeof window.moneyRegularBillOptions === 'function') {
-        return window.moneyRegularBillOptions(d).filter(function (option) {
-          return option && option.likely;
-        }).length;
-      }
-    } catch (_) {}
-    return 0;
-  }
-
   function creditPaymentMatchCount(d) {
     try {
       if (typeof window.moneyCreditPaymentSuggestions !== 'function') return 0;
@@ -148,13 +132,13 @@
     if (typeof window.moneyOpenTab === 'function') window.moneyOpenTab('bills');
     setTimeout(function () {
       if (addNew && typeof window.toggleLifeForm === 'function') window.toggleLifeForm('money-bill-form', true);
-      var target = addNew ? $('money-bill-form') : $('money-bill-suggestions') || $('money-bills-list');
+      var target = addNew ? $('money-bill-form') : $('money-bills-list');
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 90);
   }
 
-  function openBillSuggestions() {
-    openBillsPage(false);
+  function openPaydayEditor() {
+    openBudgetSetupPage({ focusId: 'budget-cycle-start' });
   }
 
   function openCreditPlan(addNew) {
@@ -211,26 +195,31 @@
     card.appendChild(holder);
   }
 
+  function hideBillSuggestions() {
+    var host = $('money-bill-suggestions');
+    var card = host && host.closest ? host.closest('.life-card') : null;
+    if (card) card.classList.add('df-hide-bill-suggestions');
+  }
+
   function enhanceBudgetChecks(root) {
     var cards = root ? root.querySelectorAll('.df-budget-check') : [];
     if (!cards.length) return;
     var d = safeHubData();
-    var billCount = billSuggestionCount(d);
     var creditCount = creditPaymentMatchCount(d);
     var creditPlanned = hasCreditPlan(d);
     var configs = [
       {
         title: 'Income',
         subtitle: 'This cycle',
-        actions: [{ label: 'Edit', handler: function () { openBudgetSetupPage({ focusId: 'budget-plan-income' }); } }]
+        actions: [
+          { label: 'Edit', handler: function () { openBudgetSetupPage({ focusId: 'budget-plan-income' }); } },
+          { label: 'Edit payday', handler: openPaydayEditor }
+        ]
       },
       {
         title: 'Bills',
-        subtitle: billCount ? countLabel(billCount, 'possible bill found', 'possible bills found') : 'Regular payments',
-        actions: [
-          { label: 'Edit', handler: function () { openBillsPage(false); } },
-          { label: billCount ? 'Suggestions' : 'Add bill', primary: !!billCount, handler: billCount ? openBillSuggestions : function () { openBillsPage(true); } }
-        ]
+        subtitle: 'Regular payments',
+        actions: [{ label: 'Edit', handler: function () { openBillsPage(false); } }]
       },
       {
         title: 'Credit payments',
@@ -275,6 +264,8 @@
       '@media(max-width:980px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:repeat(3,minmax(0,1fr))!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:86px!important;padding:13px!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{font-size:22px!important}}',
       '@media(max-width:620px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:1fr!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:0!important}}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-suggestion{display:none!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-detail-note{display:none!important}',
+      '#money-bill-suggestions,.df-hide-bill-suggestions{display:none!important}',
       '#money-pane-budget.df-budget-no-inline-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup>.money-pane-grid{display:none!important}',
       '#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.money-pane-grid{display:none!important}',
       '#money-pane-budget-setup.df-budget-setup-pane{padding-top:0}',
@@ -309,6 +300,7 @@
       syncBankData();
       syncBudgetFocus();
       ensureBudgetSetupPage();
+      hideBillSuggestions();
       var root = $('df-budget-redesign');
       if (!root) return;
       observeBudgetRoot();
@@ -332,7 +324,7 @@
           return;
         }
         if (onclick.indexOf('dayframeBudgetAskAi') === -1) return;
-        var label = aiBusy ? 'Working...' : 'Suggest budgets';
+        var label = aiBusy ? 'Working...' : 'Draft budgets';
         if (button.textContent !== label) button.textContent = label;
         button.disabled = aiBusy;
         button.setAttribute('aria-busy', aiBusy ? 'true' : 'false');
@@ -432,14 +424,17 @@
   }
 
   function installBudgetSetupPageActions() {
-    window.dayframeBudgetOpenSetupPage = function () {
-      openBudgetSetupPage();
+    window.dayframeBudgetOpenSetupPage = function (options) {
+      openBudgetSetupPage(options);
     };
     window.dayframeBudgetToggleSetup = function () {
       openBudgetSetupPage();
     };
     window.dayframeBudgetAddCategory = function () {
       openBudgetSetupPage({ form: 'money-budget-form', focusId: 'money-budget-category' });
+    };
+    window.dayframeBudgetEditPayday = function () {
+      openPaydayEditor();
     };
     window.dayframeBudgetEditCategory = function (encoded) {
       var category = decodeValue(encoded).trim();
@@ -482,7 +477,7 @@
         values = {};
       }
       if (!Number(values.income || 0)) {
-        setAiMessage('Add your monthly income in Plan budget first, then Dayframe can suggest category limits.', 6500);
+        setAiMessage('Add your monthly income in Plan budget first, then Dayframe can draft category limits.', 6500);
         return;
       }
       var pane = $('money-pane-budget');
@@ -492,10 +487,10 @@
       try {
         await window.buildSuggestedBudget();
         syncBankData();
-        setAiMessage('Suggested budgets added. Check the categories below and edit anything that does not fit.', 6500);
+        setAiMessage('Budget draft added. Check the categories below and edit anything that does not fit.', 6500);
         if (typeof window.renderMoney === 'function') setTimeout(function () { window.renderMoney(); }, 60);
       } catch (_) {
-        setAiMessage('Could not create a suggestion right now. Your current budget is still safe.', 6500);
+        setAiMessage('Could not draft budgets right now. Your current budget is still safe.', 6500);
       } finally {
         aiBusy = false;
         tidyBudgetUi();
