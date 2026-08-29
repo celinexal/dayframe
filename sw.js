@@ -1,5 +1,5 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v31';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-login-input-fix.js'];
+const DAYFRAME_CACHE = 'dayframe-shell-v32';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260827-no-driving-costs';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
@@ -11,6 +11,7 @@ const DAYFRAME_TRANSACTIONS_CLEANUP_SRC = '/assets/dayframe-transactions-default
 const DAYFRAME_VISUAL_TIDY_SRC = '/assets/dayframe-visual-tidy.js?v=20260827-visual-tidy-fit';
 const DAYFRAME_VISUAL_CALM_SRC = '/assets/dayframe-visual-calm.js?v=20260827-investing-cleanup';
 const DAYFRAME_LOGIN_INPUT_FIX_SRC = '/assets/dayframe-login-input-fix.js?v=20260829-ios-input-focus';
+const DAYFRAME_STANDARD_HOME_SRC = '/assets/dayframe-standard-home.js?v=20260829-standard-home';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 const DAYFRAME_DISMISSED_GUIDANCE_STYLE = '<style id="df-dismissed-guidance-style">#df-money-guidance,#df-invest-guidance{display:none!important}</style>';
 const DAYFRAME_DRIVING_COSTS_STYLE = '<style id="df-driving-costs-style">#pg-driving-costs,#df-car-costs-section,[data-driving-page="driving-costs"],[data-dayframe-polish="driving-costs-card"],.df-polish-nav-costs,[onclick*="driving-costs"]{display:none!important}</style>';
@@ -61,6 +62,9 @@ async function withPolish(response) {
   }
   if (!body.includes('df-investing-cleanup-style')) {
     tags.push(DAYFRAME_INVESTING_CLEANUP_STYLE);
+  }
+  if (!body.includes('dayframe-standard-home.js')) {
+    tags.push(`<script data-dayframe-standard-home-loader src="${DAYFRAME_STANDARD_HOME_SRC}" defer></script>`);
   }
   if (!body.includes('dayframe-login-input-fix.js')) {
     tags.push(`<script data-dayframe-login-input-fix-loader src="${DAYFRAME_LOGIN_INPUT_FIX_SRC}" defer></script>`);
