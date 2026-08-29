@@ -390,7 +390,7 @@
     if (!row) return '';
     if (!row.limit) return 'Set a monthly limit if this category should be tracked every cycle.';
     if (row.status === 'over' && row.category === 'Subscriptions') return 'Check each recurring payment. Keep the ones you still use, cancel the rest, then update the limit to match the real monthly total.';
-    if (row.status === 'over') return 'Review the recent payments first. If the overspend was planned, update the limit; if not, keep this category quiet until the next cycle.';
+    if (row.status === 'over') return 'Check the recent payments first. If the overspend was planned, update the limit; if not, keep this category quiet until the next cycle.';
     if (row.status === 'close') return 'This category is close to its limit. A small pause now can stop it becoming an over-budget category later.';
     return 'This category is on track. Keep the limit as it is unless your plans for the month have changed.';
   }
