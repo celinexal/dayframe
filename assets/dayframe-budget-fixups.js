@@ -226,7 +226,7 @@
       },
       {
         title: 'Bills',
-        subtitle: billCount ? countLabel(billCount, 'possible bill found', 'possible bills found') : 'Review regular payments',
+        subtitle: billCount ? countLabel(billCount, 'possible bill found', 'possible bills found') : 'Regular payments',
         actions: [
           { label: 'Edit', handler: function () { openBillsPage(false); } },
           { label: billCount ? 'Suggestions' : 'Add bill', primary: !!billCount, handler: billCount ? openBillSuggestions : function () { openBillsPage(true); } }
