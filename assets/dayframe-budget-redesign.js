@@ -10,6 +10,8 @@
   };
   var renderTimer = 0;
   var installAttempts = 0;
+  var aiBusy = false;
+  var aiMessage = '';
 
   function $(id) {
     return document.getElementById(id);
@@ -61,6 +63,12 @@
     }
   }
 
+  function syncBudgetPageState() {
+    var page = $('pg-money');
+    var pane = $('money-pane-budget');
+    if (page && pane) page.classList.toggle('df-budget-focused', pane.classList.contains('on'));
+  }
+
   function injectStyle() {
     if ($('df-budget-redesign-style')) return;
     var style = document.createElement('style');
@@ -69,6 +77,7 @@
       '#money-pane-budget.df-budget-applied>.budget-builder,#money-pane-budget.df-budget-applied>.money-pane-grid{display:none!important}',
       '#money-pane-budget.df-budget-applied.df-budget-show-setup>.budget-builder{display:block!important;margin-top:18px}',
       '#money-pane-budget.df-budget-applied.df-budget-show-setup>.money-pane-grid{display:grid!important;margin-top:18px}',
+      '.money-page.df-budget-focused .money-metrics{display:none!important}',
       '#df-budget-redesign{display:flex;flex-direction:column;gap:18px}',
       '.df-budget-shell{display:flex;flex-direction:column;gap:18px}',
       '.df-budget-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:4px 2px}',
@@ -100,6 +109,7 @@
       '.df-budget-suggestion strong{display:block;color:#182033;font:900 18px/1.15 var(--fd,inherit);letter-spacing:0}',
       '.df-budget-suggestion p{margin:8px 0 14px;color:#718096;font:650 13px/1.45 var(--fd,inherit)}',
       '.df-budget-suggestion button,.df-detail-button{border:0;border-radius:999px;background:#171f34;color:#fff;padding:11px 14px;font:850 12px/1 var(--fd,inherit);cursor:pointer}',
+      '.df-budget-ai-note{margin-top:10px;border-radius:14px;background:#f4f1ff;color:#6659d9;padding:10px 12px;font:800 11px/1.35 var(--fd,inherit)}',
       '.df-budget-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}',
       '.df-budget-panel-head h3,.df-budget-detail h3{margin:5px 0 0;color:#172036;font:900 22px/1.1 var(--fd,inherit);letter-spacing:0}',
       '.df-budget-panel-head p{margin:5px 0 0;color:#7c8798;font:650 12px/1.35 var(--fd,inherit)}',
@@ -177,7 +187,12 @@
   }
 
   function bankData() {
-    var data = window._moneyBankData || {};
+    var data = {};
+    try {
+      data = typeof _moneyBankData !== 'undefined' ? _moneyBankData : (window._moneyBankData || {});
+    } catch (_) {
+      data = window._moneyBankData || {};
+    }
     return {
       accounts: Array.isArray(data.accounts) ? data.accounts : [],
       transactions: Array.isArray(data.transactions) ? data.transactions : []
@@ -340,7 +355,7 @@
         category: rows[0] ? rows[0].category : '',
         title: rows.length ? 'Everything looks calm' : 'Set your category limits',
         body: rows.length ? 'No category needs urgent attention right now. Check the details before changing any limits.' : 'Add limits or ask Dayframe for a starting budget, then track each category from here.',
-        button: rows.length ? 'Open categories' : 'Budget setup'
+        button: rows.length ? 'Open categories' : 'Plan budget'
       };
     }
     if (row.category === 'Subscriptions') {
@@ -374,9 +389,9 @@
     var bills = Number(values.rent || 0) + Number(values.bills || 0);
     var credit = Number(values.credit || 0) + Number(values.extraCredit || 0);
     return [
-      ['Money in', money(values.income, 0), 'This cycle'],
-      ['Bills planned', money(bills, 0), 'Rent and regular bills'],
-      ['Credit payment', money(credit, 0), 'Planned this month']
+      ['Income', money(values.income, 0), 'This cycle'],
+      ['Bills', money(bills, 0), 'Review regular payments'],
+      ['Credit payments', money(credit, 0), 'Planned this month']
     ].map(function (item) {
       return '<div class="df-budget-check"><small>' + esc(item[0]) + '</small><span>' + item[1] + '</span><b>' + esc(item[2]) + '</b></div>';
     }).join('');
@@ -401,6 +416,14 @@
     var encoded = encodeURIComponent(suggestion.category || '').replace(/'/g, '%27');
     var action = suggestion.category ? 'dayframeBudgetSelectCategory(\'' + encoded + '\')' : 'dayframeBudgetToggleSetup(true)';
     return '<div class="df-budget-suggestion"><strong>' + esc(suggestion.title) + '</strong><p>' + suggestion.body + '</p><button type="button" onclick="' + action + '">' + esc(suggestion.button) + '</button></div>';
+  }
+
+  function aiButtonLabel() {
+    return aiBusy ? 'Working...' : 'Suggest budgets';
+  }
+
+  function aiStatusHtml() {
+    return aiMessage ? '<div class="df-budget-ai-note">' + esc(aiMessage) + '</div>' : '';
   }
 
   function detailSuggestion(row) {
@@ -430,15 +453,16 @@
   }
 
   function emptyHtml(values) {
-    return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Money in, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action" onclick="dayframeBudgetToggleSetup(true)">Budget setup</button><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">AI suggestion</button></div></div>' +
+    return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action" onclick="dayframeBudgetToggleSetup(true)">Plan budget</button><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
       '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong>' + money(Number(values.flexible || 0), 0) + '</strong></div><div class="df-budget-meter"><i style="width:0%"></i></div><div class="df-budget-total-foot"><span>Add category limits to track this clearly.</span><span class="df-budget-pill">No categories yet</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
-      '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Use Budget setup or ask Dayframe for a starting suggestion.</div></div>';
+      '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Use Plan budget or ask Dayframe for a starting suggestion.</div></div>';
   }
 
   function renderBudgetRedesign() {
     var pane = $('money-pane-budget');
     if (!pane) return;
     injectStyle();
+    syncBudgetPageState();
     pane.classList.add('df-budget-applied');
     var root = $('df-budget-redesign');
     if (!root) {
@@ -470,7 +494,7 @@
     var footClass = totals.over ? ' warning' : '';
     var leftLabel = totals.left < 0 ? money(Math.abs(totals.left), 0) + ' over' : money(totals.left, 0);
     root.innerHTML = '<div class="df-budget-shell">' +
-      '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Money in, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action" onclick="dayframeBudgetToggleSetup()">' + (pane.classList.contains('df-budget-show-setup') ? 'Hide setup' : 'Budget setup') + '</button><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">AI suggestion</button></div></div>' +
+      '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action" onclick="dayframeBudgetToggleSetup()">Plan budget</button><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
       '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span>' + esc(cycleLabel(cycle)) + ' - ' + money(totals.spent, 2) + ' spent of ' + money(totals.allocated, 0) + '</span><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
       '<div class="df-budget-main"><section class="df-budget-panel">' + suggestionHtml(suggestion) +
       '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Categories</h3><p>Tap one to compare budget, spending and last cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
@@ -509,6 +533,7 @@
     if (typeof openTab === 'function' && !openTab.__dfBudgetWrapped) {
       var wrappedOpenTab = function (tab) {
         var result = openTab.apply(this, arguments);
+        setTimeout(syncBudgetPageState, 0);
         if (tab === 'budget') scheduleRender(60);
         return result;
       };
@@ -516,6 +541,7 @@
       window.moneyOpenTab = wrappedOpenTab;
     }
     scheduleRender(installAttempts > 2 ? 120 : 0);
+    setTimeout(syncBudgetPageState, 0);
     if (installAttempts < 40 && (!$('money-pane-budget') || typeof window.hubLoad !== 'function')) {
       setTimeout(install, 250);
     }
@@ -544,12 +570,35 @@
     }
   };
 
-  window.dayframeBudgetAskAi = function () {
-    window.dayframeBudgetToggleSetup(true);
-    setTimeout(function () {
-      var button = $('budget-ai-button');
-      if (button) button.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 120);
+  window.dayframeBudgetAskAi = async function () {
+    if (aiBusy) return;
+    if (typeof window.buildSuggestedBudget !== 'function') {
+      aiMessage = 'Plan budget is available if you need to add income, bills or category limits.';
+      scheduleRender(0);
+      return;
+    }
+    var values = planValues(safeCall(window.hubLoad, {}));
+    if (!Number(values.income || 0)) {
+      aiMessage = 'Add your monthly income in Plan budget first, then Dayframe can suggest category limits.';
+      scheduleRender(0);
+      return;
+    }
+    aiBusy = true;
+    aiMessage = 'Dayframe is drafting category limits from your income, bills, credit plan and spending.';
+    scheduleRender(0);
+    try {
+      await window.buildSuggestedBudget();
+      aiMessage = 'Suggested budgets added. Check the categories below and edit anything that does not fit.';
+    } catch (error) {
+      aiMessage = 'Could not create a suggestion right now. Your current budget is still safe.';
+    } finally {
+      aiBusy = false;
+      scheduleRender(0);
+      setTimeout(function () {
+        aiMessage = '';
+        scheduleRender(0);
+      }, 5500);
+    }
   };
 
   window.dayframeBudgetAddCategory = function () {
