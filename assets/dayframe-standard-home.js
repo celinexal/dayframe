@@ -5,7 +5,6 @@
   const HIDDEN_FLAG = 'data-dayframe-standard-home-hidden';
   const STYLE_ID = 'df-standard-home-style';
   const HEADLINE = 'Everything that matters, without the mental clutter.';
-  const SUPPORT = 'Keep your money, plans, goals, driving admin and investments together \u2014 so you can see what needs attention and get on with your day.';
 
   if (document.documentElement.hasAttribute(FLAG)) return;
   document.documentElement.setAttribute(FLAG, 'true');
@@ -21,7 +20,7 @@
         letter-spacing:0!important;
       }
       [data-dayframe-standard-home-copy="true"]{
-        max-width:980px!important;
+        display:none!important;
       }
     `;
     document.head.appendChild(style);
@@ -75,6 +74,14 @@
     }) || copy.find((el) => norm(textOf(el)).length > 20 && norm(textOf(el)).length < 260) || null;
   }
 
+  function hideSupportCopy(copy) {
+    if (!copy) return;
+    copy.textContent = '';
+    copy.setAttribute('data-dayframe-standard-home-copy', 'true');
+    copy.setAttribute(HIDDEN_FLAG, 'true');
+    copy.setAttribute('aria-hidden', 'true');
+  }
+
   function standardiseHero() {
     const title = findHeroTitle();
     if (!title) return false;
@@ -83,11 +90,7 @@
     title.setAttribute('data-dayframe-standard-home-title', 'true');
     if (hero) hero.setAttribute('data-dayframe-standard-home-hero', 'true');
 
-    const copy = findSupportCopy(hero, title);
-    if (copy) {
-      copy.textContent = SUPPORT;
-      copy.setAttribute('data-dayframe-standard-home-copy', 'true');
-    }
+    hideSupportCopy(findSupportCopy(hero, title));
     return true;
   }
 
