@@ -32,6 +32,17 @@
     style.id = 'df-budget-fixups-style';
     style.textContent = [
       '.money-page.df-budget-focused .money-metrics{display:none!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-top{align-items:start!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{align-self:start!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{position:relative!important;min-height:92px!important;padding:15px 16px!important;border:1px solid #e7ebf3!important;border-radius:16px!important;background:linear-gradient(180deg,#fff 0%,#fbfcff 100%)!important;box-shadow:0 10px 24px rgba(31,40,65,.055)!important;overflow:hidden!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#7866f2,#ff7aa8)}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(2):before{background:linear-gradient(90deg,#38bfa7,#6e8cff)}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(3):before{background:linear-gradient(90deg,#ff9a62,#ff7aa8)}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check small{font-size:10px!important;line-height:1!important;color:#7b879a!important;letter-spacing:.07em!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{margin-top:10px!important;font-size:26px!important;line-height:1!important;color:#162036!important;letter-spacing:0!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check b{margin-top:7px!important;font-size:11px!important;line-height:1.25!important;color:#7e8898!important}',
+      '@media(max-width:980px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:repeat(3,minmax(0,1fr))!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:86px!important;padding:13px!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{font-size:22px!important}}',
+      '@media(max-width:620px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:1fr!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:0!important}}',
       '.df-budget-ai-note{margin-top:10px;border-radius:14px;background:#f4f1ff;color:#6659d9;padding:10px 12px;font:800 11px/1.35 var(--fd,inherit)}',
       '#df-budget-redesign button[onclick*="dayframeBudgetAskAi"][disabled]{opacity:.68;cursor:wait}'
     ].join('\n');
