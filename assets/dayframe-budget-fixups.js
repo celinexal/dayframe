@@ -42,6 +42,47 @@
     }
   }
 
+  function safeHubData() {
+    try {
+      return typeof window.hubLoad === 'function' ? window.hubLoad() : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function countLabel(count, singular, plural) {
+    return count + ' ' + (count === 1 ? singular : plural);
+  }
+
+  function billSuggestionCount(d) {
+    try {
+      if (typeof window.moneyFindBillSuggestions === 'function') {
+        return window.moneyFindBillSuggestions(d).length;
+      }
+    } catch (_) {}
+    try {
+      if (typeof window.moneyRegularBillOptions === 'function') {
+        return window.moneyRegularBillOptions(d).filter(function (option) {
+          return option && option.likely;
+        }).length;
+      }
+    } catch (_) {}
+    return 0;
+  }
+
+  function creditPaymentMatchCount(d) {
+    try {
+      if (typeof window.moneyCreditPaymentSuggestions !== 'function') return 0;
+      return (d.accounts || []).filter(function (account) {
+        return ['credit-card', 'bnpl'].indexOf(account.type) !== -1;
+      }).reduce(function (sum, account) {
+        return sum + window.moneyCreditPaymentSuggestions(account, d).length;
+      }, 0);
+    } catch (_) {
+      return 0;
+    }
+  }
+
   function ensureBudgetSetupPage() {
     var budgetPane = $('money-pane-budget');
     if (!budgetPane) return false;
@@ -97,6 +138,118 @@
     }, 80);
   }
 
+  function openBillSuggestions() {
+    openBudgetSetupPage({ focusId: 'budget-plan-regular-bills' });
+    setTimeout(function () {
+      try {
+        if (typeof window.moneySetRegularBillFilter === 'function') window.moneySetRegularBillFilter('likely');
+        var picker = $('budget-regular-bill-picker');
+        if (picker && !picker.classList.contains('open') && typeof window.moneyToggleRegularBillPicker === 'function') {
+          window.moneyToggleRegularBillPicker();
+        }
+        picker = $('budget-regular-bill-picker');
+        if (picker) picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (_) {}
+    }, 140);
+  }
+
+  function openCreditPlan(addNew) {
+    if (typeof window.moneyOpenTab === 'function') window.moneyOpenTab('credit');
+    setTimeout(function () {
+      if (addNew && typeof window.beginCreditPlanAdd === 'function') window.beginCreditPlanAdd();
+      var target = $('money-credit-form') || $('money-credit-list');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 90);
+  }
+
+  function openCreditMatches() {
+    var d = safeHubData();
+    var match = null;
+    try {
+      if (typeof window.moneyCreditPaymentSuggestions === 'function') {
+        match = (d.accounts || []).find(function (account) {
+          return ['credit-card', 'bnpl'].indexOf(account.type) !== -1 &&
+            window.moneyCreditPaymentSuggestions(account, d).length > 0;
+        }) || null;
+      }
+    } catch (_) {
+      match = null;
+    }
+    if (match && typeof window.moneyOpenAccountDetail === 'function') {
+      if (typeof window.moneyOpenTab === 'function') window.moneyOpenTab('accounts');
+      setTimeout(function () {
+        window.moneyOpenAccountDetail('manual:' + match.id);
+      }, 120);
+      return;
+    }
+    openCreditPlan(false);
+  }
+
+  function addCheckActions(card, signature, actions) {
+    var holder = card.querySelector('.df-budget-check-actions');
+    if (holder && holder.dataset.signature === signature) return;
+    if (holder) holder.remove();
+    holder = document.createElement('div');
+    holder.className = 'df-budget-check-actions';
+    holder.dataset.signature = signature;
+    actions.forEach(function (action) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'df-budget-card-action' + (action.primary ? ' primary' : '');
+      button.textContent = action.label;
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        action.handler();
+      });
+      holder.appendChild(button);
+    });
+    card.appendChild(holder);
+  }
+
+  function enhanceBudgetChecks(root) {
+    var cards = root ? root.querySelectorAll('.df-budget-check') : [];
+    if (!cards.length) return;
+    var d = safeHubData();
+    var billCount = billSuggestionCount(d);
+    var creditCount = creditPaymentMatchCount(d);
+    var configs = [
+      {
+        title: 'Income',
+        subtitle: 'This cycle',
+        actions: [{ label: 'Edit', handler: function () { openBudgetSetupPage({ focusId: 'budget-plan-income' }); } }]
+      },
+      {
+        title: 'Bills',
+        subtitle: billCount ? countLabel(billCount, 'transaction suggestion', 'transaction suggestions') : 'Rent + regular bills',
+        actions: [
+          { label: 'Edit', handler: function () { openBudgetSetupPage({ focusId: 'budget-plan-regular-bills' }); } },
+          { label: billCount ? 'Review' : 'Find', primary: !!billCount, handler: openBillSuggestions }
+        ]
+      },
+      {
+        title: 'Credit payments',
+        subtitle: creditCount ? countLabel(creditCount, 'repayment match', 'repayment matches') : 'From Credit Plan',
+        actions: [
+          { label: 'Edit', handler: function () { openCreditPlan(false); } },
+          { label: creditCount ? 'Review' : 'Add', primary: !!creditCount, handler: creditCount ? openCreditMatches : function () { openCreditPlan(true); } }
+        ]
+      }
+    ];
+    configs.forEach(function (config, index) {
+      var card = cards[index];
+      if (!card) return;
+      var label = card.querySelector('small');
+      if (label && label.textContent !== config.title) label.textContent = config.title;
+      var subtitle = card.querySelector('b');
+      if (subtitle && subtitle.textContent !== config.subtitle) subtitle.textContent = config.subtitle;
+      var signature = config.title + '|' + config.subtitle + '|' + config.actions.map(function (action) {
+        return action.label + ':' + (action.primary ? '1' : '0');
+      }).join(',');
+      addCheckActions(card, signature, config.actions);
+    });
+  }
+
   function injectStyle() {
     if ($('df-budget-fixups-style')) return;
     var style = document.createElement('style');
@@ -119,6 +272,11 @@
       '#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.money-pane-grid{display:none!important}',
       '#money-pane-budget-setup.df-budget-setup-pane{padding-top:0}',
       '#money-pane-budget-setup.df-budget-setup-pane>.budget-builder{margin-bottom:14px}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{display:flex!important;flex-direction:column!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-card-action{border:1px solid #e2e6f1;background:#fff;color:#6759e8;border-radius:999px;padding:7px 9px;font:850 10px/1 var(--fd,inherit);cursor:pointer}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-card-action.primary{background:#7565f2;border-color:#7565f2;color:#fff}',
       '.df-budget-ai-note{margin-top:10px;border-radius:14px;background:#f4f1ff;color:#6659d9;padding:10px 12px;font:800 11px/1.35 var(--fd,inherit)}',
       '#df-budget-redesign button[onclick*="dayframeBudgetAskAi"][disabled]{opacity:.68;cursor:wait}'
     ].join('\n');
@@ -147,9 +305,14 @@
       var root = $('df-budget-redesign');
       if (!root) return;
       observeBudgetRoot();
+      var intro = root.querySelector('.df-budget-header p');
+      if (intro && intro.textContent !== 'Income, bills, credit and category limits in one place.') {
+        intro.textContent = 'Income, bills, credit and category limits in one place.';
+      }
       root.querySelectorAll('.df-budget-suggestion').forEach(function (card) {
         card.remove();
       });
+      enhanceBudgetChecks(root);
       root.querySelectorAll('button').forEach(function (button) {
         var onclick = button.getAttribute('onclick') || '';
         if (onclick.indexOf('dayframeBudgetToggleSetup') !== -1) {
