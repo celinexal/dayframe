@@ -104,11 +104,7 @@
       '.df-budget-check b{display:block;margin-top:8px;color:#838fa2;font:800 12px/1.25 var(--fd,inherit)}',
       '.df-budget-main{display:grid;grid-template-columns:minmax(320px,.92fr) minmax(380px,1.08fr);gap:18px;align-items:start}',
       '.df-budget-panel{padding:18px}',
-      '.df-budget-suggestion{position:relative;overflow:hidden;border:1px solid #e8ecf4;border-radius:18px;background:linear-gradient(135deg,#fff,#f7fbff);padding:18px;margin-bottom:14px}',
-      '.df-budget-suggestion:before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,#7565f2,#ff7aa8,#43bda8)}',
-      '.df-budget-suggestion strong{display:block;color:#182033;font:900 18px/1.15 var(--fd,inherit);letter-spacing:0}',
-      '.df-budget-suggestion p{margin:8px 0 14px;color:#718096;font:650 13px/1.45 var(--fd,inherit)}',
-      '.df-budget-suggestion button,.df-detail-button{border:0;border-radius:999px;background:#171f34;color:#fff;padding:11px 14px;font:850 12px/1 var(--fd,inherit);cursor:pointer}',
+      '.df-detail-button{border:0;border-radius:999px;background:#171f34;color:#fff;padding:11px 14px;font:850 12px/1 var(--fd,inherit);cursor:pointer}',
       '.df-budget-ai-note{margin-top:10px;border-radius:14px;background:#f4f1ff;color:#6659d9;padding:10px 12px;font:800 11px/1.35 var(--fd,inherit)}',
       '.df-budget-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}',
       '.df-budget-panel-head h3,.df-budget-detail h3{margin:5px 0 0;color:#172036;font:900 22px/1.1 var(--fd,inherit);letter-spacing:0}',
@@ -346,36 +342,6 @@
     return state.selected;
   }
 
-  function suggestionFor(rows) {
-    var row = rows.find(function (item) { return item.status === 'over' && item.category === 'Subscriptions'; }) ||
-      rows.find(function (item) { return item.status === 'over'; }) ||
-      rows.find(function (item) { return item.status === 'close'; });
-    if (!row) {
-      return {
-        category: rows[0] ? rows[0].category : '',
-        title: rows.length ? 'Everything looks calm' : 'Set your category limits',
-        body: rows.length ? 'No category needs urgent attention right now. Check the details before changing any limits.' : 'Add limits or ask Dayframe for a starting budget, then track each category from here.',
-        button: rows.length ? 'Open categories' : 'Plan budget'
-      };
-    }
-    if (row.category === 'Subscriptions') {
-      return {
-        category: row.category,
-        title: 'Start with subscriptions',
-        body: 'Subscriptions are easiest to review because they repeat. Cancel, pause or move anything that no longer fits your month.',
-        button: 'Review subscriptions'
-      };
-    }
-    return {
-      category: row.category,
-      title: row.status === 'over' ? 'Start with ' + row.category.toLowerCase() : 'Keep an eye on ' + row.category.toLowerCase(),
-      body: row.status === 'over'
-        ? row.category + ' is ' + money(Math.abs(row.left), 2) + ' over budget. Check the recent payments before changing every category.'
-        : row.category + ' is close to its limit. Decide whether to slow spending or adjust the budget if it was planned.',
-      button: 'Review ' + row.category
-    };
-  }
-
   function totalSummary(rows, values) {
     var allocated = rows.reduce(function (sum, row) { return sum + Number(row.limit || 0); }, 0);
     var spent = rows.reduce(function (sum, row) { return sum + Number(row.spent || 0); }, 0);
@@ -390,7 +356,7 @@
     var credit = Number(values.credit || 0) + Number(values.extraCredit || 0);
     return [
       ['Income', money(values.income, 0), 'This cycle'],
-      ['Bills', money(bills, 0), 'Review regular payments'],
+      ['Bills', money(bills, 0), 'Regular payments'],
       ['Credit payments', money(credit, 0), 'Planned this month']
     ].map(function (item) {
       return '<div class="df-budget-check"><small>' + esc(item[0]) + '</small><span>' + item[1] + '</span><b>' + esc(item[2]) + '</b></div>';
@@ -410,12 +376,6 @@
 
   function filterButton(filter, label, count) {
     return '<button type="button" class="df-budget-filter ' + (state.filter === filter ? 'active' : '') + '" onclick="dayframeBudgetFilter(\'' + filter + '\')">' + esc(label) + (count != null ? ' ' + count : '') + '</button>';
-  }
-
-  function suggestionHtml(suggestion) {
-    var encoded = encodeURIComponent(suggestion.category || '').replace(/'/g, '%27');
-    var action = suggestion.category ? 'dayframeBudgetSelectCategory(\'' + encoded + '\')' : 'dayframeBudgetToggleSetup(true)';
-    return '<div class="df-budget-suggestion"><strong>' + esc(suggestion.title) + '</strong><p>' + suggestion.body + '</p><button type="button" onclick="' + action + '">' + esc(suggestion.button) + '</button></div>';
   }
 
   function aiButtonLabel() {
@@ -489,14 +449,13 @@
       root.innerHTML = emptyHtml(values);
       return;
     }
-    var suggestion = suggestionFor(rows);
     var footLabel = totals.over ? totals.over + ' over budget' : totals.close ? totals.close + ' close to limit' : 'On track';
     var footClass = totals.over ? ' warning' : '';
     var leftLabel = totals.left < 0 ? money(Math.abs(totals.left), 0) + ' over' : money(totals.left, 0);
     root.innerHTML = '<div class="df-budget-shell">' +
       '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action" onclick="dayframeBudgetToggleSetup()">Plan budget</button><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
       '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span>' + esc(cycleLabel(cycle)) + ' - ' + money(totals.spent, 2) + ' spent of ' + money(totals.allocated, 0) + '</span><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
-      '<div class="df-budget-main"><section class="df-budget-panel">' + suggestionHtml(suggestion) +
+      '<div class="df-budget-main"><section class="df-budget-panel">' +
       '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Categories</h3><p>Tap one to compare budget, spending and last cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
       '<div class="df-budget-filters">' +
       filterButton('all', 'All', rows.length) +
