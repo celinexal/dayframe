@@ -26,6 +26,77 @@
     if (page) page.classList.toggle('df-budget-focused', budgetIsOpen());
   }
 
+  function directChild(parent, selector) {
+    if (!parent) return null;
+    for (var i = 0; i < parent.children.length; i += 1) {
+      if (parent.children[i].matches(selector)) return parent.children[i];
+    }
+    return null;
+  }
+
+  function decodeValue(value) {
+    try {
+      return decodeURIComponent(value || '');
+    } catch (_) {
+      return value || '';
+    }
+  }
+
+  function ensureBudgetSetupPage() {
+    var budgetPane = $('money-pane-budget');
+    if (!budgetPane) return false;
+    budgetPane.classList.add('df-budget-no-inline-setup');
+    budgetPane.classList.remove('df-budget-show-setup');
+
+    var tabs = document.querySelector('#pg-money .money-tabs');
+    if (tabs && !tabs.querySelector('[data-money-tab="budget-setup"]')) {
+      var tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = 'money-tab';
+      tab.dataset.moneyTab = 'budget-setup';
+      tab.textContent = 'Plan budget';
+      tab.setAttribute('onclick', "moneyOpenTab('budget-setup',this)");
+      var budgetTab = tabs.querySelector('[data-money-tab="budget"]');
+      if (budgetTab && budgetTab.nextSibling) tabs.insertBefore(tab, budgetTab.nextSibling);
+      else if (budgetTab) budgetTab.insertAdjacentElement('afterend', tab);
+      else tabs.appendChild(tab);
+    }
+
+    var setupPane = $('money-pane-budget-setup');
+    if (!setupPane) {
+      setupPane = document.createElement('div');
+      setupPane.id = 'money-pane-budget-setup';
+      setupPane.className = 'money-pane df-budget-setup-pane';
+      budgetPane.insertAdjacentElement('afterend', setupPane);
+    } else {
+      setupPane.classList.add('df-budget-setup-pane');
+    }
+
+    var builder = directChild(budgetPane, '.budget-builder');
+    var lowerGrid = directChild(budgetPane, '.money-pane-grid');
+    if (builder) setupPane.appendChild(builder);
+    if (lowerGrid) setupPane.appendChild(lowerGrid);
+    return true;
+  }
+
+  function openBudgetSetupPage(options) {
+    ensureBudgetSetupPage();
+    if (typeof window.moneyOpenTab === 'function') window.moneyOpenTab('budget-setup');
+    setTimeout(function () {
+      if (options && options.form && typeof window.toggleLifeForm === 'function') {
+        window.toggleLifeForm(options.form, true);
+      }
+      if (options && options.category) {
+        var categoryInput = $('money-budget-category');
+        if (categoryInput) categoryInput.value = options.category;
+      }
+      var focus = options && options.focusId ? $(options.focusId) : null;
+      if (focus) focus.focus({ preventScroll: true });
+      var pane = $('money-pane-budget-setup');
+      if (pane) pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+
   function injectStyle() {
     if ($('df-budget-fixups-style')) return;
     var style = document.createElement('style');
@@ -43,6 +114,11 @@
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check b{margin-top:7px!important;font-size:11px!important;line-height:1.25!important;color:#7e8898!important}',
       '@media(max-width:980px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:repeat(3,minmax(0,1fr))!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:86px!important;padding:13px!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{font-size:22px!important}}',
       '@media(max-width:620px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:1fr!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:0!important}}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-suggestion{display:none!important}',
+      '#money-pane-budget.df-budget-no-inline-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup>.money-pane-grid{display:none!important}',
+      '#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.money-pane-grid{display:none!important}',
+      '#money-pane-budget-setup.df-budget-setup-pane{padding-top:0}',
+      '#money-pane-budget-setup.df-budget-setup-pane>.budget-builder{margin-bottom:14px}',
       '.df-budget-ai-note{margin-top:10px;border-radius:14px;background:#f4f1ff;color:#6659d9;padding:10px 12px;font:800 11px/1.35 var(--fd,inherit)}',
       '#df-budget-redesign button[onclick*="dayframeBudgetAskAi"][disabled]{opacity:.68;cursor:wait}'
     ].join('\n');
@@ -67,11 +143,25 @@
     tidyTimer = setTimeout(function () {
       syncBankData();
       syncBudgetFocus();
+      ensureBudgetSetupPage();
       var root = $('df-budget-redesign');
       if (!root) return;
       observeBudgetRoot();
+      root.querySelectorAll('.df-budget-suggestion').forEach(function (card) {
+        card.remove();
+      });
       root.querySelectorAll('button').forEach(function (button) {
-        if ((button.getAttribute('onclick') || '').indexOf('dayframeBudgetAskAi') === -1) return;
+        var onclick = button.getAttribute('onclick') || '';
+        if (onclick.indexOf('dayframeBudgetToggleSetup') !== -1) {
+          if (button.textContent !== 'Plan budget') button.textContent = 'Plan budget';
+          button.onclick = function (event) {
+            if (event) event.preventDefault();
+            openBudgetSetupPage();
+          };
+          button.setAttribute('onclick', 'dayframeBudgetOpenSetupPage()');
+          return;
+        }
+        if (onclick.indexOf('dayframeBudgetAskAi') === -1) return;
         var label = aiBusy ? 'Working...' : 'Suggest budgets';
         if (button.textContent !== label) button.textContent = label;
         button.disabled = aiBusy;
@@ -101,6 +191,7 @@
       syncBankData();
       var result = original.apply(this, arguments);
       syncBankData();
+      ensureBudgetSetupPage();
       tidyBudgetUi();
       setTimeout(tidyBudgetUi, 120);
       return result;
@@ -116,6 +207,7 @@
     var wrapped = function () {
       var result = original.apply(this, arguments);
       syncBankData();
+      ensureBudgetSetupPage();
       syncBudgetFocus();
       tidyBudgetUi();
       return result;
@@ -153,12 +245,64 @@
     return true;
   }
 
+  function wrapMoneyPrimaryAction() {
+    var original = window.moneyPrimaryAction;
+    if (typeof original !== 'function' || original.__dfBudgetFixupsWrapped) return false;
+    var wrapped = function () {
+      var active = document.querySelector('#pg-money .money-tab.on')?.dataset.moneyTab || '';
+      if (active === 'budget') {
+        openBudgetSetupPage({ form: 'money-budget-form', focusId: 'money-budget-category' });
+        return;
+      }
+      return original.apply(this, arguments);
+    };
+    wrapped.__dfBudgetFixupsWrapped = true;
+    window.moneyPrimaryAction = wrapped;
+    return true;
+  }
+
+  function installBudgetSetupPageActions() {
+    window.dayframeBudgetOpenSetupPage = function () {
+      openBudgetSetupPage();
+    };
+    window.dayframeBudgetToggleSetup = function () {
+      openBudgetSetupPage();
+    };
+    window.dayframeBudgetAddCategory = function () {
+      openBudgetSetupPage({ form: 'money-budget-form', focusId: 'money-budget-category' });
+    };
+    window.dayframeBudgetEditCategory = function (encoded) {
+      var category = decodeValue(encoded).trim();
+      openBudgetSetupPage({ category: category, focusId: 'money-budget-limit' });
+      setTimeout(function () {
+        var d = {};
+        try {
+          d = typeof window.hubLoad === 'function' ? window.hubLoad() : {};
+        } catch (_) {
+          d = {};
+        }
+        var match = (d.budgets || []).find(function (budget) {
+          return String(budget.category || '').trim().toLowerCase() === category.toLowerCase();
+        });
+        if (match && typeof window.editBudgetItem === 'function') {
+          window.editBudgetItem(match.id);
+          return;
+        }
+        if (typeof window.toggleLifeForm === 'function') window.toggleLifeForm('money-budget-form', true);
+        var input = $('money-budget-category');
+        if (input) input.value = category;
+        var limit = $('money-budget-limit');
+        if (limit) limit.focus({ preventScroll: true });
+      }, 140);
+    };
+  }
+
   function installAiAction() {
     window.dayframeBudgetAskAi = async function () {
       if (aiBusy) return;
       syncBankData();
       if (typeof window.buildSuggestedBudget !== 'function') {
-        setAiMessage('Budget setup is available if you need to add income, bills or category limits.', 5000);
+        setAiMessage('Open Plan budget if you need to add income, bills or category limits.', 5000);
         return;
       }
       var values = {};
@@ -168,7 +312,7 @@
         values = {};
       }
       if (!Number(values.income || 0)) {
-        setAiMessage('Add your monthly income in Budget setup first, then Dayframe can suggest category limits.', 6500);
+        setAiMessage('Add your monthly income in Plan budget first, then Dayframe can suggest category limits.', 6500);
         return;
       }
       var pane = $('money-pane-budget');
@@ -203,6 +347,9 @@
     wrapMoneyOpenTab();
     wrapMoneyLoadBankData();
     wrapMoneyRuleCategory();
+    wrapMoneyPrimaryAction();
+    ensureBudgetSetupPage();
+    installBudgetSetupPageActions();
     installAiAction();
     syncBudgetFocus();
     tidyBudgetUi();
