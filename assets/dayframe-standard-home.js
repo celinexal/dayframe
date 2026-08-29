@@ -46,15 +46,23 @@
     return Boolean(el.closest('nav, header, aside, .topbar, .navbar, .sidebar, [role="navigation"]'));
   }
 
+  function isSelectedHomeNav() {
+    return [...document.querySelectorAll('a, button, [role="tab"], [role="link"], .nav-item, .tab')].some((el) => {
+      if (norm(textOf(el)) !== 'home') return false;
+      const activeTarget = el.closest('[aria-current="page"], [aria-selected="true"], .active, .is-active, .selected, .current') || el;
+      return /active|selected|current/.test(activeTarget.className || '') || activeTarget.getAttribute?.('aria-current') === 'page' || activeTarget.getAttribute?.('aria-selected') === 'true';
+    });
+  }
+
   function isHeroTitle(el) {
     const text = norm(textOf(el));
     return /everything that matters|mental clutter|connect.*account|connect.*bank|start.*account|welcome.*dayframe|your day in one place|money.*plans.*driving|all your.*money.*plans/.test(text);
   }
 
   function findHeroTitle() {
-    const headings = [...document.querySelectorAll('h1, [class*="hero"] h1, [class*="landing"] h1, [data-hero] h1')]
-      .filter((el) => visible(el) && !isAppChrome(el));
-    return headings.find(isHeroTitle) || headings.find((el) => el.getBoundingClientRect().top < window.innerHeight * 0.75) || null;
+    return [...document.querySelectorAll('h1, [class*="hero"] h1, [class*="landing"] h1, [data-hero] h1')]
+      .filter((el) => visible(el) && !isAppChrome(el))
+      .find(isHeroTitle) || null;
   }
 
   function findSupportCopy(hero, title) {
@@ -69,7 +77,7 @@
 
   function standardiseHero() {
     const title = findHeroTitle();
-    if (!title) return;
+    if (!title) return false;
     const hero = title.closest('section, main, article, .hero, .home-hero, .landing, .dashboard-hero, .intro, .panel, .card');
     title.textContent = HEADLINE;
     title.setAttribute('data-dayframe-standard-home-title', 'true');
@@ -80,6 +88,7 @@
       copy.textContent = SUPPORT;
       copy.setAttribute('data-dayframe-standard-home-copy', 'true');
     }
+    return true;
   }
 
   const instructionPatterns = [
@@ -126,8 +135,10 @@
 
   function run() {
     ensureStyle();
-    standardiseHero();
-    hideInstructionPanels();
+    const didHero = standardiseHero();
+    if (didHero || isSelectedHomeNav()) {
+      hideInstructionPanels();
+    }
   }
 
   if (document.readyState === 'loading') {
