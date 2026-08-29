@@ -3,7 +3,41 @@
   window.__dayframeBudgetRedesignLoaded = true;
 
   var COLORS = ['#7c61f3', '#ff7aa8', '#38bfa7', '#ff914d', '#4f8cff', '#f2b93b'];
-  var EXCLUDED = new Set(['Transfer', 'Transfers', 'Savings & Investments', 'Salary', 'Income']);
+  var EXCLUDED = [
+    'Transfer',
+    'Transfers',
+    'Savings & Investments',
+    'Salary',
+    'Income',
+    'Rent',
+    'Mortgage',
+    'Council Tax',
+    'Bills',
+    'Bill',
+    'Bills & Utilities',
+    'Bills and Utilities',
+    'Utilities',
+    'Regular Bills',
+    'Insurance',
+    'Phone',
+    'Internet',
+    'Broadband',
+    'Dental Plan',
+    'Credit Balance',
+    'Credit Card',
+    'Credit Cards',
+    'Credit Payment',
+    'Credit Payments',
+    'Debt',
+    'Debts',
+    'Loan',
+    'Loans',
+    'BNPL',
+    'PayPal Credit',
+    'Paypal Credit',
+    'Klarna',
+    'Clearpay'
+  ];
   var state = {
     filter: 'all',
     selected: ''
@@ -31,6 +65,21 @@
     if (typeof window.moneyNormaliseCategory === 'function') return window.moneyNormaliseCategory(value);
     var clean = String(value || 'Other').trim();
     return clean || 'Other';
+  }
+
+  function categoryKey(value) {
+    return normaliseCategory(value)
+      .toLowerCase()
+      .replace(/&/g, 'and')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function isEverydayCategory(value) {
+    var key = categoryKey(value);
+    return !EXCLUDED.some(function (label) {
+      return categoryKey(label) === key;
+    });
   }
 
   function money(value, digits) {
@@ -139,6 +188,53 @@
       '.df-recent-row small{display:block;margin-top:4px;color:#8995a7;font:750 11px/1.25 var(--fd,inherit)}',
       '.df-recent-row b{color:#ef6575;font:900 13px/1 var(--fd,inherit);white-space:nowrap}',
       '.df-budget-empty{border:1px dashed #dfe5f1;border-radius:18px;padding:22px;text-align:center;color:#798599;font:750 13px/1.45 var(--fd,inherit);background:#fbfcff}',
+      '.df-budget-shell{gap:20px}',
+      '.df-budget-header{padding:2px 2px 0}',
+      '.df-budget-header h2{font-size:clamp(32px,4vw,50px);font-weight:900}',
+      '.df-budget-header p{color:#647083;font-weight:760}',
+      '.df-budget-action.primary{background:linear-gradient(135deg,#7a63f4,#ff7aa8);border:0;box-shadow:0 16px 34px rgba(122,99,244,.22)}',
+      '.df-budget-top{grid-template-columns:minmax(340px,.95fr) minmax(420px,1.05fr);gap:14px}',
+      '.df-budget-total{position:relative;overflow:hidden;min-height:170px;border-color:#eef0f6;background:linear-gradient(135deg,#ffffff 0%,#fff7fb 48%,#effbf8 100%);box-shadow:0 20px 52px rgba(32,42,66,.09)}',
+      '.df-budget-total small{color:#667186}',
+      '.df-budget-total strong{font-size:clamp(48px,7vw,80px)}',
+      '.df-budget-total strong.over{color:#172036}',
+      '.df-budget-meter{height:11px;background:#e9edf5}',
+      '.df-budget-meter i{background:linear-gradient(90deg,#7a63f4 0%,#c978d8 58%,#ff7aa8 100%)}',
+      '.df-budget-total-foot{align-items:flex-start;justify-content:flex-start}',
+      '.df-budget-pill{background:#fff;border:1px solid #e8ebf4;color:#68758a;box-shadow:0 8px 18px rgba(31,40,65,.045)}',
+      '.df-budget-pill.warning{background:#fff1f5;border-color:#ffd7e1;color:#e64f72}',
+      '.df-budget-checks{background:transparent;border:0;box-shadow:none;gap:12px;overflow:visible}',
+      '.df-budget-check{position:relative;border:1px solid #e8ebf4;border-radius:18px;background:#fff;box-shadow:0 14px 32px rgba(31,40,65,.065);overflow:hidden}',
+      '.df-budget-check:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#7a63f4,#ff7aa8)}',
+      '.df-budget-check.fixed:before{background:linear-gradient(90deg,#35baa3,#62a6ff)}',
+      '.df-budget-check.credit:before{background:linear-gradient(90deg,#ff9a62,#ff7aa8)}',
+      '.df-budget-check span{font-size:clamp(25px,3vw,34px)}',
+      '.df-budget-main{grid-template-columns:minmax(360px,.9fr) minmax(380px,1.1fr);gap:16px}',
+      '.df-budget-panel,.df-budget-detail{border-color:#e9edf5;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 18px 44px rgba(31,40,65,.075)}',
+      '.df-budget-panel{padding:20px}',
+      '.df-budget-panel-head h3,.df-budget-detail h3{font-size:24px}',
+      '.df-budget-panel-head p{color:#667386;font-weight:760}',
+      '.df-budget-filter{background:#fff;border-color:#e5e9f2;color:#6e798b}',
+      '.df-budget-filter.active{background:#f0ecff;color:#6d5df0;border-color:#ded6ff;box-shadow:0 8px 18px rgba(117,101,242,.1)}',
+      '.df-budget-category-list{gap:10px;max-height:560px}',
+      '.df-budget-row{position:relative;border-radius:17px;padding:15px 16px;border-color:#e8ebf4;background:#fff;box-shadow:0 8px 22px rgba(31,40,65,.045);overflow:hidden}',
+      '.df-budget-row:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}',
+      '.df-budget-row.needs-attention:before{background:#ff7aa8}',
+      '.df-budget-row.near-limit:before{background:#e9b64a}',
+      '.df-budget-row.steady:before{background:#38bfa7}',
+      '.df-budget-row.active{border-color:#c9bdff;background:linear-gradient(180deg,#fff 0%,#fbf9ff 100%);box-shadow:0 12px 28px rgba(117,101,242,.13)}',
+      '.df-budget-dot{width:11px;height:11px;box-shadow:0 0 0 6px rgba(124,97,243,.1)}',
+      '.df-budget-status{border-radius:999px;padding:6px 9px;background:#eefaf5;color:#23986c}',
+      '.df-budget-status.over{background:#fff1f5;color:#e64f72}.df-budget-status.close{background:#fff8e7;color:#b8790d}',
+      '.df-budget-row-bar{height:9px;background:#ebeff6}',
+      '.df-budget-row-bar i{opacity:.9}',
+      '.df-budget-detail{min-height:420px;padding:22px}',
+      '.df-detail-summary{display:grid;grid-template-columns:1fr auto;gap:6px 16px;align-items:center;margin:0 0 14px;border-radius:18px;padding:15px;background:linear-gradient(135deg,#f7f5ff,#fff7fb);border:1px solid #ece7ff}',
+      '.df-detail-summary span{color:#6f5fe8;font:900 11px/1 var(--fd,inherit);text-transform:uppercase;letter-spacing:.07em}',
+      '.df-detail-summary strong{color:#172036;font:900 18px/1.1 var(--fd,inherit);letter-spacing:0;text-align:right}',
+      '.df-detail-summary b{grid-column:1/-1;color:#7e8898;font:800 12px/1.35 var(--fd,inherit)}',
+      '.df-detail-grid{gap:10px}',
+      '.df-detail-stat{background:#fff;border-color:#e8ebf4}',
       '@media(max-width:980px){.df-budget-header,.df-budget-top,.df-budget-main{grid-template-columns:1fr;display:grid}.df-budget-header{gap:14px}.df-budget-actions{justify-content:flex-start}.df-budget-checks{grid-template-columns:1fr 1fr}.df-budget-detail{min-height:0}}',
       '@media(max-width:620px){#df-budget-redesign{gap:14px}.df-budget-header h2{font-size:34px}.df-budget-header p{font-size:13px}.df-budget-top,.df-budget-main{gap:12px}.df-budget-total,.df-budget-panel,.df-budget-detail{border-radius:18px;padding:16px}.df-budget-checks{grid-template-columns:1fr}.df-budget-check{padding:16px}.df-budget-total strong{font-size:52px}.df-detail-grid{grid-template-columns:1fr}.df-budget-detail-head{flex-direction:column}.df-detail-actions{justify-content:flex-start}.df-budget-row-meta{display:block}.df-budget-row-meta span{display:block;margin-top:3px}}'
     ].join('\n');
@@ -265,7 +361,7 @@
       if (transaction.type !== 'expense') return;
       if (!inCycle(transaction.date, cycle)) return;
       var category = normaliseCategory(transaction.category);
-      if (EXCLUDED.has(category)) return;
+      if (!isEverydayCategory(category)) return;
       totals[category] = (totals[category] || 0) + Number(transaction.amount || 0);
       (items[category] = items[category] || []).push(transaction);
     });
@@ -278,7 +374,7 @@
     var categories = new Set();
     (d.budgets || []).forEach(function (budget) {
       var category = normaliseCategory(budget.category);
-      if (!EXCLUDED.has(category)) categories.add(category);
+      if (isEverydayCategory(category)) categories.add(category);
     });
     Object.keys(current.totals).forEach(function (category) { categories.add(category); });
     Object.keys(last.totals).forEach(function (category) { categories.add(category); });
@@ -319,11 +415,12 @@
 
   function statusText(row) {
     if (!row.limit) return row.spent ? money(row.spent, 2) + ' spent' : 'No limit yet';
-    if (row.left < 0) return money(Math.abs(row.left), 2) + ' over';
+    if (row.left < 0) return 'Over by ' + money(Math.abs(row.left), 2);
     return money(row.left, 2) + ' left';
   }
 
   function filteredRows(rows) {
+    if (state.filter === 'attention') return rows.filter(function (row) { return row.status === 'over' || row.status === 'close'; });
     if (state.filter === 'over') return rows.filter(function (row) { return row.status === 'over'; });
     if (state.filter === 'close') return rows.filter(function (row) { return row.status === 'close'; });
     if (state.filter === 'track') return rows.filter(function (row) { return row.status === 'track'; });
@@ -353,19 +450,20 @@
     var bills = Number(values.rent || 0) + Number(values.bills || 0);
     var credit = Number(values.credit || 0) + Number(values.extraCredit || 0);
     return [
-      ['Income', money(values.income, 0), 'This cycle'],
-      ['Bills', money(bills, 0), 'Regular payments'],
-      ['Credit payments', money(credit, 0), 'Planned this month']
+      ['Income', money(values.income, 0), 'This cycle', 'income'],
+      ['Fixed costs', money(bills, 0), 'Rent and regular bills', 'fixed'],
+      ['Credit payments', money(credit, 0), 'Planned this month', 'credit']
     ].map(function (item) {
-      return '<div class="df-budget-check"><small>' + esc(item[0]) + '</small><span>' + item[1] + '</span><b>' + esc(item[2]) + '</b></div>';
+      return '<div class="df-budget-check ' + esc(item[3]) + '"><small>' + esc(item[0]) + '</small><span>' + item[1] + '</span><b>' + esc(item[2]) + '</b></div>';
     }).join('');
   }
 
   function rowHtml(row, index) {
     var pct = row.limit ? Math.min(100, Math.max(3, row.spent / row.limit * 100)) : row.spent ? 100 : 0;
     var encoded = encodeURIComponent(row.category).replace(/'/g, '%27');
-    var barColor = row.status === 'over' ? '#ef5d6f' : row.status === 'close' ? '#f2b93b' : row.color;
-    return '<button type="button" class="df-budget-row ' + (state.selected === row.category ? 'active' : '') + '" onclick="dayframeBudgetSelectCategory(\'' + encoded + '\')">' +
+    var barColor = row.status === 'over' ? '#ec6a86' : row.status === 'close' ? '#e9b64a' : row.color;
+    var rowTone = row.status === 'over' ? 'needs-attention' : row.status === 'close' ? 'near-limit' : 'steady';
+    return '<button type="button" class="df-budget-row ' + rowTone + ' ' + (state.selected === row.category ? 'active' : '') + '" onclick="dayframeBudgetSelectCategory(\'' + encoded + '\')">' +
       '<span class="df-budget-row-top"><span class="df-budget-row-title"><i class="df-budget-dot" style="background:' + row.color + '"></i><strong>' + esc(row.category) + '</strong></span><span class="df-budget-status ' + row.status + '">' + statusText(row) + '</span></span>' +
       '<span class="df-budget-row-bar"><i style="width:' + pct.toFixed(1) + '%;background:' + barColor + '"></i></span>' +
       '<span class="df-budget-row-meta"><span>' + money(row.spent, 2) + (row.limit ? ' of ' + money(row.limit, 0) : ' spent') + '</span><span>' + esc(compareText(row)) + '</span></span>' +
@@ -389,19 +487,21 @@
       return '<section class="df-budget-detail"><div class="df-budget-empty"><strong>No categories yet</strong><br>Set your income and category limits to start tracking the cycle.</div></section>';
     }
     var encoded = encodeURIComponent(row.category).replace(/'/g, '%27');
+    var statusLabel = row.status === 'over' ? 'Needs attention' : row.status === 'close' ? 'Nearly at limit' : 'Comfortable';
     var recent = row.items.slice(0, 5).map(function (item) {
       return '<div class="df-recent-row"><span><strong>' + esc(item.desc) + '</strong><small>' + esc(prettyDate(item.date)) + (item.account_name ? ' - ' + esc(item.account_name) : '') + '</small></span><b>-' + money(item.amount, 2) + '</b></div>';
     }).join('') || '<div class="df-budget-empty">No payments in this category this cycle.</div>';
-    return '<section class="df-budget-detail">' +
-      '<div class="df-budget-detail-head"><div><span class="df-detail-eyebrow">Category detail</span><h3>' + esc(row.category) + '</h3></div><div class="df-detail-actions"><button type="button" class="df-detail-button secondary" onclick="dayframeBudgetEditCategory(\'' + encoded + '\')">Edit limit</button><button type="button" class="df-detail-button" onclick="dayframeBudgetOpenTransactions(\'' + encoded + '\')">Transactions</button></div></div>' +
-      '<div class="df-detail-grid"><div class="df-detail-stat"><small>Spent</small><strong>' + money(row.spent, 2) + '</strong></div><div class="df-detail-stat"><small>Budget</small><strong>' + (row.limit ? money(row.limit, 0) : 'No limit') + '</strong></div><div class="df-detail-stat"><small>Last cycle</small><strong>' + money(row.lastSpent, 2) + '</strong></div></div>' +
+    return '<section class="df-budget-detail ' + row.status + '">' +
+      '<div class="df-budget-detail-head"><div><span class="df-detail-eyebrow">Everyday category</span><h3>' + esc(row.category) + '</h3></div><div class="df-detail-actions"><button type="button" class="df-detail-button secondary" onclick="dayframeBudgetEditCategory(\'' + encoded + '\')">Edit limit</button><button type="button" class="df-detail-button" onclick="dayframeBudgetOpenTransactions(\'' + encoded + '\')">Transactions</button></div></div>' +
+      '<div class="df-detail-summary"><span>' + esc(statusLabel) + '</span><strong>' + esc(statusText(row)) + '</strong><b>' + esc(compareText(row)) + '</b></div>' +
+      '<div class="df-detail-grid"><div class="df-detail-stat"><small>Spent</small><strong>' + money(row.spent, 2) + '</strong></div><div class="df-detail-stat"><small>Limit</small><strong>' + (row.limit ? money(row.limit, 0) : 'No limit') + '</strong></div><div class="df-detail-stat"><small>Last cycle</small><strong>' + money(row.lastSpent, 2) + '</strong></div></div>' +
       '<span class="df-detail-eyebrow">Recent payments</span><div class="df-recent-list">' + recent + '</div>' +
       '</section>';
   }
 
   function emptyHtml(values) {
-    return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
-      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong>' + money(Number(values.flexible || 0), 0) + '</strong></div><div class="df-budget-meter"><i style="width:0%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">No categories yet</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
+    return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
+      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left for everyday spending</small><strong>' + money(Number(values.flexible || 0), 0) + '</strong></div><div class="df-budget-meter"><i style="width:0%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">No categories yet</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
       '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Add a category limit or let Dayframe draft the first set.</div></div>';
   }
 
@@ -436,17 +536,17 @@
       root.innerHTML = emptyHtml(values);
       return;
     }
-    var footLabel = totals.over ? totals.over + ' over budget' : totals.close ? totals.close + ' close to limit' : 'On track';
+    var footLabel = totals.over ? totals.over + ' need attention' : totals.close ? totals.close + ' close to limit' : 'On track';
     var footClass = totals.over ? ' warning' : '';
     var leftLabel = totals.left < 0 ? money(Math.abs(totals.left), 0) + ' over' : money(totals.left, 0);
     root.innerHTML = '<div class="df-budget-shell">' +
-      '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
-      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
+      '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
+      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left for everyday spending</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">' + money(totals.spent, 0) + ' used from ' + money(totals.allocated, 0) + '</span><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
       '<div class="df-budget-main"><section class="df-budget-panel">' +
-      '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Categories</h3><p>Tap one to compare budget, spending and last cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
+      '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Everyday spending</h3><p>Flexible categories, compared with last cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
       '<div class="df-budget-filters">' +
       filterButton('all', 'All', rows.length) +
-      filterButton('over', 'Over', rows.filter(function (row) { return row.status === 'over'; }).length) +
+      filterButton('attention', 'Needs attention', rows.filter(function (row) { return row.status === 'over' || row.status === 'close'; }).length) +
       filterButton('close', 'Close', rows.filter(function (row) { return row.status === 'close'; }).length) +
       filterButton('track', 'On track', rows.filter(function (row) { return row.status === 'track'; }).length) +
       '</div><div class="df-budget-category-list">' + (visibleRows.length ? visibleRows.map(rowHtml).join('') : '<div class="df-budget-empty">No categories match this filter.</div>') + '</div></section>' +
