@@ -144,19 +144,17 @@
     }, 80);
   }
 
-  function openBillSuggestions() {
-    openBudgetSetupPage({ focusId: 'budget-plan-regular-bills' });
+  function openBillsPage(addNew) {
+    if (typeof window.moneyOpenTab === 'function') window.moneyOpenTab('bills');
     setTimeout(function () {
-      try {
-        if (typeof window.moneySetRegularBillFilter === 'function') window.moneySetRegularBillFilter('likely');
-        var picker = $('budget-regular-bill-picker');
-        if (picker && !picker.classList.contains('open') && typeof window.moneyToggleRegularBillPicker === 'function') {
-          window.moneyToggleRegularBillPicker();
-        }
-        picker = $('budget-regular-bill-picker');
-        if (picker) picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch (_) {}
-    }, 140);
+      if (addNew && typeof window.toggleLifeForm === 'function') window.toggleLifeForm('money-bill-form', true);
+      var target = addNew ? $('money-bill-form') : $('money-bill-suggestions') || $('money-bills-list');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 90);
+  }
+
+  function openBillSuggestions() {
+    openBillsPage(false);
   }
 
   function openCreditPlan(addNew) {
@@ -230,16 +228,18 @@
         title: 'Bills',
         subtitle: billCount ? countLabel(billCount, 'possible bill found', 'possible bills found') : 'Review regular payments',
         actions: [
-          { label: 'Edit', handler: function () { openBudgetSetupPage({ focusId: 'budget-plan-regular-bills' }); } },
-          { label: billCount ? 'Review' : 'Find', primary: !!billCount, handler: openBillSuggestions }
+          { label: 'Edit', handler: function () { openBillsPage(false); } },
+          { label: billCount ? 'Suggestions' : 'Add bill', primary: !!billCount, handler: billCount ? openBillSuggestions : function () { openBillsPage(true); } }
         ]
       },
       {
         title: 'Credit payments',
         subtitle: creditCount ? countLabel(creditCount, 'possible repayment found', 'possible repayments found') : creditPlanned ? 'Planned this month' : 'No plan yet',
-        actions: [
+        actions: creditCount ? [
           { label: 'Edit', handler: function () { openCreditPlan(false); } },
-          { label: creditCount || creditPlanned ? 'Review' : 'Add', primary: !!creditCount, handler: creditCount ? openCreditMatches : function () { openCreditPlan(!creditPlanned); } }
+          { label: 'Matches', primary: true, handler: openCreditMatches }
+        ] : [
+          { label: creditPlanned ? 'Edit' : 'Add plan', handler: function () { openCreditPlan(!creditPlanned); } }
         ]
       }
     ];
