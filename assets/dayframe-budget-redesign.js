@@ -219,7 +219,7 @@
       '.df-budget-category-list{gap:10px;max-height:560px}',
       '.df-budget-row{position:relative;border-radius:17px;padding:15px 16px;border-color:#e8ebf4;background:#fff;box-shadow:0 8px 22px rgba(31,40,65,.045);overflow:hidden}',
       '.df-budget-row:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}',
-      '.df-budget-row.needs-attention:before{background:#ff7aa8}',
+      '.df-budget-row.over-budget:before{background:#ff7aa8}',
       '.df-budget-row.near-limit:before{background:#e9b64a}',
       '.df-budget-row.steady:before{background:#38bfa7}',
       '.df-budget-row.active{border-color:#c9bdff;background:linear-gradient(180deg,#fff 0%,#fbf9ff 100%);box-shadow:0 12px 28px rgba(117,101,242,.13)}',
@@ -420,7 +420,6 @@
   }
 
   function filteredRows(rows) {
-    if (state.filter === 'attention') return rows.filter(function (row) { return row.status === 'over' || row.status === 'close'; });
     if (state.filter === 'over') return rows.filter(function (row) { return row.status === 'over'; });
     if (state.filter === 'close') return rows.filter(function (row) { return row.status === 'close'; });
     if (state.filter === 'track') return rows.filter(function (row) { return row.status === 'track'; });
@@ -462,7 +461,7 @@
     var pct = row.limit ? Math.min(100, Math.max(3, row.spent / row.limit * 100)) : row.spent ? 100 : 0;
     var encoded = encodeURIComponent(row.category).replace(/'/g, '%27');
     var barColor = row.status === 'over' ? '#ec6a86' : row.status === 'close' ? '#e9b64a' : row.color;
-    var rowTone = row.status === 'over' ? 'needs-attention' : row.status === 'close' ? 'near-limit' : 'steady';
+    var rowTone = row.status === 'over' ? 'over-budget' : row.status === 'close' ? 'near-limit' : 'steady';
     return '<button type="button" class="df-budget-row ' + rowTone + ' ' + (state.selected === row.category ? 'active' : '') + '" onclick="dayframeBudgetSelectCategory(\'' + encoded + '\')">' +
       '<span class="df-budget-row-top"><span class="df-budget-row-title"><i class="df-budget-dot" style="background:' + row.color + '"></i><strong>' + esc(row.category) + '</strong></span><span class="df-budget-status ' + row.status + '">' + statusText(row) + '</span></span>' +
       '<span class="df-budget-row-bar"><i style="width:' + pct.toFixed(1) + '%;background:' + barColor + '"></i></span>' +
@@ -487,7 +486,7 @@
       return '<section class="df-budget-detail"><div class="df-budget-empty"><strong>No categories yet</strong><br>Set your income and category limits to start tracking the cycle.</div></section>';
     }
     var encoded = encodeURIComponent(row.category).replace(/'/g, '%27');
-    var statusLabel = row.status === 'over' ? 'Needs attention' : row.status === 'close' ? 'Nearly at limit' : 'Comfortable';
+    var statusLabel = row.status === 'over' ? 'Over budget' : row.status === 'close' ? 'Nearly at limit' : 'Comfortable';
     var recent = row.items.slice(0, 5).map(function (item) {
       return '<div class="df-recent-row"><span><strong>' + esc(item.desc) + '</strong><small>' + esc(prettyDate(item.date)) + (item.account_name ? ' - ' + esc(item.account_name) : '') + '</small></span><b>-' + money(item.amount, 2) + '</b></div>';
     }).join('') || '<div class="df-budget-empty">No payments in this category this cycle.</div>';
@@ -536,7 +535,7 @@
       root.innerHTML = emptyHtml(values);
       return;
     }
-    var footLabel = totals.over ? totals.over + ' need attention' : totals.close ? totals.close + ' close to limit' : 'On track';
+    var footLabel = totals.over ? totals.over + ' over budget' : totals.close ? totals.close + ' close to limit' : 'On track';
     var footClass = totals.over ? ' warning' : '';
     var leftLabel = totals.left < 0 ? money(Math.abs(totals.left), 0) + ' over' : money(totals.left, 0);
     root.innerHTML = '<div class="df-budget-shell">' +
@@ -546,7 +545,7 @@
       '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Everyday spending</h3><p>Flexible categories, compared with last cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
       '<div class="df-budget-filters">' +
       filterButton('all', 'All', rows.length) +
-      filterButton('attention', 'Needs attention', rows.filter(function (row) { return row.status === 'over' || row.status === 'close'; }).length) +
+      filterButton('over', 'Over budget', rows.filter(function (row) { return row.status === 'over'; }).length) +
       filterButton('close', 'Close', rows.filter(function (row) { return row.status === 'close'; }).length) +
       filterButton('track', 'On track', rows.filter(function (row) { return row.status === 'track'; }).length) +
       '</div><div class="df-budget-category-list">' + (visibleRows.length ? visibleRows.map(rowHtml).join('') : '<div class="df-budget-empty">No categories match this filter.</div>') + '</div></section>' +
