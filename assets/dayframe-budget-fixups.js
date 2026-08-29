@@ -83,6 +83,12 @@
     }
   }
 
+  function hasCreditPlan(d) {
+    return (d.creditPlans || []).some(function (plan) {
+      return Number(plan.monthlyPayment || plan.minimumPayment || plan.balance || 0) > 0;
+    });
+  }
+
   function ensureBudgetSetupPage() {
     var budgetPane = $('money-pane-budget');
     if (!budgetPane) return false;
@@ -213,6 +219,7 @@
     var d = safeHubData();
     var billCount = billSuggestionCount(d);
     var creditCount = creditPaymentMatchCount(d);
+    var creditPlanned = hasCreditPlan(d);
     var configs = [
       {
         title: 'Income',
@@ -221,7 +228,7 @@
       },
       {
         title: 'Bills',
-        subtitle: billCount ? countLabel(billCount, 'transaction suggestion', 'transaction suggestions') : 'Rent + regular bills',
+        subtitle: billCount ? countLabel(billCount, 'possible bill found', 'possible bills found') : 'Review regular payments',
         actions: [
           { label: 'Edit', handler: function () { openBudgetSetupPage({ focusId: 'budget-plan-regular-bills' }); } },
           { label: billCount ? 'Review' : 'Find', primary: !!billCount, handler: openBillSuggestions }
@@ -229,10 +236,10 @@
       },
       {
         title: 'Credit payments',
-        subtitle: creditCount ? countLabel(creditCount, 'repayment match', 'repayment matches') : 'From Credit Plan',
+        subtitle: creditCount ? countLabel(creditCount, 'possible repayment found', 'possible repayments found') : creditPlanned ? 'Planned this month' : 'No plan yet',
         actions: [
           { label: 'Edit', handler: function () { openCreditPlan(false); } },
-          { label: creditCount ? 'Review' : 'Add', primary: !!creditCount, handler: creditCount ? openCreditMatches : function () { openCreditPlan(true); } }
+          { label: creditCount || creditPlanned ? 'Review' : 'Add', primary: !!creditCount, handler: creditCount ? openCreditMatches : function () { openCreditPlan(!creditPlanned); } }
         ]
       }
     ];
