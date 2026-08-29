@@ -95,7 +95,7 @@
       '.df-budget-total strong.over{color:#ef5d6f}',
       '.df-budget-meter{height:12px;border-radius:999px;background:#edf0f6;overflow:hidden;margin-top:18px}',
       '.df-budget-meter i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7565f2,#ff7aa8);width:0}',
-      '.df-budget-total-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;color:#7e899a;font:800 12px/1.35 var(--fd,inherit)}',
+      '.df-budget-total-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;color:#7e899a;font:800 12px/1.35 var(--fd,inherit);flex-wrap:wrap}',
       '.df-budget-pill{display:inline-flex;align-items:center;border-radius:999px;padding:8px 10px;background:#f2efff;color:#7565f2;font:850 11px/1 var(--fd,inherit);white-space:nowrap}',
       '.df-budget-pill.warning{background:#fff1f3;color:#e45263}',
       '.df-budget-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;overflow:hidden}',
@@ -133,8 +133,6 @@
       '.df-detail-stat{border:1px solid #e8ecf4;border-radius:16px;padding:14px;background:#fbfcff;min-width:0}',
       '.df-detail-stat small{display:block;color:#7f8a9d;font:850 10px/1 var(--fd,inherit);text-transform:uppercase;letter-spacing:.07em}',
       '.df-detail-stat strong{display:block;margin-top:9px;color:#171f34;font:900 20px/1 var(--fd,inherit);letter-spacing:0;overflow-wrap:anywhere}',
-      '.df-detail-note{border-radius:18px;padding:16px;margin:14px 0;background:#f7f4ff;border:1px solid #e5defc;color:#556078;font:700 13px/1.45 var(--fd,inherit)}',
-      '.df-detail-note strong{display:block;color:#172036;margin-bottom:4px;font:900 14px/1.2 var(--fd,inherit)}',
       '.df-recent-list{display:flex;flex-direction:column;gap:9px;margin-top:13px}',
       '.df-recent-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e8ecf4;border-radius:16px;padding:12px 13px;background:#fff}',
       '.df-recent-row strong{display:block;color:#334058;font:850 13px/1.2 var(--fd,inherit);letter-spacing:0}',
@@ -379,20 +377,11 @@
   }
 
   function aiButtonLabel() {
-    return aiBusy ? 'Working...' : 'Suggest budgets';
+    return aiBusy ? 'Working...' : 'Draft budgets';
   }
 
   function aiStatusHtml() {
     return aiMessage ? '<div class="df-budget-ai-note">' + esc(aiMessage) + '</div>' : '';
-  }
-
-  function detailSuggestion(row) {
-    if (!row) return '';
-    if (!row.limit) return 'Set a monthly limit if this category should be tracked every cycle.';
-    if (row.status === 'over' && row.category === 'Subscriptions') return 'Check each recurring payment. Keep the ones you still use, cancel the rest, then update the limit to match the real monthly total.';
-    if (row.status === 'over') return 'Check the recent payments first. If the overspend was planned, update the limit; if not, keep this category quiet until the next cycle.';
-    if (row.status === 'close') return 'This category is close to its limit. A small pause now can stop it becoming an over-budget category later.';
-    return 'This category is on track. Keep the limit as it is unless your plans for the month have changed.';
   }
 
   function detailHtml(row) {
@@ -406,16 +395,14 @@
     return '<section class="df-budget-detail">' +
       '<div class="df-budget-detail-head"><div><span class="df-detail-eyebrow">Category detail</span><h3>' + esc(row.category) + '</h3></div><div class="df-detail-actions"><button type="button" class="df-detail-button secondary" onclick="dayframeBudgetEditCategory(\'' + encoded + '\')">Edit limit</button><button type="button" class="df-detail-button" onclick="dayframeBudgetOpenTransactions(\'' + encoded + '\')">Transactions</button></div></div>' +
       '<div class="df-detail-grid"><div class="df-detail-stat"><small>Spent</small><strong>' + money(row.spent, 2) + '</strong></div><div class="df-detail-stat"><small>Budget</small><strong>' + (row.limit ? money(row.limit, 0) : 'No limit') + '</strong></div><div class="df-detail-stat"><small>Last cycle</small><strong>' + money(row.lastSpent, 2) + '</strong></div></div>' +
-      '<div class="df-detail-note"><strong>Suggestion</strong>' + esc(detailSuggestion(row)) + '</div>' +
-      '<div class="df-detail-note"><strong>What changed</strong>' + esc(compareText(row)) + '</div>' +
       '<span class="df-detail-eyebrow">Recent payments</span><div class="df-recent-list">' + recent + '</div>' +
       '</section>';
   }
 
   function emptyHtml(values) {
     return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action" onclick="dayframeBudgetToggleSetup(true)">Plan budget</button><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
-      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong>' + money(Number(values.flexible || 0), 0) + '</strong></div><div class="df-budget-meter"><i style="width:0%"></i></div><div class="df-budget-total-foot"><span>Add category limits to track this clearly.</span><span class="df-budget-pill">No categories yet</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
-      '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Use Plan budget or ask Dayframe for a starting suggestion.</div></div>';
+      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong>' + money(Number(values.flexible || 0), 0) + '</strong></div><div class="df-budget-meter"><i style="width:0%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">No categories yet</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
+      '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Use Plan budget or let Dayframe draft category limits.</div></div>';
   }
 
   function renderBudgetRedesign() {
@@ -454,7 +441,7 @@
     var leftLabel = totals.left < 0 ? money(Math.abs(totals.left), 0) + ' over' : money(totals.left, 0);
     root.innerHTML = '<div class="df-budget-shell">' +
       '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, bills, credit and category limits in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action" onclick="dayframeBudgetToggleSetup()">Plan budget</button><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
-      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span>' + esc(cycleLabel(cycle)) + ' - ' + money(totals.spent, 2) + ' spent of ' + money(totals.allocated, 0) + '</span><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
+      '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left this cycle</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
       '<div class="df-budget-main"><section class="df-budget-panel">' +
       '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Categories</h3><p>Tap one to compare budget, spending and last cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
       '<div class="df-budget-filters">' +
@@ -529,6 +516,18 @@
     }
   };
 
+  window.dayframeBudgetEditPayday = function () {
+    if (typeof window.dayframeBudgetOpenSetupPage === 'function') {
+      window.dayframeBudgetOpenSetupPage({ focusId: 'budget-cycle-start' });
+      return;
+    }
+    window.dayframeBudgetToggleSetup(true);
+    setTimeout(function () {
+      var input = $('budget-cycle-start');
+      if (input) input.focus({ preventScroll: true });
+    }, 120);
+  };
+
   window.dayframeBudgetAskAi = async function () {
     if (aiBusy) return;
     if (typeof window.buildSuggestedBudget !== 'function') {
@@ -538,7 +537,7 @@
     }
     var values = planValues(safeCall(window.hubLoad, {}));
     if (!Number(values.income || 0)) {
-      aiMessage = 'Add your monthly income in Plan budget first, then Dayframe can suggest category limits.';
+      aiMessage = 'Add your monthly income in Plan budget first, then Dayframe can draft category limits.';
       scheduleRender(0);
       return;
     }
@@ -547,9 +546,9 @@
     scheduleRender(0);
     try {
       await window.buildSuggestedBudget();
-      aiMessage = 'Suggested budgets added. Check the categories below and edit anything that does not fit.';
+      aiMessage = 'Budget draft added. Check the categories below and edit anything that does not fit.';
     } catch (error) {
-      aiMessage = 'Could not create a suggestion right now. Your current budget is still safe.';
+      aiMessage = 'Could not draft budgets right now. Your current budget is still safe.';
     } finally {
       aiBusy = false;
       scheduleRender(0);
