@@ -54,6 +54,33 @@
     return count + ' ' + (count === 1 ? singular : plural);
   }
 
+  function escapeText(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function normaliseCategory(value) {
+    if (typeof window.moneyNormaliseCategory === 'function') return window.moneyNormaliseCategory(value);
+    var clean = String(value || '').trim();
+    return clean || 'Other';
+  }
+
+  function moneyOrdinal(value) {
+    if (typeof window.moneyOrdinal === 'function') return window.moneyOrdinal(value);
+    var n = Number(value) || 1;
+    var suffix = n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th';
+    return n + suffix;
+  }
+
+  function formatAmount(value) {
+    var n = Number(value || 0);
+    return n ? String(Math.round(n * 100) / 100) : '';
+  }
+
   function creditPaymentMatchCount(d) {
     try {
       if (typeof window.moneyCreditPaymentSuggestions !== 'function') return 0;
@@ -80,18 +107,7 @@
     budgetPane.classList.remove('df-budget-show-setup');
 
     var tabs = document.querySelector('#pg-money .money-tabs');
-    if (tabs && !tabs.querySelector('[data-money-tab="budget-setup"]')) {
-      var tab = document.createElement('button');
-      tab.type = 'button';
-      tab.className = 'money-tab';
-      tab.dataset.moneyTab = 'budget-setup';
-      tab.textContent = 'Plan budget';
-      tab.setAttribute('onclick', "moneyOpenTab('budget-setup',this)");
-      var budgetTab = tabs.querySelector('[data-money-tab="budget"]');
-      if (budgetTab && budgetTab.nextSibling) tabs.insertBefore(tab, budgetTab.nextSibling);
-      else if (budgetTab) budgetTab.insertAdjacentElement('afterend', tab);
-      else tabs.appendChild(tab);
-    }
+    if (tabs) tabs.querySelectorAll('[data-money-tab="budget-setup"]').forEach(function (tab) { tab.remove(); });
 
     var setupPane = $('money-pane-budget-setup');
     if (!setupPane) {
@@ -102,6 +118,8 @@
     } else {
       setupPane.classList.add('df-budget-setup-pane');
     }
+    setupPane.classList.remove('on');
+    setupPane.setAttribute('hidden', '');
 
     var builder = directChild(budgetPane, '.budget-builder');
     var lowerGrid = directChild(budgetPane, '.money-pane-grid');
@@ -110,22 +128,118 @@
     return true;
   }
 
-  function openBudgetSetupPage(options) {
+  function closeQuickBudgetEditor() {
+    var existing = document.querySelector('.df-budget-quick-backdrop');
+    if (existing) existing.remove();
+  }
+
+  function dayOptions(selected) {
+    var current = Math.max(1, Math.min(31, Math.round(Number(selected) || 1)));
+    var html = '';
+    for (var i = 1; i <= 31; i += 1) {
+      html += '<option value="' + i + '"' + (i === current ? ' selected' : '') + '>' + escapeText(moneyOrdinal(i)) + '</option>';
+    }
+    return html;
+  }
+
+  function saveAndRefresh(d, message) {
+    if (typeof window.hubSave === 'function') window.hubSave(d);
+    if (typeof window.renderMoney === 'function') window.renderMoney();
+    tidyBudgetUi();
+    if (typeof window.hubToast === 'function' && message) window.hubToast(message);
+  }
+
+  function openQuickBudgetEditor(kind, encodedCategory) {
     ensureBudgetSetupPage();
-    if (typeof window.moneyOpenTab === 'function') window.moneyOpenTab('budget-setup');
+    closeQuickBudgetEditor();
+    var d = safeHubData();
+    d.budgetPlan = d.budgetPlan || {};
+    d.budgets = Array.isArray(d.budgets) ? d.budgets : [];
+    var categoryName = normaliseCategory(decodeValue(encodedCategory || ''));
+    var existingBudget = d.budgets.find(function (budget) {
+      return normaliseCategory(budget.category) === categoryName;
+    });
+    var title = 'Edit income';
+    var intro = 'Update the amount Dayframe uses for this budget cycle.';
+    var fields = '<label class="df-budget-quick-field"><span>Monthly income</span><input class="life-input" data-df-budget-field="income" type="number" step="0.01" inputmode="decimal" value="' + escapeText(formatAmount(d.budgetPlan.income)) + '" placeholder="0.00"></label>';
+
+    if (kind === 'payday') {
+      title = 'Edit payday';
+      intro = 'Choose when this budget cycle starts each month.';
+      fields = '<label class="df-budget-quick-field"><span>Budget month starts on</span><select class="life-input" data-df-budget-field="startDay">' + dayOptions(d.budgetPlan.startDay || 1) + '</select></label>';
+    } else if (kind === 'category') {
+      title = existingBudget ? 'Edit category' : 'Add category';
+      intro = 'Set the monthly limit used on the budget screen.';
+      fields =
+        '<label class="df-budget-quick-field"><span>Category</span><input class="life-input" data-df-budget-field="category" value="' + escapeText(existingBudget ? existingBudget.category : (categoryName === 'Other' && !encodedCategory ? '' : categoryName)) + '" placeholder="e.g. Food"></label>' +
+        '<label class="df-budget-quick-field"><span>Monthly limit</span><input class="life-input" data-df-budget-field="limit" type="number" step="0.01" inputmode="decimal" value="' + escapeText(formatAmount(existingBudget ? existingBudget.limit : 0)) + '" placeholder="0.00"></label>';
+    }
+
+    var backdrop = document.createElement('div');
+    backdrop.className = 'df-budget-quick-backdrop';
+    backdrop.innerHTML =
+      '<div class="df-budget-quick-modal" role="dialog" aria-modal="true" aria-label="' + escapeText(title) + '">' +
+      '<button type="button" class="df-budget-quick-close" data-df-budget-close>Close</button>' +
+      '<form class="df-budget-quick-form">' +
+      '<span class="df-budget-quick-kicker">Budget</span><h3>' + escapeText(title) + '</h3><p>' + escapeText(intro) + '</p>' +
+      fields +
+      '<div class="df-budget-quick-actions"><button type="button" class="life-btn-secondary" data-df-budget-close>Cancel</button><button type="submit" class="life-btn-primary">Save</button></div>' +
+      '</form></div>';
+    document.body.appendChild(backdrop);
+
+    backdrop.addEventListener('click', function (event) {
+      if (event.target === backdrop || event.target.hasAttribute('data-df-budget-close')) closeQuickBudgetEditor();
+    });
+    backdrop.querySelector('form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      var next = safeHubData();
+      next.budgetPlan = next.budgetPlan || {};
+      next.budgets = Array.isArray(next.budgets) ? next.budgets : [];
+      if (kind === 'payday') {
+        var startDay = Math.max(1, Math.min(31, Math.round(Number(backdrop.querySelector('[data-df-budget-field="startDay"]')?.value) || 1)));
+        next.budgetPlan.startDay = startDay;
+        closeQuickBudgetEditor();
+        saveAndRefresh(next, 'Payday updated');
+        return;
+      }
+      if (kind === 'category') {
+        var raw = String(backdrop.querySelector('[data-df-budget-field="category"]')?.value || '').trim();
+        var limit = Math.max(0, Number(backdrop.querySelector('[data-df-budget-field="limit"]')?.value) || 0);
+        if (!raw || !limit) {
+          if (typeof window.hubToast === 'function') window.hubToast('Add a category and monthly limit');
+          return;
+        }
+        var category = typeof window.moneyRememberCategory === 'function' ? window.moneyRememberCategory(next, raw) : normaliseCategory(raw);
+        var match = next.budgets.find(function (budget) {
+          return normaliseCategory(budget.category) === category;
+        });
+        if (match) {
+          match.category = category;
+          match.limit = limit;
+        } else {
+          next.budgets.unshift({ id: Date.now(), category: category, limit: limit, source: 'manual' });
+        }
+        closeQuickBudgetEditor();
+        saveAndRefresh(next, match ? 'Category updated' : 'Category added');
+        return;
+      }
+      var income = Math.max(0, Number(backdrop.querySelector('[data-df-budget-field="income"]')?.value) || 0);
+      next.budgetPlan.income = income;
+      next.budgetPlan.incomeSource = 'manual';
+      closeQuickBudgetEditor();
+      saveAndRefresh(next, 'Income updated');
+    });
     setTimeout(function () {
-      if (options && options.form && typeof window.toggleLifeForm === 'function') {
-        window.toggleLifeForm(options.form, true);
-      }
-      if (options && options.category) {
-        var categoryInput = $('money-budget-category');
-        if (categoryInput) categoryInput.value = options.category;
-      }
-      var focus = options && options.focusId ? $(options.focusId) : null;
-      if (focus) focus.focus({ preventScroll: true });
-      var pane = $('money-pane-budget-setup');
-      if (pane) pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+      var first = backdrop.querySelector('input,select,button');
+      if (first) first.focus({ preventScroll: true });
+    }, 30);
+  }
+
+  function openBudgetSetupPage(options) {
+    options = options || {};
+    if (options.focusId === 'budget-cycle-start') return openQuickBudgetEditor('payday');
+    if (options.form === 'money-budget-form' || options.category) return openQuickBudgetEditor('category', options.category || '');
+    return openQuickBudgetEditor('income');
   }
 
   function openBillsPage(addNew) {
@@ -138,7 +252,7 @@
   }
 
   function openPaydayEditor() {
-    openBudgetSetupPage({ focusId: 'budget-cycle-start' });
+    openQuickBudgetEditor('payday');
   }
 
   function openCreditPlan(addNew) {
@@ -266,16 +380,25 @@
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-suggestion{display:none!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-detail-note{display:none!important}',
       '#money-bill-suggestions,.df-hide-bill-suggestions{display:none!important}',
+      '#pg-money .money-tab[data-money-tab="budget-setup"],#money-pane-budget-setup.df-budget-setup-pane{display:none!important}',
       '#money-pane-budget.df-budget-no-inline-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup>.money-pane-grid{display:none!important}',
       '#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.money-pane-grid{display:none!important}',
-      '#money-pane-budget-setup.df-budget-setup-pane{padding-top:0}',
-      '#money-pane-budget-setup.df-budget-setup-pane>.budget-builder{margin-bottom:14px}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{display:flex!important;flex-direction:column!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-card-action{border:1px solid #e2e6f1;background:#fff;color:#6759e8;border-radius:999px;padding:7px 9px;font:850 10px/1 var(--fd,inherit);cursor:pointer}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-card-action.primary{background:#7565f2;border-color:#7565f2;color:#fff}',
       '.df-budget-ai-note{margin-top:10px;border-radius:14px;background:#f4f1ff;color:#6659d9;padding:10px 12px;font:800 11px/1.35 var(--fd,inherit)}',
+      '.df-budget-quick-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(16,22,36,.32);display:flex;align-items:center;justify-content:center;padding:18px}',
+      '.df-budget-quick-modal{position:relative;width:min(440px,100%);border-radius:22px;border:1px solid #e6eaf4;background:#fff;box-shadow:0 24px 80px rgba(17,25,43,.22);padding:22px}',
+      '.df-budget-quick-close{position:absolute;right:14px;top:14px;border:1px solid #e3e7f0;border-radius:999px;background:#fff;color:#748096;font:850 11px/1 var(--fd,inherit);padding:8px 10px;cursor:pointer}',
+      '.df-budget-quick-form{display:flex;flex-direction:column;gap:14px}',
+      '.df-budget-quick-kicker{color:#7f8a9d;font:850 10px/1 var(--fd,inherit);letter-spacing:.08em;text-transform:uppercase}',
+      '.df-budget-quick-form h3{margin:0;color:#172036;font:900 26px/1.05 var(--fd,inherit);letter-spacing:0}',
+      '.df-budget-quick-form p{margin:-6px 0 0;color:#79859a;font:700 13px/1.45 var(--fd,inherit)}',
+      '.df-budget-quick-field{display:flex;flex-direction:column;gap:7px;color:#5d687b;font:850 12px/1.2 var(--fd,inherit)}',
+      '.df-budget-quick-field .life-input{width:100%;box-sizing:border-box}',
+      '.df-budget-quick-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}',
       '#df-budget-redesign button[onclick*="dayframeBudgetAskAi"][disabled]{opacity:.68;cursor:wait}'
     ].join('\n');
     document.head.appendChild(style);
@@ -315,12 +438,7 @@
       root.querySelectorAll('button').forEach(function (button) {
         var onclick = button.getAttribute('onclick') || '';
         if (onclick.indexOf('dayframeBudgetToggleSetup') !== -1) {
-          if (button.textContent !== 'Plan budget') button.textContent = 'Plan budget';
-          button.onclick = function (event) {
-            if (event) event.preventDefault();
-            openBudgetSetupPage();
-          };
-          button.setAttribute('onclick', 'dayframeBudgetOpenSetupPage()');
+          button.remove();
           return;
         }
         if (onclick.indexOf('dayframeBudgetAskAi') === -1) return;
@@ -367,6 +485,7 @@
     var original = window.moneyOpenTab;
     if (typeof original !== 'function' || original.__dfBudgetFixupsWrapped) return false;
     var wrapped = function () {
+      if (arguments[0] === 'budget-setup') arguments[0] = 'budget';
       var result = original.apply(this, arguments);
       syncBankData();
       ensureBudgetSetupPage();
@@ -413,7 +532,7 @@
     var wrapped = function () {
       var active = document.querySelector('#pg-money .money-tab.on')?.dataset.moneyTab || '';
       if (active === 'budget') {
-        openBudgetSetupPage({ form: 'money-budget-form', focusId: 'money-budget-category' });
+        openQuickBudgetEditor('category');
         return;
       }
       return original.apply(this, arguments);
@@ -428,37 +547,26 @@
       openBudgetSetupPage(options);
     };
     window.dayframeBudgetToggleSetup = function () {
-      openBudgetSetupPage();
+      openQuickBudgetEditor('income');
+    };
+    window.dayframeBudgetOpenIncomeEditor = function () {
+      openQuickBudgetEditor('income');
+    };
+    window.dayframeBudgetOpenPaydayEditor = function () {
+      openQuickBudgetEditor('payday');
+    };
+    window.dayframeBudgetOpenCategoryEditor = function (encoded) {
+      openQuickBudgetEditor('category', encoded || '');
     };
     window.dayframeBudgetAddCategory = function () {
-      openBudgetSetupPage({ form: 'money-budget-form', focusId: 'money-budget-category' });
+      openQuickBudgetEditor('category');
     };
     window.dayframeBudgetEditPayday = function () {
       openPaydayEditor();
     };
     window.dayframeBudgetEditCategory = function (encoded) {
       var category = decodeValue(encoded).trim();
-      openBudgetSetupPage({ category: category, focusId: 'money-budget-limit' });
-      setTimeout(function () {
-        var d = {};
-        try {
-          d = typeof window.hubLoad === 'function' ? window.hubLoad() : {};
-        } catch (_) {
-          d = {};
-        }
-        var match = (d.budgets || []).find(function (budget) {
-          return String(budget.category || '').trim().toLowerCase() === category.toLowerCase();
-        });
-        if (match && typeof window.editBudgetItem === 'function') {
-          window.editBudgetItem(match.id);
-          return;
-        }
-        if (typeof window.toggleLifeForm === 'function') window.toggleLifeForm('money-budget-form', true);
-        var input = $('money-budget-category');
-        if (input) input.value = category;
-        var limit = $('money-budget-limit');
-        if (limit) limit.focus({ preventScroll: true });
-      }, 140);
+      openQuickBudgetEditor('category', category);
     };
   }
 
@@ -467,7 +575,7 @@
       if (aiBusy) return;
       syncBankData();
       if (typeof window.buildSuggestedBudget !== 'function') {
-        setAiMessage('Open Plan budget if you need to add income, bills or category limits.', 5000);
+        setAiMessage('Add income, bills or category limits before drafting budgets.', 5000);
         return;
       }
       var values = {};
@@ -477,7 +585,7 @@
         values = {};
       }
       if (!Number(values.income || 0)) {
-        setAiMessage('Add your monthly income in Plan budget first, then Dayframe can draft category limits.', 6500);
+        setAiMessage('Add your monthly income first, then Dayframe can draft category limits.', 6500);
         return;
       }
       var pane = $('money-pane-budget');
