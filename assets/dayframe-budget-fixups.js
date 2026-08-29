@@ -331,9 +331,9 @@
         ]
       },
       {
-        title: 'Bills',
-        subtitle: 'Regular payments',
-        actions: [{ label: 'Edit', handler: function () { openBillsPage(false); } }]
+        title: 'Fixed costs',
+        subtitle: 'Rent and regular bills',
+        actions: [{ label: 'Edit bills', handler: function () { openBillsPage(false); } }]
       },
       {
         title: 'Credit payments',
@@ -367,9 +367,10 @@
     style.textContent = [
       '.money-page.df-budget-focused .money-metrics{display:none!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-top{align-items:start!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{align-self:start!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{position:relative!important;min-height:92px!important;padding:15px 16px!important;border:1px solid #e7ebf3!important;border-radius:16px!important;background:linear-gradient(180deg,#fff 0%,#fbfcff 100%)!important;box-shadow:0 10px 24px rgba(31,40,65,.055)!important;overflow:hidden!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{align-self:start!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{position:relative!important;min-height:92px!important;padding:15px 16px!important;border:1px solid #e8ebf4!important;border-radius:18px!important;background:#fff!important;box-shadow:0 14px 32px rgba(31,40,65,.065)!important;overflow:hidden!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#7866f2,#ff7aa8)}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(2),.money-page.df-budget-focused #df-budget-redesign .df-budget-check.fixed{background:linear-gradient(145deg,#fff 0%,#f4fffc 100%)!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(2):before{background:linear-gradient(90deg,#38bfa7,#6e8cff)}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(3):before{background:linear-gradient(90deg,#ff9a62,#ff7aa8)}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check small{font-size:10px!important;line-height:1!important;color:#7b879a!important;letter-spacing:.07em!important}',
@@ -428,8 +429,8 @@
       if (!root) return;
       observeBudgetRoot();
       var intro = root.querySelector('.df-budget-header p');
-      if (intro && intro.textContent !== 'Income, bills, credit and category limits in one place.') {
-        intro.textContent = 'Income, bills, credit and category limits in one place.';
+      if (intro && intro.textContent !== 'Income, fixed costs, credit and everyday categories in one place.') {
+        intro.textContent = 'Income, fixed costs, credit and everyday categories in one place.';
       }
       root.querySelectorAll('.df-budget-suggestion').forEach(function (card) {
         card.remove();
