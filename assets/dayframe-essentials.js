@@ -2,7 +2,7 @@
   'use strict';
 
   const STYLE_ID = 'df-essentials-loader-style';
-  const SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v2';
+  const SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
 
   if (!document.getElementById(STYLE_ID)) {
     const style = document.createElement('style');
