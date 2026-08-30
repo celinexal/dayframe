@@ -17,10 +17,25 @@
   function topicDetail() {
     return `
       <div class="df-stock-etf-lesson">
+        <section class="df-stock-etf-spotlight">
+          <div class="df-stock-etf-spot-copy">
+            <span>Start here</span>
+            <h4>Stocks, ETFs, or both?</h4>
+            <p>Pick the investing style that matches how much time, research and risk you actually want to take on.</p>
+          </div>
+          <div class="df-stock-etf-route" aria-label="Three ways to build an investment plan">
+            <div><b>Stock</b><small>one company</small></div>
+            <i></i>
+            <div><b>ETF</b><small>many holdings</small></div>
+            <i></i>
+            <div><b>Both</b><small>base plus ideas</small></div>
+          </div>
+        </section>
         <div class="df-stock-etf-choice-grid">
           <section class="df-stock-etf-choice stocks">
             <span class="df-stock-etf-mark">S</span>
             <h4>Individual stocks</h4>
+            <div class="df-stock-etf-card-line"><b>More control</b><small>More research</small></div>
             <p>You are choosing specific companies. The upside can be higher, but one weak business or bad result can hurt your money more.</p>
             <dl>
               <div><dt>Best for</dt><dd>Companies you understand well</dd></div>
@@ -31,6 +46,7 @@
           <section class="df-stock-etf-choice etfs">
             <span class="df-stock-etf-mark">E</span>
             <h4>ETFs</h4>
+            <div class="df-stock-etf-card-line"><b>Broader spread</b><small>Lower upkeep</small></div>
             <p>You buy one fund that holds many investments. It is usually calmer than picking single stocks, but it still moves with the market.</p>
             <dl>
               <div><dt>Best for</dt><dd>A simple long-term base</dd></div>
@@ -41,6 +57,7 @@
           <section class="df-stock-etf-choice mix">
             <span class="df-stock-etf-mark">B</span>
             <h4>A mix of both</h4>
+            <div class="df-stock-etf-card-line"><b>Core + ideas</b><small>Balanced effort</small></div>
             <p>A common approach is using ETFs as the steady base, then adding a few stocks where you have done proper research.</p>
             <dl>
               <div><dt>Best for</dt><dd>Balance between simple and personal</dd></div>
@@ -50,12 +67,31 @@
           </section>
         </div>
 
-        <div class="df-stock-etf-map" aria-label="Stocks and ETFs comparison">
-          <div class="df-stock-etf-map-row head"><span></span><strong>Stocks</strong><strong>ETFs</strong></div>
-          <div class="df-stock-etf-map-row"><span>What you own</span><p>One company at a time.</p><p>A basket of companies, bonds or other assets.</p></div>
-          <div class="df-stock-etf-map-row"><span>What to check</span><p>Revenue, profit, debt, cash, valuation, dilution and why demand should grow.</p><p>What the fund tracks, top holdings, ongoing charge, currency, platform costs and risk level.</p></div>
-          <div class="df-stock-etf-map-row"><span>When to review</span><p>After earnings, major news, a broken thesis, or if the position becomes too large.</p><p>When goals change, the fund changes strategy, fees become poor, or the allocation no longer fits.</p></div>
-          <div class="df-stock-etf-map-row"><span>Better habit</span><p>Write the reason you own it and what would make you trim or leave.</p><p>Choose the role it plays, then leave it alone unless something meaningful changes.</p></div>
+        <div class="df-stock-etf-duel" aria-label="Stocks and ETFs comparison">
+          <section class="stocks">
+            <span>Stocks</span>
+            <h4>One company story</h4>
+            <p>You own one business at a time, so the result depends more on that company doing well.</p>
+            <ul>
+              <li><b>Check</b> revenue, profit, debt, cash, valuation and dilution.</li>
+              <li><b>Review</b> after earnings, major news, a broken thesis, or if the position gets too large.</li>
+              <li><b>Habit</b> write why you own it and what would make you trim or leave.</li>
+            </ul>
+          </section>
+          <section class="etfs">
+            <span>ETFs</span>
+            <h4>A basket in one buy</h4>
+            <p>You own many holdings through one fund, so the result is usually more spread out.</p>
+            <ul>
+              <li><b>Check</b> what the fund tracks, top holdings, charges, currency and risk level.</li>
+              <li><b>Review</b> when goals change, fees become poor, or the fund no longer fits.</li>
+              <li><b>Habit</b> choose the role it plays, then leave it alone unless something meaningful changes.</li>
+            </ul>
+          </section>
+          <div class="df-stock-etf-habit">
+            <b>Better habit</b>
+            <p>Before money goes in, know whether this is a steady base, a researched company, or a small extra idea.</p>
+          </div>
         </div>
 
         <div class="df-stock-etf-bottom">
@@ -108,6 +144,30 @@
         display:none!important;
       }
 
+      #edu-detail-stocks-vs-etfs.edu-selected-lesson{
+        overflow:hidden;
+        border-color:#d9d2ff!important;
+        background:linear-gradient(180deg,#fff7fb 0%,#ffffff 42%,#f2fffb 100%)!important;
+        box-shadow:0 24px 56px rgba(39,49,75,.09)!important;
+      }
+      #edu-detail-stocks-vs-etfs .edu-selected-head{
+        align-items:center!important;
+        padding:22px 28px!important;
+        border-bottom:1px solid #ece8ff!important;
+        background:
+          linear-gradient(135deg,rgba(124,109,242,.13),rgba(244,114,182,.14) 48%,rgba(52,211,153,.13))!important;
+      }
+      #edu-detail-stocks-vs-etfs .edu-selected-head span{
+        color:#7568ef!important;
+      }
+      #edu-detail-stocks-vs-etfs .edu-selected-head h3{
+        font-size:clamp(26px,2.4vw,38px)!important;
+        letter-spacing:0!important;
+        color:#172033!important;
+      }
+      #edu-detail-stocks-vs-etfs .edu-selected-body{
+        padding:20px 28px 0!important;
+      }
       #pg-dashboard .invest-learn-bridge.df-stock-etf-learn-panel{
         display:grid!important;
         grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr)!important;
@@ -263,7 +323,78 @@
 
       .df-stock-etf-lesson{
         display:grid;
-        gap:16px;
+        gap:18px;
+      }
+      .df-stock-etf-spotlight{
+        display:grid;
+        grid-template-columns:minmax(0,.9fr) minmax(320px,1fr);
+        gap:18px;
+        align-items:center;
+        padding:20px;
+        border:1px solid #e9e2ff;
+        border-radius:22px;
+        background:
+          linear-gradient(135deg,#fff0f8 0%,#f4efff 46%,#ddfff5 100%);
+        box-shadow:0 18px 42px rgba(124,109,242,.14);
+      }
+      .df-stock-etf-spot-copy span{
+        display:block;
+        margin:0 0 7px;
+        color:#e04f9d;
+        font-size:10px;
+        font-weight:900;
+        letter-spacing:0;
+      }
+      .df-stock-etf-spot-copy h4{
+        margin:0;
+        color:#172033;
+        font-family:var(--fd);
+        font-size:clamp(24px,2.5vw,34px);
+        line-height:1.05;
+        letter-spacing:0;
+      }
+      .df-stock-etf-spot-copy p{
+        margin:9px 0 0;
+        color:#607087;
+        font-size:13px;
+        line-height:1.55;
+        max-width:520px;
+      }
+      .df-stock-etf-route{
+        display:grid;
+        grid-template-columns:1fr 34px 1fr 34px 1fr;
+        gap:0;
+        align-items:center;
+      }
+      .df-stock-etf-route div{
+        min-height:102px;
+        display:grid;
+        align-content:center;
+        justify-items:center;
+        gap:6px;
+        border-radius:18px;
+        border:1px solid rgba(255,255,255,.78);
+        background:#fff;
+        box-shadow:0 16px 30px rgba(39,49,75,.09);
+      }
+      .df-stock-etf-route div:nth-child(1){background:linear-gradient(145deg,#fff,#ffdff0);border-color:#ffc2df}
+      .df-stock-etf-route div:nth-child(3){background:linear-gradient(145deg,#fff,#cefff0);border-color:#9ff2d8}
+      .df-stock-etf-route div:nth-child(5){background:linear-gradient(145deg,#fff,#e6e0ff);border-color:#cdc2ff}
+      .df-stock-etf-route b{
+        color:#172033;
+        font-size:16px;
+        letter-spacing:0;
+      }
+      .df-stock-etf-route small{
+        color:#778397;
+        font-size:10.5px;
+        font-weight:750;
+        letter-spacing:0;
+      }
+      .df-stock-etf-route i{
+        height:3px;
+        border-radius:999px;
+        background:linear-gradient(90deg,#f472b6,#7c6df2,#34d399);
       }
       .df-stock-etf-choice-grid{
         display:grid;
@@ -271,16 +402,39 @@
         gap:12px;
       }
       .df-stock-etf-choice{
+        position:relative;
+        overflow:hidden;
         min-width:0;
-        padding:16px;
+        padding:18px;
         border:1px solid #e8ebf3;
         border-radius:18px;
         background:#fff;
         box-shadow:0 10px 22px rgba(39,49,75,.04);
       }
-      .df-stock-etf-choice.stocks{box-shadow:inset 0 3px 0 #f472b6,0 10px 22px rgba(39,49,75,.04)}
-      .df-stock-etf-choice.etfs{box-shadow:inset 0 3px 0 #34d399,0 10px 22px rgba(39,49,75,.04)}
-      .df-stock-etf-choice.mix{box-shadow:inset 0 3px 0 #7c6df2,0 10px 22px rgba(39,49,75,.04)}
+      .df-stock-etf-choice:before{
+        content:'';
+        position:absolute;
+        inset:0 0 auto;
+        height:5px;
+      }
+      .df-stock-etf-choice.stocks{
+        background:linear-gradient(160deg,#fff 0%,#fff7fb 100%);
+        border-color:#ffd2e8;
+        box-shadow:0 16px 34px rgba(244,114,182,.12);
+      }
+      .df-stock-etf-choice.etfs{
+        background:linear-gradient(160deg,#fff 0%,#ecfffa 100%);
+        border-color:#c7f8e2;
+        box-shadow:0 16px 34px rgba(52,211,153,.11);
+      }
+      .df-stock-etf-choice.mix{
+        background:linear-gradient(160deg,#fff 0%,#f5f3ff 100%);
+        border-color:#ddd6fe;
+        box-shadow:0 16px 34px rgba(124,109,242,.12);
+      }
+      .df-stock-etf-choice.stocks:before{background:#f472b6}
+      .df-stock-etf-choice.etfs:before{background:#34d399}
+      .df-stock-etf-choice.mix:before{background:#7c6df2}
       .df-stock-etf-mark{
         width:34px;
         height:34px;
@@ -294,6 +448,9 @@
         font-weight:900;
         letter-spacing:0;
       }
+      .df-stock-etf-choice.stocks .df-stock-etf-mark{background:#fff0f7;color:#db4d9d}
+      .df-stock-etf-choice.etfs .df-stock-etf-mark{background:#eafff8;color:#199a72}
+      .df-stock-etf-choice.mix .df-stock-etf-mark{background:#f1efff;color:#6e63e9}
       .df-stock-etf-choice h4,
       .df-stock-etf-bottom h4{
         margin:0;
@@ -303,6 +460,29 @@
         color:#182235;
         letter-spacing:0;
       }
+      .df-stock-etf-card-line{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex-wrap:wrap;
+        margin:9px 0 0;
+      }
+      .df-stock-etf-card-line b,
+      .df-stock-etf-card-line small{
+        display:inline-flex;
+        align-items:center;
+        min-height:26px;
+        padding:0 10px;
+        border-radius:999px;
+        font-size:10.5px;
+        font-weight:850;
+        letter-spacing:0;
+      }
+      .df-stock-etf-card-line b{background:#172033;color:#fff}
+      .df-stock-etf-card-line small{background:#fff;color:#707b8e;border:1px solid #e6ebf3}
+      .df-stock-etf-choice.stocks .df-stock-etf-card-line b{background:#ffe1f0;color:#b91c70}
+      .df-stock-etf-choice.etfs .df-stock-etf-card-line b{background:#d8fff1;color:#047857}
+      .df-stock-etf-choice.mix .df-stock-etf-card-line b{background:#e7e1ff;color:#5b4be3}
       .df-stock-etf-choice p,
       .df-stock-etf-bottom p,
       .df-stock-etf-choice dd,
@@ -331,22 +511,25 @@
       }
       .df-stock-etf-choice dd{margin:0}
       .df-stock-etf-map{
-        border:1px solid #e8ebf3;
-        border-radius:18px;
+        border:1px solid #e7e2ff;
+        border-radius:20px;
         overflow:hidden;
-        background:#fff;
+        background:linear-gradient(135deg,#fff,#fbfaff);
+        box-shadow:0 14px 30px rgba(39,49,75,.055);
       }
       .df-stock-etf-map-row{
         display:grid;
         grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);
         gap:12px;
-        padding:12px 14px;
-        border-top:1px solid #eef1f6;
+        padding:14px 16px;
+        border-top:1px solid #eceff6;
       }
       .df-stock-etf-map-row:first-child{border-top:0}
       .df-stock-etf-map-row.head{
-        background:#fafbff;
+        background:linear-gradient(90deg,#fff5fb,#f2fffb);
       }
+      .df-stock-etf-map-row:nth-child(3){background:rgba(255,247,251,.7)}
+      .df-stock-etf-map-row:nth-child(4){background:rgba(240,253,250,.72)}
       .df-stock-etf-map-row span{
         color:#828da0;
         font-size:10px;
@@ -359,17 +542,119 @@
         letter-spacing:0;
       }
       .df-stock-etf-map-row p{margin:0}
+      .df-stock-etf-duel{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+        gap:12px;
+      }
+      .df-stock-etf-duel section{
+        position:relative;
+        overflow:hidden;
+        padding:20px;
+        border:1px solid #e8ebf3;
+        border-radius:20px;
+        box-shadow:0 16px 34px rgba(39,49,75,.055);
+      }
+      .df-stock-etf-duel section:before{
+        content:'';
+        position:absolute;
+        inset:0 0 auto;
+        height:6px;
+      }
+      .df-stock-etf-duel section.stocks{
+        background:linear-gradient(145deg,#ffffff 0%,#fff3fa 100%);
+        border-color:#ffd1e7;
+      }
+      .df-stock-etf-duel section.etfs{
+        background:linear-gradient(145deg,#ffffff 0%,#eafff8 100%);
+        border-color:#bdf4df;
+      }
+      .df-stock-etf-duel section.stocks:before{background:#f472b6}
+      .df-stock-etf-duel section.etfs:before{background:#34d399}
+      .df-stock-etf-duel span{
+        display:inline-flex;
+        min-height:28px;
+        align-items:center;
+        padding:0 11px;
+        border-radius:999px;
+        font-size:10px;
+        font-weight:900;
+        letter-spacing:0;
+        background:#fff;
+        color:#7568ef;
+        box-shadow:0 8px 18px rgba(39,49,75,.07);
+      }
+      .df-stock-etf-duel h4{
+        margin:12px 0 7px;
+        font-family:var(--fd);
+        color:#172033;
+        font-size:19px;
+        line-height:1.15;
+        letter-spacing:0;
+      }
+      .df-stock-etf-duel p{
+        margin:0;
+        color:#617087;
+        font-size:12px;
+        line-height:1.55;
+      }
+      .df-stock-etf-duel ul{
+        display:grid;
+        gap:8px;
+        margin:14px 0 0;
+        padding:0;
+        list-style:none;
+      }
+      .df-stock-etf-duel li{
+        padding:10px 11px;
+        border-radius:14px;
+        background:rgba(255,255,255,.78);
+        color:#647185;
+        font-size:11.5px;
+        line-height:1.45;
+        border:1px solid rgba(226,232,240,.88);
+      }
+      .df-stock-etf-duel li b{
+        color:#172033;
+        margin-right:4px;
+      }
+      .df-stock-etf-habit{
+        grid-column:1/-1;
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:14px 16px;
+        border-radius:18px;
+        border:1px solid #e7e0ff;
+        background:linear-gradient(90deg,#f6f1ff 0%,#fff7fb 48%,#effefa 100%);
+      }
+      .df-stock-etf-habit b{
+        flex:0 0 auto;
+        color:#6e63e9;
+        font-size:12px;
+        font-weight:900;
+        letter-spacing:0;
+      }
+      .df-stock-etf-habit p{
+        margin:0;
+        color:#5e6b7f;
+        font-size:12px;
+        line-height:1.45;
+      }
       .df-stock-etf-bottom{
         display:grid;
         grid-template-columns:minmax(0,1fr) minmax(0,1fr);
         gap:12px;
       }
       .df-stock-etf-bottom section{
-        padding:16px;
+        padding:18px;
         border:1px solid #e8ebf3;
-        border-radius:18px;
+        border-radius:20px;
         background:#fff;
+        box-shadow:0 14px 28px rgba(39,49,75,.045);
       }
+      .df-stock-etf-bottom section:first-child{background:linear-gradient(145deg,#fff,#f0fffa);border-color:#c7f8e2}
+      .df-stock-etf-bottom section:last-child{background:linear-gradient(145deg,#fff,#fff7fb);border-color:#ffd2e8}
       .df-stock-etf-bottom ul{
         display:grid;
         gap:8px;
@@ -398,8 +683,24 @@
         margin-top:12px!important;
         padding:10px 12px;
         border-radius:12px;
-        background:#fbf7ff;
+        background:#fff;
         border:1px solid #eee6ff;
+      }
+      #edu-detail-stocks-vs-etfs .edu-quiz{
+        margin:20px 28px 28px!important;
+        border:1px solid #e7e2ff!important;
+        border-radius:20px!important;
+        background:linear-gradient(135deg,#ffffff,#fbf7ff 55%,#f0fffa)!important;
+        box-shadow:0 14px 34px rgba(39,49,75,.055)!important;
+      }
+      #edu-detail-stocks-vs-etfs .edu-quiz-option{
+        background:#fff!important;
+        border-color:#e8ebf3!important;
+        box-shadow:0 8px 18px rgba(39,49,75,.035)!important;
+      }
+      #edu-detail-stocks-vs-etfs .edu-quiz-option span{
+        background:#f1efff!important;
+        color:#7668ef!important;
       }
       .education-page .edu-card[onclick*="stocks-vs-etfs"]{
         background:linear-gradient(145deg,#fff,#fff7fb)!important;
@@ -408,26 +709,53 @@
 
       @media(max-width:900px){
         #pg-dashboard .invest-learn-bridge.df-stock-etf-learn-panel,
+        .df-stock-etf-spotlight,
         .df-stock-etf-feature{
           grid-template-columns:1fr!important;
         }
         .df-stock-etf-learn-actions,
         .df-stock-etf-mini-grid,
         .df-stock-etf-choice-grid,
+        .df-stock-etf-duel,
         .df-stock-etf-bottom{
           grid-template-columns:1fr;
           min-width:0;
         }
-        .df-stock-etf-map-row{
+        .df-stock-etf-habit{
+          display:block;
+        }
+        .df-stock-etf-habit p{
+          margin-top:6px;
+        }
+        .df-stock-etf-route{
           grid-template-columns:1fr;
-          gap:6px;
+          gap:8px;
+        }
+        .df-stock-etf-route i{
+          width:3px;
+          height:18px;
+          justify-self:center;
+          background:linear-gradient(180deg,#f472b6,#7c6df2,#34d399);
         }
         .df-stock-etf-map-row.head{display:none}
       }
       @media(max-width:560px){
+        #edu-detail-stocks-vs-etfs .edu-selected-head{
+          padding:18px 20px!important;
+        }
+        #edu-detail-stocks-vs-etfs .edu-selected-body{
+          padding:14px 14px 0!important;
+        }
         #pg-dashboard .invest-learn-bridge.df-stock-etf-learn-panel{
           padding:14px!important;
           border-radius:16px!important;
+        }
+        .df-stock-etf-spotlight{
+          padding:15px;
+          border-radius:18px;
+        }
+        .df-stock-etf-route div{
+          min-height:74px;
         }
         .df-stock-etf-learn-actions{
           grid-template-columns:repeat(2,minmax(0,1fr));
@@ -442,6 +770,9 @@
         .df-stock-etf-learn-copy h2,
         .df-stock-etf-feature-copy h3{
           font-size:18px;
+        }
+        #edu-detail-stocks-vs-etfs .edu-quiz{
+          margin:16px 14px 18px!important;
         }
       }
     `;
