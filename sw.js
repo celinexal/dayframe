@@ -1,5 +1,5 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v53';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js'];
+const DAYFRAME_CACHE = 'dayframe-shell-v54';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260829-light-polish';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
@@ -10,6 +10,7 @@ const DAYFRAME_MONEY_PERFORMANCE_SRC = '/assets/dayframe-money-performance.js?v=
 const DAYFRAME_BUDGET_REDESIGN_SRC = '/assets/dayframe-budget-redesign.js?v=20260830-aligned-budget-layout';
 const DAYFRAME_BUDGET_FIXUPS_SRC = '/assets/dayframe-budget-fixups.js?v=20260830-budget-no-draft';
 const DAYFRAME_BUDGET_MOBILE_STRIP_SRC = '/assets/dayframe-budget-mobile-strip.js?v=20260830-budget-mobile-strip';
+const DAYFRAME_BILLS_PERSISTENCE_SRC = '/assets/dayframe-bills-persistence-fix.js?v=20260830-bills-immediate-save';
 const DAYFRAME_CATEGORY_BUDGET_SRC = '/assets/dayframe-category-budget-focus.js?v=20260829-lazy-category-detail';
 const DAYFRAME_TRANSACTIONS_CLEANUP_SRC = '/assets/dayframe-transactions-default-cleanup.js?v=20260827-default-transactions-clean-wide';
 const DAYFRAME_VISUAL_TIDY_SRC = '/assets/dayframe-visual-tidy.js?v=20260829-defer-budget-overview';
@@ -70,6 +71,9 @@ async function withPolish(response) {
   }
   if (!body.includes('dayframe-login-input-fix.js')) {
     tags.push(`<script data-dayframe-login-input-fix-loader src="${DAYFRAME_LOGIN_INPUT_FIX_SRC}" defer></script>`);
+  }
+  if (!body.includes('dayframe-bills-persistence-fix.js')) {
+    tags.push(`<script data-dayframe-bills-persistence-loader src="${DAYFRAME_BILLS_PERSISTENCE_SRC}" defer></script>`);
   }
   if (!body.includes('dayframe-theory-session.js')) {
     tags.push(`<script data-dayframe-theory-session-loader src="${DAYFRAME_THEORY_SESSION_SRC}" defer></script>`);
