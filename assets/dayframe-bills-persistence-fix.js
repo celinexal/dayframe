@@ -7,6 +7,9 @@
   var restoreTimer = 0;
   var pendingSuggestion = null;
   var openingFromSuggestion = false;
+  var openingFromEdit = false;
+  var editingBillId = '';
+  var billRowsObserver = null;
 
   function $(id) {
     return document.getElementById(id);
@@ -127,6 +130,26 @@
     delete form.dataset.sourceAmount;
     delete form.dataset.sourceCategory;
     delete form.dataset.sourceDueDay;
+  }
+
+  function setSaveButtonLabel(label) {
+    var form = $('money-bill-form');
+    var button = form && form.querySelector('.life-btn-primary');
+    if (button) button.textContent = label || 'Save bill';
+  }
+
+  function setEditingBill(id) {
+    editingBillId = id ? String(id) : '';
+    var form = $('money-bill-form');
+    if (!form) return;
+    if (editingBillId) form.dataset.editingBillId = editingBillId;
+    else delete form.dataset.editingBillId;
+    setSaveButtonLabel(editingBillId ? 'Save changes' : 'Save bill');
+  }
+
+  function currentEditingBillId() {
+    var form = $('money-bill-form');
+    return String((form && form.dataset.editingBillId) || editingBillId || '');
   }
 
   function billSourceKeys(bill) {
@@ -271,8 +294,14 @@
     var original = window.toggleLifeForm;
     if (typeof original !== 'function' || original.__dayframeBillMetaWrapped) return false;
     var wrapped = function (id, open) {
-      if (id === 'money-bill-form' && open && !openingFromSuggestion) clearSuggestionMeta();
-      if (id === 'money-bill-form' && open === false) clearSuggestionMeta();
+      if (id === 'money-bill-form' && open && !openingFromSuggestion && !openingFromEdit) {
+        clearSuggestionMeta();
+        setEditingBill('');
+      }
+      if (id === 'money-bill-form' && open === false) {
+        clearSuggestionMeta();
+        setEditingBill('');
+      }
       return original.apply(this, arguments);
     };
     wrapped.__dayframeBillMetaWrapped = true;
@@ -330,6 +359,19 @@
     try {
       if (typeof window.renderHome === 'function') window.renderHome();
     } catch (_) {}
+    scheduleBillRowEnhancement();
+  }
+
+  function injectStyle() {
+    if ($('df-bills-persistence-style')) return;
+    var style = document.createElement('style');
+    style.id = 'df-bills-persistence-style';
+    style.textContent = [
+      '.money-bill-row .money-bill-edit{height:32px;padding:0 11px;border:1px solid #e2e6f1;border-radius:10px;background:#fff;color:#6759e8;font:850 10px/1 var(--fd,var(--ff,inherit));cursor:pointer;white-space:nowrap}',
+      '.money-bill-row .money-bill-edit:hover{background:#f4f1ff;border-color:#dcd8ff}',
+      '@media(max-width:560px){.money-bill-row{align-items:flex-start}.money-bill-row .money-bill-edit,.money-bill-row .money-bill-toggle{height:30px;padding:0 9px}}'
+    ].join('\n');
+    document.head.appendChild(style);
   }
 
   function restorePendingBills() {
@@ -366,6 +408,45 @@
       if (input) input.value = '';
     });
     clearSuggestionMeta();
+    setEditingBill('');
+  }
+
+  function startEditBill(id) {
+    var data = loadHub();
+    var bill = data && Array.isArray(data.bills) ? data.bills.find(function (item) {
+      return String(item.id) === String(id);
+    }) : null;
+    if (!bill) {
+      toast('That bill could not be found');
+      return;
+    }
+    var nameInput = $('money-bill-name');
+    var amountInput = $('money-bill-amount');
+    var categoryInput = $('money-bill-category');
+    var dayInput = $('money-bill-day');
+    if (nameInput) nameInput.value = bill.name || '';
+    if (amountInput) amountInput.value = Number(bill.amount || 0) || '';
+    if (categoryInput) categoryInput.value = bill.category || 'Other';
+    if (dayInput) dayInput.value = Number(bill.dueDay || 1) || 1;
+    if (bill.sourceMerchantKey) {
+      writeFormMeta({
+        sourceMerchantKey: bill.sourceMerchantKey,
+        sourceMerchantName: bill.sourceMerchantName || bill.name || '',
+        sourceAmount: Number(bill.sourceAmount || bill.amount || 0),
+        sourceCategory: bill.sourceCategory || bill.category || 'Other',
+        sourceDueDay: Number(bill.sourceDueDay || bill.dueDay || 0),
+      });
+    } else {
+      clearSuggestionMeta();
+    }
+    setEditingBill(id);
+    openingFromEdit = true;
+    try {
+      if (typeof window.toggleLifeForm === 'function') window.toggleLifeForm('money-bill-form', true);
+    } catch (_) {}
+    openingFromEdit = false;
+    var form = $('money-bill-form');
+    if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   function addBillItem() {
@@ -387,8 +468,12 @@
     if (!data) return;
     data.bills = Array.isArray(data.bills) ? data.bills : [];
     var category = rememberCategory(data, rawCategory || 'Other');
+    var editId = currentEditingBillId();
+    var existing = editId ? data.bills.find(function (item) {
+      return String(item.id) === String(editId);
+    }) : null;
     var bill = {
-      id: Date.now(),
+      id: existing ? existing.id : Date.now(),
       name: name,
       amount: amount,
       category: category,
@@ -403,7 +488,11 @@
       bill.sourceCategory = meta.sourceCategory;
       bill.sourceDueDay = meta.sourceDueDay;
     }
-    data.bills.unshift(bill);
+    if (existing) {
+      Object.assign(existing, bill);
+    } else {
+      data.bills.unshift(bill);
+    }
 
     saveNow(data);
     clearBillForm();
@@ -411,7 +500,7 @@
       if (typeof window.toggleLifeForm === 'function') window.toggleLifeForm('money-bill-form', false);
     } catch (_) {}
     refreshMoney();
-    toast('Bill saved');
+    toast(existing ? 'Bill updated' : 'Bill saved');
   }
 
   function deleteBillItem(id) {
@@ -439,19 +528,82 @@
     toast(bill.paidMonth ? 'Marked as paid' : 'Marked as unpaid');
   }
 
+  function billIdFromRow(row) {
+    var button = row && row.querySelector('[onclick*="deleteBillItem"],[onclick*="toggleBillPaid"]');
+    var match = button && String(button.getAttribute('onclick') || '').match(/\((['"]?)([^'")]+)\1\)/);
+    return match ? match[2] : '';
+  }
+
+  function enhanceBillRows() {
+    var list = $('money-bills-list');
+    if (!list) return;
+    list.querySelectorAll('.money-bill-row').forEach(function (row) {
+      if (row.dataset.dfBillEditEnhanced === '1') return;
+      var id = billIdFromRow(row);
+      var toggle = row.querySelector('.money-bill-toggle');
+      if (!id || !toggle) return;
+      var edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'money-bill-edit';
+      edit.textContent = 'Edit';
+      edit.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        startEditBill(id);
+      });
+      toggle.parentNode.insertBefore(edit, toggle);
+      row.dataset.dfBillEditEnhanced = '1';
+    });
+  }
+
+  function scheduleBillRowEnhancement() {
+    setTimeout(enhanceBillRows, 40);
+  }
+
+  function observeBillRows() {
+    var list = $('money-bills-list');
+    if (!list || list.__dfBillsPersistenceObserved) return;
+    list.__dfBillsPersistenceObserved = true;
+    billRowsObserver = new MutationObserver(scheduleBillRowEnhancement);
+    billRowsObserver.observe(list, { childList: true, subtree: true });
+    scheduleBillRowEnhancement();
+  }
+
+  function wrapRenderMoney() {
+    var original = window.renderMoney;
+    if (typeof original !== 'function' || original.__dayframeBillsEditWrapped) return false;
+    var wrapped = function () {
+      var result = original.apply(this, arguments);
+      observeBillRows();
+      scheduleBillRowEnhancement();
+      return result;
+    };
+    wrapped.__dayframeBillsEditWrapped = true;
+    window.renderMoney = wrapped;
+    return true;
+  }
+
   function install() {
     if (typeof window.hubLoad !== 'function') return false;
+    injectStyle();
     window.addBillItem = addBillItem;
     window.deleteBillItem = deleteBillItem;
     window.toggleBillPaid = toggleBillPaid;
+    window.editBillItem = startEditBill;
+    window.startEditBillItem = startEditBill;
+    wrapRenderMoney();
     wrapBillSuggestionFinder();
     wrapBillSuggestionPicker();
     wrapToggleLifeForm();
+    observeBillRows();
     installed = true;
     scheduleRestore();
+    scheduleBillRowEnhancement();
+    setTimeout(wrapRenderMoney, 400);
     setTimeout(wrapBillSuggestionFinder, 400);
     setTimeout(wrapBillSuggestionPicker, 400);
     setTimeout(wrapToggleLifeForm, 400);
+    setTimeout(observeBillRows, 400);
     setTimeout(restorePendingBills, 900);
     setTimeout(restorePendingBills, 2200);
     return true;
@@ -482,7 +634,11 @@
   });
 
   window.addEventListener('focus', scheduleRestore);
-  document.addEventListener('dayframe:money-rendered', scheduleRestore);
+  document.addEventListener('dayframe:money-rendered', function () {
+    scheduleRestore();
+    observeBillRows();
+    scheduleBillRowEnhancement();
+  });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
