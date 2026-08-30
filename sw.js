@@ -1,5 +1,5 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v65';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-budget-limits-editor.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-diary-delete-fix.js'];
+const DAYFRAME_CACHE = 'dayframe-shell-v66';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-budget-limits-editor.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-diary-delete-fix.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260829-light-polish';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
@@ -21,7 +21,8 @@ const DAYFRAME_VISUAL_CALM_SRC = '/assets/dayframe-visual-calm.js?v=20260829-no-
 const DAYFRAME_STOCK_ETF_FOUNDATION_SRC = '/assets/dayframe-stock-etf-foundation.js?v=20260830-stock-etf-foundation-v3';
 const DAYFRAME_LOGIN_INPUT_FIX_SRC = '/assets/dayframe-login-input-fix.js?v=20260829-ios-input-focus';
 const DAYFRAME_STANDARD_HOME_SRC = '/assets/dayframe-standard-home.js?v=20260829-standard-home-fast-start';
-const DAYFRAME_LIFE_STAGE_SRC = '/assets/dayframe-life-stage.js?v=20260830-life-stage';
+const DAYFRAME_LIFE_STAGE_SRC = '/assets/dayframe-life-stage.js?v=20260830-essentials-v2';
+const DAYFRAME_ESSENTIALS_SRC = '/assets/dayframe-essentials.js?v=20260830-essentials-v1';
 const DAYFRAME_DIARY_DELETE_FIX_SRC = '/assets/dayframe-diary-delete-fix.js?v=20260830-diary-delete';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';
 const DAYFRAME_DISMISSED_GUIDANCE_STYLE = '<style id="df-dismissed-guidance-style">#df-money-guidance,#df-invest-guidance{display:none!important}</style>';
@@ -77,6 +78,9 @@ async function withPolish(response) {
   }
   if (!body.includes('dayframe-life-stage.js')) {
     tags.push(`<script data-dayframe-life-stage-loader src="${DAYFRAME_LIFE_STAGE_SRC}" defer></script>`);
+  }
+  if (!body.includes('dayframe-essentials.js')) {
+    tags.push(`<script data-dayframe-essentials-loader src="${DAYFRAME_ESSENTIALS_SRC}" defer></script>`);
   }
   if (!body.includes('dayframe-diary-delete-fix.js')) {
     tags.push(`<script data-dayframe-diary-delete-fix-loader src="${DAYFRAME_DIARY_DELETE_FIX_SRC}" defer></script>`);
