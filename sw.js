@@ -1,10 +1,11 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v59';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-budget-limits-editor.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js'];
+const DAYFRAME_CACHE = 'dayframe-shell-v60';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-budget-limits-editor.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260829-light-polish';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
 const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826-money-cleanup';
 const DAYFRAME_RISK_FIX_SRC = '/assets/dayframe-risk-holdings-fix.js?v=20260827-current-holdings';
+const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260830-current-sector-themes';
 const DAYFRAME_CAR_COSTS_SRC = '/assets/dayframe-car-costs-merge.js?v=20260827-delete-costs-sidebar-final';
 const DAYFRAME_MONEY_PERFORMANCE_SRC = '/assets/dayframe-money-performance.js?v=20260829-fast-money-v2';
 const DAYFRAME_BUDGET_REDESIGN_SRC = '/assets/dayframe-budget-redesign.js?v=20260830-aligned-budget-layout';
@@ -91,6 +92,9 @@ async function withPolish(response) {
   }
   if (!body.includes('dayframe-risk-holdings-fix.js')) {
     tags.push(`<script data-dayframe-risk-holdings-fix-loader src="${DAYFRAME_RISK_FIX_SRC}" defer></script>`);
+  }
+  if (!body.includes('dayframe-sector-themes-current.js')) {
+    tags.push(`<script data-dayframe-sector-themes-current-loader src="${DAYFRAME_SECTOR_THEMES_CURRENT_SRC}" defer></script>`);
   }
   if (!body.includes('dayframe-car-costs-merge.js')) {
     tags.push(`<script data-dayframe-car-costs-merge-loader src="${DAYFRAME_CAR_COSTS_SRC}" defer></script>`);
