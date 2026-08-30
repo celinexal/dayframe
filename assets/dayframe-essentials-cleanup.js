@@ -8,7 +8,7 @@
   const MODULES = [
     { key: 'money', label: 'Money', note: 'Spending, bills, budgets and credit' },
     { key: 'planner', label: 'Plans', note: 'Tasks, goals and dates' },
-    { key: 'driving', label: 'Essentials', note: 'Car and private personal trackers' },
+    { key: 'driving', label: 'Essentials', note: 'Car and period tracker' },
     { key: 'diary', label: 'Diary', note: 'Private notes and mood' },
     { key: 'bible', label: 'Bible Study', note: 'Reading, notes and highlights' },
     { key: 'investing', label: 'Investing', note: 'Learning, holdings and research' },
@@ -300,7 +300,7 @@
       const title = current.querySelector('.driving-home-title');
       const desc = current.querySelector('.driving-home-desc');
       if (title) title.textContent = 'My Car';
-      if (desc) desc.textContent = 'Store car details, renewals, service notes and quick theory help when needed.';
+      if (desc) desc.textContent = 'Car details, renewals and theory help when you need it.';
       if (!current.querySelector('.df-car-actions')) {
         current.insertAdjacentHTML('beforeend', `
           <div class="df-car-question">Need help passing your theory?</div>
@@ -320,10 +320,10 @@
         <div class="driving-home-icon"><svg viewBox="0 0 24 24"><path d="M5 13l1.8-5.1A2 2 0 018.7 6.5h6.6a2 2 0 011.9 1.4L19 13"/><rect x="3" y="12" width="18" height="6.5" rx="2"/><path d="M6 18.5V21M18 18.5V21M7 15h.1M17 15h.1"/></svg></div>
         <div class="driving-card-number">01</div>
       </div>
-      <div class="driving-home-copy">
-        <div class="driving-home-kicker">Your vehicle</div>
-        <div class="driving-home-title">My Car</div>
-        <div class="driving-home-desc">Store car details, renewals, service notes and quick theory help when needed.</div>
+        <div class="driving-home-copy">
+          <div class="driving-home-kicker">Car</div>
+          <div class="driving-home-title">My Car</div>
+          <div class="driving-home-desc">Car details, renewals and theory help when you need it.</div>
       </div>
       <div class="driving-card-tags"><span class="driving-card-tag">MOT</span><span class="driving-card-tag">Tax</span><span class="driving-card-tag">Insurance</span><span class="driving-card-tag">Service</span></div>
       <div class="df-car-question">Need help passing your theory?</div>
@@ -346,7 +346,7 @@
             <div class="driving-home-icon"><svg viewBox="0 0 24 24"><path d="M12 3.5c3.6 3.2 5.4 6.1 5.4 8.7a5.4 5.4 0 11-10.8 0C6.6 9.6 8.4 6.7 12 3.5z"/><path d="M9.3 13.2c.8 1.4 1.7 2.1 2.7 2.1s1.9-.7 2.7-2.1"/></svg></div>
             <div class="driving-card-number">02</div>
           </div>
-          <div class="driving-home-copy"><div class="driving-home-kicker">Health</div><div class="driving-home-title">Period tracker</div><div class="driving-home-desc" id="df-period-card-desc">Save your cycle dates privately and see the next estimate.</div></div>
+          <div class="driving-home-copy"><div class="driving-home-kicker">Private</div><div class="driving-home-title">Period tracker</div><div class="driving-home-desc" id="df-period-card-desc">Save cycle dates privately and see the next estimate.</div></div>
           <div class="df-period-card-summary" id="df-period-card-summary">Set up when useful</div>
           <div class="driving-home-arrow">-&gt;</div>
         </button>
@@ -356,7 +356,7 @@
       grid.insertAdjacentHTML('afterend', `
         <section class="df-period-panel" id="df-period-panel" hidden>
           <div class="df-period-panel-head">
-            <div><span>Private health tool</span><h2>Period tracker</h2><p>Use this as a gentle reminder, not as medical advice.</p></div>
+            <div><span>Private tracker</span><h2>Period tracker</h2><p>Use this as a gentle reminder, not as medical advice.</p></div>
             <button class="df-period-panel-close" type="button" onclick="dayframeClosePeriodTracker()" aria-label="Close period tracker">x</button>
           </div>
           <div class="df-period-body">
@@ -392,7 +392,7 @@
     const badge = byId('df-period-card-summary');
     const nextDate = byId('df-period-next-date');
     const nextDetail = byId('df-period-next-detail');
-    if (desc) desc.textContent = p.lastStart ? `Next estimate: ${summary.date}.` : 'Save your cycle dates privately and see the next estimate.';
+    if (desc) desc.textContent = p.lastStart ? `Next estimate: ${summary.date}.` : 'Save cycle dates privately and see the next estimate.';
     if (badge) badge.textContent = summary.badge;
     if (nextDate) nextDate.textContent = summary.date;
     if (nextDetail) nextDetail.textContent = summary.detail;
@@ -429,7 +429,7 @@
     const sideKicker = document.querySelector('.driving-side-kicker');
     const sideTitle = document.querySelector('.driving-side-title');
     if (sideKicker) sideKicker.textContent = 'Essentials';
-    if (sideTitle) sideTitle.textContent = 'Personal tools';
+    if (sideTitle) sideTitle.textContent = 'Essentials';
     const overview = document.querySelector('.driving-side-nav [data-driving-page="driving"]');
     if (overview) setButtonLabel(overview, 'Overview');
     setButtonLabel(document.querySelector('.df-nav-btn[data-main-page="driving"]'), 'Essentials');
@@ -440,7 +440,7 @@
       const strong = mobileMore.querySelector('strong');
       const small = mobileMore.querySelector('small');
       if (strong) strong.textContent = 'Essentials';
-      if (small) small.textContent = 'Car and personal trackers';
+      if (small) small.textContent = 'Car and period tracker';
     }
 
     const heroEyebrow = document.querySelector('#pg-driving .driving-hub-eyebrow');
@@ -448,13 +448,13 @@
     const heroSub = document.querySelector('#pg-driving .driving-hub-sub');
     const heroPills = document.querySelector('#pg-driving .driving-hub-pills');
     if (heroEyebrow) heroEyebrow.innerHTML = '<i></i>Essentials';
-    if (heroTitle) heroTitle.textContent = 'Your everyday essentials.';
-    if (heroSub) heroSub.textContent = 'Keep car details and private personal trackers in one calm place. Open theory help from My Car only if you need it.';
-    if (heroPills) heroPills.innerHTML = '<span class="driving-hub-pill"><b></b>My Car</span><span class="driving-hub-pill"><b></b>Period tracker</span><span class="driving-hub-pill"><b></b>Theory help when needed</span>';
+    if (heroTitle) heroTitle.textContent = 'My Car and personal trackers';
+    if (heroSub) heroSub.textContent = 'Car details stay in My Car. Theory help opens from there if you need it.';
+    if (heroPills) heroPills.innerHTML = '<span class="driving-hub-pill"><b></b>My Car</span><span class="driving-hub-pill"><b></b>Period tracker</span>';
 
     const homeCard = document.querySelector('[data-home-module="driving"]');
     if (homeCard?.querySelector('.hub-module-title')) homeCard.querySelector('.hub-module-title').textContent = 'Essentials';
-    if (homeCard?.querySelector('.hub-module-desc')) homeCard.querySelector('.hub-module-desc').textContent = 'My Car, private trackers and useful reminders in one place.';
+    if (homeCard?.querySelector('.hub-module-desc')) homeCard.querySelector('.hub-module-desc').textContent = 'My Car and private trackers in one place.';
     document.querySelectorAll('#pg-driving-theory .life-back,#pg-driving-car .life-back,#pg-driving-costs .life-back').forEach((button) => {
       button.textContent = '< Essentials';
     });
@@ -501,7 +501,7 @@
       <div class="df-life-editor">
         <section class="df-life-editor-section soft">
           <h3 class="df-life-section-title">Customise Dayframe</h3>
-          <p class="df-life-section-copy">Choose the main spaces and Home order. Essentials stays simple: My Car, period tracker, and theory help inside My Car.</p>
+          <p class="df-life-section-copy">Choose the main spaces and Home order. Essentials keeps My Car and period tracker separate, with theory help inside My Car.</p>
         </section>
         <section class="df-life-editor-section">
           <h3 class="df-life-section-title">Spaces</h3>
