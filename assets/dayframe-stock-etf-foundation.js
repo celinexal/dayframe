@@ -122,6 +122,36 @@
         box-shadow:0 16px 36px rgba(39,49,75,.07)!important;
       }
       #pg-dashboard .invest-learn-bridge.df-stock-etf-learn-panel:after{display:none!important}
+      .education-page .edu-hero-new{
+        background:linear-gradient(135deg,#ffffff 0%,#fff8fb 52%,#effdf9 100%)!important;
+        border:1px solid #e8ebf3!important;
+        color:#172033!important;
+        box-shadow:0 18px 42px rgba(39,49,75,.08)!important;
+      }
+      .education-page .edu-hero-new:after{display:none!important}
+      .education-page .edu-hero-kicker{color:#7b6ff0!important}
+      .education-page .edu-hero-title{color:#172033!important}
+      .education-page .edu-hero-sub{color:#647083!important}
+      .education-page .edu-trust-row span{
+        background:#fff!important;
+        border:1px solid #e7ebf3!important;
+        color:#6d7788!important;
+      }
+      .education-page .edu-progress-card{
+        background:rgba(255,255,255,.76)!important;
+        border:1px solid #e7ebf3!important;
+        color:#172033!important;
+        box-shadow:none!important;
+      }
+      .education-page .edu-progress-card span,
+      .education-page .edu-progress-card p{color:#788397!important}
+      .education-page .edu-progress-card strong{color:#172033!important}
+      .education-page .edu-progress-track{background:#e9edf5!important}
+      .education-page .edu-progress-card button{
+        background:#fff!important;
+        border:1px solid #e2e7f1!important;
+        color:#6e63e9!important;
+      }
       .df-stock-etf-learn-copy span,
       .df-stock-etf-feature-copy span{
         display:block;
@@ -462,6 +492,11 @@
     libraryHead.parentElement.insertBefore(feature, libraryHead);
   }
 
+  function tidySelectedLessonTitle() {
+    const heading = document.querySelector('#edu-detail-' + TOPIC_ID + ' .edu-selected-head h3');
+    if (heading) heading.textContent = 'Stocks vs ETFs';
+  }
+
   function patchOldRoute() {
     if (typeof go !== 'function' || go.__dayframeStockEtfFoundation) return;
     const originalGo = go;
@@ -495,7 +530,10 @@
       const wrappedEduRender = function dayframeStockEtfFoundationEduRender() {
         addTopic();
         const result = originalEduRender.apply(this, arguments);
-        setTimeout(ensureEducationFeature, 0);
+        setTimeout(() => {
+          ensureEducationFeature();
+          tidySelectedLessonTitle();
+        }, 0);
         return result;
       };
       wrappedEduRender.__dayframeStockEtfFoundation = true;
@@ -513,6 +551,7 @@
       eduOpenTopic(TOPIC_ID);
     }
     setTimeout(() => {
+      tidySelectedLessonTitle();
       const detail = document.getElementById('edu-detail-' + TOPIC_ID) || document.getElementById('df-stock-etf-feature');
       if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
@@ -525,6 +564,7 @@
     patchEducationRender();
     enhanceLearningBridge();
     ensureEducationFeature();
+    tidySelectedLessonTitle();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
