@@ -109,6 +109,11 @@ jobs:
           )
           if count != 1:
               raise SystemExit(f'Expected one Theory Tracker iframe, found {count}')
+
+          essentials_style = '<style id="df-early-essentials-cleanup-style">#df-essentials-stage-panel,.driving-side-nav [data-driving-page="driving-theory"],#pg-driving .driving-home-card.theory,#pg-driving-costs,[data-driving-page="driving-costs"],.df-polish-nav-costs{display:none!important}</style>'
+          essentials_script = f'<script data-dayframe-essentials-cleanup-bootstrap src="/assets/dayframe-essentials-cleanup.js?v={build}" defer></script>'
+          if 'data-dayframe-essentials-cleanup-bootstrap' not in s:
+              s = s.replace('</head>', essentials_style + essentials_script + '\n</head>', 1)
           index.write_text(s)
           PY
 
