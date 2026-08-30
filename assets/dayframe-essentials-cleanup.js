@@ -60,14 +60,6 @@
       setup.investingStage = 'learning';
       changed = true;
     }
-    if (setup.essentialsStage !== 'ready') {
-      setup.essentialsStage = 'ready';
-      changed = true;
-    }
-    if (setup.drivingStage !== 'learning') {
-      setup.drivingStage = 'learning';
-      changed = true;
-    }
     if (changed && typeof window.hubSave === 'function') window.hubSave(d);
     return d;
   }
@@ -107,8 +99,6 @@
     d.preferences.dayframe = Object.assign({}, d.preferences.dayframe, {
       hiddenSpaces: setup.hiddenSpaces,
       investingStage: setup.investingStage,
-      essentialsStage: 'ready',
-      drivingStage: 'learning',
     });
     window.hubSave(d);
     renderEditor();
