@@ -44,8 +44,6 @@
   };
   var renderTimer = 0;
   var installAttempts = 0;
-  var aiBusy = false;
-  var aiMessage = '';
 
   function $(id) {
     return document.getElementById(id);
@@ -133,24 +131,24 @@
       '.df-budget-kicker{display:block;font:800 10px/1 var(--fd,inherit);letter-spacing:.08em;text-transform:uppercase;color:#7b879a;margin-bottom:8px}',
       '.df-budget-header h2{margin:0;font:850 clamp(28px,4vw,46px)/1.02 var(--fd,inherit);letter-spacing:0;color:#182033}',
       '.df-budget-header p{margin:9px 0 0;max-width:620px;color:#7d8798;font:650 14px/1.45 var(--fd,inherit)}',
-      '.df-budget-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}',
+      '.df-budget-actions{display:none!important}',
       '.df-budget-action{border:1px solid #e4e8f2;background:#fff;color:#6858e8;border-radius:999px;padding:11px 15px;font:850 12px/1 var(--fd,inherit);box-shadow:0 12px 30px rgba(35,43,70,.07);cursor:pointer}',
       '.df-budget-action.primary{background:#7565f2;color:#fff;border-color:#7565f2}',
-      '.df-budget-top{display:grid;grid-template-columns:minmax(300px,.88fr) minmax(0,1.12fr);gap:16px;align-items:stretch}',
-      '.df-budget-total,.df-budget-checks,.df-budget-panel,.df-budget-detail{background:rgba(255,255,255,.92);border:1px solid #e7ebf3;border-radius:22px;box-shadow:0 18px 48px rgba(31,40,65,.08)}',
-      '.df-budget-total{padding:24px;display:flex;flex-direction:column;justify-content:space-between;min-height:182px}',
+      '.df-budget-top{display:grid;grid-template-columns:minmax(330px,1.2fr) repeat(3,minmax(160px,.8fr));gap:0;align-items:stretch;background:rgba(255,255,255,.92);border:1px solid #e7ebf3;border-radius:22px;box-shadow:0 18px 48px rgba(31,40,65,.08);overflow:hidden}',
+      '.df-budget-panel,.df-budget-detail{background:rgba(255,255,255,.92);border:1px solid #e7ebf3;border-radius:22px;box-shadow:0 18px 48px rgba(31,40,65,.08)}',
+      '.df-budget-total{padding:20px 22px;display:flex;flex-direction:column;justify-content:space-between;min-height:0;background:linear-gradient(135deg,#ffffff 0%,#fff7fb 52%,#effbf8 100%)}',
       '.df-budget-total small,.df-budget-check small,.df-budget-panel-eyebrow,.df-detail-eyebrow{display:block;color:#7f8a9d;font:850 10px/1 var(--fd,inherit);text-transform:uppercase;letter-spacing:.08em}',
-      '.df-budget-total strong{display:block;margin-top:10px;font:900 clamp(44px,7vw,78px)/.95 var(--fd,inherit);letter-spacing:0;color:#141b2d}',
+      '.df-budget-total strong{display:block;margin-top:8px;font:900 clamp(40px,5vw,62px)/.95 var(--fd,inherit);letter-spacing:0;color:#141b2d}',
       '.df-budget-total strong.over{color:#ef5d6f}',
-      '.df-budget-meter{height:12px;border-radius:999px;background:#edf0f6;overflow:hidden;margin-top:18px}',
+      '.df-budget-meter{height:9px;border-radius:999px;background:#edf0f6;overflow:hidden;margin-top:12px}',
       '.df-budget-meter i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7565f2,#ff7aa8);width:0}',
-      '.df-budget-total-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;color:#7e899a;font:800 12px/1.35 var(--fd,inherit);flex-wrap:wrap}',
+      '.df-budget-total-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;color:#7e899a;font:800 12px/1.35 var(--fd,inherit);flex-wrap:wrap}',
       '.df-budget-pill{display:inline-flex;align-items:center;border-radius:999px;padding:8px 10px;background:#f2efff;color:#7565f2;font:850 11px/1 var(--fd,inherit);white-space:nowrap}',
       '.df-budget-pill.warning{background:#fff1f3;color:#e45263}',
-      '.df-budget-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;overflow:hidden}',
-      '.df-budget-check{padding:22px;background:#fff;min-width:0}',
-      '.df-budget-check span{display:block;margin-top:13px;color:#151d31;font:900 clamp(24px,3vw,34px)/1 var(--fd,inherit);letter-spacing:0;overflow-wrap:anywhere}',
-      '.df-budget-check b{display:block;margin-top:8px;color:#838fa2;font:800 12px/1.25 var(--fd,inherit)}',
+      '.df-budget-checks{display:contents}',
+      '.df-budget-check{padding:20px 18px;background:transparent;min-width:0;height:100%;min-height:0;border-left:1px solid #eef1f7;display:flex;flex-direction:column;justify-content:center}',
+      '.df-budget-check span{display:block;margin-top:10px;color:#151d31;font:900 clamp(22px,2.4vw,30px)/1 var(--fd,inherit);letter-spacing:0;overflow-wrap:anywhere}',
+      '.df-budget-check b{display:block;margin-top:7px;color:#838fa2;font:800 12px/1.25 var(--fd,inherit)}',
       '.df-budget-main{display:grid;grid-template-columns:minmax(320px,.92fr) minmax(380px,1.08fr);gap:18px;align-items:start}',
       '.df-budget-panel{padding:18px}',
       '.df-detail-button{border:0;border-radius:999px;background:#171f34;color:#fff;padding:11px 14px;font:850 12px/1 var(--fd,inherit);cursor:pointer}',
@@ -193,22 +191,22 @@
       '.df-budget-header h2{font-size:clamp(32px,4vw,50px);font-weight:900}',
       '.df-budget-header p{color:#647083;font-weight:760}',
       '.df-budget-action.primary{background:linear-gradient(135deg,#7a63f4,#ff7aa8);border:0;box-shadow:0 16px 34px rgba(122,99,244,.22)}',
-      '.df-budget-top{grid-template-columns:minmax(340px,.95fr) minmax(420px,1.05fr);gap:14px}',
-      '.df-budget-total{position:relative;overflow:hidden;min-height:170px;border-color:#eef0f6;background:linear-gradient(135deg,#ffffff 0%,#fff7fb 48%,#effbf8 100%);box-shadow:0 20px 52px rgba(32,42,66,.09)}',
+      '.df-budget-top{grid-template-columns:minmax(360px,1.2fr) repeat(3,minmax(160px,.8fr));gap:0}',
+      '.df-budget-total{position:relative;overflow:hidden;min-height:0;border:0;border-radius:0;box-shadow:none}',
       '.df-budget-total small{color:#667186}',
-      '.df-budget-total strong{font-size:clamp(48px,7vw,80px)}',
+      '.df-budget-total strong{font-size:clamp(42px,5vw,64px)}',
       '.df-budget-total strong.over{color:#172036}',
-      '.df-budget-meter{height:11px;background:#e9edf5}',
+      '.df-budget-meter{height:9px;background:#e9edf5}',
       '.df-budget-meter i{background:linear-gradient(90deg,#7a63f4 0%,#c978d8 58%,#ff7aa8 100%)}',
       '.df-budget-total-foot{align-items:flex-start;justify-content:flex-start}',
       '.df-budget-pill{background:#fff;border:1px solid #e8ebf4;color:#68758a;box-shadow:0 8px 18px rgba(31,40,65,.045)}',
       '.df-budget-pill.warning{background:#fff1f5;border-color:#ffd7e1;color:#e64f72}',
-      '.df-budget-checks{background:transparent;border:0;box-shadow:none;gap:12px;overflow:visible}',
-      '.df-budget-check{position:relative;border:1px solid #e8ebf4;border-radius:18px;background:#fff;box-shadow:0 14px 32px rgba(31,40,65,.065);overflow:hidden}',
-      '.df-budget-check:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#7a63f4,#ff7aa8)}',
-      '.df-budget-check.fixed:before{background:linear-gradient(90deg,#35baa3,#62a6ff)}',
-      '.df-budget-check.credit:before{background:linear-gradient(90deg,#ff9a62,#ff7aa8)}',
-      '.df-budget-check span{font-size:clamp(25px,3vw,34px)}',
+      '.df-budget-checks{display:contents;background:transparent;border:0;box-shadow:none;gap:0;overflow:visible}',
+      '.df-budget-check{position:relative;border:0;border-left:1px solid #eef1f7;border-radius:0;background:transparent;box-shadow:none;overflow:hidden;min-height:0}',
+      '.df-budget-check:before{display:none}',
+      '.df-budget-check.fixed:before{display:none}',
+      '.df-budget-check.credit:before{display:none}',
+      '.df-budget-check span{font-size:clamp(23px,2.4vw,30px)}',
       '.df-budget-main{grid-template-columns:minmax(360px,.9fr) minmax(380px,1.1fr);gap:16px}',
       '.df-budget-panel,.df-budget-detail{border-color:#e9edf5;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 18px 44px rgba(31,40,65,.075)}',
       '.df-budget-panel{padding:20px}',
@@ -235,8 +233,9 @@
       '.df-detail-summary b{grid-column:1/-1;color:#7e8898;font:800 12px/1.35 var(--fd,inherit)}',
       '.df-detail-grid{gap:10px}',
       '.df-detail-stat{background:#fff;border-color:#e8ebf4}',
-      '@media(max-width:980px){.df-budget-header,.df-budget-top,.df-budget-main{grid-template-columns:1fr;display:grid}.df-budget-header{gap:14px}.df-budget-actions{justify-content:flex-start}.df-budget-checks{grid-template-columns:1fr 1fr}.df-budget-detail{min-height:0}}',
-      '@media(max-width:620px){#df-budget-redesign{gap:14px}.df-budget-header h2{font-size:34px}.df-budget-header p{font-size:13px}.df-budget-top,.df-budget-main{gap:12px}.df-budget-total,.df-budget-panel,.df-budget-detail{border-radius:18px;padding:16px}.df-budget-checks{grid-template-columns:1fr}.df-budget-check{padding:16px}.df-budget-total strong{font-size:52px}.df-detail-grid{grid-template-columns:1fr}.df-budget-detail-head{flex-direction:column}.df-detail-actions{justify-content:flex-start}.df-budget-row-meta{display:block}.df-budget-row-meta span{display:block;margin-top:3px}}'
+      '@media(max-width:1180px){.df-budget-top{grid-template-columns:repeat(2,minmax(0,1fr))}.df-budget-total{grid-column:1/-1}.df-budget-checks{display:contents}.df-budget-check{border-left:0;border-top:1px solid #eef1f7}}',
+      '@media(max-width:980px){.df-budget-header,.df-budget-main{grid-template-columns:1fr;display:grid}.df-budget-header{gap:14px}.df-budget-actions{display:none!important}.df-budget-detail{min-height:0}}',
+      '@media(max-width:620px){#df-budget-redesign{gap:14px}.df-budget-header h2{font-size:34px}.df-budget-header p{font-size:13px}.df-budget-top,.df-budget-main{grid-template-columns:1fr;gap:12px}.df-budget-total,.df-budget-panel,.df-budget-detail{border-radius:18px;padding:16px}.df-budget-check{padding:16px;min-height:0}.df-budget-total strong{font-size:52px}.df-detail-grid{grid-template-columns:1fr}.df-budget-detail-head{flex-direction:column}.df-detail-actions{justify-content:flex-start}.df-budget-row-meta{display:block}.df-budget-row-meta span{display:block;margin-top:3px}}'
     ].join('\n');
     document.head.appendChild(style);
   }
@@ -368,16 +367,14 @@
     return { totals: totals, items: items };
   }
 
-  function buildRows(d, transactions, cycle, previous) {
+  function buildRows(d, transactions, cycle) {
     var current = summariseSpending(transactions, cycle);
-    var last = summariseSpending(transactions, previous);
     var categories = new Set();
     (d.budgets || []).forEach(function (budget) {
       var category = normaliseCategory(budget.category);
       if (isEverydayCategory(category)) categories.add(category);
     });
     Object.keys(current.totals).forEach(function (category) { categories.add(category); });
-    Object.keys(last.totals).forEach(function (category) { categories.add(category); });
     var budgets = new Map((d.budgets || []).map(function (budget) {
       return [normaliseCategory(budget.category), budget];
     }));
@@ -385,7 +382,6 @@
       var budget = budgets.get(category) || {};
       var limit = Math.max(0, Number(budget.limit || 0));
       var spent = Math.max(0, Number(current.totals[category] || 0));
-      var lastSpent = Math.max(0, Number(last.totals[category] || 0));
       var ratio = limit > 0 ? spent / limit : spent > 0 ? 1 : 0;
       var status = limit > 0 && spent > limit ? 'over' : limit > 0 && ratio >= 0.85 ? 'close' : 'track';
       return {
@@ -393,7 +389,6 @@
         limit: limit,
         spent: spent,
         left: limit - spent,
-        lastSpent: lastSpent,
         ratio: ratio,
         status: status,
         color: COLORS[index % COLORS.length],
@@ -405,12 +400,9 @@
     });
   }
 
-  function compareText(row) {
-    var diff = row.spent - row.lastSpent;
-    if (!row.lastSpent && !row.spent) return 'No spending this cycle';
-    if (!row.lastSpent) return 'No last-cycle spending';
-    if (Math.abs(diff) < 1) return 'Roughly the same as last cycle';
-    return money(Math.abs(diff), 2) + (diff > 0 ? ' more than last cycle' : ' less than last cycle');
+  function useText(row) {
+    if (!row.limit) return row.spent ? 'No limit set' : 'No spending this cycle';
+    return Math.round(Math.max(0, row.ratio) * 100) + '% of limit used';
   }
 
   function statusText(row) {
@@ -465,20 +457,12 @@
     return '<button type="button" class="df-budget-row ' + rowTone + ' ' + (state.selected === row.category ? 'active' : '') + '" onclick="dayframeBudgetSelectCategory(\'' + encoded + '\')">' +
       '<span class="df-budget-row-top"><span class="df-budget-row-title"><i class="df-budget-dot" style="background:' + row.color + '"></i><strong>' + esc(row.category) + '</strong></span><span class="df-budget-status ' + row.status + '">' + statusText(row) + '</span></span>' +
       '<span class="df-budget-row-bar"><i style="width:' + pct.toFixed(1) + '%;background:' + barColor + '"></i></span>' +
-      '<span class="df-budget-row-meta"><span>' + money(row.spent, 2) + (row.limit ? ' of ' + money(row.limit, 0) : ' spent') + '</span><span>' + esc(compareText(row)) + '</span></span>' +
+      '<span class="df-budget-row-meta"><span>' + money(row.spent, 2) + (row.limit ? ' of ' + money(row.limit, 0) : ' spent') + '</span><span>' + esc(useText(row)) + '</span></span>' +
       '</button>';
   }
 
   function filterButton(filter, label, count) {
     return '<button type="button" class="df-budget-filter ' + (state.filter === filter ? 'active' : '') + '" onclick="dayframeBudgetFilter(\'' + filter + '\')">' + esc(label) + (count != null ? ' ' + count : '') + '</button>';
-  }
-
-  function aiButtonLabel() {
-    return aiBusy ? 'Working...' : 'Draft budgets';
-  }
-
-  function aiStatusHtml() {
-    return aiMessage ? '<div class="df-budget-ai-note">' + esc(aiMessage) + '</div>' : '';
   }
 
   function detailHtml(row) {
@@ -492,16 +476,16 @@
     }).join('') || '<div class="df-budget-empty">No payments in this category this cycle.</div>';
     return '<section class="df-budget-detail ' + row.status + '">' +
       '<div class="df-budget-detail-head"><div><span class="df-detail-eyebrow">Everyday category</span><h3>' + esc(row.category) + '</h3></div><div class="df-detail-actions"><button type="button" class="df-detail-button secondary" onclick="dayframeBudgetEditCategory(\'' + encoded + '\')">Edit limit</button><button type="button" class="df-detail-button" onclick="dayframeBudgetOpenTransactions(\'' + encoded + '\')">Transactions</button></div></div>' +
-      '<div class="df-detail-summary"><span>' + esc(statusLabel) + '</span><strong>' + esc(statusText(row)) + '</strong><b>' + esc(compareText(row)) + '</b></div>' +
-      '<div class="df-detail-grid"><div class="df-detail-stat"><small>Spent</small><strong>' + money(row.spent, 2) + '</strong></div><div class="df-detail-stat"><small>Limit</small><strong>' + (row.limit ? money(row.limit, 0) : 'No limit') + '</strong></div><div class="df-detail-stat"><small>Last cycle</small><strong>' + money(row.lastSpent, 2) + '</strong></div></div>' +
+      '<div class="df-detail-summary"><span>' + esc(statusLabel) + '</span><strong>' + esc(statusText(row)) + '</strong><b>' + esc(useText(row)) + '</b></div>' +
+      '<div class="df-detail-grid"><div class="df-detail-stat"><small>Spent</small><strong>' + money(row.spent, 2) + '</strong></div><div class="df-detail-stat"><small>Limit</small><strong>' + (row.limit ? money(row.limit, 0) : 'No limit') + '</strong></div><div class="df-detail-stat"><small>Status</small><strong>' + esc(statusText(row)) + '</strong></div></div>' +
       '<span class="df-detail-eyebrow">Recent payments</span><div class="df-recent-list">' + recent + '</div>' +
       '</section>';
   }
 
   function emptyHtml(values) {
-    return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
+    return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div></div>' +
       '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left for everyday spending</small><strong>' + money(Number(values.flexible || 0), 0) + '</strong></div><div class="df-budget-meter"><i style="width:0%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">No categories yet</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
-      '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Add a category limit or let Dayframe draft the first set.</div></div>';
+      '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Add a category limit to start tracking everyday spending.</div></div>';
   }
 
   function renderBudgetRedesign() {
@@ -523,9 +507,8 @@
     d.creditPlans = Array.isArray(d.creditPlans) ? d.creditPlans : [];
     d.budgetPlan = d.budgetPlan || {};
     var cycle = cycleFor(d);
-    var previous = previousCycle(d, cycle);
     var values = planValues(d);
-    var rows = buildRows(d, collectTransactions(d), cycle, previous);
+    var rows = buildRows(d, collectTransactions(d), cycle);
     chooseSelected(rows);
     var visibleRows = filteredRows(rows);
     var selected = rows.find(function (row) { return row.category === state.selected; }) || visibleRows[0] || rows[0];
@@ -539,10 +522,10 @@
     var footClass = totals.over ? ' warning' : '';
     var leftLabel = totals.left < 0 ? money(Math.abs(totals.left), 0) + ' over' : money(totals.left, 0);
     root.innerHTML = '<div class="df-budget-shell">' +
-      '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div><div class="df-budget-actions"><button type="button" class="df-budget-action primary" onclick="dayframeBudgetAskAi()">' + aiButtonLabel() + '</button></div></div>' + aiStatusHtml() +
+      '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div></div>' +
       '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left for everyday spending</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">' + money(totals.spent, 0) + ' used from ' + money(totals.allocated, 0) + '</span><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
       '<div class="df-budget-main"><section class="df-budget-panel">' +
-      '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Everyday spending</h3><p>Flexible categories, compared with last cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
+      '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Everyday spending</h3><p>Flexible categories for this cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
       '<div class="df-budget-filters">' +
       filterButton('all', 'All', rows.length) +
       filterButton('over', 'Over budget', rows.filter(function (row) { return row.status === 'over'; }).length) +
@@ -613,37 +596,6 @@
       return;
     }
     scheduleRender(0);
-  };
-
-  window.dayframeBudgetAskAi = async function () {
-    if (aiBusy) return;
-    if (typeof window.buildSuggestedBudget !== 'function') {
-      aiMessage = 'Add income, bills or category limits before drafting budgets.';
-      scheduleRender(0);
-      return;
-    }
-    var values = planValues(safeCall(window.hubLoad, {}));
-    if (!Number(values.income || 0)) {
-      aiMessage = 'Add your monthly income first, then Dayframe can draft category limits.';
-      scheduleRender(0);
-      return;
-    }
-    aiBusy = true;
-    aiMessage = 'Dayframe is drafting category limits from your income, bills, credit plan and spending.';
-    scheduleRender(0);
-    try {
-      await window.buildSuggestedBudget();
-      aiMessage = 'Budget draft added. Check the categories below and edit anything that does not fit.';
-    } catch (error) {
-      aiMessage = 'Could not draft budgets right now. Your current budget is still safe.';
-    } finally {
-      aiBusy = false;
-      scheduleRender(0);
-      setTimeout(function () {
-        aiMessage = '';
-        scheduleRender(0);
-      }, 5500);
-    }
   };
 
   window.dayframeBudgetAddCategory = function () {
