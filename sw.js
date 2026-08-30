@@ -1,4 +1,4 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v54';
+const DAYFRAME_CACHE = 'dayframe-shell-v55';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260829-light-polish';
@@ -8,7 +8,7 @@ const DAYFRAME_RISK_FIX_SRC = '/assets/dayframe-risk-holdings-fix.js?v=20260827-
 const DAYFRAME_CAR_COSTS_SRC = '/assets/dayframe-car-costs-merge.js?v=20260827-delete-costs-sidebar-final';
 const DAYFRAME_MONEY_PERFORMANCE_SRC = '/assets/dayframe-money-performance.js?v=20260829-fast-money-v2';
 const DAYFRAME_BUDGET_REDESIGN_SRC = '/assets/dayframe-budget-redesign.js?v=20260830-aligned-budget-layout';
-const DAYFRAME_BUDGET_FIXUPS_SRC = '/assets/dayframe-budget-fixups.js?v=20260830-budget-no-draft';
+const DAYFRAME_BUDGET_FIXUPS_SRC = '/assets/dayframe-budget-fixups.js?v=20260830-budget-clean-bills-empty';
 const DAYFRAME_BUDGET_MOBILE_STRIP_SRC = '/assets/dayframe-budget-mobile-strip.js?v=20260830-budget-mobile-strip';
 const DAYFRAME_BILLS_PERSISTENCE_SRC = '/assets/dayframe-bills-persistence-fix.js?v=20260830-bills-immediate-save';
 const DAYFRAME_CATEGORY_BUDGET_SRC = '/assets/dayframe-category-budget-focus.js?v=20260829-lazy-category-detail';
@@ -47,7 +47,8 @@ function stripStalePanels(body) {
     .replace(/<link rel="apple-touch-icon" href="\/dayframe-icon\.svg">/i, '<link rel="apple-touch-icon" href="/dayframe-icon-2026.svg">')
     .replace(/<div class="pg life-page" id="pg-driving-costs"[\s\S]*?(?=<!-- DIARY -->)/i, '')
     .replace(/<div class="dash-card dash-market-context">[\s\S]*?<\/div>\s*<!-- ROW: Risk \+ Sectors \+ Research -->/i, '<!-- ROW: Risk + Sectors + Research -->')
-    .replace(/Market context/g, 'Big picture');
+    .replace(/Market context/g, 'Big picture')
+    .replace(/<strong>No recurring bills yet<\/strong>Use [^<]*review a suggestion from your connected account\./g, '<strong>No recurring bills yet</strong>Use Add bill to save rent, phone, insurance, subscriptions or other regular payments.');
 }
 
 async function withPolish(response) {
