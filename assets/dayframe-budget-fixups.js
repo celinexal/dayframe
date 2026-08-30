@@ -2,8 +2,6 @@
   if (window.__dayframeBudgetFixupsLoaded) return;
   window.__dayframeBudgetFixupsLoaded = true;
 
-  var aiBusy = false;
-  var aiMessage = '';
   var tidyTimer = 0;
 
   function $(id) {
@@ -366,25 +364,30 @@
     style.id = 'df-budget-fixups-style';
     style.textContent = [
       '.money-page.df-budget-focused .money-metrics{display:none!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-top{align-items:start!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{align-self:start!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{position:relative!important;min-height:92px!important;padding:15px 16px!important;border:1px solid #e8ebf4!important;border-radius:18px!important;background:#fff!important;box-shadow:0 14px 32px rgba(31,40,65,.065)!important;overflow:hidden!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#7866f2,#ff7aa8)}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(2),.money-page.df-budget-focused #df-budget-redesign .df-budget-check.fixed{background:linear-gradient(145deg,#fff 0%,#f4fffc 100%)!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(2):before{background:linear-gradient(90deg,#38bfa7,#6e8cff)}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(3):before{background:linear-gradient(90deg,#ff9a62,#ff7aa8)}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-actions{display:none!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-top{align-items:stretch!important;grid-template-columns:minmax(360px,1.2fr) repeat(3,minmax(160px,.8fr))!important;gap:0!important;background:rgba(255,255,255,.92)!important;border:1px solid #e7ebf3!important;border-radius:22px!important;box-shadow:0 18px 48px rgba(31,40,65,.08)!important;overflow:hidden!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-total{min-height:0!important;padding:20px 22px!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:linear-gradient(135deg,#fff 0%,#fff7fb 52%,#effbf8 100%)!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-total strong{font-size:clamp(42px,5vw,64px)!important;line-height:.95!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-meter{height:9px!important;margin-top:12px!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-total-foot{margin-top:10px!important;gap:10px!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{display:contents!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{position:relative!important;min-height:0!important;height:100%!important;padding:20px 18px!important;border:0!important;border-left:1px solid #eef1f7!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:hidden!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:before{display:none!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(2),.money-page.df-budget-focused #df-budget-redesign .df-budget-check.fixed{background:transparent!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(2):before{display:none!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check:nth-child(3):before{display:none!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check small{font-size:10px!important;line-height:1!important;color:#7b879a!important;letter-spacing:.07em!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{margin-top:10px!important;font-size:26px!important;line-height:1!important;color:#162036!important;letter-spacing:0!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check b{margin-top:7px!important;font-size:11px!important;line-height:1.25!important;color:#7e8898!important}',
-      '@media(max-width:980px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:repeat(3,minmax(0,1fr))!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:86px!important;padding:13px!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{font-size:22px!important}}',
-      '@media(max-width:620px){.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{grid-template-columns:1fr!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:0!important}}',
+      '@media(max-width:1180px){.money-page.df-budget-focused #df-budget-redesign .df-budget-top{grid-template-columns:repeat(2,minmax(0,1fr))!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-total{grid-column:1/-1!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-checks{display:contents!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{border-left:0!important;border-top:1px solid #eef1f7!important}}',
+      '@media(max-width:620px){.money-page.df-budget-focused #df-budget-redesign .df-budget-top{grid-template-columns:1fr!important}.money-page.df-budget-focused #df-budget-redesign .df-budget-check{min-height:0!important;height:auto!important;border-left:0!important;border-top:1px solid #eef1f7!important}}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-suggestion{display:none!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-detail-note{display:none!important}',
       '#money-bill-suggestions,.df-hide-bill-suggestions{display:none!important}',
       '#pg-money .money-tab[data-money-tab="budget-setup"],#money-pane-budget-setup.df-budget-setup-pane{display:none!important}',
       '#money-pane-budget.df-budget-no-inline-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup>.money-pane-grid{display:none!important}',
       '#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.budget-builder,#money-pane-budget.df-budget-no-inline-setup.df-budget-show-setup>.money-pane-grid{display:none!important}',
-      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{display:flex!important;flex-direction:column!important}',
+      '.money-page.df-budget-focused #df-budget-redesign .df-budget-check{display:flex!important;flex-direction:column!important;justify-content:center!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check span{white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-check-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}',
       '.money-page.df-budget-focused #df-budget-redesign .df-budget-card-action{border:1px solid #e2e6f1;background:#fff;color:#6759e8;border-radius:999px;padding:7px 9px;font:850 10px/1 var(--fd,inherit);cursor:pointer}',
@@ -400,22 +403,9 @@
       '.df-budget-quick-field{display:flex;flex-direction:column;gap:7px;color:#5d687b;font:850 12px/1.2 var(--fd,inherit)}',
       '.df-budget-quick-field .life-input{width:100%;box-sizing:border-box}',
       '.df-budget-quick-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}',
-      '#df-budget-redesign button[onclick*="dayframeBudgetAskAi"][disabled]{opacity:.68;cursor:wait}'
+      '#df-budget-redesign button[onclick*="dayframeBudgetAskAi"]{display:none!important}'
     ].join('\n');
     document.head.appendChild(style);
-  }
-
-  function setAiMessage(message, timeout) {
-    aiMessage = message || '';
-    tidyBudgetUi();
-    if (timeout) {
-      setTimeout(function () {
-        if (aiMessage === message) {
-          aiMessage = '';
-          tidyBudgetUi();
-        }
-      }, timeout);
-    }
   }
 
   function tidyBudgetUi() {
@@ -443,25 +433,10 @@
           return;
         }
         if (onclick.indexOf('dayframeBudgetAskAi') === -1) return;
-        var label = aiBusy ? 'Working...' : 'Draft budgets';
-        if (button.textContent !== label) button.textContent = label;
-        button.disabled = aiBusy;
-        button.setAttribute('aria-busy', aiBusy ? 'true' : 'false');
+        button.remove();
       });
       var note = $('df-budget-fixup-ai-note');
-      if (aiMessage) {
-        if (!note) {
-          note = document.createElement('div');
-          note.id = 'df-budget-fixup-ai-note';
-          note.className = 'df-budget-ai-note';
-          var header = root.querySelector('.df-budget-header');
-          if (header) header.insertAdjacentElement('afterend', note);
-          else root.insertBefore(note, root.firstChild || null);
-        }
-        if (note.textContent !== aiMessage) note.textContent = aiMessage;
-      } else if (note) {
-        note.remove();
-      }
+      if (note) note.remove();
     }, 25);
   }
 
@@ -571,42 +546,6 @@
     };
   }
 
-  function installAiAction() {
-    window.dayframeBudgetAskAi = async function () {
-      if (aiBusy) return;
-      syncBankData();
-      if (typeof window.buildSuggestedBudget !== 'function') {
-        setAiMessage('Add income, bills or category limits before drafting budgets.', 5000);
-        return;
-      }
-      var values = {};
-      try {
-        values = typeof window.budgetPlanValues === 'function' ? window.budgetPlanValues() : {};
-      } catch (_) {
-        values = {};
-      }
-      if (!Number(values.income || 0)) {
-        setAiMessage('Add your monthly income first, then Dayframe can draft category limits.', 6500);
-        return;
-      }
-      var pane = $('money-pane-budget');
-      if (pane) pane.classList.remove('df-budget-show-setup');
-      aiBusy = true;
-      setAiMessage('Dayframe is drafting category limits from your income, bills, credit plan and spending.');
-      try {
-        await window.buildSuggestedBudget();
-        syncBankData();
-        setAiMessage('Budget draft added. Check the categories below and edit anything that does not fit.', 6500);
-        if (typeof window.renderMoney === 'function') setTimeout(function () { window.renderMoney(); }, 60);
-      } catch (_) {
-        setAiMessage('Could not draft budgets right now. Your current budget is still safe.', 6500);
-      } finally {
-        aiBusy = false;
-        tidyBudgetUi();
-      }
-    };
-  }
-
   function observeBudgetRoot() {
     var root = $('df-budget-redesign');
     if (!root || root.__dfBudgetFixupsObserved) return;
@@ -624,7 +563,6 @@
     wrapMoneyPrimaryAction();
     ensureBudgetSetupPage();
     installBudgetSetupPageActions();
-    installAiAction();
     syncBudgetFocus();
     tidyBudgetUi();
     observeBudgetRoot();
