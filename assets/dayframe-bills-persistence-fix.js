@@ -152,6 +152,115 @@
     return String((form && form.dataset.editingBillId) || editingBillId || '');
   }
 
+  function isoFromDate(date) {
+    try {
+      if (typeof window.hubDateISO === 'function') return window.hubDateISO(date);
+    } catch (_) {}
+    var d = new Date(date);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+  }
+
+  function todayISO() {
+    return isoFromDate(new Date());
+  }
+
+  function dateFromISO(value) {
+    return new Date(String(value || todayISO()).slice(0, 10) + 'T12:00:00');
+  }
+
+  function shiftMonth(baseMonth, shift) {
+    try {
+      if (typeof window.moneyMonthShift === 'function') return window.moneyMonthShift(baseMonth, shift);
+    } catch (_) {}
+    var parts = String(baseMonth || monthKey()).split('-').map(Number);
+    var date = new Date(parts[0] || new Date().getFullYear(), (parts[1] || 1) - 1 + Number(shift || 0), 1, 12);
+    return isoFromDate(date).slice(0, 7);
+  }
+
+  function dateForMonth(monthKey, day) {
+    try {
+      if (typeof window.moneyBillDateFor === 'function') return window.moneyBillDateFor(monthKey, day);
+    } catch (_) {}
+    var parts = String(monthKey || todayISO().slice(0, 7)).split('-').map(Number);
+    var year = parts[0] || new Date().getFullYear();
+    var month = (parts[1] || 1) - 1;
+    var max = new Date(year, month + 1, 0).getDate();
+    return new Date(year, month, Math.max(1, Math.min(Number(day) || 1, max)), 12);
+  }
+
+  function budgetCycle(data, reference) {
+    try {
+      if (typeof window.moneyBudgetCycle === 'function') return window.moneyBudgetCycle(data || loadHub() || {}, reference || new Date());
+    } catch (_) {}
+    data = data || loadHub() || {};
+    var startDay = Math.max(1, Math.min(31, Math.round(Number(data && data.budgetPlan && data.budgetPlan.startDay) || 1)));
+    var now = reference ? new Date(reference) : new Date();
+    var anchor = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
+    var cycleDate = function (year, month) {
+      var max = new Date(year, month + 1, 0).getDate();
+      return new Date(year, month, Math.min(startDay, max), 12);
+    };
+    var start = cycleDate(anchor.getFullYear(), anchor.getMonth());
+    if (anchor < start) start = cycleDate(anchor.getFullYear(), anchor.getMonth() - 1);
+    var next = cycleDate(start.getFullYear(), start.getMonth() + 1);
+    var end = new Date(next);
+    end.setDate(end.getDate() - 1);
+    return { start: isoFromDate(start), end: isoFromDate(end), startDay: startDay };
+  }
+
+  function nextBudgetCycle(cycle) {
+    var reference = dateFromISO(cycle && cycle.end);
+    reference.setDate(reference.getDate() + 1);
+    return budgetCycle(loadHub() || {}, reference);
+  }
+
+  function inBudgetCycle(value, cycle) {
+    try {
+      if (typeof window.moneyInBudgetCycle === 'function') return window.moneyInBudgetCycle(value, cycle);
+    } catch (_) {}
+    var date = String(value || '').slice(0, 10);
+    return !!date && !!cycle && date >= cycle.start && date <= cycle.end;
+  }
+
+  function billDueDateForCycle(cycle, dueDay) {
+    var start = dateFromISO(cycle && cycle.start);
+    var end = dateFromISO(cycle && cycle.end);
+    var candidates = [];
+    for (var offset = 0; offset <= 2; offset += 1) {
+      var month = new Date(start.getFullYear(), start.getMonth() + offset, 1, 12);
+      candidates.push(dateForMonth(isoFromDate(month).slice(0, 7), dueDay));
+    }
+    var inCycle = candidates.find(function (candidate) {
+      return candidate >= start && candidate <= end;
+    });
+    if (inCycle) return inCycle;
+    return candidates.find(function (candidate) { return candidate >= start; }) || start;
+  }
+
+  function daysBetween(left, right) {
+    return Math.round(Math.abs(dateFromISO(left) - dateFromISO(right)) / 86400000);
+  }
+
+  function isTransferCategory(category) {
+    var clean = normaliseCategory(category);
+    return clean === 'Transfer' || clean === 'Transfers' || clean === 'Savings & Investments' || clean === 'Salary' || clean === 'Income';
+  }
+
+  function prettyMerchant(value) {
+    try {
+      if (typeof window.moneyPrettyMerchant === 'function') return window.moneyPrettyMerchant(value);
+    } catch (_) {}
+    return String(value || 'Transaction').trim() || 'Transaction';
+  }
+
+  function bankData() {
+    try {
+      if (typeof _moneyBankData !== 'undefined') return _moneyBankData || {};
+    } catch (_) {}
+    return window._moneyBankData || {};
+  }
+
   function billSourceKeys(bill) {
     return [
       bill && bill.sourceMerchantKey,
@@ -167,6 +276,14 @@
     var a = Number(billAmount || 0);
     var b = Number(suggestionAmount || 0);
     return Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) < 0.02;
+  }
+
+  function softAmountMatches(billAmount, transactionAmount) {
+    var a = Math.abs(Number(billAmount || 0));
+    var b = Math.abs(Number(transactionAmount || 0));
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a <= 0 || b <= 0) return false;
+    var tolerance = Math.max(0.75, Math.min(5, a * 0.08));
+    return Math.abs(a - b) <= tolerance;
   }
 
   function importantTokens(value) {
@@ -231,6 +348,184 @@
     bill.sourceCategory = meta.sourceCategory;
     bill.sourceDueDay = meta.sourceDueDay;
     bill.createdFromSuggestion = true;
+    return true;
+  }
+
+  function transactionCategory(data, item) {
+    var rawId = item && (item.raw_id || item.id);
+    var bankKey = item && item.bank ? 'bank:' + String(rawId || '') : '';
+    var override = bankKey ? ((data && data.transactionCategoryOverrides) || {})[bankKey] || '' : '';
+    if (override) return normaliseCategory(override);
+    try {
+      if (typeof window.moneyRuleCategory === 'function') return normaliseCategory(window.moneyRuleCategory(data || {}, item || {}) || (item && item.category) || 'Other');
+    } catch (_) {}
+    return normaliseCategory((item && item.category) || 'Other');
+  }
+
+  function billTransactionsForCycle(data, cycle) {
+    data = data || loadHub() || {};
+    var manual = (Array.isArray(data.money) ? data.money : []).map(function (item) {
+      return {
+        id: item.id,
+        raw_id: item.id,
+        source: 'manual',
+        sourceKey: 'manual:' + String(item.id || ''),
+        desc: item.desc || item.name || item.merchant || 'Manual transaction',
+        amount: Math.abs(Number(item.amount || 0)),
+        type: item.type === 'income' ? 'income' : 'expense',
+        category: transactionCategory(data, item),
+        date: String(item.date || '').slice(0, 10),
+        bank: false,
+      };
+    });
+    var bank = (Array.isArray(bankData().transactions) ? bankData().transactions : []).map(function (item) {
+      var rawId = item.id;
+      var desc = item.merchant || item.description || item.name || 'Bank transaction';
+      var tx = {
+        id: rawId,
+        raw_id: rawId,
+        source: 'bank',
+        sourceKey: 'bank:' + String(rawId || ''),
+        desc: prettyMerchant(desc),
+        merchant: desc,
+        amount: Math.abs(Number(item.amount || 0)),
+        type: item.direction === 'income' ? 'income' : 'expense',
+        category: item.category || 'Other',
+        date: String(item.timestamp || item.date || '').slice(0, 10),
+        bank: true,
+      };
+      tx.category = transactionCategory(data, tx);
+      return tx;
+    });
+    return manual.concat(bank).filter(function (tx) {
+      return tx.type === 'expense'
+        && tx.date
+        && inBudgetCycle(tx.date, cycle)
+        && Number.isFinite(tx.amount)
+        && tx.amount > 0
+        && !isTransferCategory(tx.category);
+    });
+  }
+
+  function transactionMatchScore(bill, tx, cycle) {
+    if (!bill || !tx || !softAmountMatches(bill.amount, tx.amount)) return 0;
+    var txKey = recurringKey(tx.merchant || tx.desc);
+    var billNameKey = recurringKey(bill.name);
+    var sourceKeys = billSourceKeys(bill);
+    var sourceMatch = sourceKeys.indexOf(txKey) !== -1 || sourceKeys.some(function (key) {
+      return knownRenameMatch(key, txKey) || tokenOverlap(key, txKey);
+    });
+    var nameMatch = tokenOverlap(billNameKey, txKey) || knownRenameMatch(txKey, billNameKey);
+    var category = transactionCategory(loadHub() || {}, tx);
+    var categoryMatch = normaliseCategory(bill.category) !== 'Other' && normaliseCategory(bill.category) === category;
+    var dueISO = isoFromDate(billDueDateForCycle(cycle, bill.dueDay || 1));
+    var dueGap = daysBetween(tx.date, dueISO);
+    var dueClose = dueGap <= 10;
+
+    var score = 0;
+    if (sourceMatch) score += 8;
+    if (nameMatch) score += 4;
+    if (categoryMatch) score += 2;
+    if (dueGap <= 3) score += 3;
+    else if (dueClose) score += 1;
+    if (score >= 8) return score;
+    if (dueClose && score >= 5) return score;
+    return 0;
+  }
+
+  function findBillPayment(bill, data, cycle) {
+    var dueISO = isoFromDate(billDueDateForCycle(cycle, bill && bill.dueDay || 1));
+    return billTransactionsForCycle(data, cycle).map(function (tx) {
+      return {
+        tx: tx,
+        score: transactionMatchScore(bill, tx, cycle),
+        dueGap: daysBetween(tx.date, dueISO),
+      };
+    }).filter(function (item) {
+      return item.score > 0;
+    }).sort(function (a, b) {
+      return b.score - a.score || a.dueGap - b.dueGap || a.tx.date.localeCompare(b.tx.date);
+    })[0]?.tx || null;
+  }
+
+  function billPaidForCycle(bill, cycle) {
+    if (!bill || !cycle) return false;
+    if (bill.manualUnpaidCycle === cycle.start) return false;
+    if (bill.paidCycle === cycle.start || bill.autoPaidCycle === cycle.start) return true;
+    var dueMonth = isoFromDate(billDueDateForCycle(cycle, bill.dueDay || 1)).slice(0, 7);
+    if (bill.paidMonth === dueMonth) return true;
+    if (bill.paidMonth === monthKey()) return true;
+    return !!findBillPayment(bill, loadHub() || {}, cycle);
+  }
+
+  function syncAutoPaidBills() {
+    var data = loadHub();
+    if (!data || !Array.isArray(data.bills)) return false;
+    var cycle = budgetCycle(data);
+    var changed = false;
+    data.bills.forEach(function (bill) {
+      if (!bill || bill.manualUnpaidCycle === cycle.start) return;
+      var match = findBillPayment(bill, data, cycle);
+      if (match) {
+        var dueMonth = isoFromDate(billDueDateForCycle(cycle, bill.dueDay || 1)).slice(0, 7);
+        var matchKey = match.sourceKey || ((match.bank ? 'bank:' : 'manual:') + String(match.raw_id || match.id || ''));
+        if (bill.autoPaidCycle !== cycle.start || bill.autoPaidTransactionId !== matchKey || bill.paidCycle !== cycle.start || bill.paidSource !== 'transaction') {
+          bill.paidMonth = dueMonth;
+          bill.paidCycle = cycle.start;
+          bill.paidSource = 'transaction';
+          bill.autoPaidCycle = cycle.start;
+          bill.autoPaidMonth = dueMonth;
+          bill.autoPaidTransactionId = matchKey;
+          bill.autoPaidTransactionDate = match.date;
+          delete bill.manualUnpaidCycle;
+          changed = true;
+        }
+      } else if (bill.autoPaidCycle === cycle.start) {
+        delete bill.autoPaidCycle;
+        delete bill.autoPaidMonth;
+        delete bill.autoPaidTransactionId;
+        delete bill.autoPaidTransactionDate;
+        if (bill.paidCycle === cycle.start && bill.paidSource === 'transaction') {
+          delete bill.paidCycle;
+          delete bill.paidSource;
+          bill.paidMonth = '';
+        }
+        changed = true;
+      }
+    });
+    if (changed) saveNow(data);
+    return changed;
+  }
+
+  function cycleBillMeta(bill) {
+    var data = loadHub() || {};
+    var cycle = budgetCycle(data);
+    var today = dateFromISO(todayISO());
+    var currentDue = billDueDateForCycle(cycle, bill && bill.dueDay || 1);
+    var due = currentDue;
+    var status = 'upcoming';
+    if (billPaidForCycle(bill, cycle)) {
+      due = billDueDateForCycle(nextBudgetCycle(cycle), bill && bill.dueDay || 1);
+      status = 'paid';
+    } else if (currentDue < today) {
+      status = 'overdue';
+    }
+    var days = Math.round((dateFromISO(isoFromDate(due)) - today) / 86400000);
+    return { due: due, status: status, days: days, dateISO: isoFromDate(due) };
+  }
+
+  function wrapBillMeta() {
+    var original = window.moneyBillMeta;
+    if (typeof original !== 'function' || original.__dayframeCycleBillMetaWrapped) return false;
+    var wrapped = function (bill) {
+      try {
+        return cycleBillMeta(bill);
+      } catch (_) {
+        return original.apply(this, arguments);
+      }
+    };
+    wrapped.__dayframeCycleBillMetaWrapped = true;
+    window.moneyBillMeta = wrapped;
     return true;
   }
 
@@ -369,6 +664,8 @@
     style.textContent = [
       '.money-bill-row .money-bill-edit{height:32px;padding:0 11px;border:1px solid #e2e6f1;border-radius:10px;background:#fff;color:#6759e8;font:850 10px/1 var(--fd,var(--ff,inherit));cursor:pointer;white-space:nowrap}',
       '.money-bill-row .money-bill-edit:hover{background:#f4f1ff;border-color:#dcd8ff}',
+      '.money-bill-row.df-bill-auto-paid{background:linear-gradient(90deg,#f6fffb,#fff)}',
+      '.money-bill-row.df-bill-auto-paid .money-chip-status.paid{background:#e7faf3;color:#168a68}',
       '@media(max-width:560px){.money-bill-row{align-items:flex-start}.money-bill-row .money-bill-edit,.money-bill-row .money-bill-toggle{height:30px;padding:0 9px}}'
     ].join('\n');
     document.head.appendChild(style);
@@ -521,11 +818,28 @@
       return String(item.id) === String(id);
     });
     if (!bill) return;
-    var currentMonth = monthKey();
-    bill.paidMonth = bill.paidMonth === currentMonth ? '' : currentMonth;
+    var cycle = budgetCycle(data);
+    if (billPaidForCycle(bill, cycle)) {
+      bill.paidMonth = '';
+      delete bill.paidCycle;
+      delete bill.paidSource;
+      if (bill.autoPaidCycle === cycle.start) {
+        delete bill.autoPaidCycle;
+        delete bill.autoPaidMonth;
+        delete bill.autoPaidTransactionId;
+        delete bill.autoPaidTransactionDate;
+      }
+      bill.manualUnpaidCycle = cycle.start;
+    } else {
+      var dueMonth = isoFromDate(billDueDateForCycle(cycle, bill.dueDay || 1)).slice(0, 7);
+      bill.paidMonth = dueMonth;
+      bill.paidCycle = cycle.start;
+      bill.paidSource = 'manual';
+      delete bill.manualUnpaidCycle;
+    }
     saveNow(data);
     refreshMoney();
-    toast(bill.paidMonth ? 'Marked as paid' : 'Marked as unpaid');
+    toast(bill.paidCycle === cycle.start ? 'Marked as paid' : 'Marked as unpaid');
   }
 
   function billIdFromRow(row) {
@@ -537,11 +851,26 @@
   function enhanceBillRows() {
     var list = $('money-bills-list');
     if (!list) return;
+    var data = loadHub() || {};
+    var cycle = budgetCycle(data);
     list.querySelectorAll('.money-bill-row').forEach(function (row) {
-      if (row.dataset.dfBillEditEnhanced === '1') return;
       var id = billIdFromRow(row);
       var toggle = row.querySelector('.money-bill-toggle');
       if (!id || !toggle) return;
+      var bill = Array.isArray(data.bills) ? data.bills.find(function (item) {
+        return String(item.id) === String(id);
+      }) : null;
+      var status = row.querySelector('.money-chip-status');
+      var isAutoPaid = !!(bill && bill.autoPaidCycle === cycle.start && billPaidForCycle(bill, cycle));
+      row.classList.toggle('df-bill-auto-paid', isAutoPaid);
+      if (isAutoPaid) {
+        if (status) status.textContent = 'Paid from transaction';
+        toggle.title = 'Matched to a payment in this budget cycle. Click if this is not the bill payment.';
+      } else if (status && status.textContent === 'Paid from transaction') {
+        status.textContent = toggle.classList.contains('paid') ? 'Paid this cycle' : 'Due';
+        toggle.removeAttribute('title');
+      }
+      if (row.dataset.dfBillEditEnhanced === '1') return;
       var edit = document.createElement('button');
       edit.type = 'button';
       edit.className = 'money-bill-edit';
@@ -573,6 +902,7 @@
     var original = window.renderMoney;
     if (typeof original !== 'function' || original.__dayframeBillsEditWrapped) return false;
     var wrapped = function () {
+      syncAutoPaidBills();
       var result = original.apply(this, arguments);
       observeBillRows();
       scheduleBillRowEnhancement();
@@ -591,14 +921,17 @@
     window.toggleBillPaid = toggleBillPaid;
     window.editBillItem = startEditBill;
     window.startEditBillItem = startEditBill;
+    wrapBillMeta();
     wrapRenderMoney();
     wrapBillSuggestionFinder();
     wrapBillSuggestionPicker();
     wrapToggleLifeForm();
     observeBillRows();
     installed = true;
+    syncAutoPaidBills();
     scheduleRestore();
     scheduleBillRowEnhancement();
+    setTimeout(wrapBillMeta, 400);
     setTimeout(wrapRenderMoney, 400);
     setTimeout(wrapBillSuggestionFinder, 400);
     setTimeout(wrapBillSuggestionPicker, 400);
