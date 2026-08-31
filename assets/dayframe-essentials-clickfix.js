@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v1';
+  const VERSION = 'clickfix-v2';
   const FLAG = 'data-dayframe-essentials-clickfix';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
@@ -13,6 +13,20 @@
     home: 'driving-home-admin',
     'work-study': 'driving-work-study',
   };
+
+  const MAIN_PAGES = {
+    home: 'home',
+    money: 'money',
+    planner: 'planner',
+    driving: 'driving',
+    diary: 'diary',
+    bible: 'bible',
+    investing: 'dashboard',
+    dashboard: 'dashboard',
+  };
+
+  const INVESTING_PAGES = new Set(['dashboard', 'holdings', 'signals', 'charts', 'themes-hub', 'education', 'isa-guide', 'intel', 'health', 'alerts', 'chatter']);
+  const DRIVING_PAGES = new Set(['driving', 'driving-theory', 'driving-car', 'driving-cycle', 'driving-documents', 'driving-health', 'driving-home-admin', 'driving-work-study']);
 
   function openTool(key, event) {
     if (!TOOL_PAGES[key]) return;
@@ -29,6 +43,91 @@
     event?.preventDefault?.();
     event?.stopPropagation?.();
     window.go?.(name);
+  }
+
+  function mainKeyFor(page) {
+    if (INVESTING_PAGES.has(page)) return 'investing';
+    if (DRIVING_PAGES.has(page)) return 'driving';
+    return page;
+  }
+
+  function setButtonState(page) {
+    const main = mainKeyFor(page);
+    document.querySelectorAll('.df-nav-btn[data-main-page]').forEach((button) => {
+      button.classList.toggle('on', button.dataset.mainPage === main);
+    });
+    document.querySelectorAll('.df-mobile-nav button[data-mobile-page]').forEach((button) => {
+      const key = ['home', 'money', 'planner', 'bible'].includes(main) ? main : 'more';
+      button.classList.toggle('on', button.dataset.mobilePage === key);
+    });
+    document.querySelectorAll('.invest-side-nav button').forEach((button) => {
+      button.classList.toggle('on', button.dataset.investPage === page);
+    });
+    document.querySelectorAll('.driving-side-nav button').forEach((button) => {
+      button.classList.toggle('on', button.dataset.drivingPage === page);
+    });
+    document.querySelectorAll('.ni').forEach((button) => {
+      const text = (button.textContent || '').toLowerCase();
+      const shouldBeOn =
+        (main === 'home' && text.includes('home')) ||
+        (main === 'money' && text.includes('money')) ||
+        (main === 'planner' && text.includes('plan')) ||
+        (main === 'driving' && (text.includes('essential') || text.includes('driving'))) ||
+        (main === 'diary' && text.includes('diary')) ||
+        (main === 'bible' && text.includes('bible')) ||
+        (main === 'investing' && text.includes('invest'));
+      button.classList.toggle('on', shouldBeOn);
+    });
+  }
+
+  function forcePage(page) {
+    const target = document.getElementById(`pg-${page}`);
+    if (!target) return false;
+    document.querySelectorAll('.pg.on[id^="pg-"]').forEach((old) => {
+      old.classList.remove('on');
+      old.style.display = '';
+    });
+    target.classList.add('on');
+    target.style.display = '';
+
+    document.body?.classList.toggle('investing-mode', INVESTING_PAGES.has(page));
+    document.body?.classList.toggle('driving-mode', DRIVING_PAGES.has(page));
+    setButtonState(page);
+    window.dfCloseSheets?.();
+    if (window.innerWidth <= 768 && typeof window.closeSB === 'function') window.closeSB();
+
+    window.renderLifePage?.(page);
+    if (page === 'charts') {
+      window.rCF?.();
+      if (window.activeTk) window.openChart?.(window.activeTk);
+    }
+    if (page === 'health') window.rHealth?.();
+    if (page === 'alerts') window.rAlerts?.();
+    if (page === 'education') window.rEducation?.();
+    if (page !== 'education') {
+      const bar = document.getElementById('edu-back-bar');
+      if (bar) bar.style.display = 'none';
+    }
+    return true;
+  }
+
+  function navigateMain(key, event) {
+    const page = MAIN_PAGES[key];
+    if (!page) return false;
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    window.go?.(page);
+    setTimeout(() => {
+      const active = document.querySelector('.pg.on')?.id || '';
+      if (active !== `pg-${page}`) forcePage(page);
+      else setButtonState(page);
+    }, 0);
+    setTimeout(() => {
+      const active = document.querySelector('.pg.on')?.id || '';
+      if (active !== `pg-${page}`) forcePage(page);
+      else setButtonState(page);
+    }, 80);
+    return true;
   }
 
   function openFlo(event) {
@@ -64,6 +163,12 @@
   }
 
   document.addEventListener('click', (event) => {
+    const topNavTarget = event.target.closest?.('.df-nav-btn[data-main-page]');
+    if (topNavTarget && navigateMain(topNavTarget.dataset.mainPage, event)) return;
+
+    const homeModuleTarget = event.target.closest?.('[data-home-module]');
+    if (homeModuleTarget && navigateMain(homeModuleTarget.dataset.homeModule, event)) return;
+
     const toolTarget = event.target.closest?.('[data-essentials-tool-card],[data-essentials-tool-nav]');
     if (toolTarget) {
       openTool(toolTarget.dataset.essentialsToolCard || toolTarget.dataset.essentialsToolNav, event);
