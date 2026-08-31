@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v7';
+  const VERSION = 'clickfix-v8';
   const FLAG = 'data-dayframe-essentials-clickfix';
   const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
   const MOBILE_DESC = 'My Car, MyFlo, documents and reminders';
@@ -58,7 +58,7 @@
     const essentialsPage = document.getElementById('pg-driving');
     const heroPills = essentialsPage?.querySelector('.driving-hub-pills');
     if (heroPills && /(^|[^A-Za-z])Flo([^A-Za-z]|$)/.test(heroPills.textContent || '')) {
-      heroPills.innerHTML = '<span class="driving-hub-pill"><b></b>My Car</span><span class="driving-hub-pill"><b></b>MyFlo</span>';
+      heroPills.innerHTML = ['My Car', 'MyFlo', 'Documents', 'Health', 'Home & Rent', 'Work & Study'].map((label) => `<span class="driving-hub-pill"><b></b>${label}</span>`).join('');
     }
 
     const floNav = essentialsPage?.querySelector('[data-driving-page="driving-cycle"]');
