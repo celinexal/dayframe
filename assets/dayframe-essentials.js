@@ -4,8 +4,8 @@
   const STYLE_ID = 'df-essentials-loader-style';
   const CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
   const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-myflo-v3';
-  const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-design-v6';
-  const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v9';
+  const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-personal-v7';
+  const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v10';
   const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
   const MOBILE_DESC = 'My Car, MyFlo, documents and reminders';
 
