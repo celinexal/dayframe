@@ -4,6 +4,7 @@
   const STYLE_ID = 'df-essentials-loader-style';
   const CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
   const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-flo-v1';
+  const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-v1';
 
   if (!document.getElementById(STYLE_ID)) {
     const style = document.createElement('style');
@@ -13,7 +14,7 @@
   }
 
   function loadScript(src, attr) {
-    if (document.querySelector(`script[${attr}]`)) return null;
+    if (document.querySelector('script[' + attr + ']')) return null;
     const script = document.createElement('script');
     script.setAttribute(attr, 'true');
     script.src = src;
@@ -23,11 +24,21 @@
     return script;
   }
 
+  const loadMore = () => loadScript(MORE_SRC, 'data-dayframe-essentials-more-loader');
+  const loadFlo = () => {
+    const flo = loadScript(FLO_SRC, 'data-dayframe-essentials-flo-loader');
+    if (flo) {
+      flo.addEventListener('load', loadMore, { once: true });
+      setTimeout(loadMore, 900);
+    } else {
+      loadMore();
+    }
+  };
+
   const cleanup = document.documentElement.hasAttribute('data-dayframe-essentials-cleanup')
     ? null
     : loadScript(CLEANUP_SRC, 'data-dayframe-essentials-cleanup-loader');
 
-  const loadFlo = () => loadScript(FLO_SRC, 'data-dayframe-essentials-flo-loader');
   if (cleanup) {
     cleanup.addEventListener('load', loadFlo, { once: true });
     setTimeout(loadFlo, 900);
