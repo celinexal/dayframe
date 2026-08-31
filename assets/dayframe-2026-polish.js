@@ -114,16 +114,7 @@
   }
 
   function patchGo() {
-    if (typeof globalThis.go !== 'function' || globalThis.go.__dayframePolished) return;
-    const original = globalThis.go;
-    const wrapped = function patchedGo(name, btn) {
-      const target = name === 'driving-costs' ? 'driving-car' : name;
-      const result = original.call(this, target, btn);
-      queueApply(false);
-      return result;
-    };
-    wrapped.__dayframePolished = true;
-    globalThis.go = wrapped;
+    // Navigation is owned by the stable clickfix script; this file only tidies the current DOM.
   }
 
   function patchWatchlistAI() {
