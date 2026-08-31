@@ -5,7 +5,7 @@
   const CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
   const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-myflo-v2';
   const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-design-v5';
-  const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v6';
+  const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v7';
   const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
   const MOBILE_DESC = 'My Car, MyFlo, documents and reminders';
 
@@ -20,16 +20,25 @@
   let labelObserverInstalled = false;
 
   function fixOverviewLabels() {
+    const reveal = (el) => {
+      if (!el) return;
+      el.classList.remove('df-life-hidden', 'df-essentials-hidden', 'home-item-hidden');
+      el.style.display = '';
+      el.setAttribute('aria-hidden', 'false');
+    };
     const homeCard = document.querySelector('[data-home-module="driving"]');
+    reveal(homeCard);
     const homeTitle = homeCard?.querySelector('.hub-module-title');
     const homeDesc = homeCard?.querySelector('.hub-module-desc');
     if (homeTitle && homeTitle.textContent.trim() !== 'Essentials') homeTitle.textContent = 'Essentials';
     if (homeDesc && homeDesc.textContent.trim() !== HOME_DESC) homeDesc.textContent = HOME_DESC;
 
     const topNav = document.querySelector('.df-nav-btn[data-main-page="driving"]');
+    reveal(topNav);
     if (topNav && topNav.textContent.trim() !== 'Essentials') topNav.textContent = 'Essentials';
 
     const mobileMore = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"]`);
+    reveal(mobileMore);
     const mobileTitle = mobileMore?.querySelector('strong');
     const mobileDesc = mobileMore?.querySelector('small');
     if (mobileTitle && mobileTitle.textContent.trim() !== 'Essentials') mobileTitle.textContent = 'Essentials';
