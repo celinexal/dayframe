@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'more-v2';
+  const VERSION = 'more-v3';
   const FLAG = 'data-dayframe-essentials-more';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
@@ -13,9 +13,10 @@
       page: 'driving-documents',
       label: 'Documents',
       icon: 'D',
+      iconSvg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 3.5h6.8L18.5 8v12a1.5 1.5 0 0 1-1.5 1.5H7.5A1.5 1.5 0 0 1 6 20V5a1.5 1.5 0 0 1 1.5-1.5z"/><path d="M14 3.5V8h4.5M9 12h6M9 15.5h6M9 19h3"/></svg>',
       number: '03',
       kicker: 'Important',
-      desc: 'Keep ID, renewals and important dates together.',
+      desc: 'IDs, renewals and documents you might need quickly.',
       tags: ['ID', 'Passport', 'Licence', 'Renewals'],
       empty: 'No documents saved',
       list: 'Saved documents',
@@ -32,9 +33,10 @@
       page: 'driving-health',
       label: 'Health',
       icon: 'H',
+      iconSvg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 5.8a4 4 0 0 0-5.7 0L12 7.6l-1.8-1.8a4 4 0 0 0-5.7 5.7L12 19l7.5-7.5a4 4 0 0 0 0-5.7z"/><path d="M12 10.5v4M10 12.5h4"/></svg>',
       number: '04',
       kicker: 'Appointments',
-      desc: 'Track appointments, prescriptions and checkups.',
+      desc: 'Dentist, GP, prescriptions and checkups.',
       tags: ['Dentist', 'GP', 'Optician', 'Medication'],
       empty: 'No health reminders saved',
       list: 'Health reminders',
@@ -49,20 +51,21 @@
     {
       key: 'home',
       page: 'driving-home-admin',
-      label: 'Home',
-      icon: 'M',
+      label: 'Home & Rent',
+      icon: 'H',
+      iconSvg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5"/><path d="M6.5 9.5V20h11V9.5"/><path d="M9.5 20v-6h5v6"/></svg>',
       number: '05',
-      kicker: 'Home admin',
+      kicker: 'Home',
       desc: 'Track rent dates, tenancy notes and moving tasks.',
       tags: ['Rent date', 'Tenancy', 'Deposit', 'Moving'],
-      empty: 'No home reminders saved',
-      list: 'Home reminders',
-      itemLabel: 'Home item',
+      empty: 'No home or rent reminders saved',
+      list: 'Home and rent reminders',
+      itemLabel: 'Home or rent item',
       dateLabel: 'Date',
       placeholder: 'Rent review, tenancy end, deposit note or moving task.',
-      save: 'Save home item',
-      saved: 'Home item saved',
-      deleted: 'Home item deleted',
+      save: 'Save note',
+      saved: 'Home note saved',
+      deleted: 'Home note deleted',
       store: 'home',
     },
     {
@@ -70,6 +73,7 @@
       page: 'driving-work-study',
       label: 'Work & Study',
       icon: 'W',
+      iconSvg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7V5.8A1.8 1.8 0 0 1 10.8 4h2.4A1.8 1.8 0 0 1 15 5.8V7"/><path d="M4.5 8.5h15v10A1.5 1.5 0 0 1 18 20H6a1.5 1.5 0 0 1-1.5-1.5v-10z"/><path d="M4.5 12.5h15M10 15h4"/></svg>',
       number: '06',
       kicker: 'Dates',
       desc: 'Keep shifts, applications, certificates and deadlines visible.',
@@ -103,6 +107,10 @@
       '"': '&quot;',
       "'": '&#39;',
     }[char]));
+  }
+
+  function iconMarkup(tool) {
+    return tool.iconSvg || esc(tool.icon);
   }
 
   function safeId(value) {
@@ -185,19 +193,59 @@
     const style = document.createElement('style');
     style.id = 'df-essentials-more-style';
     style.textContent = `
-      #pg-driving .driving-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch!important}
-      #pg-driving .driving-home-card{min-height:265px!important}
+      #pg-driving{max-width:1500px!important}
+      #pg-driving .driving-hub-hero{position:relative!important;min-height:0!important;margin-bottom:18px!important;padding:30px 34px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:20px!important;align-items:end!important;border:1px solid #eadff5!important;border-radius:22px!important;background:linear-gradient(135deg,#fff 0%,#fff3fb 40%,#f0fffb 72%,#f4f6ff 100%)!important;box-shadow:0 18px 48px rgba(39,49,75,.08)!important;overflow:hidden!important}
+      #pg-driving .driving-hub-hero:before{content:'';position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#7564f2,#ef6aa9,#42c7ae,#5a9bff)}
+      #pg-driving .driving-hub-eyebrow{margin-bottom:8px!important;color:#8a94a4!important;font-size:10px!important;font-weight:900!important;letter-spacing:0!important;text-transform:uppercase!important}
+      #pg-driving .driving-hub-title{margin:0!important;font-size:clamp(36px,4.8vw,58px)!important;line-height:.96!important;color:#151d33!important;letter-spacing:0!important}
+      #pg-driving .driving-hub-sub{display:block!important;max-width:590px!important;margin-top:12px!important;color:#677287!important;font-size:13px!important;line-height:1.55!important}
+      #pg-driving .driving-hub-pills{display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}
+      #pg-driving .driving-hub-pill{height:34px!important;padding:0 13px!important;border:1px solid rgba(117,100,242,.14)!important;border-radius:999px!important;background:rgba(255,255,255,.74)!important;box-shadow:0 8px 22px rgba(39,49,75,.06)!important;color:#4f5b70!important;font-size:10px!important;font-weight:900!important}
+      #pg-driving .driving-hub-pill b{background:linear-gradient(135deg,#7564f2,#ef6aa9)!important}
+      #pg-driving .driving-home-grid{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:16px!important;align-items:stretch!important}
+      #pg-driving .driving-home-card{position:relative!important;min-height:190px!important;display:flex!important;flex-direction:column!important;gap:14px!important;text-align:left!important;border:1px solid #e7ebf4!important;border-radius:20px!important;background:#fff!important;box-shadow:0 16px 42px rgba(39,49,75,.07)!important;overflow:hidden!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
+      #pg-driving .driving-home-card:before{content:'';position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#7564f2,#ef6aa9)}
+      #pg-driving .driving-home-card:hover{transform:translateY(-2px)!important;box-shadow:0 20px 52px rgba(39,49,75,.11)!important;border-color:#dcd7ff!important}
+      #pg-driving .df-car-card{grid-column:span 5!important;min-height:250px!important;background:linear-gradient(135deg,#fff 0%,#fff4fb 58%,#f0fffb 100%)!important}
+      #pg-driving #df-period-card{grid-column:span 3!important;min-height:250px!important;background:linear-gradient(145deg,#fff 0%,#fff2f8 54%,#f8f4ff 100%)!important}
+      #pg-driving #df-documents-card{grid-column:span 4!important}
+      #pg-driving #df-health-card,#pg-driving #df-home-card,#pg-driving #df-work-study-card{grid-column:span 4!important}
+      #pg-driving .driving-card-top{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;margin-bottom:2px!important}
+      #pg-driving .driving-home-icon{width:46px!important;height:46px!important;border-radius:15px!important;display:grid!important;place-items:center!important;background:#f4f1ff!important;color:#7564f2!important;font-weight:900!important;font-size:13px!important;box-shadow:inset 0 0 0 1px rgba(117,100,242,.08)!important}
+      #pg-driving .driving-home-icon svg{width:23px!important;height:23px!important;display:block!important;fill:none!important;stroke:currentColor!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+      #pg-driving .df-car-card .driving-home-icon{background:#f0efff!important;color:#7564f2!important}
+      #pg-driving #df-period-card .driving-home-icon{background:#fff0f8!important;color:#d94d95!important}
+      #pg-driving #df-period-card:before{background:linear-gradient(90deg,#ef6aa9,#42c7ae)!important}
+      #pg-driving .df-essentials-tool-card.documents:before{background:linear-gradient(90deg,#7564f2,#5a9bff)!important}
+      #pg-driving .df-essentials-tool-card.health:before{background:linear-gradient(90deg,#42c7ae,#80d6a0)!important}
+      #pg-driving .df-essentials-tool-card.home-admin:before{background:linear-gradient(90deg,#f4b747,#ef6aa9)!important}
+      #pg-driving .df-essentials-tool-card.work-study:before{background:linear-gradient(90deg,#5a9bff,#7564f2)!important}
+      #pg-driving .df-essentials-tool-card.documents .driving-home-icon{background:#f2f3ff!important;color:#7564f2!important}
+      #pg-driving .df-essentials-tool-card.health .driving-home-icon{background:#effbf7!important;color:#24a88f!important}
+      #pg-driving .df-essentials-tool-card.home-admin .driving-home-icon{background:#fff6e6!important;color:#d89110!important}
+      #pg-driving .df-essentials-tool-card.work-study .driving-home-icon{background:#eef5ff!important;color:#4d86e8!important}
+      #pg-driving .driving-card-number{min-width:32px!important;height:24px!important;display:inline-grid!important;place-items:center!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;border:1px solid rgba(218,224,236,.9)!important;color:#8a94a4!important;font-size:10px!important;font-weight:900!important;letter-spacing:0!important}
+      #pg-driving .driving-home-kicker{margin-bottom:7px!important;color:#8a94a4!important;font-size:10px!important;font-weight:900!important;letter-spacing:0!important;text-transform:uppercase!important}
+      #pg-driving .driving-home-title{font-size:clamp(22px,2vw,30px)!important;line-height:1!important;color:#151d33!important;letter-spacing:0!important}
+      #pg-driving .driving-home-desc{max-width:460px!important;margin-top:8px!important;color:#667288!important;font-size:13px!important;line-height:1.48!important}
+      #pg-driving .driving-card-tags{display:flex!important;gap:7px!important;flex-wrap:wrap!important;margin-top:auto!important}
+      #pg-driving .driving-card-tag{height:28px!important;display:inline-flex!important;align-items:center!important;padding:0 10px!important;border:1px solid #e8ecf4!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#667288!important;font-size:10px!important;font-weight:850!important}
+      #pg-driving .df-tool-summary,#pg-driving .df-period-card-summary{display:inline-flex!important;align-items:center!important;min-height:28px!important;width:max-content!important;max-width:100%!important;margin-top:2px!important;padding:0 11px!important;border-radius:999px!important;background:#fff!important;border:1px solid #e6eaf2!important;color:#6d60e8!important;font-size:10px!important;font-weight:850!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+      #pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important}
+      #pg-driving .df-car-actions{display:flex!important;gap:8px!important;flex-wrap:wrap!important}
+      #pg-driving .df-car-actions button{height:36px!important;border:0!important;border-radius:999px!important;background:linear-gradient(135deg,#7564f2,#ef6aa9)!important;color:#fff!important;font:900 11px var(--ff)!important;padding:0 15px!important;box-shadow:0 10px 24px rgba(117,100,242,.2)!important}
+      #pg-driving .driving-home-arrow{position:absolute!important;right:18px!important;bottom:18px!important;width:34px!important;height:34px!important;display:grid!important;place-items:center!important;border-radius:999px!important;background:#f4f6fb!important;color:#6e5ff0!important;font-size:0!important}
+      #pg-driving .driving-home-arrow:before{content:'->';font-size:13px!important;font-weight:900!important}
       .df-essentials-nav{display:flex!important}
-      .df-essentials-tool-card{position:relative;text-align:left!important;gap:16px!important;cursor:pointer!important;overflow:hidden!important}
-      .df-essentials-tool-card .driving-home-icon{font-weight:900!important;font-size:13px!important}
-      .df-essentials-tool-card.documents{background:linear-gradient(145deg,#fff 0%,#fff8fc 54%,#f6f7ff 100%)!important;border-color:#f2d5ea!important}
-      .df-essentials-tool-card.health{background:linear-gradient(145deg,#fff 0%,#f3fffb 56%,#fff9f1 100%)!important;border-color:#d5f2e8!important}
-      .df-essentials-tool-card.home-admin{background:linear-gradient(145deg,#fff 0%,#f8fbff 56%,#fff7f0 100%)!important;border-color:#d9e8ff!important}
-      .df-essentials-tool-card.work-study{background:linear-gradient(145deg,#fff 0%,#f8f5ff 56%,#f3fffb 100%)!important;border-color:#ded6ff!important}
-      .df-essentials-tool-card .df-tool-summary{display:inline-flex;align-items:center;min-height:26px;width:max-content;max-width:100%;padding:0 10px;border-radius:999px;background:#fff;border:1px solid #e6eaf2;color:#6d60e8;font-size:9.5px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .df-essentials-tool-card{cursor:pointer!important}
+      .df-essentials-tool-card.documents{background:linear-gradient(145deg,#fff 0%,#fbf9ff 54%,#f3f7ff 100%)!important;border-color:#e2e4ff!important}
+      .df-essentials-tool-card.health{background:linear-gradient(145deg,#fff 0%,#f3fffb 56%,#fffaf1 100%)!important;border-color:#d5f2e8!important}
+      .df-essentials-tool-card.home-admin{background:linear-gradient(145deg,#fff 0%,#fff8ef 55%,#fff4fb 100%)!important;border-color:#f5dfb8!important}
+      .df-essentials-tool-card.work-study{background:linear-gradient(145deg,#fff 0%,#f4f8ff 54%,#f8f4ff 100%)!important;border-color:#d9e8ff!important}
       .df-essentials-tool-page{padding:32px clamp(18px,4vw,42px)!important}
       .df-essentials-tool-page:not(.on){display:none!important}
-      .df-tool-hero{margin-bottom:18px;border:1px solid #e8ebf3;border-radius:22px;background:linear-gradient(135deg,#fff 0%,#fff7fb 48%,#effefa 100%);box-shadow:0 18px 44px rgba(39,49,75,.08);padding:24px}
+      .df-tool-hero{position:relative;margin-bottom:18px;border:1px solid #e8ebf3;border-radius:20px;background:linear-gradient(135deg,#fff 0%,#fff7fb 48%,#effefa 100%);box-shadow:0 18px 44px rgba(39,49,75,.08);padding:24px;overflow:hidden}
+      .df-tool-hero:before{content:'';position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#7564f2,#ef6aa9,#42c7ae)}
       .df-tool-kicker{margin-bottom:7px;color:#d75096;font-size:10px;font-weight:900;letter-spacing:0;text-transform:uppercase}
       .df-tool-hero h1{margin:0;font-family:var(--fd);font-size:clamp(30px,4vw,48px);line-height:1;color:#172033;letter-spacing:0}
       .df-tool-hero p{margin:10px 0 0;max-width:680px;color:#6e798c;font-size:13px;line-height:1.55}
@@ -220,8 +268,8 @@
       .df-tool-item span{display:block;margin-top:4px;color:#758094;font-size:10.5px;line-height:1.45}
       .df-tool-item-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
       .df-tool-empty{border:1px dashed #dfe5ef;border-radius:17px;background:#fafbfe;color:#8a94a4;text-align:center;font-size:12px;font-weight:800;padding:26px}
-      @media(max-width:1180px){#pg-driving .driving-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.df-tool-layout{grid-template-columns:1fr}}
-      @media(max-width:760px){#pg-driving .driving-home-grid{grid-template-columns:1fr!important}.df-tool-item{grid-template-columns:1fr}.df-tool-item-actions{justify-content:flex-start}.df-tool-actions button{flex:1}.df-tool-hero{padding:20px}.df-essentials-tool-page{padding:20px 14px!important}}
+      @media(max-width:1180px){#pg-driving .driving-hub-hero{grid-template-columns:1fr!important;align-items:start!important}#pg-driving .driving-hub-pills{justify-content:flex-start!important}#pg-driving .driving-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#pg-driving .df-car-card,#pg-driving #df-period-card,#pg-driving #df-documents-card,#pg-driving #df-health-card,#pg-driving #df-home-card,#pg-driving #df-work-study-card{grid-column:auto!important}.df-tool-layout{grid-template-columns:1fr}}
+      @media(max-width:760px){#pg-driving .driving-hub-hero{padding:24px 20px!important;border-radius:18px!important}#pg-driving .driving-hub-title{font-size:40px!important}#pg-driving .driving-home-grid{grid-template-columns:1fr!important}#pg-driving .driving-home-card{min-height:0!important;padding:20px!important}.df-tool-item{grid-template-columns:1fr}.df-tool-item-actions{justify-content:flex-start}.df-tool-actions button{flex:1}.df-tool-hero{padding:20px}.df-essentials-tool-page{padding:20px 14px!important}}
     `;
     document.head.appendChild(style);
   }
@@ -261,7 +309,7 @@
     return `
       <button type="button" class="driving-home-card df-essentials-tool-card ${esc(tool.key === 'home' ? 'home-admin' : tool.key)}" id="df-${esc(tool.key)}-card" data-essentials-tool-card="${esc(tool.key)}" onclick="dayframeOpenEssentialsTool('${esc(tool.key)}', event)">
         <div class="driving-card-top">
-          <div class="driving-home-icon">${esc(tool.icon)}</div>
+          <div class="driving-home-icon">${iconMarkup(tool)}</div>
           <div class="driving-card-number">${esc(tool.number)}</div>
         </div>
         <div class="driving-home-copy">
@@ -383,9 +431,18 @@
     const page = byId('pg-driving');
     const pills = page?.querySelector('.driving-hub-pills');
     if (pills) {
-      const labels = ['My Car', 'Flo', 'Documents', 'Health', 'Home', 'Work & Study'];
+      const labels = ['My Car', 'Flo', 'Documents', 'Health', 'Home & Rent', 'Work & Study'];
       pills.innerHTML = labels.map((label) => `<span class="driving-hub-pill"><b></b>${esc(label)}</span>`).join('');
     }
+
+    const heroSub = page?.querySelector('.driving-hub-sub');
+    if (heroSub) heroSub.textContent = 'My Car first, then the small things you do not want to lose track of.';
+    const carDesc = page?.querySelector('.df-car-card .driving-home-desc');
+    if (carDesc) carDesc.textContent = 'Vehicle details, renewals and reminders.';
+    const carQuestion = page?.querySelector('.df-car-question');
+    if (carQuestion) carQuestion.textContent = 'Still learning?';
+    const theoryButton = page?.querySelector('.df-car-actions button');
+    if (theoryButton) theoryButton.textContent = 'Pass your theory';
 
     const homeCard = document.querySelector('[data-home-module="driving"]');
     homeCard?.querySelector('.hub-module-desc') && (homeCard.querySelector('.hub-module-desc').textContent = 'My Car, Flo, documents and reminders in one place.');
