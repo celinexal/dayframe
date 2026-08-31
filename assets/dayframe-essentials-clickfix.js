@@ -1,10 +1,10 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v5';
+  const VERSION = 'clickfix-v6';
   const FLAG = 'data-dayframe-essentials-clickfix';
-  const HOME_DESC = 'My Car, Flo, documents and reminders in one place.';
-  const MOBILE_DESC = 'My Car, Flo, documents and reminders';
+  const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
+  const MOBILE_DESC = 'My Car, MyFlo, documents and reminders';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
@@ -45,6 +45,25 @@
     const mobileDesc = mobileMore?.querySelector('small');
     if (mobileTitle && mobileTitle.textContent.trim() !== 'Essentials') mobileTitle.textContent = 'Essentials';
     if (mobileDesc && mobileDesc.textContent.trim() !== MOBILE_DESC) mobileDesc.textContent = MOBILE_DESC;
+
+    const essentialsPage = document.getElementById('pg-driving');
+    const heroPills = essentialsPage?.querySelector('.driving-hub-pills');
+    if (heroPills && /(^|[^A-Za-z])Flo([^A-Za-z]|$)/.test(heroPills.textContent || '')) {
+      heroPills.innerHTML = '<span class="driving-hub-pill"><b></b>My Car</span><span class="driving-hub-pill"><b></b>MyFlo</span>';
+    }
+
+    const floNav = essentialsPage?.querySelector('[data-driving-page="driving-cycle"]');
+    if (floNav && floNav.textContent.trim() === 'Flo') {
+      const textNode = [...floNav.childNodes].reverse().find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+      if (textNode) textNode.textContent = 'MyFlo';
+      else floNav.appendChild(document.createTextNode('MyFlo'));
+    }
+
+    const floCard = document.getElementById('df-period-card');
+    const floCardTitle = floCard?.querySelector('.driving-home-title');
+    const floPanelTitle = document.querySelector('#df-period-panel .df-period-panel-head h2');
+    if (floCardTitle && floCardTitle.textContent.trim() === 'Flo') floCardTitle.textContent = 'MyFlo';
+    if (floPanelTitle && floPanelTitle.textContent.trim() === 'Flo') floPanelTitle.textContent = 'MyFlo';
 
     document.querySelectorAll('#pg-home .hub-hero p, .hub-hero p').forEach((copy) => {
       if (/driving admin|money, plans, goals/i.test(copy.textContent || '')) {
