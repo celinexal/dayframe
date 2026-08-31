@@ -12,10 +12,10 @@
     document.head.appendChild(style);
   }
 
-  function loadScript(src, marker) {
-    if (document.querySelector(`script[data-${marker}]`)) return null;
+  function loadScript(src, attr) {
+    if (document.querySelector(`script[${attr}]`)) return null;
     const script = document.createElement('script');
-    script.dataset[marker] = 'true';
+    script.setAttribute(attr, 'true');
     script.src = src;
     script.async = false;
     script.defer = true;
@@ -25,9 +25,9 @@
 
   const cleanup = document.documentElement.hasAttribute('data-dayframe-essentials-cleanup')
     ? null
-    : loadScript(CLEANUP_SRC, 'dayframeEssentialsCleanupLoader');
+    : loadScript(CLEANUP_SRC, 'data-dayframe-essentials-cleanup-loader');
 
-  const loadFlo = () => loadScript(FLO_SRC, 'dayframeEssentialsFloLoader');
+  const loadFlo = () => loadScript(FLO_SRC, 'data-dayframe-essentials-flo-loader');
   if (cleanup) {
     cleanup.addEventListener('load', loadFlo, { once: true });
     setTimeout(loadFlo, 900);
