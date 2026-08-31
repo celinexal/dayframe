@@ -2,7 +2,8 @@
   'use strict';
 
   const STYLE_ID = 'df-essentials-loader-style';
-  const SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
+  const CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
+  const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-flo-v1';
 
   if (!document.getElementById(STYLE_ID)) {
     const style = document.createElement('style');
@@ -11,12 +12,26 @@
     document.head.appendChild(style);
   }
 
-  if (document.documentElement.hasAttribute('data-dayframe-essentials-cleanup')) return;
-  if (document.querySelector('script[data-dayframe-essentials-cleanup-loader]')) return;
+  function loadScript(src, marker) {
+    if (document.querySelector(`script[data-${marker}]`)) return null;
+    const script = document.createElement('script');
+    script.dataset[marker] = 'true';
+    script.src = src;
+    script.async = false;
+    script.defer = true;
+    document.head.appendChild(script);
+    return script;
+  }
 
-  const script = document.createElement('script');
-  script.dataset.dayframeEssentialsCleanupLoader = 'true';
-  script.src = SRC;
-  script.defer = true;
-  document.head.appendChild(script);
+  const cleanup = document.documentElement.hasAttribute('data-dayframe-essentials-cleanup')
+    ? null
+    : loadScript(CLEANUP_SRC, 'dayframeEssentialsCleanupLoader');
+
+  const loadFlo = () => loadScript(FLO_SRC, 'dayframeEssentialsFloLoader');
+  if (cleanup) {
+    cleanup.addEventListener('load', loadFlo, { once: true });
+    setTimeout(loadFlo, 900);
+  } else {
+    loadFlo();
+  }
 })();
