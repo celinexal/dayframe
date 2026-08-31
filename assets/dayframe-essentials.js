@@ -4,7 +4,8 @@
   const STYLE_ID = 'df-essentials-loader-style';
   const CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
   const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-flo-v1';
-  const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-v1';
+  const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-v2';
+  const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v1';
 
   if (!document.getElementById(STYLE_ID)) {
     const style = document.createElement('style');
@@ -24,7 +25,16 @@
     return script;
   }
 
-  const loadMore = () => loadScript(MORE_SRC, 'data-dayframe-essentials-more-loader');
+  const loadClickFix = () => loadScript(CLICKFIX_SRC, 'data-dayframe-essentials-clickfix-loader');
+  const loadMore = () => {
+    const more = loadScript(MORE_SRC, 'data-dayframe-essentials-more-loader');
+    if (more) {
+      more.addEventListener('load', loadClickFix, { once: true });
+      setTimeout(loadClickFix, 900);
+    } else {
+      loadClickFix();
+    }
+  };
   const loadFlo = () => {
     const flo = loadScript(FLO_SRC, 'data-dayframe-essentials-flo-loader');
     if (flo) {
