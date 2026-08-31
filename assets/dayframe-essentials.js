@@ -6,6 +6,7 @@
   const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-myflo-v3';
   const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-personal-v7';
   const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';
+  const CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';
   const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
   const MOBILE_DESC = 'My Car, MyFlo, documents and reminders';
   const LOADER_STYLE = '#df-essentials-stage-panel,.driving-side-nav [data-driving-page="driving-theory"],#pg-driving .driving-home-card.theory,#pg-driving-costs,[data-driving-page="driving-costs"],.df-polish-nav-costs,#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}';
@@ -102,7 +103,16 @@
     return script;
   }
 
-  const loadClickFix = () => loadScript(CLICKFIX_SRC, 'data-dayframe-essentials-clickfix-loader');
+  const loadCustomise = () => loadScript(CUSTOMISE_SRC, 'data-dayframe-essentials-customise-loader');
+  const loadClickFix = () => {
+    const clickFix = loadScript(CLICKFIX_SRC, 'data-dayframe-essentials-clickfix-loader');
+    if (clickFix) {
+      clickFix.addEventListener('load', loadCustomise, { once: true });
+      setTimeout(loadCustomise, 900);
+    } else {
+      loadCustomise();
+    }
+  };
   const loadMore = () => {
     const more = loadScript(MORE_SRC, 'data-dayframe-essentials-more-loader');
     if (more) {
