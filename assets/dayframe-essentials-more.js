@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'more-v3';
+  const VERSION = 'more-v6';
   const FLAG = 'data-dayframe-essentials-more';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
@@ -432,7 +432,7 @@
     const page = byId('pg-driving');
     const pills = page?.querySelector('.driving-hub-pills');
     if (pills) {
-      const labels = ['My Car', 'Flo', 'Documents', 'Health', 'Home & Rent', 'Work & Study'];
+      const labels = ['My Car', 'MyFlo', 'Documents', 'Health', 'Home & Rent', 'Work & Study'];
       pills.innerHTML = labels.map((label) => `<span class="driving-hub-pill"><b></b>${esc(label)}</span>`).join('');
     }
 
@@ -446,9 +446,15 @@
     if (theoryButton) theoryButton.textContent = 'Pass your theory';
 
     const homeCard = document.querySelector('[data-home-module="driving"]');
-    homeCard?.querySelector('.hub-module-desc') && (homeCard.querySelector('.hub-module-desc').textContent = 'My Car, Flo, documents and reminders in one place.');
-    const mobileMore = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"] small`);
-    if (mobileMore) mobileMore.textContent = 'My Car, Flo, documents and reminders';
+    const homeTitle = homeCard?.querySelector('.hub-module-title');
+    const homeDesc = homeCard?.querySelector('.hub-module-desc');
+    if (homeTitle) homeTitle.textContent = 'Essentials';
+    if (homeDesc) homeDesc.textContent = 'My Car, MyFlo, documents and reminders in one place.';
+    const mobileMore = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"]`);
+    const mobileMoreTitle = mobileMore?.querySelector('strong');
+    const mobileMoreDesc = mobileMore?.querySelector('small');
+    if (mobileMoreTitle) mobileMoreTitle.textContent = 'Essentials';
+    if (mobileMoreDesc) mobileMoreDesc.textContent = 'My Car, MyFlo, documents and reminders';
   }
 
   function selectNav(page) {
@@ -554,9 +560,13 @@
 
   function needsApply() {
     const page = byId('pg-driving');
-    if (!page) return false;
-    const pills = page.querySelector('.driving-hub-pills')?.innerText || '';
-    return TOOLS.some((tool) => !byId(`df-${tool.key}-card`) || !document.querySelector(`.driving-side-nav [data-driving-page="${tool.page}"]`) || !pills.includes(tool.label));
+    const pills = page?.querySelector('.driving-hub-pills')?.innerText || '';
+    const homeTitle = document.querySelector('[data-home-module="driving"] .hub-module-title')?.textContent?.trim() || '';
+    const mobileMoreTitle = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"] strong`)?.textContent?.trim() || '';
+    const homeNeedsLabel = Boolean(homeTitle) && homeTitle !== 'Essentials';
+    const mobileNeedsLabel = Boolean(mobileMoreTitle) && mobileMoreTitle !== 'Essentials';
+    const essentialsNeedsCards = Boolean(page) && TOOLS.some((tool) => !byId(`df-${tool.key}-card`) || !document.querySelector(`.driving-side-nav [data-driving-page="${tool.page}"]`) || !pills.includes(tool.label));
+    return homeNeedsLabel || mobileNeedsLabel || essentialsNeedsCards;
   }
 
   function installObserver() {
@@ -564,7 +574,7 @@
     observerInstalled = true;
     new MutationObserver(() => {
       if (needsApply()) applySoon(30);
-    }).observe(document.body, { childList: true, subtree: true });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
   }
 
   window.dayframeOpenEssentialsTool = openTool;
