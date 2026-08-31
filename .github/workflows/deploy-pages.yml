@@ -65,6 +65,7 @@ jobs:
           test -s assets/dayframe-essentials-clickfix.js
           test -s assets/dayframe-essentials-customise.js
           test -s assets/dayframe-essentials-pill-left.js
+          test -s assets/dayframe-myflo-calendar-actions.js
           test -s driving/theory.html
           test -s driving/theory-overrides.css
           grep -q 'src="/driving/theory.html"' index.html
@@ -145,7 +146,16 @@ jobs:
               return script;
             }};
             const loadEssentials = () => {{
-              const loadPillLeft = () => loadScript('/assets/dayframe-essentials-pill-left.js?v={build}', 'data-dayframe-essentials-pill-left-late');
+              const loadCalendarActions = () => loadScript('/assets/dayframe-myflo-calendar-actions.js?v={build}', 'data-dayframe-myflo-calendar-actions-late');
+              const loadPillLeft = () => {{
+                const pillLeft = loadScript('/assets/dayframe-essentials-pill-left.js?v={build}', 'data-dayframe-essentials-pill-left-late');
+                if (pillLeft) {{
+                  pillLeft.addEventListener('load', loadCalendarActions, {{ once: true }});
+                  setTimeout(loadCalendarActions, 900);
+                }} else {{
+                  loadCalendarActions();
+                }}
+              }};
               const loadCustomise = () => {{
                 const customise = loadScript('/assets/dayframe-essentials-customise.js?v={build}', 'data-dayframe-essentials-customise-late');
                 if (customise) {{
