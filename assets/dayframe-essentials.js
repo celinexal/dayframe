@@ -4,7 +4,7 @@
   const STYLE_ID = 'df-essentials-loader-style';
   const CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
   const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-flo-v1';
-  const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-v2';
+  const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-v3';
   const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v4';
 
   if (!document.getElementById(STYLE_ID)) {
@@ -14,8 +14,26 @@
     document.head.appendChild(style);
   }
 
+  function sameAssetLoaded(src, attr) {
+    if (document.querySelector('script[' + attr + ']')) return true;
+    let targetPath = '';
+    try {
+      targetPath = new URL(src, location.href).pathname;
+    } catch {
+      return false;
+    }
+    return Array.from(document.scripts).some((script) => {
+      if (!script.src) return false;
+      try {
+        return new URL(script.src, location.href).pathname === targetPath;
+      } catch {
+        return false;
+      }
+    });
+  }
+
   function loadScript(src, attr) {
-    if (document.querySelector('script[' + attr + ']')) return null;
+    if (sameAssetLoaded(src, attr)) return null;
     const script = document.createElement('script');
     script.setAttribute(attr, 'true');
     script.src = src;
