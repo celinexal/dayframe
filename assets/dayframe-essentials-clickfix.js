@@ -1,10 +1,66 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v9';
+  const VERSION = 'clickfix-v10';
   const FLAG = 'data-dayframe-essentials-clickfix';
-  const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
-  const MOBILE_DESC = 'My Car, MyFlo, documents and reminders';
+  const WIDGET_LABELS = {
+    car: 'My Car',
+    myflo: 'MyFlo',
+    documents: 'Documents',
+    health: 'Health',
+    home: 'Home & Rent',
+    'work-study': 'Work & Study',
+  };
+  const DEFAULT_WIDGET_ORDER = ['car', 'myflo', 'documents', 'health', 'home', 'work-study'];
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[char]));
+  }
+
+  function normalisePrefs(raw = {}) {
+    const valid = new Set(DEFAULT_WIDGET_ORDER);
+    const seen = new Set();
+    const order = [];
+    (Array.isArray(raw.order) ? raw.order : DEFAULT_WIDGET_ORDER).forEach((key) => {
+      if (valid.has(key) && !seen.has(key)) {
+        seen.add(key);
+        order.push(key);
+      }
+    });
+    DEFAULT_WIDGET_ORDER.forEach((key) => {
+      if (!seen.has(key)) order.push(key);
+    });
+    const hidden = [...new Set(Array.isArray(raw.hidden) ? raw.hidden : [])].filter((key) => valid.has(key));
+    return { order, hidden };
+  }
+
+  function visibleWidgetLabels() {
+    const data = typeof window.hubLoad === 'function' ? (window.hubLoad() || {}) : {};
+    const prefs = normalisePrefs(data?.essentials?.widgetPrefs || {});
+    return prefs.order.filter((key) => !prefs.hidden.includes(key)).map((key) => WIDGET_LABELS[key]).filter(Boolean);
+  }
+
+  function listLabels(labels, max) {
+    if (!labels.length) return 'Choose what Essentials shows';
+    if (labels.length === 1) return labels[0];
+    if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
+    if (labels.length <= max) return `${labels.slice(0, -1).join(', ')} and ${labels.at(-1)}`;
+    return `${labels.slice(0, max).join(', ')} and ${labels.length - max} more`;
+  }
+
+  function homeDescText() {
+    return `${listLabels(visibleWidgetLabels(), 3)}.`;
+  }
+
+  function mobileDescText() {
+    return listLabels(visibleWidgetLabels(), 2);
+  }
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
@@ -42,7 +98,8 @@
     const homeTitle = homeCard?.querySelector('.hub-module-title');
     const homeDesc = homeCard?.querySelector('.hub-module-desc');
     if (homeTitle && homeTitle.textContent.trim() !== 'Essentials') homeTitle.textContent = 'Essentials';
-    if (homeDesc && homeDesc.textContent.trim() !== HOME_DESC) homeDesc.textContent = HOME_DESC;
+    const homeDescValue = homeDescText();
+    if (homeDesc && homeDesc.textContent.trim() !== homeDescValue) homeDesc.textContent = homeDescValue;
 
     const topNav = document.querySelector('.df-nav-btn[data-main-page="driving"]');
     reveal(topNav);
@@ -53,15 +110,22 @@
     const mobileTitle = mobileMore?.querySelector('strong');
     const mobileDesc = mobileMore?.querySelector('small');
     if (mobileTitle && mobileTitle.textContent.trim() !== 'Essentials') mobileTitle.textContent = 'Essentials';
-    if (mobileDesc && mobileDesc.textContent.trim() !== MOBILE_DESC) mobileDesc.textContent = MOBILE_DESC;
+    const mobileDescValue = mobileDescText();
+    if (mobileDesc && mobileDesc.textContent.trim() !== mobileDescValue) mobileDesc.textContent = mobileDescValue;
 
     const essentialsPage = document.getElementById('pg-driving');
     const heroPills = essentialsPage?.querySelector('.driving-hub-pills');
     if (heroPills) {
-      const labels = ['My Car', 'MyFlo', 'Documents', 'Health', 'Home & Rent', 'Work & Study'];
+      const labels = visibleWidgetLabels();
       const current = [...heroPills.querySelectorAll('.driving-hub-pill')].map((pill) => pill.textContent.trim());
-      if (current.join('|') !== labels.join('|')) {
-        heroPills.innerHTML = labels.map((label) => `<span class="driving-hub-pill"><b></b>${label}</span>`).join('');
+      const expected = labels.length ? labels.join('|') : 'Choose your essentials';
+      if (current.join('|') !== expected) {
+        const pillMarkup = labels.length
+          ? labels.map((label) => `<span class="driving-hub-pill"><b></b>${esc(label)}</span>`).join('')
+          : '<span class="driving-hub-pill"><b></b>Choose your essentials</span>';
+        const customButton = document.getElementById('df-essentials-customise-button');
+        heroPills.innerHTML = pillMarkup;
+        if (customButton) heroPills.appendChild(customButton);
       }
     }
 
