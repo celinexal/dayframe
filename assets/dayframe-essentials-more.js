@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'more-v1';
+  const VERSION = 'more-v2';
   const FLAG = 'data-dayframe-essentials-more';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
@@ -89,7 +89,7 @@
   const TOOL_MAP = new Map(TOOLS.map((tool) => [tool.key, tool]));
   let applyQueued = false;
   let observerInstalled = false;
-  let previousGo = null;
+  let clickHandlerInstalled = false;
 
   function byId(id) {
     return document.getElementById(id);
@@ -248,8 +248,10 @@
         button.className = 'df-essentials-nav';
         button.dataset.drivingPage = tool.page;
         button.innerHTML = `<span>${esc(tool.icon)}</span>${esc(tool.label)}`;
+        button.dataset.essentialsToolNav = tool.key;
         button.setAttribute('onclick', `dayframeOpenEssentialsTool('${tool.key}', event)`);
       }
+      button.dataset.essentialsToolNav = tool.key;
       nav.insertBefore(button, anchor?.nextSibling || null);
       anchor = button;
     });
@@ -257,7 +259,7 @@
 
   function toolCardHTML(tool) {
     return `
-      <button class="driving-home-card df-essentials-tool-card ${esc(tool.key === 'home' ? 'home-admin' : tool.key)}" id="df-${esc(tool.key)}-card" onclick="dayframeOpenEssentialsTool('${esc(tool.key)}', event)">
+      <button type="button" class="driving-home-card df-essentials-tool-card ${esc(tool.key === 'home' ? 'home-admin' : tool.key)}" id="df-${esc(tool.key)}-card" data-essentials-tool-card="${esc(tool.key)}" onclick="dayframeOpenEssentialsTool('${esc(tool.key)}', event)">
         <div class="driving-card-top">
           <div class="driving-home-icon">${esc(tool.icon)}</div>
           <div class="driving-card-number">${esc(tool.number)}</div>
@@ -279,6 +281,11 @@
     if (!grid) return;
     TOOLS.forEach((tool) => {
       if (!byId(`df-${tool.key}-card`)) grid.insertAdjacentHTML('beforeend', toolCardHTML(tool));
+      const card = byId(`df-${tool.key}-card`);
+      if (card) {
+        card.type = 'button';
+        card.dataset.essentialsToolCard = tool.key;
+      }
     });
     [
       '#pg-driving .driving-home-card.car',
@@ -398,7 +405,6 @@
     event?.preventDefault?.();
     event?.stopPropagation?.();
     applyNow();
-    if (previousGo) previousGo.call(window, 'driving');
     document.querySelectorAll('.pg.on[id^="pg-"]').forEach((page) => page.classList.remove('on'));
     byId(`pg-${tool.page}`)?.classList.add('on');
     document.body?.classList.add('driving-mode');
@@ -407,24 +413,65 @@
     if (window.innerWidth <= 768 && typeof window.closeSB === 'function') window.closeSB();
   }
 
-  function patchGo() {
-    if (typeof window.go !== 'function' || window.go.__dayframeEssentialsMoreVersion === VERSION) return;
-    const currentGo = window.go;
-    previousGo = currentGo.__dayframeEssentialsFloPrevious || currentGo.__dayframeEssentialsCleanPrevious || currentGo;
-    window.go = function dayframeEssentialsMoreGo(name, btn, ...args) {
-      const tool = TOOLS.find((item) => item.page === name);
-      if (tool) {
-        openTool(tool.key, btn);
-        return undefined;
+  function openDrivingPage(name, event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    window.go?.(name);
+  }
+
+  function openFlo(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    if (typeof window.dayframeOpenPeriodTracker === 'function') window.dayframeOpenPeriodTracker(event);
+  }
+
+  function markClickableCards() {
+    const homeCard = document.querySelector('[data-home-module="driving"]');
+    if (homeCard) homeCard.dataset.essentialsOpenPage = 'driving';
+
+    const myCar = document.querySelector('#pg-driving .driving-home-card.car');
+    if (myCar) myCar.dataset.essentialsOpenPage = 'driving-car';
+
+    const flo = byId('df-period-card');
+    if (flo) {
+      if ('type' in flo) flo.type = 'button';
+      flo.dataset.essentialsOpenFlo = 'true';
+    }
+
+    TOOLS.forEach((tool) => {
+      const card = byId(`df-${tool.key}-card`);
+      const nav = document.querySelector(`.driving-side-nav [data-driving-page="${tool.page}"]`);
+      if (card) {
+        if ('type' in card) card.type = 'button';
+        card.dataset.essentialsToolCard = tool.key;
       }
-      document.querySelectorAll('.df-essentials-tool-page.on').forEach((page) => page.classList.remove('on'));
-      const result = previousGo.call(this, name, btn, ...args);
-      applySoon(40);
-      return result;
-    };
-    window.go.__dayframeEssentialsMoreVersion = VERSION;
-    window.go.__dayframeEssentialsFloVersion = currentGo.__dayframeEssentialsFloVersion;
-    window.go.__dayframeEssentialsFloPrevious = previousGo;
+      if (nav) nav.dataset.essentialsToolNav = tool.key;
+    });
+  }
+
+  function installClickHandler() {
+    if (clickHandlerInstalled || !document.body) return;
+    clickHandlerInstalled = true;
+    document.addEventListener('click', (event) => {
+      const toolTarget = event.target.closest?.('[data-essentials-tool-card],[data-essentials-tool-nav]');
+      if (toolTarget) {
+        openTool(toolTarget.dataset.essentialsToolCard || toolTarget.dataset.essentialsToolNav, event);
+        return;
+      }
+
+      const floTarget = event.target.closest?.('[data-essentials-open-flo="true"]');
+      if (floTarget) {
+        openFlo(event);
+        return;
+      }
+
+      const pageTarget = event.target.closest?.('[data-essentials-open-page]');
+      if (pageTarget) openDrivingPage(pageTarget.dataset.essentialsOpenPage, event);
+    }, true);
+  }
+
+  function patchGo() {
+    document.querySelectorAll('.df-essentials-tool-page.on').forEach((page) => page.classList.remove('on'));
   }
 
   function applyNow() {
@@ -435,6 +482,8 @@
     ensureCards();
     ensurePages();
     updateLabels();
+    markClickableCards();
+    installClickHandler();
     renderAll();
     installObserver();
   }
