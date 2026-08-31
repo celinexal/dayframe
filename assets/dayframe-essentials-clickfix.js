@@ -1,8 +1,10 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v10';
+  const VERSION = 'clickfix-v11';
   const FLAG = 'data-dayframe-essentials-clickfix';
+  const STYLE_ID = 'df-essentials-clickfix-style';
+  const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}';
   const WIDGET_LABELS = {
     car: 'My Car',
     myflo: 'MyFlo',
@@ -21,6 +23,27 @@
       '"': '&quot;',
       "'": '&#39;',
     }[char]));
+  }
+
+  function ensureHiddenStyle() {
+    const style = document.getElementById(STYLE_ID) || document.createElement('style');
+    style.id = STYLE_ID;
+    if (style.textContent !== HIDDEN_STYLE) style.textContent = HIDDEN_STYLE;
+    if (!style.parentElement) document.head.appendChild(style);
+  }
+
+  function keepCustomiseButton(heroPills) {
+    if (!heroPills) return;
+    let button = document.getElementById('df-essentials-customise-button');
+    if (!button && typeof window.dayframeToggleEssentialsCustomise === 'function') {
+      button = document.createElement('button');
+      button.id = 'df-essentials-customise-button';
+      button.className = 'df-essentials-customise-btn';
+      button.type = 'button';
+      button.textContent = 'Customise';
+      button.addEventListener('click', (event) => window.dayframeToggleEssentialsCustomise?.(event));
+    }
+    if (button && button.parentElement !== heroPills) heroPills.appendChild(button);
   }
 
   function normalisePrefs(raw = {}) {
@@ -87,6 +110,7 @@
   const DRIVING_PAGES = new Set(['driving', 'driving-theory', 'driving-car', 'driving-cycle', 'driving-documents', 'driving-health', 'driving-home-admin', 'driving-work-study']);
 
   function fixVisibleHomeLanguage() {
+    ensureHiddenStyle();
     const reveal = (el) => {
       if (!el) return;
       el.classList.remove('df-life-hidden', 'df-essentials-hidden', 'home-item-hidden');
@@ -126,6 +150,9 @@
         const customButton = document.getElementById('df-essentials-customise-button');
         heroPills.innerHTML = pillMarkup;
         if (customButton) heroPills.appendChild(customButton);
+        keepCustomiseButton(heroPills);
+      } else {
+        keepCustomiseButton(heroPills);
       }
     }
 
@@ -384,6 +411,7 @@
   }, true);
 
   function apply() {
+    ensureHiddenStyle();
     installStableGo();
     markTargets();
     fixVisibleHomeLanguage();
