@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v6';
+  const VERSION = 'clickfix-v7';
   const FLAG = 'data-dayframe-essentials-clickfix';
   const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
   const MOBILE_DESC = 'My Car, MyFlo, documents and reminders';
@@ -31,16 +31,25 @@
   const DRIVING_PAGES = new Set(['driving', 'driving-theory', 'driving-car', 'driving-cycle', 'driving-documents', 'driving-health', 'driving-home-admin', 'driving-work-study']);
 
   function fixVisibleHomeLanguage() {
+    const reveal = (el) => {
+      if (!el) return;
+      el.classList.remove('df-life-hidden', 'df-essentials-hidden', 'home-item-hidden');
+      el.style.display = '';
+      el.setAttribute('aria-hidden', 'false');
+    };
     const homeCard = document.querySelector('[data-home-module="driving"]');
+    reveal(homeCard);
     const homeTitle = homeCard?.querySelector('.hub-module-title');
     const homeDesc = homeCard?.querySelector('.hub-module-desc');
     if (homeTitle && homeTitle.textContent.trim() !== 'Essentials') homeTitle.textContent = 'Essentials';
     if (homeDesc && homeDesc.textContent.trim() !== HOME_DESC) homeDesc.textContent = HOME_DESC;
 
     const topNav = document.querySelector('.df-nav-btn[data-main-page="driving"]');
+    reveal(topNav);
     if (topNav && topNav.textContent.trim() !== 'Essentials') topNav.textContent = 'Essentials';
 
     const mobileMore = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"]`);
+    reveal(mobileMore);
     const mobileTitle = mobileMore?.querySelector('strong');
     const mobileDesc = mobileMore?.querySelector('small');
     if (mobileTitle && mobileTitle.textContent.trim() !== 'Essentials') mobileTitle.textContent = 'Essentials';
