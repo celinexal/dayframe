@@ -205,6 +205,7 @@
       #pg-driving .driving-home-grid{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:16px!important;align-items:stretch!important}
       #pg-driving .driving-home-card{position:relative!important;min-height:190px!important;display:flex!important;flex-direction:column!important;gap:14px!important;text-align:left!important;border:1px solid #e7ebf4!important;border-radius:20px!important;background:#fff!important;box-shadow:0 16px 42px rgba(39,49,75,.07)!important;overflow:hidden!important;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important}
       #pg-driving .driving-home-card:before{content:'';position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#7564f2,#ef6aa9)}
+      #pg-driving .driving-home-card:after{display:none!important;content:none!important}
       #pg-driving .driving-home-card:hover{transform:translateY(-2px)!important;box-shadow:0 20px 52px rgba(39,49,75,.11)!important;border-color:#dcd7ff!important}
       #pg-driving .df-car-card{grid-column:span 5!important;min-height:250px!important;background:linear-gradient(135deg,#fff 0%,#fff4fb 58%,#f0fffb 100%)!important}
       #pg-driving #df-period-card{grid-column:span 3!important;min-height:250px!important;background:linear-gradient(145deg,#fff 0%,#fff2f8 54%,#f8f4ff 100%)!important}
