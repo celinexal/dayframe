@@ -63,6 +63,7 @@ jobs:
           test -s assets/dayframe-essentials-flo.js
           test -s assets/dayframe-essentials-more.js
           test -s assets/dayframe-essentials-clickfix.js
+          test -s assets/dayframe-essentials-customise.js
           test -s driving/theory.html
           test -s driving/theory-overrides.css
           grep -q 'src="/driving/theory.html"' index.html
@@ -143,7 +144,16 @@ jobs:
               return script;
             }};
             const loadEssentials = () => {{
-              const loadClickFix = () => loadScript('/assets/dayframe-essentials-clickfix.js?v={build}', 'data-dayframe-essentials-clickfix-late');
+              const loadCustomise = () => loadScript('/assets/dayframe-essentials-customise.js?v={build}', 'data-dayframe-essentials-customise-late');
+              const loadClickFix = () => {{
+                const clickFix = loadScript('/assets/dayframe-essentials-clickfix.js?v={build}', 'data-dayframe-essentials-clickfix-late');
+                if (clickFix) {{
+                  clickFix.addEventListener('load', loadCustomise, {{ once: true }});
+                  setTimeout(loadCustomise, 900);
+                }} else {{
+                  loadCustomise();
+                }}
+              }};
               const loadMore = () => {{
                 const more = loadScript('/assets/dayframe-essentials-more.js?v={build}', 'data-dayframe-essentials-more-late');
                 if (more) {{
@@ -176,6 +186,13 @@ jobs:
           </script>'''
           if 'data-dayframe-essentials-cleanup-bootstrap' not in s:
               s = s.replace('</head>', essentials_style + essentials_loader + '\n</head>', 1)
+          else:
+              s = re.sub(
+                  r'<script data-dayframe-essentials-cleanup-bootstrap>[\s\S]*?</script>',
+                  essentials_loader,
+                  s,
+                  count=1,
+              )
           index.write_text(s)
           PY
 
