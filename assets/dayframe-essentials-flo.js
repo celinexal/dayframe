@@ -1,347 +1,227 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v2';
+  const VERSION = 'flo-v3';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
-  const HOME_DESC = 'My Car, MyFlo, documents and reminders in one place.';
-  const MOBILE_DESC = 'My Car, MyFlo and everyday tools';
   const DAY_MS = 86400000;
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
 
-  let applyQueued = false;
-  let observerInstalled = false;
-  let previousFloOpener = null;
+  let queued = false;
+  let observing = false;
   let calendarCursor = firstOfMonth(new Date());
 
-  function byId(id) {
-    return document.getElementById(id);
-  }
-
-  function esc(value) {
-    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    }[char]));
-  }
-
-  function clampNumber(value, fallback, min, max) {
+  const $ = (id) => document.getElementById(id);
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char]));
+  const clamp = (value, fallback, min, max) => {
     const number = Number(value);
-    if (!Number.isFinite(number)) return fallback;
-    return Math.max(min, Math.min(max, Math.round(number)));
-  }
-
-  function isHidden(el) {
-    if (!el) return true;
-    const style = getComputedStyle(el);
-    return style.display === 'none' || style.visibility === 'hidden';
-  }
-
-  function setHidden(el, hidden) {
-    if (!el) return;
-    el.classList.toggle('df-essentials-hidden', Boolean(hidden));
-    el.setAttribute('aria-hidden', hidden ? 'true' : 'false');
-  }
-
-  function setButtonLabel(button, label) {
-    if (!button) return;
-    const textNode = [...button.childNodes].reverse().find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-    if (textNode) textNode.textContent = label;
-    else button.appendChild(document.createTextNode(label));
-  }
-
-  function readData() {
-    if (typeof window.hubLoad !== 'function') return {};
-    const data = window.hubLoad() || {};
-    data.essentials = data.essentials || {};
-    data.essentials.period = data.essentials.period || {};
-    return data;
-  }
-
-  function savePeriodPatch(nextPeriod) {
-    if (typeof window.hubLoad !== 'function' || typeof window.hubSave !== 'function') return false;
-    const data = readData();
-    data.essentials.period = Object.assign({}, data.essentials.period || {}, nextPeriod, {
-      updatedAt: new Date().toISOString(),
-    });
-    window.hubSave(data);
-    return true;
-  }
-
-  function isISO(value) {
-    return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
-  }
-
-  function parseISO(value) {
+    return Number.isFinite(number) ? Math.max(min, Math.min(max, Math.round(number))) : fallback;
+  };
+  const iso = (value) => {
+    const date = new Date(value);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+  const isISO = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
+  const parseISO = (value) => {
     if (!isISO(value)) return null;
     const [year, month, day] = value.split('-').map(Number);
-    return new Date(year, month - 1, day, 12, 0, 0, 0);
-  }
-
-  function isoFromDate(value) {
+    return new Date(year, month - 1, day, 12);
+  };
+  const dayStart = (value) => {
     const date = new Date(value);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  function firstOfMonth(value) {
-    const date = value ? new Date(value) : new Date();
-    return new Date(date.getFullYear(), date.getMonth(), 1, 12, 0, 0, 0);
-  }
-
-  function addDays(value, days) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  };
+  const addDays = (value, days) => {
     const date = typeof value === 'string' ? parseISO(value) : new Date(value);
     if (!date) return null;
     date.setDate(date.getDate() + days);
     return date;
-  }
-
-  function addDaysISO(value, days) {
+  };
+  const addDaysISO = (value, days) => {
     const date = addDays(value, days);
-    return date ? isoFromDate(date) : '';
+    return date ? iso(date) : '';
+  };
+  function firstOfMonth(value) {
+    const date = value ? new Date(value) : new Date();
+    return new Date(date.getFullYear(), date.getMonth(), 1, 12);
   }
-
   function addMonths(value, months) {
     const date = firstOfMonth(value);
     date.setMonth(date.getMonth() + months);
     return firstOfMonth(date);
   }
-
   function diffDays(later, earlier) {
     const a = typeof later === 'string' ? parseISO(later) : later;
     const b = typeof earlier === 'string' ? parseISO(earlier) : earlier;
     if (!a || !b) return 0;
-    return Math.round((firstOfDay(a).getTime() - firstOfDay(b).getTime()) / DAY_MS);
+    return Math.round((dayStart(a).getTime() - dayStart(b).getTime()) / DAY_MS);
   }
-
-  function firstOfDay(value) {
-    const date = new Date(value);
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
-  }
-
-  function formatShort(value) {
+  function shortDate(value) {
     const date = typeof value === 'string' ? parseISO(value) : value;
-    if (!date) return 'Not set';
-    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    return date ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'Not set';
   }
-
-  function formatRange(start, end) {
+  function shortRange(start, end) {
     if (!start || !end) return 'Not set';
-    if (start.slice(0, 7) === end.slice(0, 7)) {
-      return `${Number(start.slice(8))}-${formatShort(end)}`;
-    }
-    return `${formatShort(start)}-${formatShort(end)}`;
+    return start.slice(0, 7) === end.slice(0, 7) ? `${Number(start.slice(8))}-${shortDate(end)}` : `${shortDate(start)}-${shortDate(end)}`;
   }
 
-  function readSettings() {
-    const raw = readData().essentials?.period || {};
-    const reminderDays = Array.isArray(raw.reminderDays) ? raw.reminderDays.map(Number).filter((day) => [7, 3, 2, 1, 0].includes(day)) : [3, 1];
-    const loggedStarts = Array.isArray(raw.loggedStarts) ? raw.loggedStarts.filter(isISO).slice(-24) : [];
+  function loadData() {
+    const data = typeof window.hubLoad === 'function' ? (window.hubLoad() || {}) : {};
+    data.essentials = data.essentials || {};
+    data.essentials.period = data.essentials.period || {};
+    return data;
+  }
+  function savePeriod(next) {
+    if (typeof window.hubSave !== 'function') return false;
+    const data = loadData();
+    data.essentials.period = Object.assign({}, data.essentials.period || {}, next, {
+      updatedAt: new Date().toISOString(),
+    });
+    delete data.essentials.period.reminderKinds;
+    window.hubSave(data);
+    return true;
+  }
+  function settings() {
+    const raw = loadData().essentials?.period || {};
+    const reminderDays = Array.isArray(raw.reminderDays)
+      ? raw.reminderDays.map(Number).filter((day) => [3, 2, 1, 0].includes(day))
+      : [3, 1];
     return {
       lastStart: isISO(raw.lastStart) ? raw.lastStart : '',
-      cycleLength: clampNumber(raw.cycleLength, 28, 15, 60),
-      periodLength: clampNumber(raw.periodLength, 5, 1, 14),
+      lastEnd: isISO(raw.lastEnd) ? raw.lastEnd : '',
+      cycleLength: clamp(raw.cycleLength, 28, 15, 60),
+      periodLength: clamp(raw.periodLength, 5, 1, 14),
       notes: String(raw.notes || ''),
-      loggedStarts,
-      reminderDays: reminderDays.length ? [...new Set(reminderDays)].sort((a, b) => b - a) : [3, 1],
+      loggedStarts: Array.isArray(raw.loggedStarts) ? raw.loggedStarts.filter(isISO).slice(-24) : [],
+      loggedEnds: Array.isArray(raw.loggedEnds) ? raw.loggedEnds.filter(isISO).slice(-24) : [],
+      reminderDays: reminderDays.length ? [...new Set(reminderDays)].sort((a, b) => b - a) : [1],
       reminderTime: /^\d{2}:\d{2}$/.test(String(raw.reminderTime || '')) ? raw.reminderTime : '09:00',
-      reminderKinds: Object.assign({ period: true, fertile: false, ovulation: false }, raw.reminderKinds || {}),
       browserNotifications: raw.browserNotifications === true,
       lastReminders: raw.lastReminders && typeof raw.lastReminders === 'object' ? raw.lastReminders : {},
     };
   }
-
-  function cycleAnchor(settings, base = new Date()) {
-    const start = parseISO(settings.lastStart);
-    if (!start) return null;
-    let anchor = start;
-    while (diffDays(addDays(anchor, settings.cycleLength), base) <= 0) {
-      anchor = addDays(anchor, settings.cycleLength);
-    }
-    while (diffDays(anchor, base) > 0) {
-      anchor = addDays(anchor, -settings.cycleLength);
-    }
+  function formSettings() {
+    const current = settings();
+    return Object.assign({}, current, {
+      lastStart: $('df-period-last-start')?.value || current.lastStart,
+      cycleLength: clamp($('df-period-cycle-length')?.value, current.cycleLength, 15, 60),
+      periodLength: clamp($('df-period-length')?.value, current.periodLength, 1, 14),
+      notes: $('df-period-notes')?.value || '',
+    });
+  }
+  function cycleAnchor(s, base = new Date()) {
+    let anchor = parseISO(s.lastStart);
+    if (!anchor) return null;
+    while (diffDays(addDays(anchor, s.cycleLength), base) <= 0) anchor = addDays(anchor, s.cycleLength);
+    while (diffDays(anchor, base) > 0) anchor = addDays(anchor, -s.cycleLength);
     return anchor;
   }
-
-  function nextPeriodStart(settings, base = new Date()) {
-    const anchor = cycleAnchor(settings, base);
+  function nextPeriodStart(s, base = new Date()) {
+    const anchor = cycleAnchor(s, base);
     if (!anchor) return '';
-    const dayInCycle = diffDays(base, anchor);
-    if (dayInCycle >= 0 && dayInCycle < settings.periodLength) return isoFromDate(anchor);
-    return isoFromDate(addDays(anchor, settings.cycleLength));
+    const offset = diffDays(base, anchor);
+    return offset >= 0 && offset < s.periodLength ? iso(anchor) : iso(addDays(anchor, s.cycleLength));
   }
-
-  function fertileWindowForPeriod(periodStart) {
+  function fertileForPeriod(periodStart) {
     if (!periodStart) return null;
     const ovulation = addDaysISO(periodStart, -14);
-    return {
-      start: addDaysISO(ovulation, -5),
-      end: ovulation,
-      ovulation,
-    };
+    return { start: addDaysISO(ovulation, -5), end: ovulation, ovulation };
   }
-
-  function nextFertileWindow(settings, base = new Date()) {
-    if (!settings.lastStart) return null;
-    let periodStart = nextPeriodStart(settings, base);
-    let window = fertileWindowForPeriod(periodStart);
-    if (window && diffDays(window.end, base) < 0) {
-      periodStart = addDaysISO(periodStart, settings.cycleLength);
-      window = fertileWindowForPeriod(periodStart);
-    }
-    return window;
+  function nextFertile(s, base = new Date()) {
+    if (!s.lastStart) return null;
+    let start = nextPeriodStart(s, base);
+    let fertile = fertileForPeriod(start);
+    if (fertile && diffDays(fertile.end, base) < 0) fertile = fertileForPeriod(addDaysISO(start, s.cycleLength));
+    return fertile;
   }
-
-  function periodSummary(settings = readSettings()) {
-    if (!settings.lastStart) {
+  function summary(s = settings()) {
+    if (!s.lastStart) return { status: 'Not set', headline: 'Set your dates', detail: 'Add a start date to see your calendar.', card: 'Calendar and reminders' };
+    const today = dayStart(new Date());
+    const anchor = cycleAnchor(s, today);
+    const offset = anchor ? diffDays(today, anchor) : 0;
+    if (offset >= 0 && offset < s.periodLength) {
       return {
-        headline: 'Set your dates',
-        detail: 'Add a start date to see your calendar.',
-        card: 'Calendar, fertile window and reminders',
-        status: 'Not set',
-      };
-    }
-    const today = firstOfDay(new Date());
-    const anchor = cycleAnchor(settings, today);
-    const dayInCycle = anchor ? diffDays(today, anchor) : 0;
-    if (dayInCycle >= 0 && dayInCycle < settings.periodLength) {
-      return {
-        headline: `Day ${dayInCycle + 1}`,
-        detail: `Started ${formatShort(anchor)}. Next estimate ${formatShort(addDays(anchor, settings.cycleLength))}.`,
-        card: `Period day ${dayInCycle + 1}`,
         status: 'Current period',
+        headline: `Day ${offset + 1}`,
+        detail: `Started ${shortDate(anchor)}. Next estimate ${shortDate(addDays(anchor, s.cycleLength))}.`,
+        card: `Period day ${offset + 1}`,
       };
     }
-    const next = nextPeriodStart(settings, today);
+    const next = nextPeriodStart(s, today);
     const days = diffDays(next, today);
     return {
-      headline: formatShort(next),
-      detail: days === 1 ? 'Estimated tomorrow.' : days === 0 ? 'Estimated today.' : `Estimated in about ${days} days.`,
-      card: days === 1 ? 'Tomorrow' : days === 0 ? 'Today' : `In about ${days} days`,
       status: 'Next period',
+      headline: shortDate(next),
+      detail: days === 0 ? 'Estimated today.' : days === 1 ? 'Estimated tomorrow.' : `Estimated in about ${days} days.`,
+      card: days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `In about ${days} days`,
     };
   }
 
-  function dayClasses(iso, settings) {
+  function dayState(dateISO, s) {
     const classes = [];
     const dots = [];
-    const today = isoFromDate(new Date());
-    if (iso === today) classes.push('is-today');
-    if (settings.loggedStarts.includes(iso)) {
+    if (dateISO === iso(new Date())) classes.push('is-today');
+    if (s.loggedStarts.includes(dateISO)) {
       classes.push('is-logged');
       dots.push('Saved start');
     }
-    if (settings.lastStart) {
-      let start = parseISO(settings.lastStart);
-      const current = parseISO(iso);
-      const min = addDays(current, -70);
-      const max = addDays(current, 70);
-      while (diffDays(start, min) > 0) start = addDays(start, -settings.cycleLength);
-      while (diffDays(start, max) <= 0) {
-        const startIso = isoFromDate(start);
-        const dayOffset = diffDays(iso, start);
-        if (dayOffset >= 0 && dayOffset < settings.periodLength) {
-          classes.push('is-period');
-          dots.push(startIso === iso ? 'Period start' : 'Period');
-        }
-        const fertile = fertileWindowForPeriod(startIso);
-        if (fertile && diffDays(iso, fertile.start) >= 0 && diffDays(fertile.end, iso) >= 0) {
-          classes.push('is-fertile');
-          dots.push(iso === fertile.ovulation ? 'Ovulation estimate' : 'Fertile estimate');
-        }
-        if (fertile?.ovulation === iso) classes.push('is-ovulation');
-        start = addDays(start, settings.cycleLength);
+    if (!s.lastStart) return { classes, dots };
+    let start = parseISO(s.lastStart);
+    const current = parseISO(dateISO);
+    const min = addDays(current, -70);
+    const max = addDays(current, 70);
+    while (diffDays(start, min) > 0) start = addDays(start, -s.cycleLength);
+    while (diffDays(start, max) <= 0) {
+      const startISO = iso(start);
+      const offset = diffDays(dateISO, start);
+      if (offset >= 0 && offset < s.periodLength) {
+        classes.push('is-period');
+        dots.push(startISO === dateISO ? 'Period start' : 'Period');
       }
+      const fertile = fertileForPeriod(startISO);
+      if (fertile && diffDays(dateISO, fertile.start) >= 0 && diffDays(fertile.end, dateISO) >= 0) {
+        classes.push('is-fertile');
+        dots.push(dateISO === fertile.ovulation ? 'Ovulation estimate' : 'Fertile estimate');
+      }
+      if (fertile?.ovulation === dateISO) classes.push('is-ovulation');
+      start = addDays(start, s.cycleLength);
     }
     return { classes: [...new Set(classes)], dots: [...new Set(dots)] };
   }
-
-  function renderMonth(monthDate, settings) {
+  function renderMonth(monthDate, s) {
     const month = firstOfMonth(monthDate);
     const start = addDays(month, -month.getDay());
-    const title = month.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
     const cells = [];
     for (let index = 0; index < 42; index += 1) {
       const day = addDays(start, index);
-      const iso = isoFromDate(day);
-      const state = dayClasses(iso, settings);
+      const dateISO = iso(day);
+      const state = dayState(dateISO, s);
       if (day.getMonth() !== month.getMonth()) state.classes.push('is-outside');
-      cells.push(`
-        <button class="df-myflo-day ${state.classes.join(' ')}" type="button" onclick="dayframeSetMyFloStart('${iso}')" aria-label="${esc(day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}">
-          <span>${day.getDate()}</span>
-          <i>${state.dots.slice(0, 2).map(() => '<b></b>').join('')}</i>
-        </button>
-      `);
+      cells.push(`<button class="df-myflo-day ${state.classes.join(' ')}" type="button" onclick="dayframeSetMyFloStart('${dateISO}')" aria-label="${esc(day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}"><span>${day.getDate()}</span><i>${state.dots.slice(0, 2).map(() => '<b></b>').join('')}</i></button>`);
     }
-    return `
-      <article class="df-myflo-month">
-        <h4>${esc(title)}</h4>
-        <div class="df-myflo-weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-        <div class="df-myflo-days">${cells.join('')}</div>
-      </article>
-    `;
+    return `<article class="df-myflo-month"><h4>${esc(month.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }))}</h4><div class="df-myflo-weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div><div class="df-myflo-days">${cells.join('')}</div></article>`;
   }
-
-  function renderReminderOptions(settings) {
-    const dayOptions = [
-      { value: 3, label: '3 days before' },
-      { value: 2, label: '2 days before' },
-      { value: 1, label: '1 day before' },
-      { value: 0, label: 'On the day' },
-    ];
-    const kindOptions = [
-      { key: 'period', label: 'Period' },
-      { key: 'fertile', label: 'Fertile window' },
-      { key: 'ovulation', label: 'Ovulation' },
-    ];
-    const notifySupported = 'Notification' in window;
-    const permission = notifySupported ? window.Notification.permission : 'unsupported';
+  function renderReminders(s) {
+    const options = [{ value: 3, label: '3 days before' }, { value: 2, label: '2 days before' }, { value: 1, label: '1 day before' }, { value: 0, label: 'On the day' }];
+    const supported = 'Notification' in window;
+    const permission = supported ? window.Notification.permission : 'unsupported';
     const permissionText = permission === 'granted' ? 'Phone alerts allowed' : permission === 'denied' ? 'Alerts blocked in browser settings' : 'Allow phone alerts';
-    return `
-      <section class="df-myflo-reminders">
-        <div class="df-myflo-section-head">
-          <div><span>Notifications</span><h3>Choose your reminders</h3></div>
-          <button type="button" onclick="dayframeSaveMyFloReminders()">Save</button>
-        </div>
-        <div class="df-myflo-chip-row" role="group" aria-label="Period reminder days">
-          ${dayOptions.map((option) => `
-            <label class="df-myflo-chip">
-              <input type="checkbox" name="df-myflo-reminder-day" value="${option.value}" ${settings.reminderDays.includes(option.value) ? 'checked' : ''}>
-              <span>${option.label}</span>
-            </label>
-          `).join('')}
-        </div>
-        <div class="df-myflo-chip-row" role="group" aria-label="Reminder type">
-          ${kindOptions.map((option) => `
-            <label class="df-myflo-chip muted">
-              <input type="checkbox" name="df-myflo-reminder-kind" value="${option.key}" ${settings.reminderKinds[option.key] ? 'checked' : ''}>
-              <span>${option.label}</span>
-            </label>
-          `).join('')}
-        </div>
-        <div class="df-myflo-reminder-bottom">
-          <label>Time <input id="df-myflo-reminder-time" type="time" value="${esc(settings.reminderTime)}"></label>
-          <button type="button" onclick="dayframeEnableMyFloBrowserNotifications()" ${notifySupported ? '' : 'disabled'}>${esc(permissionText)}</button>
-        </div>
-      </section>
-    `;
+    return `<section class="df-myflo-reminders"><div class="df-myflo-section-head"><div><span>Notifications</span><h3>Period reminders</h3></div><button type="button" onclick="dayframeSaveMyFloReminders()">Save</button></div><p class="df-myflo-helper">Choose when Dayframe reminds you before your estimated period. Fertile and ovulation days are marked automatically from your saved dates.</p><div class="df-myflo-chip-row" role="group" aria-label="Period reminder days">${options.map((option) => `<label class="df-myflo-chip"><input type="checkbox" name="df-myflo-reminder-day" value="${option.value}" ${s.reminderDays.includes(option.value) ? 'checked' : ''}><span>${option.label}</span></label>`).join('')}</div><div class="df-myflo-reminder-bottom"><label>Time <input id="df-myflo-reminder-time" type="time" value="${esc(s.reminderTime)}"></label><button type="button" onclick="dayframeEnableMyFloBrowserNotifications()" ${supported ? '' : 'disabled'}>${esc(permissionText)}</button></div></section>`;
   }
-
-  function renderMyFloExperience() {
-    const panel = byId('df-period-panel');
+  function renderMyFlo() {
+    const panel = $('df-period-panel');
     if (!panel) return;
-    const settings = readSettings();
-    const summary = periodSummary(settings);
-    const fertile = nextFertileWindow(settings);
-
+    const s = settings();
+    const sum = summary(s);
+    const fertile = nextFertile(s);
     const head = panel.querySelector('.df-period-panel-head');
     if (head) {
       const eyebrow = head.querySelector('span');
@@ -349,10 +229,9 @@
       const copy = head.querySelector('p');
       if (eyebrow) eyebrow.textContent = 'Private tracker';
       if (title) title.textContent = LABEL;
-      if (copy) copy.textContent = 'Track your dates, estimates and reminders privately.';
+      if (copy) copy.textContent = 'Track your dates and let Dayframe estimate the rest.';
     }
-
-    let view = byId('df-myflo-view');
+    let view = $('df-myflo-view');
     if (!view) {
       view = document.createElement('div');
       view.id = 'df-myflo-view';
@@ -360,169 +239,68 @@
       if (body) panel.insertBefore(view, body);
       else panel.appendChild(view);
     }
-
-    view.innerHTML = `
-      <section class="df-myflo-stats" aria-label="MyFlo overview">
-        <article class="df-myflo-stat is-main">
-          <span>${esc(summary.status)}</span>
-          <strong>${esc(summary.headline)}</strong>
-          <small>${esc(summary.detail)}</small>
-        </article>
-        <article class="df-myflo-stat">
-          <span>Fertile window</span>
-          <strong>${esc(fertile ? formatRange(fertile.start, fertile.end) : 'Not set')}</strong>
-          <small>Estimate only, not contraception guidance.</small>
-        </article>
-        <article class="df-myflo-stat">
-          <span>Ovulation</span>
-          <strong>${esc(fertile ? formatShort(fertile.ovulation) : 'Not set')}</strong>
-          <small>Based on your saved cycle length.</small>
-        </article>
-      </section>
-      <section class="df-myflo-board">
-        <div class="df-myflo-calendar">
-          <div class="df-myflo-calendar-head">
-            <button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button>
-            <div><span>Calendar</span><h3>Tap the first day to update</h3></div>
-            <button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button>
-          </div>
-          <div class="df-myflo-months">
-            ${renderMonth(calendarCursor, settings)}
-            ${renderMonth(addMonths(calendarCursor, 1), settings)}
-          </div>
-          <div class="df-myflo-legend">
-            <span><b class="period"></b>Period</span>
-            <span><b class="fertile"></b>Fertile</span>
-            <span><b class="ovulation"></b>Ovulation</span>
-            <span><b class="today"></b>Today</span>
-          </div>
-        </div>
-        ${renderReminderOptions(settings)}
-      </section>
-    `;
-
-    decorateOldForm(settings);
-    syncExistingFields(settings);
-    updateExistingSummary(settings, summary);
-    maybeSendDueReminder(settings);
+    const savedRange = s.lastEnd && s.lastStart && diffDays(s.lastEnd, s.lastStart) >= 0
+      ? `Last saved: ${shortDate(s.lastStart)} to ${shortDate(s.lastEnd)}.`
+      : 'Tap one button when your period starts or finishes. Dayframe updates the calendar estimates after that.';
+    view.innerHTML = `<section class="df-myflo-stats" aria-label="MyFlo overview"><article class="df-myflo-stat is-main"><span>${esc(sum.status)}</span><strong>${esc(sum.headline)}</strong><small>${esc(sum.detail)}</small></article><article class="df-myflo-stat"><span>Fertile window</span><strong>${esc(fertile ? shortRange(fertile.start, fertile.end) : 'Not set')}</strong><small>Estimated automatically from your period dates.</small></article><article class="df-myflo-stat"><span>Ovulation</span><strong>${esc(fertile ? shortDate(fertile.ovulation) : 'Not set')}</strong><small>Estimate only, not contraception guidance.</small></article></section><section class="df-myflo-actions" aria-label="Period tracking"><div><span>Today</span><h3>Update your period</h3><p>${esc(savedRange)}</p></div><div class="df-myflo-action-buttons"><button type="button" onclick="dayframeMarkMyFloStartedToday()">Period started today</button><button type="button" onclick="dayframeMarkMyFloEndedToday()">Period ended today</button></div></section><section class="df-myflo-board"><div class="df-myflo-calendar"><div class="df-myflo-calendar-head"><button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button><div><span>Calendar</span><h3>Estimated from your period dates</h3></div><button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button></div><div class="df-myflo-months">${renderMonth(calendarCursor, s)}${renderMonth(addMonths(calendarCursor, 1), s)}</div><div class="df-myflo-legend"><span><b class="period"></b>Period</span><span><b class="fertile"></b>Fertile</span><span><b class="ovulation"></b>Ovulation</span><span><b class="today"></b>Today</span></div></div>${renderReminders(s)}</section>`;
+    decorateBaseForm(s);
+    updateSummary(s, sum);
+    sendDueReminder(s);
   }
 
-  function decorateOldForm(settings) {
-    const body = byId('df-period-panel')?.querySelector('.df-period-body');
+  function decorateBaseForm(s) {
+    const body = $('df-period-panel')?.querySelector('.df-period-body');
     const form = body?.querySelector('.df-period-form');
     if (!body || !form) return;
     body.classList.add('df-myflo-basics');
-    if (!form.querySelector('.df-myflo-form-title')) {
-      form.insertAdjacentHTML('afterbegin', `
-        <div class="df-myflo-form-title">
-          <span>Basics</span>
-          <h3>Keep the estimate accurate</h3>
-        </div>
-      `);
-    }
+    if (!form.querySelector('.df-myflo-form-title')) form.insertAdjacentHTML('afterbegin', '<div class="df-myflo-form-title"><span>Basics</span><h3>Keep the estimate accurate</h3></div>');
     const save = form.querySelector('.df-period-actions button.primary');
-    if (save) save.textContent = 'Save MyFlo';
     const clear = form.querySelector('.df-period-actions button:not(.primary)');
+    if (save) save.textContent = 'Save MyFlo';
     if (clear) clear.textContent = 'Reset';
-    const last = byId('df-period-last-start');
+    const last = $('df-period-last-start');
     if (last && !last.dataset.myfloHint) {
       last.dataset.myfloHint = 'true';
-      last.closest('label')?.appendChild(Object.assign(document.createElement('small'), {
-        textContent: 'You can also tap the calendar.',
-      }));
+      last.closest('label')?.appendChild(Object.assign(document.createElement('small'), { textContent: 'You can also tap a date on the calendar.' }));
     }
-    if (!settings.lastStart) calendarCursor = firstOfMonth(new Date());
+    if (last) last.value = s.lastStart;
+    if ($('df-period-cycle-length')) $('df-period-cycle-length').value = String(s.cycleLength);
+    if ($('df-period-length')) $('df-period-length').value = String(s.periodLength);
+    if ($('df-period-notes')) $('df-period-notes').value = s.notes;
+    if (!s.lastStart) calendarCursor = firstOfMonth(new Date());
   }
-
-  function syncExistingFields(settings = readSettings()) {
-    const last = byId('df-period-last-start');
-    const cycle = byId('df-period-cycle-length');
-    const length = byId('df-period-length');
-    const notes = byId('df-period-notes');
-    if (last) last.value = settings.lastStart;
-    if (cycle) cycle.value = String(settings.cycleLength);
-    if (length) length.value = String(settings.periodLength);
-    if (notes) notes.value = settings.notes;
-  }
-
-  function updateExistingSummary(settings = readSettings(), summary = periodSummary(settings)) {
-    const card = byId('df-period-card');
-    const desc = byId('df-period-card-desc') || card?.querySelector('.driving-home-desc');
-    const badge = byId('df-period-card-summary');
-    const nextDate = byId('df-period-next-date');
-    const nextDetail = byId('df-period-next-detail');
-    if (desc) desc.textContent = settings.lastStart ? `${summary.status}: ${summary.headline}.` : 'Calendar, fertile window and reminders.';
-    if (badge) badge.textContent = summary.card;
-    if (nextDate) nextDate.textContent = summary.headline;
-    if (nextDetail) nextDetail.textContent = summary.detail;
+  function updateSummary(s = settings(), sum = summary(s)) {
+    const card = $('df-period-card');
+    const desc = $('df-period-card-desc') || card?.querySelector('.driving-home-desc');
+    const badge = $('df-period-card-summary');
+    const nextDate = $('df-period-next-date');
+    const nextDetail = $('df-period-next-detail');
+    if (desc) desc.textContent = s.lastStart ? `${sum.status}: ${sum.headline}.` : 'Calendar and reminders.';
+    if (badge) badge.textContent = sum.card;
+    if (nextDate) nextDate.textContent = sum.headline;
+    if (nextDetail) nextDetail.textContent = sum.detail;
   }
 
   function ensureStyle() {
-    if (byId('df-essentials-flo-style')) return;
+    if ($('df-essentials-flo-style')) return;
     const style = document.createElement('style');
     style.id = 'df-essentials-flo-style';
     style.textContent = `
-      #pg-driving .driving-hub-sub{display:none!important}
-      #pg-driving .driving-home-card.car{cursor:pointer!important}
-      .df-flo-nav{display:flex!important}
-      #df-period-panel{border:1px solid #f0d9ec!important;background:linear-gradient(145deg,#fff 0%,#fff7fb 52%,#edfffb 100%)!important}
-      #df-period-panel .df-period-panel-head{background:linear-gradient(120deg,#fff7fb 0%,#fff 48%,#effffb 100%)!important}
-      #df-period-panel .df-period-estimate{display:none!important}
-      #df-myflo-view{display:grid;gap:14px;padding:16px}
-      .df-myflo-stats{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px}
-      .df-myflo-stat{min-height:118px;border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.78);padding:16px;box-shadow:0 14px 28px rgba(42,54,84,.055)}
-      .df-myflo-stat.is-main{background:linear-gradient(135deg,#fff 0%,#fff1f7 55%,#eefffb 100%);border-color:#f5cde2}
-      .df-myflo-stat span,.df-myflo-section-head span,.df-myflo-calendar-head span,.df-myflo-form-title span{display:block;color:#7c879a;font-size:9px;font-weight:900;letter-spacing:0;text-transform:uppercase}
-      .df-myflo-stat strong{display:block;margin:8px 0 7px;font-family:var(--fd);font-size:28px;line-height:1;color:#172033;letter-spacing:0}
-      .df-myflo-stat small{display:block;color:#6f7a8c;font-size:11px;line-height:1.45;font-weight:750}
-      .df-myflo-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:14px;align-items:start}
-      .df-myflo-calendar,.df-myflo-reminders{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.84);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.052)}
-      .df-myflo-calendar-head,.df-myflo-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-      .df-myflo-calendar-head h3,.df-myflo-section-head h3,.df-myflo-form-title h3{margin:3px 0 0;font-family:var(--fd);font-size:18px;line-height:1.1;color:#172033;letter-spacing:0}
-      .df-myflo-calendar-head button,.df-myflo-section-head button,.df-myflo-reminder-bottom button{height:34px;border:1px solid #eadffc;border-radius:999px;background:#fff;color:#7161f1;font:850 11px var(--ff);padding:0 13px;cursor:pointer}
-      .df-myflo-calendar-head button{width:34px;padding:0;font-size:18px}
-      .df-myflo-months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-      .df-myflo-month{border:1px solid #f0edf5;border-radius:16px;background:#fff;padding:12px}
-      .df-myflo-month h4{margin:0 0 11px;text-align:center;font-family:var(--fd);font-size:18px;color:#172033;letter-spacing:0}
-      .df-myflo-weekdays,.df-myflo-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
-      .df-myflo-weekdays span{text-align:center;color:#8a94a4;font-size:9px;font-weight:900}
-      .df-myflo-day{position:relative;display:grid;place-items:center;aspect-ratio:1;border:0;border-radius:999px;background:transparent;color:#172033;font:850 12px var(--ff);cursor:pointer}
-      .df-myflo-day span{position:relative;z-index:2}
-      .df-myflo-day i{position:absolute;left:50%;bottom:4px;display:flex;gap:2px;transform:translateX(-50%);font-style:normal}
-      .df-myflo-day i b{width:4px;height:4px;border-radius:999px;background:#c6cdd8}
-      .df-myflo-day.is-outside{color:#c4cad5}
-      .df-myflo-day.is-period{background:#ff5d93;color:#fff;box-shadow:0 7px 16px rgba(255,93,147,.22)}
-      .df-myflo-day.is-period:not(.is-logged){background:#fff1f6;color:#e84f87;border:1px dashed #f06fa1;box-shadow:none}
-      .df-myflo-day.is-fertile:not(.is-period){background:#ecfffb;color:#10998f}
-      .df-myflo-day.is-ovulation{outline:2px dotted #32b8ab;outline-offset:2px}
-      .df-myflo-day.is-today:after{content:"";position:absolute;inset:2px;border:2px solid #7564f2;border-radius:999px}
-      .df-myflo-day.is-logged{background:#ff5d93;color:#fff}
-      .df-myflo-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;color:#7b8495;font-size:10px;font-weight:850}
-      .df-myflo-legend span{display:inline-flex;align-items:center;gap:6px;border:1px solid #eef1f6;border-radius:999px;background:#fff;padding:6px 8px}
-      .df-myflo-legend b{width:9px;height:9px;border-radius:999px;display:inline-block}
-      .df-myflo-legend .period{background:#ff5d93}.df-myflo-legend .fertile{background:#48d5c2}.df-myflo-legend .ovulation{border:2px dotted #32b8ab}.df-myflo-legend .today{border:2px solid #7564f2}
-      .df-myflo-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-      .df-myflo-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid #efe5f7;border-radius:999px;background:#fff;padding:8px 10px;color:#606c80;font-size:10.5px;font-weight:850;cursor:pointer}
-      .df-myflo-chip input{accent-color:#ef5f9b}
-      .df-myflo-chip:has(input:checked){background:#fff1f7;border-color:#f4b9d5;color:#d94382}
-      .df-myflo-chip.muted:has(input:checked){background:#edfffb;border-color:#bceee5;color:#168d84}
-      .df-myflo-reminder-bottom{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:12px}
-      .df-myflo-reminder-bottom label{display:grid;gap:5px;color:#7b8495;font-size:9.5px;font-weight:850}
-      .df-myflo-reminder-bottom input{height:34px;border:1px solid #e7eaf3;border-radius:12px;background:#f8f9fc;padding:0 10px;color:#172033;font:800 12px var(--ff)}
-      #df-period-panel .df-period-body.df-myflo-basics{display:block!important;padding:0 16px 16px!important}
-      #df-period-panel .df-period-form{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.82);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.05)}
-      #df-period-panel .df-period-form-grid label small{color:#a2abb9;font-size:9px;font-weight:750}
-      @media(max-width:980px){.df-myflo-stats,.df-myflo-board,.df-myflo-months{grid-template-columns:1fr}.df-myflo-reminder-bottom{grid-template-columns:1fr}.df-myflo-stat{min-height:0}}
-      @media(max-width:520px){#df-myflo-view{padding:12px}.df-myflo-stat strong{font-size:24px}.df-myflo-day{font-size:11px}.df-myflo-month{padding:10px}}
+      #pg-driving .driving-hub-sub{display:none!important}.df-flo-nav{display:flex!important}#df-period-panel{border:1px solid #f0d9ec!important;background:linear-gradient(145deg,#fff 0%,#fff7fb 52%,#edfffb 100%)!important}#df-period-panel .df-period-panel-head{background:linear-gradient(120deg,#fff7fb 0%,#fff 48%,#effffb 100%)!important}#df-period-panel .df-period-estimate{display:none!important}
+      #df-myflo-view{display:grid;gap:14px;padding:16px}.df-myflo-stats{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px}.df-myflo-stat{min-height:118px;border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.78);padding:16px;box-shadow:0 14px 28px rgba(42,54,84,.055)}.df-myflo-stat.is-main{background:linear-gradient(135deg,#fff 0%,#fff1f7 55%,#eefffb 100%);border-color:#f5cde2}.df-myflo-stat span,.df-myflo-section-head span,.df-myflo-calendar-head span,.df-myflo-form-title span,.df-myflo-actions span{display:block;color:#7c879a;font-size:9px;font-weight:900;text-transform:uppercase}.df-myflo-stat strong{display:block;margin:8px 0 7px;font-family:var(--fd);font-size:28px;line-height:1;color:#172033}.df-myflo-stat small{display:block;color:#6f7a8c;font-size:11px;line-height:1.45;font-weight:750}
+      .df-myflo-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid #f3d8e8;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#fff3f8 58%,#effffc 100%);padding:15px 16px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-actions h3{margin:3px 0 4px;font-family:var(--fd);font-size:19px;color:#172033}.df-myflo-actions p{margin:0;color:#6f7a8c;font-size:11px;line-height:1.45;font-weight:750}.df-myflo-action-buttons{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.df-myflo-action-buttons button{height:38px;border:1px solid #f2bdd7;border-radius:999px;background:#fff;color:#d94382;font:850 11px var(--ff);padding:0 14px;cursor:pointer}.df-myflo-action-buttons button:first-child{background:#ff5d93;color:#fff;border-color:#ff5d93;box-shadow:0 10px 20px rgba(255,93,147,.18)}
+      .df-myflo-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:14px;align-items:start}.df-myflo-calendar,.df-myflo-reminders{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.84);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-calendar-head,.df-myflo-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.df-myflo-calendar-head h3,.df-myflo-section-head h3,.df-myflo-form-title h3{margin:3px 0 0;font-family:var(--fd);font-size:18px;line-height:1.1;color:#172033}.df-myflo-calendar-head button,.df-myflo-section-head button,.df-myflo-reminder-bottom button{height:34px;border:1px solid #eadffc;border-radius:999px;background:#fff;color:#7161f1;font:850 11px var(--ff);padding:0 13px;cursor:pointer}.df-myflo-calendar-head button{width:34px;padding:0;font-size:18px}
+      .df-myflo-months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.df-myflo-month{border:1px solid #f0edf5;border-radius:16px;background:#fff;padding:12px}.df-myflo-month h4{margin:0 0 11px;text-align:center;font-family:var(--fd);font-size:18px;color:#172033}.df-myflo-weekdays,.df-myflo-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.df-myflo-weekdays span{text-align:center;color:#8a94a4;font-size:9px;font-weight:900}.df-myflo-day{position:relative;display:grid;place-items:center;aspect-ratio:1;border:0;border-radius:999px;background:transparent;color:#172033;font:850 12px var(--ff);cursor:pointer}.df-myflo-day span{position:relative;z-index:2}.df-myflo-day i{position:absolute;left:50%;bottom:4px;display:flex;gap:2px;transform:translateX(-50%);font-style:normal}.df-myflo-day i b{width:4px;height:4px;border-radius:999px;background:#c6cdd8}.df-myflo-day.is-outside{color:#c4cad5}.df-myflo-day.is-period{background:#ff5d93;color:#fff;box-shadow:0 7px 16px rgba(255,93,147,.22)}.df-myflo-day.is-period:not(.is-logged){background:#fff1f6;color:#e84f87;border:1px dashed #f06fa1;box-shadow:none}.df-myflo-day.is-fertile:not(.is-period){background:#ecfffb;color:#10998f}.df-myflo-day.is-ovulation{outline:2px dotted #32b8ab;outline-offset:2px}.df-myflo-day.is-today:after{content:"";position:absolute;inset:2px;border:2px solid #7564f2;border-radius:999px}.df-myflo-day.is-logged{background:#ff5d93;color:#fff}
+      .df-myflo-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;color:#7b8495;font-size:10px;font-weight:850}.df-myflo-legend span{display:inline-flex;align-items:center;gap:6px;border:1px solid #eef1f6;border-radius:999px;background:#fff;padding:6px 8px}.df-myflo-legend b{width:9px;height:9px;border-radius:999px;display:inline-block}.df-myflo-legend .period{background:#ff5d93}.df-myflo-legend .fertile{background:#48d5c2}.df-myflo-legend .ovulation{border:2px dotted #32b8ab}.df-myflo-legend .today{border:2px solid #7564f2}.df-myflo-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.df-myflo-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid #efe5f7;border-radius:999px;background:#fff;padding:8px 10px;color:#606c80;font-size:10.5px;font-weight:850;cursor:pointer}.df-myflo-chip input{accent-color:#ef5f9b}.df-myflo-chip:has(input:checked){background:#fff1f7;border-color:#f4b9d5;color:#d94382}.df-myflo-helper{margin:-3px 0 8px;color:#738095;font-size:10.5px;line-height:1.5;font-weight:750}.df-myflo-reminder-bottom{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:12px}.df-myflo-reminder-bottom label{display:grid;gap:5px;color:#7b8495;font-size:9.5px;font-weight:850}.df-myflo-reminder-bottom input{height:34px;border:1px solid #e7eaf3;border-radius:12px;background:#f8f9fc;padding:0 10px;color:#172033;font:800 12px var(--ff)}#df-period-panel .df-period-body.df-myflo-basics{display:block!important;padding:0 16px 16px!important}#df-period-panel .df-period-form{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.82);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.05)}
+      @media(max-width:980px){.df-myflo-stats,.df-myflo-board,.df-myflo-months{grid-template-columns:1fr}.df-myflo-reminder-bottom{grid-template-columns:1fr}.df-myflo-stat{min-height:0}.df-myflo-actions{align-items:flex-start;flex-direction:column}.df-myflo-action-buttons{justify-content:flex-start}}@media(max-width:520px){#df-myflo-view{padding:12px}.df-myflo-stat strong{font-size:24px}.df-myflo-day{font-size:11px}.df-myflo-month{padding:10px}}
     `;
     document.head.appendChild(style);
   }
 
-  function ensureFloNav() {
+  function ensureNavAndCards() {
     const nav = document.querySelector('.driving-side-nav');
-    if (!nav) return;
-    let flo = nav.querySelector('[data-driving-page="driving-cycle"]');
-    if (!flo) {
+    let flo = nav?.querySelector('[data-driving-page="driving-cycle"]');
+    if (nav && !flo) {
       flo = document.createElement('button');
       flo.type = 'button';
       flo.className = 'df-flo-nav';
@@ -533,311 +311,144 @@
       if (car?.nextSibling) nav.insertBefore(flo, car.nextSibling);
       else nav.appendChild(flo);
     }
-    setButtonLabel(flo, LABEL);
-    setHidden(flo, false);
-    setHidden(nav.querySelector('[data-driving-page="driving-theory"]'), true);
-  }
-
-  function updateMyCarCard() {
-    const card = document.querySelector('#pg-driving .driving-home-card.car');
-    if (!card) return;
-    card.setAttribute('role', 'button');
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('onclick', 'dayframeOpenMyCarCard(event)');
-    card.setAttribute('onkeydown', 'dayframeOpenMyCarCardKey(event)');
-    const title = card.querySelector('.driving-home-title');
-    const desc = card.querySelector('.driving-home-desc');
-    const question = card.querySelector('.df-car-question');
-    if (title) title.textContent = 'My Car';
-    if (desc) desc.textContent = 'Vehicle details, dates and reminders.';
-    if (question) question.textContent = 'Need to pass your theory?';
-    card.querySelector('.df-car-actions button.primary')?.remove();
-    let actions = card.querySelector('.df-car-actions');
-    if (!actions) {
-      actions = document.createElement('div');
-      actions.className = 'df-car-actions';
-      card.appendChild(actions);
+    if (flo) {
+      flo.innerHTML = '<span>F</span>MyFlo';
+      flo.classList.remove('df-essentials-hidden');
+      flo.setAttribute('aria-hidden', 'false');
     }
-    let button = actions.querySelector('button');
-    if (!button) {
-      button = document.createElement('button');
-      button.type = 'button';
-      actions.appendChild(button);
+    const theory = nav?.querySelector('[data-driving-page="driving-theory"]');
+    if (theory) {
+      theory.classList.add('df-essentials-hidden');
+      theory.setAttribute('aria-hidden', 'true');
     }
-    button.textContent = 'Practise theory';
-    button.setAttribute('onclick', 'dayframeOpenTheoryHelp(event)');
-  }
-
-  function updateFloCard() {
-    const card = byId('df-period-card');
-    if (!card) return;
-    const settings = readSettings();
-    const summary = periodSummary(settings);
-    const title = card.querySelector('.driving-home-title');
-    const kicker = card.querySelector('.driving-home-kicker');
-    if (title) title.textContent = LABEL;
-    if (kicker) kicker.textContent = 'Private';
-    card.setAttribute('onclick', 'dayframeOpenPeriodTracker(event)');
-    updateExistingSummary(settings, summary);
-  }
-
-  function updateFloPanel() {
-    const panel = byId('df-period-panel');
-    if (!panel) return;
-    const title = panel.querySelector('.df-period-panel-head h2');
-    const close = panel.querySelector('.df-period-panel-close');
-    if (title) title.textContent = LABEL;
-    if (close) close.setAttribute('aria-label', `Close ${LABEL}`);
-    renderMyFloExperience();
-  }
-
-  function updateLabels() {
-    const page = byId('pg-driving');
-    const heroTitle = page?.querySelector('.driving-hub-title');
-    const heroSub = page?.querySelector('.driving-hub-sub');
-    const heroPills = page?.querySelector('.driving-hub-pills');
-    if (heroTitle) heroTitle.textContent = 'Essentials';
-    if (heroSub) heroSub.textContent = '';
-    if (heroPills) heroPills.innerHTML = '<span class="driving-hub-pill"><b></b>My Car</span><span class="driving-hub-pill"><b></b>MyFlo</span>';
-
-    const mobileMore = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"]`);
-    if (mobileMore) {
-      const strong = mobileMore.querySelector('strong');
-      const small = mobileMore.querySelector('small');
-      if (strong) strong.textContent = 'Essentials';
-      if (small) small.textContent = MOBILE_DESC;
+    const card = $('df-period-card');
+    if (card) {
+      card.setAttribute('onclick', 'dayframeOpenPeriodTracker(event)');
+      const title = card.querySelector('.driving-home-title');
+      const kicker = card.querySelector('.driving-home-kicker');
+      if (title) title.textContent = LABEL;
+      if (kicker) kicker.textContent = 'Private';
+      updateSummary();
     }
-
-    const homeCard = document.querySelector('[data-home-module="driving"]');
-    if (homeCard?.querySelector('.hub-module-title')) homeCard.querySelector('.hub-module-title').textContent = 'Essentials';
-    if (homeCard?.querySelector('.hub-module-desc')) homeCard.querySelector('.hub-module-desc').textContent = HOME_DESC;
-
-    const editor = byId('home-editor-content');
-    if (editor && !isHidden(editor)) {
-      editor.querySelectorAll('small').forEach((small) => {
-        if (/Car and period tracker|Car and cycle tracker|My Car, Flo/i.test(small.textContent)) {
-          small.textContent = MOBILE_DESC;
-        }
-      });
-      editor.querySelectorAll('p').forEach((p) => {
-        if (/period tracker|cycle tracker|theory help inside My Car|My Car, Flo/i.test(p.textContent)) {
-          p.textContent = 'Choose the main spaces and Home order. Essentials keeps My Car, MyFlo and everyday tools together.';
-        }
-      });
-    }
-  }
-
-  function selectFloNav() {
-    document.querySelectorAll('.driving-side-nav button').forEach((button) => {
-      button.classList.toggle('on', button.dataset.drivingPage === 'driving-cycle');
-    });
-  }
-
-  function readFormSettings() {
-    const current = readSettings();
-    return Object.assign({}, current, {
-      lastStart: byId('df-period-last-start')?.value || current.lastStart,
-      cycleLength: clampNumber(byId('df-period-cycle-length')?.value, current.cycleLength, 15, 60),
-      periodLength: clampNumber(byId('df-period-length')?.value, current.periodLength, 1, 14),
-      notes: byId('df-period-notes')?.value || '',
-    });
+    const panelTitle = $('df-period-panel')?.querySelector('.df-period-panel-head h2');
+    if (panelTitle) panelTitle.textContent = LABEL;
   }
 
   window.dayframeSavePeriodTracker = function dayframeSavePeriodTracker() {
-    const settings = readFormSettings();
-    if (!settings.lastStart) {
-      window.hubToast?.('Add the first day of your period');
-      return;
-    }
-    const loggedStarts = [...new Set((settings.loggedStarts || []).concat(settings.lastStart))].filter(isISO).slice(-24);
-    if (savePeriodPatch(Object.assign({}, settings, { loggedStarts }))) {
-      renderMyFloExperience();
+    const s = formSettings();
+    if (!s.lastStart) return window.hubToast?.('Add the first day of your period');
+    const loggedStarts = [...new Set((s.loggedStarts || []).concat(s.lastStart))].filter(isISO).slice(-24);
+    if (savePeriod(Object.assign({}, s, { loggedStarts }))) {
+      renderMyFlo();
       window.renderHome?.();
-      applySoon(30);
+      queue();
       window.hubToast?.('MyFlo saved');
     }
   };
-
   window.dayframeClearPeriodTracker = function dayframeClearPeriodTracker() {
-    if (savePeriodPatch({
-      lastStart: '',
-      cycleLength: 28,
-      periodLength: 5,
-      notes: '',
-      loggedStarts: [],
-    })) {
-      renderMyFloExperience();
-      applySoon(30);
+    if (savePeriod({ lastStart: '', lastEnd: '', cycleLength: 28, periodLength: 5, notes: '', loggedStarts: [], loggedEnds: [] })) {
+      renderMyFlo();
+      window.renderHome?.();
       window.hubToast?.('MyFlo reset');
     }
   };
-
-  window.dayframeSetMyFloStart = function dayframeSetMyFloStart(iso) {
-    if (!isISO(iso)) return;
-    const settings = readFormSettings();
-    const loggedStarts = [...new Set((settings.loggedStarts || []).concat(iso))].filter(isISO).slice(-24);
-    if (savePeriodPatch(Object.assign({}, settings, { lastStart: iso, loggedStarts }))) {
-      calendarCursor = firstOfMonth(parseISO(iso));
-      renderMyFloExperience();
+  window.dayframeSetMyFloStart = function dayframeSetMyFloStart(dateISO) {
+    if (!isISO(dateISO)) return;
+    const s = formSettings();
+    const loggedStarts = [...new Set((s.loggedStarts || []).concat(dateISO))].filter(isISO).slice(-24);
+    if (savePeriod(Object.assign({}, s, { lastStart: dateISO, lastEnd: '', loggedStarts }))) {
+      calendarCursor = firstOfMonth(parseISO(dateISO));
+      renderMyFlo();
       window.renderHome?.();
-      window.hubToast?.('MyFlo start date saved');
+      window.hubToast?.('Period start saved');
     }
   };
-
+  window.dayframeMarkMyFloStartedToday = () => window.dayframeSetMyFloStart(iso(new Date()));
+  window.dayframeMarkMyFloEndedToday = function dayframeMarkMyFloEndedToday() {
+    const s = formSettings();
+    const today = iso(new Date());
+    if (!s.lastStart) return window.hubToast?.('Save the start date first');
+    const length = diffDays(today, s.lastStart) + 1;
+    if (length < 1 || length > 14) return window.hubToast?.('End date should be within this period');
+    const loggedEnds = [...new Set((s.loggedEnds || []).concat(today))].filter(isISO).slice(-24);
+    if (savePeriod(Object.assign({}, s, { lastEnd: today, loggedEnds, periodLength: clamp(length, s.periodLength, 1, 14) }))) {
+      renderMyFlo();
+      window.renderHome?.();
+      window.hubToast?.('Period end saved');
+    }
+  };
   window.dayframeShiftMyFloCalendar = function dayframeShiftMyFloCalendar(months) {
     calendarCursor = addMonths(calendarCursor, Number(months) || 0);
-    renderMyFloExperience();
+    renderMyFlo();
   };
-
   window.dayframeSaveMyFloReminders = function dayframeSaveMyFloReminders() {
-    const settings = readFormSettings();
-    const reminderDays = Array.from(document.querySelectorAll('input[name="df-myflo-reminder-day"]:checked')).map((input) => Number(input.value)).filter((value) => [3, 2, 1, 0].includes(value));
-    const kinds = Array.from(document.querySelectorAll('input[name="df-myflo-reminder-kind"]:checked')).map((input) => input.value);
-    const reminderKinds = {
-      period: kinds.includes('period'),
-      fertile: kinds.includes('fertile'),
-      ovulation: kinds.includes('ovulation'),
-    };
-    if (savePeriodPatch(Object.assign({}, settings, {
+    const s = formSettings();
+    const reminderDays = [...document.querySelectorAll('input[name="df-myflo-reminder-day"]:checked')]
+      .map((input) => Number(input.value))
+      .filter((value) => [3, 2, 1, 0].includes(value));
+    if (savePeriod(Object.assign({}, s, {
       reminderDays: reminderDays.length ? reminderDays : [1],
-      reminderKinds,
-      reminderTime: byId('df-myflo-reminder-time')?.value || settings.reminderTime,
+      reminderTime: $('df-myflo-reminder-time')?.value || s.reminderTime,
     }))) {
-      renderMyFloExperience();
+      renderMyFlo();
       window.hubToast?.('MyFlo reminders saved');
     }
   };
-
   window.dayframeEnableMyFloBrowserNotifications = async function dayframeEnableMyFloBrowserNotifications() {
-    if (!('Notification' in window)) {
-      window.hubToast?.('Notifications are not available in this browser');
-      return;
-    }
+    if (!('Notification' in window)) return window.hubToast?.('Notifications are not available in this browser');
     const permission = await window.Notification.requestPermission();
-    const settings = readSettings();
-    savePeriodPatch(Object.assign({}, settings, { browserNotifications: permission === 'granted' }));
-    renderMyFloExperience();
+    savePeriod({ browserNotifications: permission === 'granted' });
+    renderMyFlo();
     window.hubToast?.(permission === 'granted' ? 'Phone alerts allowed' : 'Notifications not allowed');
   };
-
-  function maybeSendDueReminder(settings) {
-    if (!settings.browserNotifications || !('Notification' in window) || window.Notification.permission !== 'granted' || !settings.lastStart) return;
-    const today = isoFromDate(new Date());
-    const due = [];
-    const nextPeriod = nextPeriodStart(settings, new Date());
-    const periodLead = diffDays(nextPeriod, today);
-    if (settings.reminderKinds.period && settings.reminderDays.includes(periodLead)) {
-      due.push({ key: `period-${nextPeriod}-${periodLead}`, body: periodLead === 0 ? 'Your period is estimated for today.' : `Your period is estimated in ${periodLead} day${periodLead === 1 ? '' : 's'}.` });
-    }
-    const fertile = nextFertileWindow(settings, new Date());
-    if (fertile && settings.reminderKinds.fertile && fertile.start === today) due.push({ key: `fertile-${fertile.start}`, body: 'Your fertile window estimate starts today.' });
-    if (fertile && settings.reminderKinds.ovulation && fertile.ovulation === today) due.push({ key: `ovulation-${fertile.ovulation}`, body: 'Your ovulation estimate is today.' });
-    if (!due.length) return;
-    const sent = Object.assign({}, settings.lastReminders || {});
-    due.forEach((item) => {
-      if (sent[item.key]) return;
-      try { new window.Notification('MyFlo', { body: item.body }); } catch {}
-      sent[item.key] = new Date().toISOString();
-    });
-    savePeriodPatch({ lastReminders: sent });
-  }
-
-  function applyNow() {
-    applyQueued = false;
-    ensureStyle();
-    patchGo();
-    ensureFloNav();
-    updateLabels();
-    updateMyCarCard();
-    updateFloCard();
-    updateFloPanel();
-    installObserver();
-    installFloOpener();
-  }
-
-  function applySoon(delay = 30) {
-    if (applyQueued) return;
-    applyQueued = true;
-    setTimeout(applyNow, delay);
-  }
-
-  function needsApply() {
-    const text = document.body?.innerText || '';
-    const floLabel = document.querySelector('[data-driving-page="driving-cycle"]')?.textContent?.trim() || '';
-    const cardTitle = byId('df-period-card')?.querySelector('.driving-home-title')?.textContent?.trim() || '';
-    const panelTitle = byId('df-period-panel')?.querySelector('.df-period-panel-head h2')?.textContent?.trim() || '';
-    return /My Car and personal trackers|Car details stay|Theory help|Period tracker|Cycle tracker|Car and period tracker/i.test(text)
-      || floLabel === 'Flo'
-      || cardTitle === 'Flo'
-      || panelTitle === 'Flo'
-      || Boolean(byId('df-period-panel') && !byId('df-myflo-view'));
-  }
-
-  function installObserver() {
-    if (observerInstalled || !document.body || typeof MutationObserver !== 'function') return;
-    observerInstalled = true;
-    const observer = new MutationObserver(() => {
-      if (needsApply()) applySoon(20);
-    });
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-  }
-
-  function patchGo() {
-    if (typeof window.go !== 'function' || window.go.__dayframeStableGoVersion || window.go.__dayframeEssentialsFloVersion === VERSION) return;
-    const previousGo = window.go;
-    window.go = function dayframeEssentialsFloGo(name, btn, ...args) {
-      if (name === 'driving-cycle') {
-        window.dayframeOpenPeriodTracker?.();
-        return undefined;
-      }
-      const result = previousGo.call(this, name, btn, ...args);
-      applySoon(50);
-      return result;
-    };
-    window.go.__dayframeEssentialsFloVersion = VERSION;
-    window.go.__dayframeEssentialsFloPrevious = previousGo;
-  }
-
-  window.dayframeOpenMyCarCard = function dayframeOpenMyCarCard(event) {
-    if (event?.target?.closest?.('button,a,input,textarea,select,label')) return;
-    window.go?.('driving-car');
-    applySoon(50);
-  };
-
-  window.dayframeOpenMyCarCardKey = function dayframeOpenMyCarCardKey(event) {
-    if (!['Enter', ' '].includes(event.key)) return;
-    event.preventDefault();
-    window.go?.('driving-car');
-    applySoon(50);
-  };
-
-  window.dayframeOpenTheoryHelp = function dayframeOpenTheoryHelp(event) {
+  window.dayframeOpenPeriodTracker = function dayframeOpenPeriodTracker(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
-    window.go?.('driving-theory');
-    applySoon(50);
+    if (typeof window.go === 'function' && document.querySelector('.pg.on')?.id !== 'pg-driving') window.go('driving');
+    apply();
+    document.querySelectorAll('.driving-side-nav button').forEach((button) => button.classList.toggle('on', button.dataset.drivingPage === 'driving-cycle'));
+    const panel = $('df-period-panel');
+    if (panel) {
+      panel.hidden = false;
+      panel.style.display = '';
+      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+    }
   };
 
-  function installFloOpener() {
-    if (window.dayframeOpenPeriodTracker?.__dayframeEssentialsFloVersion === VERSION) return;
-    if (typeof window.dayframeOpenPeriodTracker === 'function') previousFloOpener = window.dayframeOpenPeriodTracker;
-    window.dayframeOpenPeriodTracker = function dayframeOpenFlo(event) {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      window.go?.('driving');
-      if (typeof previousFloOpener === 'function') previousFloOpener.call(this);
-      applyNow();
-      selectFloNav();
-      const panel = byId('df-period-panel');
-      if (panel) {
-        panel.hidden = false;
-        setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
-      }
-    };
-    window.dayframeOpenPeriodTracker.__dayframeEssentialsFloVersion = VERSION;
+  function sendDueReminder(s) {
+    if (!s.browserNotifications || !('Notification' in window) || window.Notification.permission !== 'granted' || !s.lastStart) return;
+    const today = iso(new Date());
+    const next = nextPeriodStart(s, new Date());
+    const lead = diffDays(next, today);
+    if (!s.reminderDays.includes(lead)) return;
+    const key = `period-${next}-${lead}`;
+    if (s.lastReminders[key]) return;
+    try {
+      new window.Notification('MyFlo', { body: lead === 0 ? 'Your period is estimated for today.' : `Your period is estimated in ${lead} day${lead === 1 ? '' : 's'}.` });
+    } catch {}
+    savePeriod({ lastReminders: Object.assign({}, s.lastReminders, { [key]: new Date().toISOString() }) });
+  }
+  function observe() {
+    if (observing || !document.body || typeof MutationObserver !== 'function') return;
+    observing = true;
+    new MutationObserver(() => {
+      if (/Period tracker|Cycle tracker|\bFlo\b/.test(document.body.innerText || '') || !$('df-myflo-view')) queue();
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  function apply() {
+    queued = false;
+    ensureStyle();
+    ensureNavAndCards();
+    renderMyFlo();
+    observe();
+  }
+  function queue(delay = 30) {
+    if (queued) return;
+    queued = true;
+    setTimeout(apply, delay);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyNow, { once: true });
-  else applyNow();
-  [150, 500, 1200, 2600, 5200].forEach((delay) => setTimeout(applyNow, delay));
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
+  else apply();
+  [150, 500, 1200, 2600, 5200].forEach((delay) => setTimeout(apply, delay));
 })();
