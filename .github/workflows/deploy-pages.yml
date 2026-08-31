@@ -115,7 +115,7 @@ jobs:
           essentials_loader = f'''<script data-dayframe-essentials-cleanup-bootstrap>
           (() => {{
             const loadScript = (src, attr) => {{
-              if (document.querySelector(`script[${{attr}}]`)) return null;
+              if (document.querySelector('script[' + attr + ']')) return null;
               const script = document.createElement('script');
               script.setAttribute(attr, 'true');
               script.src = src;
