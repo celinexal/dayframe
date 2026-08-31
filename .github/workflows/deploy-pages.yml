@@ -64,6 +64,7 @@ jobs:
           test -s assets/dayframe-essentials-more.js
           test -s assets/dayframe-essentials-clickfix.js
           test -s assets/dayframe-essentials-customise.js
+          test -s assets/dayframe-essentials-pill-left.js
           test -s driving/theory.html
           test -s driving/theory-overrides.css
           grep -q 'src="/driving/theory.html"' index.html
@@ -144,7 +145,16 @@ jobs:
               return script;
             }};
             const loadEssentials = () => {{
-              const loadCustomise = () => loadScript('/assets/dayframe-essentials-customise.js?v={build}', 'data-dayframe-essentials-customise-late');
+              const loadPillLeft = () => loadScript('/assets/dayframe-essentials-pill-left.js?v={build}', 'data-dayframe-essentials-pill-left-late');
+              const loadCustomise = () => {{
+                const customise = loadScript('/assets/dayframe-essentials-customise.js?v={build}', 'data-dayframe-essentials-customise-late');
+                if (customise) {{
+                  customise.addEventListener('load', loadPillLeft, {{ once: true }});
+                  setTimeout(loadPillLeft, 900);
+                }} else {{
+                  loadPillLeft();
+                }}
+              }};
               const loadClickFix = () => {{
                 const clickFix = loadScript('/assets/dayframe-essentials-clickfix.js?v={build}', 'data-dayframe-essentials-clickfix-late');
                 if (clickFix) {{
