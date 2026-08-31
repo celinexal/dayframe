@@ -70,10 +70,13 @@ replace_all(
         ("const homeSummary = () => (visibleLabels().length ? 'Your chosen everyday essentials, kept together.' : 'Choose what Essentials shows.');", "const homeSummary = () => (visibleLabels().length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.');"),
         ("const mobileSummary = () => labelList(visibleLabels(), 2);", "const mobileSummary = () => (visibleLabels().length ? 'Everyday essentials' : 'Choose Essentials');"),
         ("const mobileSummary = () => (visibleLabels().length ? 'Your essentials' : 'Choose Essentials');", "const mobileSummary = () => (visibleLabels().length ? 'Everyday essentials' : 'Choose Essentials');"),
+        ("#pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important}", "#pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important;cursor:pointer!important}"),
+        ("#pg-driving .df-car-actions{display:flex!important;gap:8px!important;flex-wrap:wrap!important}", "#pg-driving .df-car-actions{display:none!important;gap:8px!important;flex-wrap:wrap!important}"),
+        ("if (carQuestion) carQuestion.textContent = 'Still learning?';\n    const theoryButton = page?.querySelector('.df-car-actions button');\n    if (theoryButton) theoryButton.textContent = 'Pass your theory';", "if (carQuestion) {\n      carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Learn to Invest');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('education'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = page?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
     ],
     required=False,
 )
-replace_regex("assets/dayframe-essentials-more.js", r"const VERSION = 'more-v\d+';", "const VERSION = 'more-v10';", required=False)
+replace_regex("assets/dayframe-essentials-more.js", r"const VERSION = 'more-v\d+';", "const VERSION = 'more-v11';", required=False)
 
 replace_all(
     "assets/dayframe-essentials-clickfix.js",
@@ -96,10 +99,65 @@ replace_all(
         ("return listLabels(visibleWidgetLabels(), 2);", "return visibleWidgetLabels().length ? 'Everyday essentials' : 'Choose Essentials';"),
         ("return visibleWidgetLabels().length ? 'Your chosen everyday essentials, kept together.' : 'Choose what Essentials shows.';", "return visibleWidgetLabels().length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.';"),
         ("return visibleWidgetLabels().length ? 'Your essentials' : 'Choose Essentials';", "return visibleWidgetLabels().length ? 'Everyday essentials' : 'Choose Essentials';"),
+        ("const carQuestion = essentialsPage?.querySelector('.df-car-question');\n    if (carQuestion && carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n    const carButtons = [...(essentialsPage?.querySelectorAll('.df-car-actions button') || [])];\n    if (carButtons[0] && carButtons[0].textContent.trim() !== 'Pass your theory') carButtons[0].textContent = 'Pass your theory';\n    if (carButtons[1] && carButtons[1].textContent.trim() !== 'Practice questions') carButtons[1].textContent = 'Practice questions';", "const carQuestion = essentialsPage?.querySelector('.df-car-question');\n    if (carQuestion) {\n      if (carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Learn to Invest');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('education'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = essentialsPage?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
     ],
     required=False,
 )
-replace_regex("assets/dayframe-essentials-clickfix.js", r"const VERSION = 'clickfix-v\d+';", "const VERSION = 'clickfix-v14';", required=False)
+replace_regex("assets/dayframe-essentials-clickfix.js", r"const VERSION = 'clickfix-v\d+';", "const VERSION = 'clickfix-v15';", required=False)
+
+append_once(
+    "assets/dayframe-essentials-clickfix.js",
+    "data-dayframe-still-learning-link",
+    r"""
+(function () {
+  const STYLE_ID = 'data-dayframe-still-learning-link';
+
+  function openLearning(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof window.go === 'function') window.go('education');
+  }
+
+  function applyStillLearningLink() {
+    if (!document.getElementById(STYLE_ID)) {
+      const style = document.createElement('style');
+      style.id = STYLE_ID;
+      style.textContent = '#pg-driving .df-car-question{cursor:pointer!important}#pg-driving .df-car-actions{display:none!important}';
+      document.head.appendChild(style);
+    }
+
+    const question = document.querySelector('#pg-driving .df-car-question');
+    if (question) {
+      question.textContent = 'Still learning?';
+      question.setAttribute('role', 'button');
+      question.setAttribute('tabindex', '0');
+      question.setAttribute('title', 'Open Learn to Invest');
+      question.onclick = openLearning;
+      question.onkeydown = (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          question.click();
+        }
+      };
+    }
+
+    document.querySelectorAll('#pg-driving .df-car-actions').forEach((actions) => actions.remove());
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyStillLearningLink, { once: true });
+  } else {
+    applyStillLearningLink();
+  }
+
+  if (typeof MutationObserver === 'function' && document.body) {
+    new MutationObserver(applyStillLearningLink).observe(document.body, { childList: true, subtree: true });
+  }
+
+  [100, 400, 1000, 2200].forEach((delay) => setTimeout(applyStillLearningLink, delay));
+})();
+""",
+)
 
 replace_all(
     "assets/dayframe-essentials-customise.js",
@@ -257,17 +315,18 @@ replace_all(
     "sw.js",
     [
         ("const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260830-current-sector-themes';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';"),
-        ("const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v14';"),
+        ("const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v15';"),
         ("const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v2';"),
-        ("const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-labels-v1';\nconst DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';"),
+        ("const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-learning-v1';\nconst DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';"),
         (".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)", ".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-more\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_MORE_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)"),
         (".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC);", ".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC)\n    .replace(/\\/assets\\/dayframe-sector-themes-current\\.js\\?v=[^\"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC);"),
     ],
     required=False,
 )
-replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v94';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v95';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_SECTOR_THEMES_CURRENT_SRC\s*=\s*'[^']+';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';", required=False)
-replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CLICKFIX_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v14';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_MORE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-learning-v1';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CLICKFIX_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v15';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v2';", required=False)
 
 for asset in (
