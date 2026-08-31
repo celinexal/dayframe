@@ -6,6 +6,8 @@
   const FLO_SRC = '/assets/dayframe-essentials-flo.js?v=20260831-flo-v1';
   const MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260831-more-design-v5';
   const CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v4';
+  const HOME_DESC = 'My Car, Flo, documents and reminders in one place.';
+  const MOBILE_DESC = 'My Car, Flo, documents and reminders';
 
   if (!document.getElementById(STYLE_ID)) {
     const style = document.createElement('style');
@@ -13,6 +15,55 @@
     style.textContent = '#df-essentials-stage-panel,.driving-side-nav [data-driving-page="driving-theory"],#pg-driving .driving-home-card.theory,#pg-driving-costs,[data-driving-page="driving-costs"],.df-polish-nav-costs{display:none!important}';
     document.head.appendChild(style);
   }
+
+  let labelQueued = false;
+  let labelObserverInstalled = false;
+
+  function fixOverviewLabels() {
+    const homeCard = document.querySelector('[data-home-module="driving"]');
+    const homeTitle = homeCard?.querySelector('.hub-module-title');
+    const homeDesc = homeCard?.querySelector('.hub-module-desc');
+    if (homeTitle && homeTitle.textContent.trim() !== 'Essentials') homeTitle.textContent = 'Essentials';
+    if (homeDesc && homeDesc.textContent.trim() !== HOME_DESC) homeDesc.textContent = HOME_DESC;
+
+    const topNav = document.querySelector('.df-nav-btn[data-main-page="driving"]');
+    if (topNav && topNav.textContent.trim() !== 'Essentials') topNav.textContent = 'Essentials';
+
+    const mobileMore = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"]`);
+    const mobileTitle = mobileMore?.querySelector('strong');
+    const mobileDesc = mobileMore?.querySelector('small');
+    if (mobileTitle && mobileTitle.textContent.trim() !== 'Essentials') mobileTitle.textContent = 'Essentials';
+    if (mobileDesc && mobileDesc.textContent.trim() !== MOBILE_DESC) mobileDesc.textContent = MOBILE_DESC;
+  }
+
+  function scheduleLabelFix(delay = 40) {
+    if (labelQueued) return;
+    labelQueued = true;
+    setTimeout(() => {
+      labelQueued = false;
+      fixOverviewLabels();
+    }, delay);
+  }
+
+  function installLabelObserver() {
+    if (labelObserverInstalled || !document.body || typeof MutationObserver !== 'function') return;
+    labelObserverInstalled = true;
+    new MutationObserver(() => scheduleLabelFix(30)).observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+  }
+
+  function startLabelGuard() {
+    fixOverviewLabels();
+    installLabelObserver();
+    [120, 500, 1200, 2600, 5200].forEach((delay) => setTimeout(fixOverviewLabels, delay));
+    document.addEventListener('click', () => scheduleLabelFix(80), true);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startLabelGuard, { once: true });
+  else startLabelGuard();
 
   function sameAssetLoaded(src, attr) {
     if (document.querySelector('script[' + attr + ']')) return true;
