@@ -1,8 +1,10 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v4';
+  const VERSION = 'clickfix-v5';
   const FLAG = 'data-dayframe-essentials-clickfix';
+  const HOME_DESC = 'My Car, Flo, documents and reminders in one place.';
+  const MOBILE_DESC = 'My Car, Flo, documents and reminders';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
@@ -27,6 +29,32 @@
 
   const INVESTING_PAGES = new Set(['dashboard', 'holdings', 'signals', 'charts', 'themes-hub', 'education', 'isa-guide', 'intel', 'health', 'alerts', 'chatter']);
   const DRIVING_PAGES = new Set(['driving', 'driving-theory', 'driving-car', 'driving-cycle', 'driving-documents', 'driving-health', 'driving-home-admin', 'driving-work-study']);
+
+  function fixVisibleHomeLanguage() {
+    const homeCard = document.querySelector('[data-home-module="driving"]');
+    const homeTitle = homeCard?.querySelector('.hub-module-title');
+    const homeDesc = homeCard?.querySelector('.hub-module-desc');
+    if (homeTitle && homeTitle.textContent.trim() !== 'Essentials') homeTitle.textContent = 'Essentials';
+    if (homeDesc && homeDesc.textContent.trim() !== HOME_DESC) homeDesc.textContent = HOME_DESC;
+
+    const topNav = document.querySelector('.df-nav-btn[data-main-page="driving"]');
+    if (topNav && topNav.textContent.trim() !== 'Essentials') topNav.textContent = 'Essentials';
+
+    const mobileMore = document.querySelector(`#df-more-sheet button[onclick*="dfMoreGo('driving')"]`);
+    const mobileTitle = mobileMore?.querySelector('strong');
+    const mobileDesc = mobileMore?.querySelector('small');
+    if (mobileTitle && mobileTitle.textContent.trim() !== 'Essentials') mobileTitle.textContent = 'Essentials';
+    if (mobileDesc && mobileDesc.textContent.trim() !== MOBILE_DESC) mobileDesc.textContent = MOBILE_DESC;
+
+    document.querySelectorAll('#pg-home .hub-hero p, .hub-hero p').forEach((copy) => {
+      if (/driving admin|money, plans, goals/i.test(copy.textContent || '')) {
+        copy.textContent = '';
+        copy.style.display = 'none';
+        copy.setAttribute('aria-hidden', 'true');
+        copy.setAttribute('data-dayframe-essentials-copy-removed', 'true');
+      }
+    });
+  }
 
   function claim(event) {
     event?.preventDefault?.();
@@ -56,6 +84,7 @@
   }
 
   function setButtonState(page) {
+    fixVisibleHomeLanguage();
     const main = mainKeyFor(page);
     document.querySelectorAll('.df-nav-btn[data-main-page]').forEach((button) => {
       button.classList.toggle('on', button.dataset.mainPage === main);
@@ -132,6 +161,7 @@
       if (bar) bar.style.display = 'none';
     }
     if (page === 'driving-theory') setTimeout(() => { try { window.syncTheoryFrameSession?.(); } catch {} }, 120);
+    fixVisibleHomeLanguage();
     return true;
   }
 
@@ -184,6 +214,7 @@
   }
 
   function markTargets() {
+    fixVisibleHomeLanguage();
     const homeCard = document.querySelector('[data-home-module="driving"]');
     if (homeCard) homeCard.dataset.essentialsOpenPage = 'driving';
 
@@ -259,6 +290,7 @@
   function apply() {
     installStableGo();
     markTargets();
+    fixVisibleHomeLanguage();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
