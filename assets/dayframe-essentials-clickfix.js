@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v3';
+  const VERSION = 'clickfix-v4';
   const FLAG = 'data-dayframe-essentials-clickfix';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
@@ -28,21 +28,25 @@
   const INVESTING_PAGES = new Set(['dashboard', 'holdings', 'signals', 'charts', 'themes-hub', 'education', 'isa-guide', 'intel', 'health', 'alerts', 'chatter']);
   const DRIVING_PAGES = new Set(['driving', 'driving-theory', 'driving-car', 'driving-cycle', 'driving-documents', 'driving-health', 'driving-home-admin', 'driving-work-study']);
 
-  function openTool(key, event) {
-    if (!TOOL_PAGES[key]) return;
+  function claim(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
+    event?.stopImmediatePropagation?.();
+  }
+
+  function openTool(key, event) {
+    if (!TOOL_PAGES[key]) return;
+    claim(event);
     if (typeof window.dayframeOpenEssentialsTool === 'function') {
       window.dayframeOpenEssentialsTool(key, event);
       return;
     }
-    window.go?.(TOOL_PAGES[key]);
+    forcePage(TOOL_PAGES[key]);
   }
 
   function openPage(name, event) {
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
-    window.go?.(name);
+    claim(event);
+    forcePage(name);
   }
 
   function mainKeyFor(page) {
@@ -81,6 +85,12 @@
   }
 
   function forcePage(page) {
+    if (page === 'driving-costs') page = 'driving-car';
+    if (page === 'driving-cycle') {
+      forcePage('driving');
+      window.dayframeOpenPeriodTracker?.();
+      return true;
+    }
     const target = document.getElementById(`pg-${page}`);
     if (!target) return false;
     document.querySelectorAll('.pg.on[id^="pg-"]').forEach((old) => {
@@ -96,27 +106,40 @@
     window.dfCloseSheets?.();
     if (window.innerWidth <= 768 && typeof window.closeSB === 'function') window.closeSB();
 
-    window.renderLifePage?.(page);
+    try { window.renderLifePage?.(page); } catch {}
     if (page === 'charts') {
-      window.rCF?.();
-      if (window.activeTk) window.openChart?.(window.activeTk);
+      try { window.rCF?.(); } catch {}
+      try { if (window.activeTk) window.openChart?.(window.activeTk); } catch {}
     }
-    if (page === 'health') window.rHealth?.();
-    if (page === 'alerts') window.rAlerts?.();
-    if (page === 'education') window.rEducation?.();
+    if (page === 'intel' && !window.intelScanned && window.aiKey) {
+      window.intelScanned = true;
+      setTimeout(() => { try { window.runIntelScan?.(); } catch {} }, 400);
+    }
+    if (page === 'health') { try { window.rHealth?.(); } catch {} }
+    if (page === 'alerts') { try { window.rAlerts?.(); } catch {} }
+    if (page === 'signals') {
+      try { window.rEarnings?.(); } catch {}
+      try { window.rConfCalendar?.(); } catch {}
+      const news = document.getElementById('news-out');
+      if (news && /Press Refresh|Loading your latest/.test(news.innerHTML || '')) {
+        try { window.fetchNews?.(); } catch {}
+      }
+    }
+    if (page === 'chatter') { try { window.initChatterPills?.(); } catch {} }
+    if (page === 'education') { try { window.rEducation?.(); } catch {} }
     if (page !== 'education') {
       const bar = document.getElementById('edu-back-bar');
       if (bar) bar.style.display = 'none';
     }
+    if (page === 'driving-theory') setTimeout(() => { try { window.syncTheoryFrameSession?.(); } catch {} }, 120);
     return true;
   }
 
   function navigateMain(key, event) {
     const page = MAIN_PAGES[key];
     if (!page) return false;
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
-    window.go?.(page);
+    claim(event);
+    forcePage(page);
     setTimeout(() => {
       const active = document.querySelector('.pg.on')?.id || '';
       if (active !== `pg-${page}`) forcePage(page);
@@ -136,12 +159,28 @@
     return match ? match[1] : '';
   }
 
+  function routeFromGoHandler(element) {
+    const raw = element?.getAttribute?.('onclick') || '';
+    const match = raw.match(/\bgo\(['"]([^'"]+)['"]/);
+    return match ? match[1] : '';
+  }
+
   function openFlo(event) {
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
+    claim(event);
     if (typeof window.dayframeOpenPeriodTracker === 'function') {
       window.dayframeOpenPeriodTracker(event);
     }
+  }
+
+  function installStableGo() {
+    const stableGo = function dayframeStableGo(name, btn) {
+      const page = MAIN_PAGES[name] || name;
+      const ok = forcePage(page);
+      if (ok && btn?.classList) btn.classList.add('on');
+      return undefined;
+    };
+    stableGo.__dayframeStableGoVersion = VERSION;
+    window.go = stableGo;
   }
 
   function markTargets() {
@@ -172,6 +211,12 @@
     const topNavTarget = event.target.closest?.('.df-nav-btn[data-main-page]');
     if (topNavTarget && navigateMain(topNavTarget.dataset.mainPage, event)) return;
 
+    const mobileNavTarget = event.target.closest?.('.df-mobile-nav button[data-mobile-page]');
+    if (mobileNavTarget) {
+      const key = mobileNavTarget.dataset.mobilePage;
+      if (key && key !== 'more' && navigateMain(key, event)) return;
+    }
+
     const homeModuleTarget = event.target.closest?.('[data-home-module]');
     if (homeModuleTarget && navigateMain(homeModuleTarget.dataset.homeModule, event)) return;
 
@@ -198,10 +243,21 @@
     }
 
     const pageTarget = event.target.closest?.('[data-essentials-open-page]');
-    if (pageTarget) openPage(pageTarget.dataset.essentialsOpenPage, event);
+    if (pageTarget) {
+      openPage(pageTarget.dataset.essentialsOpenPage, event);
+      return;
+    }
+
+    const goTarget = event.target.closest?.('[onclick*="go("]');
+    const goRoute = routeFromGoHandler(goTarget);
+    if (goRoute) {
+      claim(event);
+      forcePage(MAIN_PAGES[goRoute] || goRoute);
+    }
   }, true);
 
   function apply() {
+    installStableGo();
     markTargets();
   }
 
