@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v2';
+  const VERSION = 'clickfix-v3';
   const FLAG = 'data-dayframe-essentials-clickfix';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
@@ -130,6 +130,12 @@
     return true;
   }
 
+  function routeFromMoreButton(button) {
+    const raw = button?.getAttribute?.('onclick') || '';
+    const match = raw.match(/dfMoreGo\(['"]([^'"]+)['"]\)/);
+    return match ? match[1] : '';
+  }
+
   function openFlo(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
@@ -168,6 +174,10 @@
 
     const homeModuleTarget = event.target.closest?.('[data-home-module]');
     if (homeModuleTarget && navigateMain(homeModuleTarget.dataset.homeModule, event)) return;
+
+    const moreSheetTarget = event.target.closest?.('#df-more-sheet button');
+    const moreRoute = routeFromMoreButton(moreSheetTarget);
+    if (moreRoute && navigateMain(moreRoute, event)) return;
 
     const toolTarget = event.target.closest?.('[data-essentials-tool-card],[data-essentials-tool-nav]');
     if (toolTarget) {
