@@ -67,24 +67,14 @@
   }
 
   function patchRouting() {
-    if (typeof globalThis.go !== 'function' || globalThis.go.__dayframeCarCostsRemoved) return;
-    const originalGo = globalThis.go;
-    const wrappedGo = function dayframeCarCostsRemovedGo(name, btn) {
-      const target = name === 'driving-costs' ? 'driving-car' : name;
-      const result = originalGo.call(this, target, btn);
-      setTimeout(removeCostsUi, 0);
-      return result;
-    };
-    wrappedGo.__dayframeCarCostsRemoved = true;
-    globalThis.go = wrappedGo;
+    removeCostsUi();
   }
 
   function patchRenderLifePage() {
     if (typeof globalThis.renderLifePage !== 'function' || globalThis.renderLifePage.__dayframeCarCostsRemoved) return;
     const originalRenderLifePage = globalThis.renderLifePage;
     const wrappedRenderLifePage = function dayframeCarCostsRemovedRenderLifePage(name) {
-      if (name === 'driving-costs' && typeof globalThis.go === 'function') {
-        setTimeout(() => globalThis.go('driving-car'), 0);
+      if (name === 'driving-costs') {
         return originalRenderLifePage.call(this, 'driving-car');
       }
       const result = originalRenderLifePage.apply(this, arguments);
