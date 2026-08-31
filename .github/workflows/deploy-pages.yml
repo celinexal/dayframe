@@ -62,6 +62,7 @@ jobs:
           test -s dayframe-icon-2026.svg
           test -s assets/dayframe-essentials-flo.js
           test -s assets/dayframe-essentials-more.js
+          test -s assets/dayframe-essentials-clickfix.js
           test -s driving/theory.html
           test -s driving/theory-overrides.css
           grep -q 'src="/driving/theory.html"' index.html
@@ -125,7 +126,16 @@ jobs:
               return script;
             }};
             const loadEssentials = () => {{
-              const loadMore = () => loadScript('/assets/dayframe-essentials-more.js?v={build}', 'data-dayframe-essentials-more-late');
+              const loadClickFix = () => loadScript('/assets/dayframe-essentials-clickfix.js?v={build}', 'data-dayframe-essentials-clickfix-late');
+              const loadMore = () => {{
+                const more = loadScript('/assets/dayframe-essentials-more.js?v={build}', 'data-dayframe-essentials-more-late');
+                if (more) {{
+                  more.addEventListener('load', loadClickFix, {{ once: true }});
+                  setTimeout(loadClickFix, 900);
+                }} else {{
+                  loadClickFix();
+                }}
+              }};
               const loadFlo = () => {{
                 const flo = loadScript('/assets/dayframe-essentials-flo.js?v={build}', 'data-dayframe-essentials-flo-late');
                 if (flo) {{
