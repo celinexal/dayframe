@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v11';
+  const VERSION = 'clickfix-v12';
   const FLAG = 'data-dayframe-essentials-clickfix';
   const STYLE_ID = 'df-essentials-clickfix-style';
   const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}';
@@ -138,6 +138,15 @@
     if (mobileDesc && mobileDesc.textContent.trim() !== mobileDescValue) mobileDesc.textContent = mobileDescValue;
 
     const essentialsPage = document.getElementById('pg-driving');
+    const heroTitle = essentialsPage?.querySelector('.driving-hub-title');
+    if (heroTitle && heroTitle.textContent.trim() !== 'Essentials') heroTitle.textContent = 'Essentials';
+
+    const carQuestion = essentialsPage?.querySelector('.df-car-question');
+    if (carQuestion && carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';
+    const carButtons = [...(essentialsPage?.querySelectorAll('.df-car-actions button') || [])];
+    if (carButtons[0] && carButtons[0].textContent.trim() !== 'Pass your theory') carButtons[0].textContent = 'Pass your theory';
+    if (carButtons[1] && carButtons[1].textContent.trim() !== 'Practice questions') carButtons[1].textContent = 'Practice questions';
+
     const heroPills = essentialsPage?.querySelector('.driving-hub-pills');
     if (heroPills) {
       const labels = visibleWidgetLabels();
