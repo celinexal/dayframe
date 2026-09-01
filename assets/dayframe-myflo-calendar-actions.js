@@ -1,5 +1,5 @@
 (function () {
-  const VERSION = 'myflo-calendar-actions-v1';
+  const VERSION = 'myflo-calendar-actions-v2';
   const FLAG = 'data-dayframe-myflo-calendar-actions';
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
@@ -63,7 +63,45 @@
     const data = window.hubLoad?.() || {};
     data.essentials = data.essentials || {};
     data.essentials.period = data.essentials.period || {};
+    data.essentials.period = clearSeededPeriodIfNeeded(data, data.essentials.period);
     return { data, period: data.essentials.period };
+  }
+
+  function hasExplicitPeriodStart(period) {
+    if (!isISO(period?.lastStart)) return false;
+    const loggedStarts = Array.isArray(period.loggedStarts) ? period.loggedStarts.filter(isISO) : [];
+    const loggedEnds = Array.isArray(period.loggedEnds) ? period.loggedEnds.filter(isISO) : [];
+    return Boolean(
+      period.updatedAt ||
+      loggedStarts.includes(period.lastStart) ||
+      loggedEnds.length ||
+      isISO(period.lastEnd) ||
+      String(period.notes || '').trim()
+    );
+  }
+
+  function shouldClearSeededPeriod(period) {
+    if (!isISO(period?.lastStart) || hasExplicitPeriodStart(period)) return false;
+    const cycleLength = Number(period.cycleLength || 28);
+    const periodLength = Number(period.periodLength || 5);
+    return cycleLength === 28 && periodLength === 5;
+  }
+
+  function clearSeededPeriodIfNeeded(data, period) {
+    if (!shouldClearSeededPeriod(period)) return period;
+    data.essentials.period = Object.assign({}, period, {
+      lastStart: '',
+      lastEnd: '',
+      loggedStarts: [],
+      loggedEnds: [],
+    });
+    window.hubSave?.(data);
+    selectedDate = '';
+    setTimeout(() => {
+      window.dayframeOpenPeriodTracker?.();
+      setTimeout(patchMyFloPanel, 80);
+    }, 0);
+    return data.essentials.period;
   }
 
   function savePeriod(period) {
@@ -130,9 +168,16 @@
 
   function patchOneMyFloPanel(view) {
     if (!view) return;
+    const { period } = getPeriod();
+    const hasSavedCycle = hasExplicitPeriodStart(period);
 
     $$('.df-myflo-day', view).forEach((day) => {
       const iso = getISOFromDay(day);
+      if (!hasSavedCycle) {
+        day.classList.remove('is-period', 'is-fertile', 'is-ovulation', 'is-logged');
+        const dots = day.querySelector('i');
+        if (dots) dots.innerHTML = '';
+      }
       day.classList.toggle('is-selected', Boolean(iso && iso === selectedDate));
       const tags = dayTags(day);
       const labelBits = [iso ? longDate(iso) : '', ...tags, iso === selectedDate ? 'Selected' : ''].filter(Boolean);
@@ -206,12 +251,14 @@
 
     window.dayframeOpenPeriodTracker = function dayframeOpenPeriodTrackerPatched(event) {
       selectedDate = '';
+      getPeriod();
       const result = baseOpen.call(this, event);
       setTimeout(patchMyFloPanel, 80);
       return result;
     };
     if (typeof baseShift === 'function') {
       window.dayframeShiftMyFloCalendar = function dayframeShiftMyFloCalendarPatched(months) {
+        getPeriod();
         const result = baseShift.call(this, months);
         setTimeout(patchMyFloPanel, 80);
         return result;
