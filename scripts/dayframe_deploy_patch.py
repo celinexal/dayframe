@@ -385,7 +385,7 @@ if sw_path.exists():
             1,
         )
         sw_path.write_text(sw_text, encoding="utf-8")
-replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v101';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v102';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_SECTOR_THEMES_CURRENT_SRC\s*=\s*'[^']+';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_MORE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CLICKFIX_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';", required=False)
@@ -427,13 +427,13 @@ if index_path.exists():
     index_text = re.sub(r"\n?<style id=\"df-update-manager-style\">[\s\S]*?</style>\s*<script data-dayframe-update-manager[\s\S]*?</script>", "", index_text)
     update_block = f"""
 <style id="df-update-manager-style">
-#df-app-update{{position:fixed;left:50%;bottom:18px;z-index:99999;display:flex;align-items:center;gap:14px;max-width:min(92vw,520px);transform:translateX(-50%);padding:12px 14px;border:1px solid rgba(117,100,242,.18);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 18px 45px rgba(31,37,68,.18);font-family:var(--ff,'Plus Jakarta Sans',system-ui,sans-serif);color:#151b2d;backdrop-filter:blur(14px)}}
+#df-app-update{{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-8px 0 18px;padding:12px 14px;border:1px solid rgba(117,100,242,.16);border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(255,243,250,.95));box-shadow:0 10px 26px rgba(31,37,68,.08);font-family:var(--ff,'Plus Jakarta Sans',system-ui,sans-serif);color:#151b2d}}
 #df-app-update strong{{display:block;font-size:13px;font-weight:900;line-height:1.2}}
 #df-app-update span{{display:block;margin-top:2px;color:#718096;font-size:12px;font-weight:700;line-height:1.35}}
 #df-app-update button{{border:0;border-radius:999px;font:inherit;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}}
 #df-app-update .df-app-update-refresh{{padding:10px 14px;background:linear-gradient(135deg,#7564f2,#ec5aa6);color:#fff;box-shadow:0 10px 20px rgba(117,100,242,.22)}}
 #df-app-update .df-app-update-later{{padding:9px 11px;background:#f7f4ff;color:#6d60e8}}
-@media (max-width:560px){{#df-app-update{{left:12px;right:12px;bottom:calc(82px + env(safe-area-inset-bottom,0px));transform:none;align-items:flex-start;display:grid;grid-template-columns:1fr auto auto}}}}
+@media (max-width:560px){{#df-app-update{{margin:0 0 14px;align-items:flex-start;display:grid;grid-template-columns:1fr auto auto}}}}
 </style>
 <script {update_marker}={update_version}>
 (() => {{
@@ -444,18 +444,43 @@ if index_path.exists():
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
   let registration = null;
-  let prompted = false;
+  let updateReady = false;
+  let dismissed = false;
   let refreshing = false;
 
   function removePrompt() {{
     const node = document.getElementById('df-app-update');
     if (node) node.remove();
-    prompted = false;
+  }}
+
+  function isHomeActive() {{
+    return document.getElementById('pg-home')?.classList.contains('on') ||
+      document.querySelector('.pg.on')?.id === 'pg-home';
+  }}
+
+  function updateMount() {{
+    const home = document.getElementById('pg-home');
+    if (!home) return null;
+    return home.querySelector('.hub-shell') || home;
+  }}
+
+  function placePrompt(node) {{
+    const mount = updateMount();
+    if (!mount) return false;
+    const topbar = mount.querySelector('.hub-topbar');
+    if (topbar?.parentNode === mount) topbar.insertAdjacentElement('afterend', node);
+    else mount.insertAdjacentElement('afterbegin', node);
+    return true;
   }}
 
   function showUpdatePrompt(reg) {{
-    if (prompted || document.getElementById('df-app-update')) return;
-    prompted = true;
+    updateReady = true;
+    registration = reg || registration;
+    if (dismissed || !isHomeActive()) {{
+      removePrompt();
+      return;
+    }}
+    if (document.getElementById('df-app-update')) return;
     const bar = document.createElement('div');
     bar.id = 'df-app-update';
     bar.setAttribute('role', 'status');
@@ -467,7 +492,20 @@ if index_path.exists():
       setTimeout(() => window.location.reload(), 180);
     }});
     bar.querySelector('.df-app-update-later')?.addEventListener('click', removePrompt);
-    document.body.appendChild(bar);
+    bar.querySelector('.df-app-update-later')?.addEventListener('click', () => {{ dismissed = true; }});
+    if (!placePrompt(bar)) {{
+      bar.remove();
+    }}
+  }}
+
+  function renderUpdatePrompt() {{
+    if (!updateReady || dismissed || !isHomeActive()) {{
+      removePrompt();
+      return;
+    }}
+    const existing = document.getElementById('df-app-update');
+    if (existing) placePrompt(existing);
+    else showUpdatePrompt(registration);
   }}
 
   function watchRegistration(reg) {{
@@ -513,6 +551,10 @@ if index_path.exists():
       setInterval(() => reg.update().catch(() => {{}}), 30 * 60 * 1000);
     }} catch {{}}
   }});
+  document.addEventListener('click', () => setTimeout(renderUpdatePrompt, 80), true);
+  if (typeof MutationObserver === 'function' && document.body) {{
+    new MutationObserver(renderUpdatePrompt).observe(document.body, {{ attributes: true, attributeFilter: ['class'], subtree: true }});
+  }}
 }})();
 </script>"""
     if "</body>" in index_text:
