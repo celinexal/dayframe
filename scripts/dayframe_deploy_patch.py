@@ -66,17 +66,17 @@ replace_all(
         ("formTitle: 'Add a work or study date'", "formTitle: 'Add a work date'"),
         ("tags: ['Shifts', 'Courses', 'Applications', 'Certificates']", "tags: ['Shifts', 'Applications', 'Certificates', 'Deadlines']"),
         ("types: ['Shift', 'Course', 'Application', 'Interview', 'Certificate', 'Deadline', 'Other']", "types: ['Shift', 'Application', 'Interview', 'Certificate', 'Deadline', 'Other']"),
-        ("const homeSummary = () => `${labelList(visibleLabels(), 3)}.`;", "const homeSummary = () => { const labels = visibleLabels(); return labels.length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.'; };"),
+        ("const homeSummary = () => `${labelList(visibleLabels(), 3)}.`;", "const homeSummary = () => { const labels = visibleLabels(); return labels.length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.'; };") ,
         ("const homeSummary = () => (visibleLabels().length ? 'Your chosen everyday essentials, kept together.' : 'Choose what Essentials shows.');", "const homeSummary = () => (visibleLabels().length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.');"),
         ("const mobileSummary = () => labelList(visibleLabels(), 2);", "const mobileSummary = () => (visibleLabels().length ? 'Everyday essentials' : 'Choose Essentials');"),
         ("const mobileSummary = () => (visibleLabels().length ? 'Your essentials' : 'Choose Essentials');", "const mobileSummary = () => (visibleLabels().length ? 'Everyday essentials' : 'Choose Essentials');"),
-        ("#pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important}", "#pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important;cursor:pointer!important}"),
+        ("#pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important}", "#pg-driving .df-car-question{display:inline-flex!important;align-items:center!important;gap:7px!important;width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(236,72,153,.24)!important;border-radius:999px!important;background:linear-gradient(135deg,rgba(255,242,248,.98),rgba(241,252,250,.92))!important;color:#bd3d76!important;box-shadow:0 10px 24px rgba(236,72,153,.13)!important;font-size:12px!important;font-weight:900!important;padding:9px 13px!important;cursor:pointer!important}#pg-driving .df-car-question::after{content:\"->\";font-size:12px!important;color:#7564f2!important}"),
         ("#pg-driving .df-car-actions{display:flex!important;gap:8px!important;flex-wrap:wrap!important}", "#pg-driving .df-car-actions{display:none!important;gap:8px!important;flex-wrap:wrap!important}"),
-        ("if (carQuestion) carQuestion.textContent = 'Still learning?';\n    const theoryButton = page?.querySelector('.df-car-actions button');\n    if (theoryButton) theoryButton.textContent = 'Pass your theory';", "if (carQuestion) {\n      if (carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Learn to Invest');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('education'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = page?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
+        ("if (carQuestion) carQuestion.textContent = 'Still learning?';\n    const theoryButton = page?.querySelector('.df-car-actions button');\n    if (theoryButton) theoryButton.textContent = 'Pass your theory';", "if (carQuestion) {\n      if (carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Pass your theory');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('driving-theory'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = page?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
     ],
     required=False,
 )
-replace_regex("assets/dayframe-essentials-more.js", r"const VERSION = 'more-v\d+';", "const VERSION = 'more-v11';", required=False)
+replace_regex("assets/dayframe-essentials-more.js", r"const VERSION = 'more-v\d+';", "const VERSION = 'more-v12';", required=False)
 
 replace_all(
     "assets/dayframe-essentials-clickfix.js",
@@ -99,14 +99,36 @@ replace_all(
         ("return listLabels(visibleWidgetLabels(), 2);", "return visibleWidgetLabels().length ? 'Everyday essentials' : 'Choose Essentials';"),
         ("return visibleWidgetLabels().length ? 'Your chosen everyday essentials, kept together.' : 'Choose what Essentials shows.';", "return visibleWidgetLabels().length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.';"),
         ("return visibleWidgetLabels().length ? 'Your essentials' : 'Choose Essentials';", "return visibleWidgetLabels().length ? 'Everyday essentials' : 'Choose Essentials';"),
-        ("const carQuestion = essentialsPage?.querySelector('.df-car-question');\n    if (carQuestion && carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n    const carButtons = [...(essentialsPage?.querySelectorAll('.df-car-actions button') || [])];\n    if (carButtons[0] && carButtons[0].textContent.trim() !== 'Pass your theory') carButtons[0].textContent = 'Pass your theory';\n    if (carButtons[1] && carButtons[1].textContent.trim() !== 'Practice questions') carButtons[1].textContent = 'Practice questions';", "const carQuestion = essentialsPage?.querySelector('.df-car-question');\n    if (carQuestion) {\n      if (carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Learn to Invest');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('education'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = essentialsPage?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
-        ("document.addEventListener('click', (event) => {\n    const topNavTarget = event.target.closest?.('.df-nav-btn[data-main-page]');", "document.addEventListener('click', (event) => {\n    const stillLearningTarget = event.target.closest?.('#pg-driving .df-car-question');\n    if (stillLearningTarget) {\n      claim(event);\n      if (typeof window.go === 'function') window.go('education');\n      return;\n    }\n\n    const topNavTarget = event.target.closest?.('.df-nav-btn[data-main-page]');"),
+        ("const carQuestion = essentialsPage?.querySelector('.df-car-question');\n    if (carQuestion && carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n    const carButtons = [...(essentialsPage?.querySelectorAll('.df-car-actions button') || [])];\n    if (carButtons[0] && carButtons[0].textContent.trim() !== 'Pass your theory') carButtons[0].textContent = 'Pass your theory';\n    if (carButtons[1] && carButtons[1].textContent.trim() !== 'Practice questions') carButtons[1].textContent = 'Practice questions';", "const carQuestion = essentialsPage?.querySelector('.df-car-question');\n    if (carQuestion) {\n      if (carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Pass your theory');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('driving-theory'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = essentialsPage?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
+        ("document.addEventListener('click', (event) => {\n    const topNavTarget = event.target.closest?.('.df-nav-btn[data-main-page]');", "document.addEventListener('click', (event) => {\n    const stillLearningTarget = event.target.closest?.('#pg-driving .df-car-question');\n    if (stillLearningTarget) {\n      claim(event);\n      if (typeof window.go === 'function') window.go('driving-theory');\n      return;\n    }\n\n    const topNavTarget = event.target.closest?.('.df-nav-btn[data-main-page]');"),
         ("  function openFlo(event) {\n    if (isCustomisingEssentials() && event?.target?.closest?.('#pg-driving .driving-home-grid > .driving-home-card')) {\n      claim(event);\n      return;\n    }\n    claim(event);\n    if (typeof window.dayframeOpenPeriodTracker === 'function') {\n      window.dayframeOpenPeriodTracker(event);\n    }\n  }", "  function openFlo(event) {\n    if (isCustomisingEssentials() && event?.target?.closest?.('#pg-driving .driving-home-grid > .driving-home-card')) {\n      claim(event);\n      return;\n    }\n    claim(event);\n\n    const revealPanel = () => {\n      const panel = document.getElementById('df-period-panel');\n      if (!panel) return false;\n      document.querySelectorAll('.driving-side-nav button').forEach((button) => {\n        button.classList.toggle('on', button.dataset.drivingPage === 'driving-cycle');\n      });\n      panel.hidden = false;\n      panel.removeAttribute('hidden');\n      panel.style.display = '';\n      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);\n      return true;\n    };\n\n    if (typeof window.dayframeOpenPeriodTracker === 'function') {\n      window.dayframeOpenPeriodTracker(event);\n      return;\n    }\n\n    apply();\n    if (typeof window.dayframeOpenPeriodTracker === 'function') {\n      window.dayframeOpenPeriodTracker();\n      return;\n    }\n    if (revealPanel()) return;\n\n    [100, 350, 900].forEach((delay) => setTimeout(() => {\n      if (typeof window.dayframeOpenPeriodTracker === 'function') window.dayframeOpenPeriodTracker();\n      else revealPanel();\n    }, delay));\n  }"),
         ("  function openFlo(event) {\n    claim(event);\n    if (typeof window.dayframeOpenPeriodTracker === 'function') {\n      window.dayframeOpenPeriodTracker(event);\n    }\n  }", "  function openFlo(event) {\n    claim(event);\n\n    const revealPanel = () => {\n      const panel = document.getElementById('df-period-panel');\n      if (!panel) return false;\n      document.querySelectorAll('.driving-side-nav button').forEach((button) => {\n        button.classList.toggle('on', button.dataset.drivingPage === 'driving-cycle');\n      });\n      panel.hidden = false;\n      panel.removeAttribute('hidden');\n      panel.style.display = '';\n      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);\n      return true;\n    };\n\n    if (document.querySelector('.pg.on')?.id !== 'pg-driving') forcePage('driving');\n    if (typeof window.dayframeOpenPeriodTracker === 'function') {\n      window.dayframeOpenPeriodTracker(event);\n      return;\n    }\n\n    apply();\n    if (typeof window.dayframeOpenPeriodTracker === 'function') {\n      window.dayframeOpenPeriodTracker();\n      return;\n    }\n    if (revealPanel()) return;\n\n    [100, 350, 900].forEach((delay) => setTimeout(() => {\n      if (typeof window.dayframeOpenPeriodTracker === 'function') window.dayframeOpenPeriodTracker();\n      else revealPanel();\n    }, delay));\n  }"),
     ],
     required=False,
 )
-replace_regex("assets/dayframe-essentials-clickfix.js", r"const VERSION = 'clickfix-v\d+';", "const VERSION = 'clickfix-v18';", required=False)
+replace_all(
+    "assets/dayframe-essentials-clickfix.js",
+    [
+        (
+            "  function claim(event) {\n    event?.preventDefault?.();\n    event?.stopPropagation?.();\n    event?.stopImmediatePropagation?.();\n  }\n\n  function openTool(key, event) {\n    if (!TOOL_PAGES[key]) return;\n    claim(event);",
+            "  function claim(event) {\n    event?.preventDefault?.();\n    event?.stopPropagation?.();\n    event?.stopImmediatePropagation?.();\n  }\n\n  function closeEssentialsCustomising() {\n    if (typeof window.dayframeCloseEssentialsCustomise === 'function') {\n      window.dayframeCloseEssentialsCustomise();\n      return;\n    }\n    const page = document.getElementById('pg-driving');\n    page?.classList?.remove('df-essentials-customising');\n    page?.setAttribute?.('data-essentials-customising', 'false');\n    const panel = document.getElementById('df-essentials-widget-panel');\n    if (panel) panel.hidden = true;\n  }\n\n  function openTool(key, event) {\n    if (!TOOL_PAGES[key]) return;\n    closeEssentialsCustomising();\n    claim(event);",
+        ),
+        (
+            "  function openPage(name, event) {\n    claim(event);\n    forcePage(name);\n  }",
+            "  function openPage(name, event) {\n    closeEssentialsCustomising();\n    claim(event);\n    forcePage(name);\n  }",
+        ),
+        (
+            "  function openFlo(event) {\n    if (isCustomisingEssentials() && event?.target?.closest?.('#pg-driving .driving-home-grid > .driving-home-card')) {\n      claim(event);\n      return;\n    }\n    claim(event);\n\n    const revealPanel = () => {",
+            "  function openFlo(event) {\n    closeEssentialsCustomising();\n    claim(event);\n\n    const revealPanel = () => {",
+        ),
+        (
+            "  function openFlo(event) {\n    claim(event);\n\n    const revealPanel = () => {",
+            "  function openFlo(event) {\n    closeEssentialsCustomising();\n    claim(event);\n\n    const revealPanel = () => {",
+        ),
+    ],
+    required=False,
+)
+replace_regex("assets/dayframe-essentials-clickfix.js", r"const VERSION = 'clickfix-v\d+';", "const VERSION = 'clickfix-v19';", required=False)
 
 append_once(
     "assets/dayframe-essentials-clickfix.js",
@@ -121,7 +143,7 @@ append_once(
       event.stopPropagation();
       if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
     }
-    if (typeof window.go === 'function') window.go('education');
+    if (typeof window.go === 'function') window.go('driving-theory');
   }
 
   function stillLearningTarget(target) {
@@ -134,7 +156,7 @@ append_once(
     if (!document.getElementById(STYLE_ID)) {
       const style = document.createElement('style');
       style.id = STYLE_ID;
-      style.textContent = '#pg-driving .df-car-question{cursor:pointer!important}#pg-driving .df-car-actions{display:none!important}';
+      style.textContent = '#pg-driving .df-car-question{display:inline-flex!important;align-items:center!important;gap:7px!important;width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(236,72,153,.24)!important;border-radius:999px!important;background:linear-gradient(135deg,rgba(255,242,248,.98),rgba(241,252,250,.92))!important;color:#bd3d76!important;box-shadow:0 10px 24px rgba(236,72,153,.13)!important;font-size:12px!important;font-weight:900!important;padding:9px 13px!important;cursor:pointer!important}#pg-driving .df-car-question::after{content:"->";font-size:12px!important;color:#7564f2!important}#pg-driving .df-car-actions{display:none!important}';
       document.head.appendChild(style);
     }
 
@@ -149,7 +171,7 @@ append_once(
       if (question.textContent.trim() !== 'Still learning?') question.textContent = 'Still learning?';
       question.setAttribute('role', 'button');
       question.setAttribute('tabindex', '0');
-      question.setAttribute('title', 'Open Learn to Invest');
+      question.setAttribute('title', 'Open Pass your theory');
       question.onclick = openLearning;
       question.onkeydown = (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -193,10 +215,13 @@ replace_all(
         ("label: 'Home & Rent'", "label: 'Home'"),
         ("label: 'Work & Study'", "label: 'Work'"),
         ("desc: 'Shifts, applications, courses and deadlines.'", "desc: 'Shifts, applications, certificates and deadlines.'"),
+        ("      suppressCardNavigation(card, editing);", "      suppressCardNavigation(card, false);"),
+        ("      if (isCustomising() && event.target.closest?.('#pg-driving .driving-home-grid > .driving-home-card')) {\n        claim(event);\n      }", "      if (isCustomising() && event.target.closest?.('#pg-driving .driving-home-grid > .driving-home-card')) {\n        setCustomising(false);\n      }"),
+        ("      if (isCustomising() && DRIVING_SUBPAGES.has(name)) return undefined;\n      return originalGo.apply(this, arguments);", "      if (isCustomising() && DRIVING_SUBPAGES.has(name)) setCustomising(false);\n      return originalGo.apply(this, arguments);"),
     ],
     required=False,
 )
-replace_regex("assets/dayframe-essentials-customise.js", r"const VERSION = 'customise-v\d+';", "const VERSION = 'customise-v2';", required=False)
+replace_regex("assets/dayframe-essentials-customise.js", r"const VERSION = 'customise-v\d+';", "const VERSION = 'customise-v3';", required=False)
 
 replace_all(
     "assets/dayframe-sector-themes-current.js",
@@ -343,19 +368,19 @@ replace_all(
     "sw.js",
     [
         ("const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260830-current-sector-themes';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';"),
-        ("const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v18';"),
-        ("const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v2';"),
-        ("const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-learning-v1';\nconst DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';"),
+        ("const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';"),
+        ("const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';"),
+        ("const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';\nconst DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';"),
         (".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)", ".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-more\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_MORE_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)"),
         (".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC);", ".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC)\n    .replace(/\\/assets\\/dayframe-sector-themes-current\\.js\\?v=[^\"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC);"),
     ],
     required=False,
 )
-replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v98';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v100';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_SECTOR_THEMES_CURRENT_SRC\s*=\s*'[^']+';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';", required=False)
-replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_MORE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-learning-v1';", required=False)
-replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CLICKFIX_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v18';", required=False)
-replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v2';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_MORE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CLICKFIX_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';", required=False)
 
 for asset in (
     "assets/dayframe-essentials-more.js",
