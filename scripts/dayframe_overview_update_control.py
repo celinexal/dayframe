@@ -48,6 +48,53 @@ if not index_path.exists():
     raise SystemExit("dist/index.html was not found")
 
 index_text = index_path.read_text(encoding="utf-8")
+auth_success_old = """async function authSuccess(name){
+  const userEl=document.getElementById('sb-user-name');if(userEl)userEl.textContent=name;
+  const avatarEl=document.getElementById('sb-user-avatar');if(avatarEl)avatarEl.textContent=(name||'U')[0].toUpperCase();
+  const topName=document.getElementById('df-user-name');if(topName)topName.textContent=name||'Account';
+  const topAvatar=document.getElementById('df-user-avatar');if(topAvatar)topAvatar.textContent=(name||'U')[0].toUpperCase();
+  authSetLoading('login',false);authSetLoading('signup',false);
+  await Promise.allSettled([
+    loadHubFromSupabase(),
+    loadSettingsFromSupabase(),
+    moneyLoadBankData(false)
+  ]);
+  personalHubInit(name);
+  restoreT212Snapshot();
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.documentElement.classList.remove('df-session-pending');
+  moneyHandleBankCallback();
+  moneyHandleBankStart();
+  const t212Status=await loadT212Status();
+  if(t212Status.connected)setTimeout(()=>syncT212(),450);
+}"""
+auth_success_new = """async function authSuccess(name){
+  window.__dayframeAuthSuccessNonBlocking = true;
+  const userEl=document.getElementById('sb-user-name');if(userEl)userEl.textContent=name;
+  const avatarEl=document.getElementById('sb-user-avatar');if(avatarEl)avatarEl.textContent=(name||'U')[0].toUpperCase();
+  const topName=document.getElementById('df-user-name');if(topName)topName.textContent=name||'Account';
+  const topAvatar=document.getElementById('df-user-avatar');if(topAvatar)topAvatar.textContent=(name||'U')[0].toUpperCase();
+  authSetLoading('login',false);authSetLoading('signup',false);
+  personalHubInit(name);
+  restoreT212Snapshot();
+  document.getElementById('auth-screen')?.classList.add('hidden');
+  document.documentElement.classList.remove('df-session-pending');
+  moneyHandleBankCallback();
+  moneyHandleBankStart();
+  Promise.allSettled([
+    loadHubFromSupabase(),
+    loadSettingsFromSupabase(),
+    moneyLoadBankData(false)
+  ]).then(()=>personalHubInit(name)).catch(e=>console.warn('Dayframe background data load failed:',e?.message||e));
+  Promise.resolve()
+    .then(()=>loadT212Status())
+    .then(t212Status=>{if(t212Status?.connected)setTimeout(()=>syncT212(),450)})
+    .catch(()=>{});
+}"""
+if "__dayframeAuthSuccessNonBlocking" not in index_text:
+    if auth_success_old not in index_text:
+        raise SystemExit("dist/index.html: authSuccess shape was not found")
+    index_text = index_text.replace(auth_success_old, auth_success_new, 1)
 if 'rel="preload" as="style" href="https://fonts.googleapis.com/css2' not in index_text:
     index_text = re.sub(
         r'<link\b(?=[^>]*\brel="stylesheet")(?=[^>]*\bhref="(https://fonts\.googleapis\.com/css2\?[^\"]+)")[^>]*>',
