@@ -48,15 +48,16 @@ if not index_path.exists():
     raise SystemExit("dist/index.html was not found")
 
 index_text = index_path.read_text(encoding="utf-8")
-index_text = re.sub(
-    r'<link\b(?=[^>]*\brel="stylesheet")(?=[^>]*\bhref="(https://fonts\.googleapis\.com/css2\?[^\"]+)")[^>]*>',
-    r'<link rel="preconnect" href="https://fonts.googleapis.com">'
-    r'\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-    r'\n<link rel="preload" as="style" href="\1" onload="this.onload=null;this.rel=\'stylesheet\'">'
-    r'\n<noscript><link rel="stylesheet" href="\1"></noscript>',
-    index_text,
-    count=1,
-)
+if 'rel="preload" as="style" href="https://fonts.googleapis.com/css2' not in index_text:
+    index_text = re.sub(
+        r'<link\b(?=[^>]*\brel="stylesheet")(?=[^>]*\bhref="(https://fonts\.googleapis\.com/css2\?[^\"]+)")[^>]*>',
+        '<link rel="preconnect" href="https://fonts.googleapis.com">'
+        '\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        '\n<link rel="preload" as="style" href="\\1" onload="this.onload=null;this.rel=\'stylesheet\'">'
+        '\n<noscript><link rel="stylesheet" href="\\1"></noscript>',
+        index_text,
+        count=1,
+    )
 index_text = re.sub(
     r"\n?<style id=\"df-update-manager-style\">[\s\S]*?</style>\s*<script data-dayframe-update-manager[\s\S]*?</script>",
     "",
@@ -239,16 +240,12 @@ update_block = f"""
     try {{
       const reg = await navigator.serviceWorker.register('/sw.js', {{ updateViaCache: 'none' }});
       watchRegistration(reg);
-      renderUpdatePrompt();
+      setTimeout(renderUpdatePrompt, 800);
       setTimeout(() => reg.update().catch(() => {{}}), 1200);
       setInterval(() => reg.update().catch(() => {{}}), 30 * 60 * 1000);
     }} catch {{}}
   }});
-  renderUpdatePrompt();
-  document.addEventListener('click', () => setTimeout(renderUpdatePrompt, 80), true);
-  if (typeof MutationObserver === 'function' && document.body) {{
-    new MutationObserver(renderUpdatePrompt).observe(document.body, {{ attributes: true, attributeFilter: ['class'], subtree: true }});
-  }}
+  document.addEventListener('click', () => setTimeout(renderUpdatePrompt, 120), true);
 }})();
 </script>"""
 
