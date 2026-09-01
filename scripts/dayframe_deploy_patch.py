@@ -113,9 +113,18 @@ append_once(
   const STYLE_ID = 'data-dayframe-still-learning-link';
 
   function openLearning(event) {
-    event.preventDefault();
-    event.stopPropagation();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    }
     if (typeof window.go === 'function') window.go('education');
+  }
+
+  function stillLearningTarget(target) {
+    return target && typeof target.closest === 'function'
+      ? target.closest('#pg-driving .df-car-question')
+      : null;
   }
 
   function applyStillLearningLink() {
@@ -151,6 +160,16 @@ append_once(
 
   if (typeof MutationObserver === 'function' && document.body) {
     new MutationObserver(applyStillLearningLink).observe(document.body, { childList: true, subtree: true });
+  }
+
+  if (!window.__dayframeStillLearningCaptureBound) {
+    window.__dayframeStillLearningCaptureBound = true;
+    document.addEventListener('click', (event) => {
+      if (stillLearningTarget(event.target)) openLearning(event);
+    }, true);
+    document.addEventListener('keydown', (event) => {
+      if ((event.key === 'Enter' || event.key === ' ') && stillLearningTarget(event.target)) openLearning(event);
+    }, true);
   }
 
   [100, 400, 1000, 2200].forEach((delay) => setTimeout(applyStillLearningLink, delay));
