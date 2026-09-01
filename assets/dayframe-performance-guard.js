@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const VERSION = 'performance-guard-v1';
+  const VERSION = 'performance-guard-v2';
   const FLAG = 'data-dayframe-performance-guard';
   if (document.documentElement?.getAttribute(FLAG) === VERSION) return;
   if (document.documentElement) document.documentElement.setAttribute(FLAG, VERSION);
@@ -24,6 +24,8 @@
   const NativeMutationObserver = window.MutationObserver;
   if (typeof NativeMutationObserver === 'function' && !NativeMutationObserver.__dayframePerformanceGuard) {
     const cosmeticAttributes = new Set(['class', 'aria-label', 'aria-hidden', 'role', 'tabindex', 'title', 'data-theme-term', 'data-theme-topic', 'data-essentials-tool-nav', 'data-essentials-tool-card', 'data-essentials-open-page', 'data-essentials-open-flo']);
+    const trackedObservers = new Set();
+    const broadTargets = new Set([document, document.documentElement, document.body]);
 
     window.MutationObserver = class DayframeBatchedMutationObserver extends NativeMutationObserver {
       constructor(callback) {
@@ -55,8 +57,31 @@
           }, delay);
         });
       }
+
+      observe(target, options) {
+        this.__dayframeObserveTarget = target;
+        this.__dayframeObserveOptions = options || {};
+        trackedObservers.add(this);
+        return super.observe(target, options);
+      }
     };
     window.MutationObserver.__dayframePerformanceGuard = true;
+
+    function quietBroadObservers() {
+      trackedObservers.forEach((observer) => {
+        const options = observer.__dayframeObserveOptions || {};
+        const target = observer.__dayframeObserveTarget;
+        const watchesWholePage = broadTargets.has(target) || target === document.body || target === document.documentElement;
+        if (watchesWholePage && options.subtree && (options.childList || options.attributes || options.characterData)) {
+          try { observer.disconnect(); } catch {}
+        }
+      });
+      window.__dayframeBroadObserversQuieted = true;
+    }
+
+    window.dayframeQuietBroadObservers = quietBroadObservers;
+    window.setTimeout(quietBroadObservers, 2400);
+    window.setTimeout(quietBroadObservers, 5200);
   }
 
   let refreshQueued = false;
