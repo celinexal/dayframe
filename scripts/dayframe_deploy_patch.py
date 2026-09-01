@@ -72,7 +72,7 @@ replace_all(
         ("const mobileSummary = () => (visibleLabels().length ? 'Your essentials' : 'Choose Essentials');", "const mobileSummary = () => (visibleLabels().length ? 'Everyday essentials' : 'Choose Essentials');"),
         ("#pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important}", "#pg-driving .df-car-question{width:max-content!important;max-width:100%!important;margin-top:auto!important;border:1px solid rgba(117,100,242,.13)!important;border-radius:999px!important;background:rgba(255,255,255,.72)!important;color:#4f5b70!important;font-size:11px!important;font-weight:900!important;padding:8px 11px!important;cursor:pointer!important}"),
         ("#pg-driving .df-car-actions{display:flex!important;gap:8px!important;flex-wrap:wrap!important}", "#pg-driving .df-car-actions{display:none!important;gap:8px!important;flex-wrap:wrap!important}"),
-        ("if (carQuestion) carQuestion.textContent = 'Still learning?';\n    const theoryButton = page?.querySelector('.df-car-actions button');\n    if (theoryButton) theoryButton.textContent = 'Pass your theory';", "if (carQuestion) {\n      carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Learn to Invest');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('education'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = page?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
+        ("if (carQuestion) carQuestion.textContent = 'Still learning?';\n    const theoryButton = page?.querySelector('.df-car-actions button');\n    if (theoryButton) theoryButton.textContent = 'Pass your theory';", "if (carQuestion) {\n      if (carQuestion.textContent.trim() !== 'Still learning?') carQuestion.textContent = 'Still learning?';\n      carQuestion.setAttribute('role', 'button');\n      carQuestion.setAttribute('tabindex', '0');\n      carQuestion.setAttribute('title', 'Open Learn to Invest');\n      carQuestion.onclick = (event) => { event.preventDefault(); event.stopPropagation(); if (typeof window.go === 'function') window.go('education'); };\n      carQuestion.onkeydown = (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); carQuestion.click(); } };\n    }\n    const carActions = page?.querySelector('.df-car-actions');\n    if (carActions) carActions.remove();"),
     ],
     required=False,
 )
@@ -128,7 +128,7 @@ append_once(
 
     const question = document.querySelector('#pg-driving .df-car-question');
     if (question) {
-      question.textContent = 'Still learning?';
+      if (question.textContent.trim() !== 'Still learning?') question.textContent = 'Still learning?';
       question.setAttribute('role', 'button');
       question.setAttribute('tabindex', '0');
       question.setAttribute('title', 'Open Learn to Invest');
