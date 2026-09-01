@@ -62,6 +62,7 @@ jobs:
           test -s dayframe-icon.svg
           test -s dayframe-icon-2026.svg
           test -s scripts/dayframe_deploy_patch.py
+          test -s scripts/dayframe_overview_update_control.py
           test -s assets/dayframe-essentials-flo.js
           test -s assets/dayframe-essentials-more.js
           test -s assets/dayframe-essentials-clickfix.js
@@ -144,6 +145,7 @@ jobs:
           PY
 
           python scripts/dayframe_deploy_patch.py
+          python scripts/dayframe_overview_update_control.py
 
       - name: Deploy to investly.pages.dev
         uses: cloudflare/wrangler-action@v3
