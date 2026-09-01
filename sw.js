@@ -1,11 +1,12 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v93';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-budget-limits-editor.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-essentials-cleanup.js', '/assets/dayframe-essentials-clickfix.js', '/assets/dayframe-essentials-customise.js', '/assets/dayframe-essentials-pill-left.js', '/assets/dayframe-myflo-calendar-actions.js', '/assets/dayframe-diary-delete-fix.js'];
+const DAYFRAME_CACHE = 'dayframe-shell-v104';
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-performance-guard.js', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-budget-limits-editor.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-essentials-cleanup.js', '/assets/dayframe-essentials-clickfix.js', '/assets/dayframe-essentials-customise.js', '/assets/dayframe-essentials-pill-left.js', '/assets/dayframe-myflo-calendar-actions.js', '/assets/dayframe-diary-delete-fix.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
+const DAYFRAME_PERFORMANCE_GUARD_SRC = '/assets/dayframe-performance-guard.js?v=20260901-performance-guard-v1';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260831-polish-no-nav-wrap';
 const DAYFRAME_NEWS_SRC = '/assets/dayframe-news-sources.js?v=20260826-remove-panels';
 const DAYFRAME_REMOVE_PANELS_SRC = '/assets/dayframe-remove-panels.js?v=20260826-money-cleanup';
 const DAYFRAME_RISK_FIX_SRC = '/assets/dayframe-risk-holdings-fix.js?v=20260827-current-holdings';
-const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260830-current-sector-themes';
+const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';
 const DAYFRAME_CAR_COSTS_SRC = '/assets/dayframe-car-costs-merge.js?v=20260831-car-costs-no-nav-wrap';
 const DAYFRAME_MONEY_PERFORMANCE_SRC = '/assets/dayframe-money-performance.js?v=20260829-fast-money-v2';
 const DAYFRAME_BUDGET_REDESIGN_SRC = '/assets/dayframe-budget-redesign.js?v=20260830-aligned-budget-layout';
@@ -24,8 +25,9 @@ const DAYFRAME_STANDARD_HOME_SRC = '/assets/dayframe-standard-home.js?v=20260829
 const DAYFRAME_LIFE_STAGE_SRC = '/assets/dayframe-life-stage.js?v=20260831-essentials-life-v3';
 const DAYFRAME_ESSENTIALS_SRC = '/assets/dayframe-essentials.js?v=20260831-essentials-customise-v20';
 const DAYFRAME_ESSENTIALS_CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
-const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';
-const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';
+const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';
+const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';
+const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';
 const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';
 const DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC = '/assets/dayframe-myflo-calendar-actions.js?v=20260831-myflo-calendar-actions-v1';
 const DAYFRAME_DIARY_DELETE_FIX_SRC = '/assets/dayframe-diary-delete-fix.js?v=20260830-diary-delete';
@@ -66,12 +68,15 @@ function stripStalePanels(body) {
 function refreshScriptVersions(body) {
   if (typeof body !== 'string') return body;
   return body
+    .replace(/\/assets\/dayframe-performance-guard\.js\?v=[^"']+/g, DAYFRAME_PERFORMANCE_GUARD_SRC)
     .replace(/\/assets\/dayframe-life-stage\.js\?v=[^"']+/g, DAYFRAME_LIFE_STAGE_SRC)
     .replace(/\/assets\/dayframe-essentials\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_SRC)
+    .replace(/\/assets\/dayframe-essentials-more\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_MORE_SRC)
     .replace(/\/assets\/dayframe-essentials-clickfix\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)
     .replace(/\/assets\/dayframe-essentials-customise\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_CUSTOMISE_SRC)
     .replace(/\/assets\/dayframe-essentials-pill-left\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_PILL_LEFT_SRC)
-    .replace(/\/assets\/dayframe-myflo-calendar-actions\.js\?v=[^"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC);
+    .replace(/\/assets\/dayframe-myflo-calendar-actions\.js\?v=[^"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC)
+    .replace(/\/assets\/dayframe-sector-themes-current\.js\?v=[^"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC);
 }
 
 async function withPolish(response) {
@@ -80,6 +85,10 @@ async function withPolish(response) {
   if (!type.toLowerCase().includes('text/html')) return response;
 
   let body = refreshScriptVersions(stripStalePanels(await response.text()));
+  const guardTag = `<script data-dayframe-performance-guard-loader src="${DAYFRAME_PERFORMANCE_GUARD_SRC}" defer></script>`;
+  if (!body.includes('dayframe-performance-guard.js')) {
+    body = /<script\b/i.test(body) ? body.replace(/<script\b/i, `${guardTag}<script`) : `${guardTag}${body}`;
+  }
   const hasEssentialsBootstrap = body.includes(DAYFRAME_ESSENTIALS_BOOTSTRAP_MARKER);
   const tags = [];
   if (!body.includes('df-dismissed-guidance-style')) {
@@ -240,4 +249,14 @@ self.addEventListener('fetch', event => {
       return response;
     }))
   );
+});
+
+self.addEventListener('message', event => {
+  const data = event.data || {};
+  if (data && data.type === 'DAYFRAME_SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('message', event => {
+  const data = event.data || {};
+  if (data && data.type === 'DAYFRAME_SKIP_WAITING') self.skipWaiting();
 });
