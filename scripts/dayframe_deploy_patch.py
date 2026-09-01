@@ -126,8 +126,7 @@ append_once(
       document.head.appendChild(style);
     }
 
-    const question = document.querySelector('#pg-driving .df-car-question');
-    if (question) {
+    document.querySelectorAll('#pg-driving .df-car-question').forEach((question) => {
       if (question.textContent.trim() !== 'Still learning?') question.textContent = 'Still learning?';
       question.setAttribute('role', 'button');
       question.setAttribute('tabindex', '0');
@@ -139,7 +138,7 @@ append_once(
           question.click();
         }
       };
-    }
+    });
 
     document.querySelectorAll('#pg-driving .df-car-actions').forEach((actions) => actions.remove());
   }
