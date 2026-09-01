@@ -66,7 +66,7 @@ replace_all(
         ("formTitle: 'Add a work or study date'", "formTitle: 'Add a work date'"),
         ("tags: ['Shifts', 'Courses', 'Applications', 'Certificates']", "tags: ['Shifts', 'Applications', 'Certificates', 'Deadlines']"),
         ("types: ['Shift', 'Course', 'Application', 'Interview', 'Certificate', 'Deadline', 'Other']", "types: ['Shift', 'Application', 'Interview', 'Certificate', 'Deadline', 'Other']"),
-        ("const homeSummary = () => `${labelList(visibleLabels(), 3)}.`;", "const homeSummary = () => { const labels = visibleLabels(); return labels.length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.'; };") ,
+        ("const homeSummary = () => `${labelList(visibleLabels(), 3)}.`;", "const homeSummary = () => { const labels = visibleLabels(); return labels.length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.'; };"),
         ("const homeSummary = () => (visibleLabels().length ? 'Your chosen everyday essentials, kept together.' : 'Choose what Essentials shows.');", "const homeSummary = () => (visibleLabels().length ? 'Everyday details, reminders and renewals.' : 'Choose what Essentials shows.');"),
         ("const mobileSummary = () => labelList(visibleLabels(), 2);", "const mobileSummary = () => (visibleLabels().length ? 'Everyday essentials' : 'Choose Essentials');"),
         ("const mobileSummary = () => (visibleLabels().length ? 'Your essentials' : 'Choose Essentials');", "const mobileSummary = () => (visibleLabels().length ? 'Everyday essentials' : 'Choose Essentials');"),
@@ -370,17 +370,36 @@ replace_all(
         ("const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260830-current-sector-themes';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';"),
         ("const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';"),
         ("const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';"),
-        ("const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';\nconst DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';"),
         (".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)", ".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-more\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_MORE_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)"),
         (".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC);", ".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC)\n    .replace(/\\/assets\\/dayframe-sector-themes-current\\.js\\?v=[^\"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC);"),
     ],
     required=False,
 )
-replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v100';", required=False)
+sw_path = ROOT / "sw.js"
+if sw_path.exists():
+    sw_text = sw_path.read_text(encoding="utf-8")
+    if "const DAYFRAME_ESSENTIALS_MORE_SRC" not in sw_text:
+        sw_text = sw_text.replace(
+            "const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';",
+            "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';\nconst DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';",
+            1,
+        )
+        sw_path.write_text(sw_text, encoding="utf-8")
+replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "const DAYFRAME_CACHE = 'dayframe-shell-v101';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_SECTOR_THEMES_CURRENT_SRC\s*=\s*'[^']+';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_MORE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CLICKFIX_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';", required=False)
+append_once(
+    "sw.js",
+    "data-dayframe-skip-waiting-handler-v1",
+    r"""
+self.addEventListener('message', event => {
+  const data = event.data || {};
+  if (data && data.type === 'DAYFRAME_SKIP_WAITING') self.skipWaiting();
+});
+""",
+)
 
 for asset in (
     "assets/dayframe-essentials-more.js",
@@ -403,6 +422,103 @@ if index_path.exists():
     else:
         sector_tag = f'<script data-dayframe-sector-themes-current-bootstrap src="{sector_src}" defer></script>'
         index_text = index_text.replace("</head>", sector_tag + "\n</head>", 1)
+    update_marker = "data-dayframe-update-manager"
+    update_version = repr(build)
+    index_text = re.sub(r"\n?<style id=\"df-update-manager-style\">[\s\S]*?</style>\s*<script data-dayframe-update-manager[\s\S]*?</script>", "", index_text)
+    update_block = f"""
+<style id="df-update-manager-style">
+#df-app-update{{position:fixed;left:50%;bottom:18px;z-index:99999;display:flex;align-items:center;gap:14px;max-width:min(92vw,520px);transform:translateX(-50%);padding:12px 14px;border:1px solid rgba(117,100,242,.18);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 18px 45px rgba(31,37,68,.18);font-family:var(--ff,'Plus Jakarta Sans',system-ui,sans-serif);color:#151b2d;backdrop-filter:blur(14px)}}
+#df-app-update strong{{display:block;font-size:13px;font-weight:900;line-height:1.2}}
+#df-app-update span{{display:block;margin-top:2px;color:#718096;font-size:12px;font-weight:700;line-height:1.35}}
+#df-app-update button{{border:0;border-radius:999px;font:inherit;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}}
+#df-app-update .df-app-update-refresh{{padding:10px 14px;background:linear-gradient(135deg,#7564f2,#ec5aa6);color:#fff;box-shadow:0 10px 20px rgba(117,100,242,.22)}}
+#df-app-update .df-app-update-later{{padding:9px 11px;background:#f7f4ff;color:#6d60e8}}
+@media (max-width:560px){{#df-app-update{{left:12px;right:12px;bottom:calc(82px + env(safe-area-inset-bottom,0px));transform:none;align-items:flex-start;display:grid;grid-template-columns:1fr auto auto}}}}
+</style>
+<script {update_marker}={update_version}>
+(() => {{
+  'use strict';
+  if (!('serviceWorker' in navigator)) return;
+  const VERSION = {update_version};
+  const FLAG = 'data-dayframe-update-manager';
+  if (document.documentElement.getAttribute(FLAG) === VERSION) return;
+  document.documentElement.setAttribute(FLAG, VERSION);
+  let registration = null;
+  let prompted = false;
+  let refreshing = false;
+
+  function removePrompt() {{
+    const node = document.getElementById('df-app-update');
+    if (node) node.remove();
+    prompted = false;
+  }}
+
+  function showUpdatePrompt(reg) {{
+    if (prompted || document.getElementById('df-app-update')) return;
+    prompted = true;
+    const bar = document.createElement('div');
+    bar.id = 'df-app-update';
+    bar.setAttribute('role', 'status');
+    bar.innerHTML = '<div><strong>Update ready</strong><span>Refresh Dayframe for the newest fixes.</span></div><button type="button" class="df-app-update-refresh">Update</button><button type="button" class="df-app-update-later">Later</button>';
+    bar.querySelector('.df-app-update-refresh')?.addEventListener('click', () => {{
+      try {{ sessionStorage.setItem('dayframe_update_reload', VERSION); }} catch {{}}
+      const waiting = reg?.waiting || registration?.waiting;
+      if (waiting) waiting.postMessage({{ type: 'DAYFRAME_SKIP_WAITING' }});
+      setTimeout(() => window.location.reload(), 180);
+    }});
+    bar.querySelector('.df-app-update-later')?.addEventListener('click', removePrompt);
+    document.body.appendChild(bar);
+  }}
+
+  function watchRegistration(reg) {{
+    registration = reg;
+    if (reg.waiting && navigator.serviceWorker.controller) showUpdatePrompt(reg);
+    reg.addEventListener('updatefound', () => {{
+      const worker = reg.installing;
+      if (!worker) return;
+      worker.addEventListener('statechange', () => {{
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) showUpdatePrompt(reg);
+      }});
+    }});
+  }}
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {{
+    if (refreshing) return;
+    refreshing = true;
+    let requested = false;
+    try {{
+      requested = sessionStorage.getItem('dayframe_update_reload') === VERSION;
+      if (requested) sessionStorage.removeItem('dayframe_update_reload');
+    }} catch {{}}
+    if (requested) {{
+      window.location.reload();
+      return;
+    }}
+    showUpdatePrompt(registration);
+  }});
+
+  window.dayframeCheckForUpdate = async function dayframeCheckForUpdate() {{
+    try {{
+      const reg = registration || await navigator.serviceWorker.ready;
+      await reg.update();
+      if (reg.waiting) showUpdatePrompt(reg);
+    }} catch {{}}
+  }};
+
+  window.addEventListener('load', async () => {{
+    try {{
+      const reg = await navigator.serviceWorker.register('/sw.js', {{ updateViaCache: 'none' }});
+      watchRegistration(reg);
+      setTimeout(() => reg.update().catch(() => {{}}), 1200);
+      setInterval(() => reg.update().catch(() => {{}}), 30 * 60 * 1000);
+    }} catch {{}}
+  }});
+}})();
+</script>"""
+    if "</body>" in index_text:
+        index_text = index_text.replace("</body>", update_block + "\n</body>", 1)
+    else:
+        index_text = index_text.rstrip() + update_block + "\n"
     index_path.write_text(index_text, encoding="utf-8")
 
 print("Dayframe deploy patch applied.")
