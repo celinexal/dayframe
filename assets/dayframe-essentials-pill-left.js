@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'pill-left-v1';
+  const VERSION = 'pill-left-v2';
   const FLAG = 'data-dayframe-essentials-pill-left';
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
@@ -35,22 +35,37 @@
 (() => {
   'use strict';
 
-  const SRC = '/assets/dayframe-essentials-bible.js?v=20260902-essentials-bible-v1';
-  const MARKER = 'data-dayframe-essentials-bible-loader';
-  const READY_FLAG = 'data-dayframe-essentials-bible';
+  const PATCHES = [
+    {
+      src: '/assets/dayframe-essentials-bible.js?v=20260902-essentials-bible-v1',
+      marker: 'data-dayframe-essentials-bible-loader',
+      ready: 'data-dayframe-essentials-bible',
+      value: 'essentials-bible-v1',
+    },
+    {
+      src: '/assets/dayframe-essentials-bible-late.js?v=20260902-essentials-bible-late-v1',
+      marker: 'data-dayframe-essentials-bible-late-loader',
+      ready: 'data-dayframe-essentials-bible-late',
+      value: 'essentials-bible-late-v1',
+    },
+  ];
 
-  function loadBiblePatch() {
+  function loadPatch(config) {
     if (!document.head) return;
-    if (document.documentElement.getAttribute(READY_FLAG) === 'essentials-bible-v1') return;
-    if (document.querySelector(`script[${MARKER}]`)) return;
+    if (document.documentElement.getAttribute(config.ready) === config.value) return;
+    if (document.querySelector(`script[${config.marker}]`)) return;
     const script = document.createElement('script');
-    script.src = SRC;
+    script.src = config.src;
     script.defer = true;
-    script.setAttribute(MARKER, 'true');
+    script.setAttribute(config.marker, 'true');
     document.head.appendChild(script);
   }
 
-  loadBiblePatch();
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadBiblePatch, { once: true });
-  [250, 900, 2200].forEach((delay) => setTimeout(loadBiblePatch, delay));
+  function loadBiblePatches() {
+    PATCHES.forEach(loadPatch);
+  }
+
+  loadBiblePatches();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadBiblePatches, { once: true });
+  [250, 900, 2200, 5200].forEach((delay) => setTimeout(loadBiblePatches, delay));
 })();
