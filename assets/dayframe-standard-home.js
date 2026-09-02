@@ -21,7 +21,13 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      [${HIDDEN_FLAG}="true"]{display:none!important}
+      [${HIDDEN_FLAG}="true"],
+      #home-setup-card,
+      #home-setup-nudge,
+      .home-setup-card,
+      .home-setup-nudge{
+        display:none!important;
+      }
       [data-dayframe-standard-home-hero="true"] h1,
       h1[data-dayframe-standard-home-title="true"]{
         letter-spacing:0!important;
@@ -105,7 +111,51 @@
     return true;
   }
 
+  function hideHomeSetup() {
+    const ids = ['home-setup-card', 'home-setup-nudge'];
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('show');
+      el.innerHTML = '';
+      el.setAttribute(HIDDEN_FLAG, 'true');
+      el.setAttribute('hidden', '');
+      el.setAttribute('aria-hidden', 'true');
+    });
+    document.querySelectorAll('.home-setup-card,.home-setup-nudge,.home-setup-step').forEach((el) => {
+      el.classList.remove('show');
+      el.setAttribute(HIDDEN_FLAG, 'true');
+      el.setAttribute('hidden', '');
+      el.setAttribute('aria-hidden', 'true');
+    });
+    const side = document.querySelector('#pg-home .hub-hero-side');
+    if (side && !side.querySelector(':scope > *:not([hidden])')) {
+      side.setAttribute(HIDDEN_FLAG, 'true');
+      side.setAttribute('hidden', '');
+      side.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  function patchRenderHome() {
+    if (typeof window.renderHome !== 'function' || window.renderHome.__dayframeStandardHomePatched) return;
+    const original = window.renderHome;
+    window.renderHome = function dayframeStandardHomeRender(...args) {
+      const result = original.apply(this, args);
+      ensureStyle();
+      standardiseHero();
+      hideHomeSetup();
+      return result;
+    };
+    window.renderHome.__dayframeStandardHomePatched = true;
+  }
+
   const instructionPatterns = [
+    /let.?s get you set up/i,
+    /lets get you set up/i,
+    /get you set up/i,
+    /connect an account/i,
+    /set a monthly budget/i,
+    /add your first goal/i,
     /connect your accounts? to/i,
     /connect your bank accounts?/i,
     /link your bank accounts?/i,
@@ -171,7 +221,9 @@
 
   function run() {
     ensureStyle();
+    patchRenderHome();
     const didHero = standardiseHero();
+    hideHomeSetup();
     if ((didHero || isSelectedHomeNav()) && instructionPasses < 4) {
       instructionPasses += 1;
       hideInstructionPanels();
