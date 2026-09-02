@@ -63,6 +63,7 @@ jobs:
           test -s dayframe-icon-2026.svg
           test -s scripts/dayframe_deploy_patch.py
           test -s scripts/dayframe_overview_update_control.py
+          test -s assets/dayframe-standard-home.js
           test -s assets/dayframe-essentials-flo.js
           test -s assets/dayframe-essentials-more.js
           test -s assets/dayframe-essentials-clickfix.js
@@ -121,6 +122,7 @@ jobs:
               raise SystemExit(f'Expected one Theory Tracker iframe, found {count}')
 
           early_style = '<style id="df-early-essentials-cleanup-style">#df-essentials-stage-panel,.driving-side-nav [data-driving-page="driving-theory"],#pg-driving .driving-home-card.theory,#pg-driving-costs,[data-driving-page="driving-costs"],.df-polish-nav-costs{display:none!important}</style>'
+          home_style = '<style id="df-home-no-setup-style">#home-setup-card,#home-setup-nudge,.home-setup-card,.home-setup-nudge,.home-setup-step{display:none!important}</style>'
           asset_tags = [
               ('dayframe-essentials-cleanup.js', 'data-dayframe-essentials-cleanup-late'),
               ('dayframe-essentials-flo.js', 'data-dayframe-essentials-flo-late'),
@@ -133,6 +135,8 @@ jobs:
           ]
           if 'df-early-essentials-cleanup-style' not in s:
               s = s.replace('</head>', early_style + '\n</head>', 1)
+          if 'df-home-no-setup-style' not in s:
+              s = s.replace('</head>', home_style + '\n</head>', 1)
           for filename, attr in asset_tags:
               path = f'/assets/{filename}'
               versioned = f'{path}?v={build}'
@@ -141,11 +145,55 @@ jobs:
               else:
                   tag = f'<script {attr} src="{versioned}" defer></script>'
                   s = s.replace('</head>', tag + '\n</head>', 1)
+          standard_home_src = f'/assets/dayframe-standard-home.js?v={build}-home-standard'
+          if 'dayframe-standard-home.js' in s:
+              s = re.sub(r'/assets/dayframe-standard-home\.js(?:\?v=[^"\']+)?', standard_home_src, s)
+          else:
+              tag = f'<script data-dayframe-standard-home-loader src="{standard_home_src}" defer></script>'
+              s = s.replace('</head>', tag + '\n</head>', 1)
+          s = re.sub(
+              r'<h1>\s*Everything\s*</h1>',
+              '<h1>Everything that matters, without the mental clutter.</h1>',
+              s,
+              count=1,
+              flags=re.I,
+          )
           index.write_text(s)
           PY
 
           python scripts/dayframe_deploy_patch.py
           python scripts/dayframe_overview_update_control.py
+
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          sw = Path('dist/sw.js')
+          s = sw.read_text(encoding='utf-8')
+          s, cache_count = re.subn(
+              r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';",
+              "const DAYFRAME_CACHE = 'dayframe-shell-v106';",
+              s,
+              count=1,
+          )
+          s, home_count = re.subn(
+              r"const DAYFRAME_STANDARD_HOME_SRC\s*=\s*'[^']+';",
+              "const DAYFRAME_STANDARD_HOME_SRC = '/assets/dayframe-standard-home.js?v=20260902-no-setup-card-v2';",
+              s,
+              count=1,
+          )
+          if cache_count != 1:
+              raise SystemExit('dist/sw.js: cache version was not found')
+          if home_count != 1:
+              raise SystemExit('dist/sw.js: standard home source was not found')
+          if 'df-home-no-setup-style' not in s:
+              raise SystemExit('dist/sw.js: home no-setup style is missing')
+          if 'Everything that matters, without the mental clutter.' not in s:
+              raise SystemExit('dist/sw.js: full home heading is missing')
+          if re.search(r'<h1>\s*Everything\s*</h1>', s, re.I):
+              raise SystemExit('dist/sw.js: short home heading is still present')
+          sw.write_text(s, encoding='utf-8')
+          PY
 
       - name: Deploy to investly.pages.dev
         uses: cloudflare/wrangler-action@v3
