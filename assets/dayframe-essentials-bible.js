@@ -201,11 +201,11 @@
       card.className = 'driving-home-card df-bible-card df-essentials-tool-card';
       host.appendChild(card);
     }
-    card.type = 'button';
-    card.dataset.essentialsWidgetKey = 'bible';
-    card.dataset.essentialsOpenPage = 'bible';
-    card.setAttribute('aria-label', 'Open Bible Study');
-    card.removeAttribute('onclick');
+    if (card.type !== 'button') card.type = 'button';
+    if (card.dataset.essentialsWidgetKey !== 'bible') card.dataset.essentialsWidgetKey = 'bible';
+    if (card.dataset.essentialsOpenPage !== 'bible') card.dataset.essentialsOpenPage = 'bible';
+    if (card.getAttribute('aria-label') !== 'Open Bible Study') card.setAttribute('aria-label', 'Open Bible Study');
+    if (card.hasAttribute('onclick')) card.removeAttribute('onclick');
     if (!card.querySelector('.driving-home-title') || !/Bible Study/i.test(card.textContent || '')) {
       card.innerHTML = bibleCardHTML();
     }
@@ -225,23 +225,19 @@
       const car = nav.querySelector('[data-driving-page="driving-car"]');
       car?.insertAdjacentElement('afterend', item) || nav.appendChild(item);
     }
-    item.removeAttribute('onclick');
-    item.dataset.essentialsOpenPage = 'bible';
+    if (item.hasAttribute('onclick')) item.removeAttribute('onclick');
+    if (item.dataset.essentialsOpenPage !== 'bible') item.dataset.essentialsOpenPage = 'bible';
     return item;
-  }
-
-  function isVisible(el) {
-    if (!el) return false;
-    const style = getComputedStyle(el);
-    return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) !== 0;
   }
 
   function setVisible(el, visible) {
     if (!el) return;
     el.classList.toggle('df-widget-hidden', !visible);
-    el.hidden = !visible;
-    el.setAttribute('aria-hidden', visible ? 'false' : 'true');
-    el.style.display = visible ? '' : 'none';
+    if (el.hidden !== !visible) el.hidden = !visible;
+    const aria = visible ? 'false' : 'true';
+    if (el.getAttribute('aria-hidden') !== aria) el.setAttribute('aria-hidden', aria);
+    const display = visible ? '' : 'none';
+    if (el.style.display !== display) el.style.display = display;
   }
 
   function cardFor(key) {
@@ -261,23 +257,23 @@
     ['df-home-card', 'df-work-study-card', 'pg-driving-home-admin', 'pg-driving-work-study'].forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
-        el.hidden = true;
-        el.setAttribute('aria-hidden', 'true');
+        if (el.hidden !== true) el.hidden = true;
+        if (el.getAttribute('aria-hidden') !== 'true') el.setAttribute('aria-hidden', 'true');
         el.classList.add('df-widget-hidden');
-        el.style.display = 'none';
+        if (el.style.display !== 'none') el.style.display = 'none';
       }
     });
     document.querySelectorAll('[data-driving-page="driving-home-admin"],[data-driving-page="driving-work-study"],[data-home-module="bible"],.df-nav-btn[data-main-page="bible"],.df-mobile-nav button[data-mobile-page="bible"]').forEach((el) => {
-      el.hidden = true;
-      el.setAttribute('aria-hidden', 'true');
-      el.style.display = 'none';
+      if (el.hidden !== true) el.hidden = true;
+      if (el.getAttribute('aria-hidden') !== 'true') el.setAttribute('aria-hidden', 'true');
+      if (el.style.display !== 'none') el.style.display = 'none';
     });
     document.querySelectorAll('#df-essentials-widget-panel [data-widget-choice="home"],#df-essentials-widget-panel [data-widget-choice="work-study"]').forEach((el) => el.remove());
     document.querySelectorAll('#home-editor-content .home-editor-row,#home-editor-content [data-home-editor-row]').forEach((row) => {
       const text = row.textContent || '';
       if (/Bible Study|Home\s*&\s*Rent|Work\s*&\s*Study/i.test(text)) {
-        row.hidden = true;
-        row.style.display = 'none';
+        if (row.hidden !== true) row.hidden = true;
+        if (row.style.display !== 'none') row.style.display = 'none';
       }
     });
     const drivingTile = document.querySelector('[data-home-module="driving"]');
@@ -287,8 +283,8 @@
     if (drivingDesc) drivingDesc.textContent = 'Car, MyFlo, documents, health and Bible Study in one place.';
     const back = document.querySelector('#pg-bible .bible-back-new');
     if (back) {
-      back.textContent = '< Essentials';
-      back.removeAttribute('onclick');
+      if (back.textContent !== '< Essentials') back.textContent = '< Essentials';
+      if (back.hasAttribute('onclick')) back.removeAttribute('onclick');
       back.onclick = (event) => {
         claim(event);
         openEssentials();
@@ -328,20 +324,28 @@
     const eyebrow = hostPage.querySelector('.driving-hub-eyebrow');
     const title = hostPage.querySelector('.driving-hub-title');
     const sub = hostPage.querySelector('.driving-hub-sub');
-    if (eyebrow) eyebrow.innerHTML = '<i></i>Your essentials';
-    if (title) title.textContent = 'Essentials for real life.';
-    if (sub) sub.textContent = 'Keep your car, MyFlo, documents, health and Bible Study together without the extra clutter.';
+    if (eyebrow && eyebrow.textContent.trim() !== 'Your essentials') eyebrow.innerHTML = '<i></i>Your essentials';
+    if (title && title.textContent !== 'Essentials for real life.') title.textContent = 'Essentials for real life.';
+    if (sub && sub.textContent !== 'Keep your car, MyFlo, documents, health and Bible Study together without the extra clutter.') {
+      sub.textContent = 'Keep your car, MyFlo, documents, health and Bible Study together without the extra clutter.';
+    }
     const labels = visibleLabels(prefs).slice(0, 5);
     const pills = hostPage.querySelector('.driving-hub-pills');
     if (pills) {
       const button = ensureCustomiseButton();
-      pills.querySelectorAll('.driving-hub-pill:not(#df-essentials-customise-button)').forEach((pill) => pill.remove());
-      labels.forEach((label) => {
-        const pill = document.createElement('span');
-        pill.className = 'driving-hub-pill';
-        pill.innerHTML = '<b></b>' + esc(label);
-        pills.insertBefore(pill, button || null);
-      });
+      const existing = [...pills.querySelectorAll('.driving-hub-pill:not(#df-essentials-customise-button)')];
+      const current = existing.map((pill) => (pill.textContent || '').trim());
+      if (current.join('|') !== labels.join('|')) {
+        existing.forEach((pill) => pill.remove());
+        labels.forEach((label) => {
+          const pill = document.createElement('span');
+          pill.className = 'driving-hub-pill';
+          pill.innerHTML = '<b></b>' + esc(label);
+          pills.insertBefore(pill, button || null);
+        });
+      } else if (button && pills.lastElementChild !== button) {
+        pills.appendChild(button);
+      }
     }
   }
 
@@ -369,7 +373,7 @@
     const prefs = currentPrefs();
     const html = `<div class="df-widget-panel-head"><div><span>Essentials</span><h2>Show in Essentials</h2></div><button type="button" onclick="dayframeCloseEssentialsCustomise(event)">Done</button></div><div class="df-widget-choice-list">${prefs.order.map((key) => choiceHTML(key, prefs)).join('')}</div>`;
     if (panel.innerHTML !== html) panel.innerHTML = html;
-    panel.hidden = !open;
+    if (panel.hidden !== !open) panel.hidden = !open;
     return panel;
   }
 
@@ -377,7 +381,8 @@
     const hostPage = page();
     if (!hostPage) return;
     hostPage.classList.toggle('df-essentials-customising', Boolean(active));
-    hostPage.setAttribute('data-essentials-customising', active ? 'true' : 'false');
+    const value = active ? 'true' : 'false';
+    if (hostPage.getAttribute('data-essentials-customising') !== value) hostPage.setAttribute('data-essentials-customising', value);
     renderPanel(Boolean(active));
     syncCards();
   }
@@ -391,20 +396,31 @@
       if (!card) return;
       const visible = !prefs.hidden.includes(key);
       setVisible(card, visible);
-      card.dataset.essentialsWidgetKey = key;
-      card.draggable = isCustomising() && visible;
-      card.classList.toggle('df-widget-can-drag', isCustomising() && visible);
-      if (visible) {
+      if (card.dataset.essentialsWidgetKey !== key) card.dataset.essentialsWidgetKey = key;
+      const dragging = isCustomising() && visible;
+      if (card.draggable !== dragging) card.draggable = dragging;
+      card.classList.toggle('df-widget-can-drag', dragging);
+      if (visible) visibleCards.push(card);
+    });
+    let previous = null;
+    visibleCards.forEach((card) => {
+      if (card.parentElement !== host) {
         host.appendChild(card);
-        visibleCards.push(card);
       }
+      if (!previous) {
+        if (host.firstElementChild !== card) host.insertBefore(card, host.firstElementChild);
+      } else if (previous.nextElementSibling !== card) {
+        previous.insertAdjacentElement('afterend', card);
+      }
+      previous = card;
     });
     visibleCards.forEach((card, index) => {
       const number = card.querySelector('.driving-card-number');
-      if (number) number.textContent = String(index + 1).padStart(2, '0');
+      const value = String(index + 1).padStart(2, '0');
+      if (number && number.textContent !== value) number.textContent = value;
     });
     const empty = document.getElementById('df-essentials-empty');
-    if (empty) empty.hidden = visibleCards.length > 0;
+    if (empty && empty.hidden !== visibleCards.length > 0) empty.hidden = visibleCards.length > 0;
   }
 
   function syncCards() {
