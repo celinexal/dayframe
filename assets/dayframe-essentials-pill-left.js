@@ -42,12 +42,6 @@
       ready: 'data-dayframe-essentials-bible',
       value: 'essentials-bible-v1',
     },
-    {
-      src: '/assets/dayframe-essentials-bible-late.js?v=20260902-essentials-bible-late-v1',
-      marker: 'data-dayframe-essentials-bible-late-loader',
-      ready: 'data-dayframe-essentials-bible-late',
-      value: 'essentials-bible-late-v1',
-    },
   ];
 
   function loadPatch(config) {
