@@ -7,6 +7,27 @@
 <head>
 <meta charset="UTF-8">
 <script>try{if(localStorage.getItem('dayframe_session'))document.documentElement.classList.add('df-session-pending')}catch(e){}</script>
+<script>
+/* One-time recovery for devices stuck on an old cache-first service worker.
+   Runs only when this fresh HTML is actually executed (i.e. the browser reached
+   the network), unregisters every Dayframe worker, clears its caches and reloads
+   once. Gated by a dated sentinel so it never loops. */
+(function(){
+  var SENTINEL='dayframe_sw_recovery_20260903';
+  try{ if(localStorage.getItem(SENTINEL)) return; }catch(e){ return; }
+  if(!('serviceWorker' in navigator)) return;
+  var seal=function(){ try{localStorage.setItem(SENTINEL,'1');}catch(e){} };
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    if(!regs||!regs.length){ seal(); return; }
+    Promise.all(regs.map(function(r){ return r.unregister().catch(function(){}); })).then(function(){
+      var clearCaches=(window.caches&&caches.keys)?caches.keys().then(function(keys){
+        return Promise.all(keys.filter(function(k){return String(k).indexOf('dayframe')===0;}).map(function(k){return caches.delete(k).catch(function(){});}));
+      }):Promise.resolve();
+      clearCaches.then(function(){ seal(); location.reload(); }, function(){ seal(); location.reload(); });
+    }, function(){ seal(); });
+  }).catch(function(){ seal(); });
+})();
+</script>
   <!-- v9.9d-20260417 -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -2186,6 +2207,11 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <div class="security-card-top"><div class="security-card-icon connected">↗</div><div><h2>Connected accounts</h2><p>Your external data connections</p></div><button class="security-manage" type="button" onclick="go('money');moneyOpenTab('accounts')">Manage</button></div>
       <div class="security-connection-row"><span><i id="security-bank-dot"></i>Open Banking</span><strong id="security-bank-status">Checking…</strong></div>
       <div class="security-connection-row"><span><i id="security-t212-dot"></i>Trading 212</span><strong id="security-t212-status">Checking…</strong></div>
+    </section>
+    <section class="life-card security-card">
+      <div class="security-card-top"><div class="security-card-icon session">◷</div><div><h2>App version</h2><p id="security-build">Checking…</p></div></div>
+      <div class="security-card-copy">If a change you made is not showing, tap below to clear this device's cached copy and reload the newest version.</div>
+      <button class="security-action ghost" type="button" onclick="dayframeForceUpdate(event)">Clear cache &amp; reload</button>
     </section>
     <section class="life-card security-card security-data-card">
       <div class="security-card-top"><div class="security-card-icon data">⇩</div><div><h2>Your Dayframe data</h2><p>Keep a copy for yourself</p></div></div>
@@ -4375,6 +4401,21 @@ async function dayframeSendTestReminder(){
     const r=await dfBankFetch('/api/push/test',{method:'POST',body:JSON.stringify({})});
     if(status)status.textContent=r.ok?'Test sent — it should arrive shortly.':'Could not send a test right now.';
   }catch(e){if(status)status.textContent='Could not send a test right now.'}
+}
+async function dayframeForceUpdate(ev){
+  const btn=ev&&ev.target;if(btn){btn.disabled=true;btn.textContent='Clearing…'}
+  try{
+    if('serviceWorker'in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister().catch(()=>{})));
+    }
+    if(window.caches&&caches.keys){
+      const keys=await caches.keys();
+      await Promise.all(keys.filter(k=>String(k).indexOf('dayframe')===0).map(k=>caches.delete(k).catch(()=>{})));
+    }
+    try{localStorage.removeItem('dayframe_sw_recovery_20260903')}catch(e){}
+  }catch(e){}
+  location.reload(true);
 }
 
 
@@ -6966,6 +7007,8 @@ async function securityRender(){
  const tStatus=document.getElementById('security-t212-status'),tDot=document.getElementById('security-t212-dot');
  if(tStatus)tStatus.textContent=t212Connected?'Connected · read only':'Not connected';if(tDot)tDot.classList.toggle('on',t212Connected);
  dayframeRefreshRemindersUI();
+ const build=document.getElementById('security-build');
+ if(build){const id=document.documentElement.getAttribute('data-dayframe-update-manager')||'';build.textContent=id?'Build '+id:'Local build (not deployed)';}
 }
 async function securitySendPasswordReset(){
  securitySetStatus('security-password-status','Sending…');
