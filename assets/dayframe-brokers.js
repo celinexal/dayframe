@@ -132,8 +132,7 @@
     a.value = Math.max(0, Number(val) || 0);
     a.updatedAt = new Date().toISOString();
     saveHub(d);
-    renderPills();
-    renderValue();
+    renderPortfolio();
   };
 
   window.dfBrokerRemove = function (id) {
@@ -164,21 +163,32 @@
     var s = document.createElement('style');
     s.id = STYLE_ID;
     s.textContent = [
-      '.df-broker-pills{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}',
-      '.df-broker-pill{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid rgba(255,255,255,.14);border-radius:13px;background:rgba(255,255,255,.08);backdrop-filter:blur(6px);font-family:var(--ff)}',
-      '.df-broker-pill>i{flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);box-shadow:0 0 0 4px rgba(255,255,255,.08)}',
-      '.df-broker-pill.on>i{background:#71dfb5;box-shadow:0 0 0 4px rgba(113,223,181,.14)}',
-      '.df-broker-pill span{display:flex;flex-direction:column;min-width:0}',
-      '.df-broker-pill b{font-size:10px;color:#fff;white-space:nowrap}',
-      '.df-broker-pill small{font-size:8.5px;color:rgba(255,255,255,.6);white-space:nowrap}',
-      '.df-broker-pill.df-broker-add{cursor:pointer;border-style:dashed;background:rgba(255,255,255,.05)}',
-      '.df-broker-pill.df-broker-add:hover{background:rgba(255,255,255,.12)}',
-      '.df-broker-pill.df-broker-add b{color:rgba(255,255,255,.92)}',
-      '#df-broker-breakdown{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:2px 0 6px;padding:11px 14px;border-radius:13px;background:var(--sf2,#f4f6fb);border:1px solid var(--bd,#e6e8f0)}',
-      '#df-broker-breakdown .df-bd-title{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--t3,#8a94a6)}',
-      '#df-broker-breakdown .df-bd-item{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--t2,#4a5568)}',
-      '#df-broker-breakdown .df-bd-item b{font-size:12.5px;color:var(--tx,#1a202c);font-weight:750}',
-      '#df-broker-breakdown .df-bd-edit{margin-left:auto;border:0;background:transparent;color:var(--bl,#4d82f3);font:750 11px var(--ff);cursor:pointer}',
+      /* full-width portfolio-value widget */
+      '#pg-dashboard.df-has-brokers .portfolio-dashboard-header .dash-header-right{display:none}',
+      '#pg-dashboard.df-has-brokers .mrow{grid-template-columns:repeat(4,minmax(0,1fr))}',
+      '@media(max-width:1180px){#pg-dashboard.df-has-brokers .mrow{grid-template-columns:repeat(3,minmax(0,1fr))}}',
+      '@media(max-width:700px){#pg-dashboard.df-has-brokers .mrow{grid-template-columns:repeat(2,minmax(0,1fr))}}',
+      '#pg-dashboard.df-has-brokers .mc.mc-live{display:none}',
+      '.df-pf-hero{margin:0 0 14px;padding:20px 22px;border-radius:20px;background:linear-gradient(120deg,#12324b 0%,#1c4c6b 55%,#276173 100%);color:#fff;box-shadow:0 18px 40px rgba(20,40,60,.22);font-family:var(--ff)}',
+      '.df-pf-hero-main{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}',
+      '.df-pf-hero-kicker{display:block;font-size:9px;font-weight:850;letter-spacing:1.1px;text-transform:uppercase;color:rgba(255,255,255,.62)}',
+      '.df-pf-hero-total{display:block;margin:5px 0 3px;font-family:var(--fd,var(--ff));font-size:34px;font-weight:900;letter-spacing:-.5px;line-height:1}',
+      '.df-pf-hero-note{display:block;font-size:10.5px;color:rgba(255,255,255,.6)}',
+      '.df-pf-hero-manage{flex:0 0 auto;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:800 10.5px var(--ff);padding:8px 13px;border-radius:11px;cursor:pointer}',
+      '.df-pf-hero-manage:hover{background:rgba(255,255,255,.2)}',
+      '.df-pf-hero-grid{display:grid;gap:8px;margin-top:15px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}',
+      '.df-pf-hero[data-count="1"] .df-pf-hero-grid{grid-template-columns:repeat(2,minmax(0,1fr))}',
+      '.df-pf-hero[data-count="2"] .df-pf-hero-grid{grid-template-columns:repeat(3,minmax(0,1fr))}',
+      '.df-pf-acct{display:flex;flex-direction:column;gap:2px;padding:12px 13px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.09);min-width:0;text-align:left}',
+      '.df-pf-acct>i{width:7px;height:7px;border-radius:50%;background:#7ee6bf;box-shadow:0 0 0 4px rgba(126,230,191,.16);margin-bottom:5px}',
+      '.df-pf-acct>b{font-size:11px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+      '.df-pf-acct>span{font-size:15px;font-weight:850;color:#fff;letter-spacing:-.2px}',
+      '.df-pf-acct>em{font-style:normal;font-size:8.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.5)}',
+      '.df-pf-acct.df-pf-acct-add{cursor:pointer;border-style:dashed;background:rgba(255,255,255,.05);justify-content:center}',
+      '.df-pf-acct.df-pf-acct-add:hover{background:rgba(255,255,255,.14)}',
+      '.df-pf-acct.df-pf-acct-add>i{background:none;box-shadow:none;width:auto;height:auto;margin:0;font-style:normal;font-size:15px;font-weight:700;color:rgba(255,255,255,.8)}',
+      '.df-pf-acct.df-pf-acct-add>span{font-size:9px;font-weight:750;color:rgba(255,255,255,.55)}',
+      '@media(max-width:640px){.df-pf-hero-total{font-size:28px}.df-pf-hero[data-count="1"] .df-pf-hero-grid,.df-pf-hero[data-count="2"] .df-pf-hero-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}',
       '#df-broker-connect-card .df-broker-add-row{display:flex;gap:8px;margin-top:4px}',
       '#df-broker-connect-card select,#df-broker-connect-card .df-broker-row input{height:38px;border:1px solid #dfe3eb;border-radius:10px;padding:0 10px;background:#fbfcff;color:#353e50;font:600 12px var(--ff);min-width:0}',
       '#df-broker-connect-card select{flex:1}',
@@ -212,81 +222,76 @@
     document.head.appendChild(s);
   }
 
-  function renderPills() {
-    var host = document.querySelector('#pg-dashboard .portfolio-dashboard-header .dash-header-right');
-    if (!host) return;
-    ensureStyle();
-    var wrap = host.querySelector('.df-broker-pills');
-    if (!wrap) {
-      var native = host.querySelector('.dash-sync-pill');
-      if (native) native.style.display = 'none';
-      wrap = document.createElement('div');
-      wrap.className = 'df-broker-pills';
-      host.appendChild(wrap);
-    }
-    var accs = accounts();
-    var html = '';
-    var t = t212Total();
-    var tConn = t212IsConnected();
-    if (tConn || !accs.length) {
-      html += '<div class="df-broker-pill' + (tConn ? ' on' : ' df-broker-add') + '"'
-        + (tConn ? '' : ' role="button" tabindex="0" onclick="dfBrokerOpenConnect()"')
-        + '><i></i><span><b>Trading 212</b><small>'
-        + (tConn ? (t != null ? gbp(t) + ' · auto' : 'Updates automatically') : 'Tap to connect') + '</small></span></div>';
-    }
-    accs.forEach(function (a) {
-      html += '<div class="df-broker-pill on"><i></i><span><b>' + esc(a.name) + '</b><small>'
-        + gbp(a.value) + (a.value > 0 ? '' : ' · add value') + '</small></span></div>';
-    });
-    html += '<div class="df-broker-pill df-broker-add" role="button" tabindex="0" onclick="dfBrokerOpenConnect()" '
-      + 'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();dfBrokerOpenConnect()}">'
-      + '<i></i><span><b>+ Connect a broker</b><small>Vanguard, AJ Bell, more</small></span></div>';
-    wrap.innerHTML = html;
+  function teardownHero(pg) {
+    var hero = document.getElementById('df-pf-hero');
+    if (hero) hero.remove();
+    if (pg) pg.classList.remove('df-has-brokers');
+    var bd = document.getElementById('df-broker-breakdown');
+    if (bd) bd.remove();
+    var pills = document.querySelector('#pg-dashboard .df-broker-pills');
+    if (pills) pills.remove();
+    var native = document.querySelector('#pg-dashboard .portfolio-dashboard-header .dash-sync-pill');
+    if (native) native.style.display = '';
   }
 
-  function renderValue() {
+  function renderPortfolio() {
+    var pg = document.getElementById('pg-dashboard');
+    var header = pg && pg.querySelector('.portfolio-dashboard-header');
     var mval = document.getElementById('m-val');
-    var mrow = document.querySelector('#pg-dashboard .mrow');
-    if (!mval || !mrow) return;
+    if (!pg || !header) return;
     ensureStyle();
+
     var accs = accounts();
+    if (!accs.length) { teardownHero(pg); return; }
+
     var manual = accs.reduce(function (s, a) { return s + (Number(a.value) || 0); }, 0);
     var t = t212Total();
     var hasT = (t != null);
-
-    var bd = document.getElementById('df-broker-breakdown');
-
-    if (!accs.length) {
-      if (bd) bd.remove();
-      return; // no extra brokers — leave native T212 behaviour untouched
-    }
-
+    var tConn = hasT || t212IsConnected();
     var total = (hasT ? t : 0) + manual;
     var pfx = prefix();
-    if (hasT || manual > 0) {
-      mval.textContent = pfx + Math.round(total).toLocaleString('en-GB');
-    }
-    if (!hasT) {
-      var cash = document.getElementById('m-cash');
-      if (cash && (cash.textContent === 'connect T212' || !cash.textContent.trim())) cash.textContent = 'across your brokers';
-      var dsub = document.getElementById('dsub');
-      if (dsub && /connect trading 212/i.test(dsub.textContent || '')) dsub.textContent = 'Your combined portfolio across your brokers';
-    }
+    var totalText = pfx + Math.round(total).toLocaleString('en-GB');
+    if (mval && (hasT || manual > 0)) mval.textContent = totalText;
 
-    if (!bd) {
-      bd = document.createElement('div');
-      bd.id = 'df-broker-breakdown';
-      mrow.parentNode.insertBefore(bd, mrow.nextSibling);
+    pg.classList.add('df-has-brokers');
+
+    var count = (tConn ? 1 : 0) + accs.length;
+
+    var cards = '';
+    if (tConn) {
+      cards += '<div class="df-pf-acct"><i></i><b>Trading 212</b><span>'
+        + (hasT ? pfx + Math.round(t).toLocaleString('en-GB') : '—') + '</span><em>Auto-synced</em></div>';
     }
-    var parts = ['<span class="df-bd-title">By broker</span>'];
-    if (hasT) parts.push('<span class="df-bd-item">Trading 212 <b>' + gbp(t) + '</b></span>');
     accs.forEach(function (a) {
-      parts.push('<span class="df-bd-item">' + esc(a.name) + ' <b>' + gbp(a.value) + '</b></span>');
+      cards += '<div class="df-pf-acct"><i></i><b>' + esc(a.name) + '</b><span>'
+        + gbp(a.value) + '</span><em>' + (a.value > 0 ? 'Manual' : 'Add value') + '</em></div>';
     });
-    parts.push('<span class="df-bd-item">Total <b>' + gbp(total) + '</b></span>');
-    parts.push('<button type="button" class="df-bd-edit" onclick="dfBrokerOpenConnect()">Manage</button>');
-    bd.innerHTML = parts.join('');
+    cards += '<button type="button" class="df-pf-acct df-pf-acct-add" onclick="dfBrokerOpenConnect()">'
+      + '<i>+</i><b>Connect a broker</b><span>Vanguard, AJ Bell, DEGIRO…</span></button>';
+
+    var hero = document.getElementById('df-pf-hero');
+    if (!hero) {
+      hero = document.createElement('section');
+      hero.id = 'df-pf-hero';
+      hero.className = 'df-pf-hero';
+      header.parentNode.insertBefore(hero, header.nextSibling);
+    }
+    hero.setAttribute('data-count', String(count));
+    hero.innerHTML =
+      '<div class="df-pf-hero-main"><div>'
+      + '<span class="df-pf-hero-kicker">Portfolio value</span>'
+      + '<strong class="df-pf-hero-total">' + esc(totalText) + '</strong>'
+      + '<span class="df-pf-hero-note">' + (count) + ' account' + (count === 1 ? '' : 's')
+      + (hasT ? ' · Trading 212 updates automatically' : '') + '</span>'
+      + '</div><button type="button" class="df-pf-hero-manage" onclick="dfBrokerOpenConnect()">Manage</button></div>'
+      + '<div class="df-pf-hero-grid">' + cards + '</div>';
+
+    var bd = document.getElementById('df-broker-breakdown');
+    if (bd) bd.remove();
+    var pills = document.querySelector('#pg-dashboard .df-broker-pills');
+    if (pills) pills.remove();
   }
+
 
   function ensureDrawerSection() {
     var grid = document.querySelector('#invest-connections-modal .invest-connect-grid');
@@ -412,8 +417,7 @@
           window.__dfT212Total = total;
           if (typeof window.t212MoneyPrefix === 'function') window.__dfT212Prefix = window.t212MoneyPrefix(cash.currency);
         } catch (e) {}
-        renderPills();
-        renderValue();
+        renderPortfolio();
         return r;
       };
       window.applyT212Snapshot.__dfBrokers = true;
@@ -451,8 +455,7 @@
   function renderAll() {
     ensureStyle();
     if (pendingList().length && !authScreenVisible() && hub()) seedFromPending();
-    renderPills();
-    renderValue();
+    renderPortfolio();
     ensureDrawerSection();
     ensureSignupChips();
   }
