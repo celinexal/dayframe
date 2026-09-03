@@ -1,19 +1,20 @@
 (() => {
   'use strict';
 
-  const VERSION = 'life-stage-v5';
+  const VERSION = 'life-stage-v6';
   const FLAG = 'data-dayframe-life-stage';
   const STYLE_ID = 'df-life-stage-style';
 
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
 
+  // Bible is not a standalone Home space — it lives inside Essentials — so it
+  // is intentionally absent here and does not appear in Edit Home.
   const MODULES = [
     { key: 'money', label: 'Money', note: 'Spending, bills, budgets and credit' },
     { key: 'planner', label: 'Plans', note: 'Tasks, goals and dates' },
     { key: 'driving', label: 'Essentials', note: 'My Car, MyFlo, documents and reminders' },
     { key: 'diary', label: 'Diary', note: 'Private notes and mood' },
-    { key: 'bible', label: 'Bible', note: 'In Essentials — reading, verse and notes' },
     { key: 'investing', label: 'Investing', note: 'Learning, holdings and research' },
   ];
   const WIDGETS = [
@@ -209,11 +210,6 @@
       lower.classList.remove('home-visible-0', 'home-visible-1', 'home-visible-2', 'home-visible-3');
       lower.classList.add(`home-visible-${visibleWidgets}`);
     }
-    // Bible now lives in Essentials, so switching it off in Edit Home also
-    // hides its Essentials card, side-nav item and mobile-nav entry.
-    const bibleOff = pref.hidden.includes('bible');
-    ['#df-bible-card', '.driving-side-nav [data-driving-page="bible"]', '.df-mobile-nav button[data-mobile-page="bible"]']
-      .forEach((selector) => document.querySelectorAll(selector).forEach((el) => el.classList.toggle('df-life-hidden', bibleOff)));
   }
 
   function applyLabels() {

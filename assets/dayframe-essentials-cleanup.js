@@ -5,12 +5,13 @@
   const STYLE_ID = 'df-essentials-cleanup-style';
   const DRIVING_PAGES = new Set(['driving', 'driving-theory', 'driving-car', 'driving-costs']);
   const INVESTING_PAGES = new Set(['dashboard', 'holdings', 'signals', 'charts', 'themes-hub', 'education', 'isa-guide', 'intel', 'health', 'alerts', 'chatter']);
+  // Bible is not a standalone space — it lives inside Essentials — so it is
+  // intentionally absent here and does not appear in Customise / Edit Home.
   const MODULES = [
     { key: 'money', label: 'Money', note: 'Spending, bills, budgets and credit' },
     { key: 'planner', label: 'Plans', note: 'Tasks, goals and dates' },
     { key: 'driving', label: 'Essentials', note: 'Car and period tracker' },
     { key: 'diary', label: 'Diary', note: 'Private notes and mood' },
-    { key: 'bible', label: 'Bible', note: 'Reading, notes and highlights' },
     { key: 'investing', label: 'Investing', note: 'Learning, holdings and research' },
   ];
   const WIDGETS = [
@@ -494,7 +495,7 @@
     const pref = homePrefs(d);
     const stageModules = MODULES.filter((item) => !hidden.has(item.key));
     const visibleModules = pref.modules.map((key) => stageModules.find((item) => item.key === key)).filter(Boolean);
-    const spaces = MODULES.filter((item) => ['money', 'planner', 'driving', 'diary', 'bible'].includes(item.key));
+    const spaces = MODULES.filter((item) => ['money', 'planner', 'driving', 'diary'].includes(item.key));
     out.innerHTML = `
       <div class="df-life-editor">
         <section class="df-life-editor-section soft">

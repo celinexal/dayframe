@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'essentials-bible-v2';
+  const VERSION = 'essentials-bible-v3';
   const FLAG = 'data-dayframe-essentials-bible';
   const STYLE_ID = 'df-essentials-bible-style';
   const ORDER = ['car', 'myflo', 'documents', 'health', 'bible'];
@@ -91,16 +91,6 @@
     try {
       if (typeof window.hubSave === 'function') window.hubSave(next);
     } catch {}
-  }
-
-  // Switching "Bible" off in Edit Home also hides it from Essentials.
-  function homeBibleHidden() {
-    try {
-      const hidden = hubData()?.preferences?.home?.hidden;
-      return Array.isArray(hidden) && hidden.includes('bible');
-    } catch {
-      return false;
-    }
   }
 
   function normalisePrefs(raw = {}) {
@@ -279,11 +269,12 @@
       if (el.style.display !== 'none') el.style.display = 'none';
     });
     document.querySelectorAll('#df-essentials-widget-panel [data-widget-choice="home"],#df-essentials-widget-panel [data-widget-choice="work-study"]').forEach((el) => el.remove());
-    document.querySelectorAll('#home-editor-content .home-editor-row,#home-editor-content [data-home-editor-row]').forEach((row) => {
+    document.querySelectorAll('#home-editor-content .home-editor-row,#home-editor-content .df-life-home-row,#home-editor-content [data-home-editor-row]').forEach((row) => {
+      const strong = (row.querySelector('strong')?.textContent || '').trim();
       const text = row.textContent || '';
-      // The Bible row stays in Edit Home so it can be switched off there;
-      // only the removed Home & Work/Study rows are hidden.
-      if (/Home\s*&\s*Rent|Work\s*&\s*Study/i.test(text)) {
+      // Bible is not a separate Home space any more — it lives inside
+      // Essentials — so its row is removed from Edit Home.
+      if (/^Bible$/i.test(strong) || /Home\s*&\s*Rent|Work\s*&\s*Study/i.test(text)) {
         if (row.hidden !== true) row.hidden = true;
         if (row.style.display !== 'none') row.style.display = 'none';
       }
@@ -305,7 +296,7 @@
   }
 
   function widgetHidden(prefs, key) {
-    return prefs.hidden.includes(key) || (key === 'bible' && homeBibleHidden());
+    return prefs.hidden.includes(key);
   }
   function visibleLabels(prefs) {
     return prefs.order.filter((key) => !widgetHidden(prefs, key)).map((key) => LABELS[key]).filter(Boolean);
