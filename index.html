@@ -2020,9 +2020,15 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 .money-tx-back{margin:0 0 10px}
 #pg-money.money-compact .money-metrics{display:none!important}
 .budget-summary-v2 .budget-summary-item{position:relative}
+#money-pane-budget .budget-summary-v2{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
 .budget-tile-edit{position:absolute;top:6px;right:6px;width:22px;height:22px;display:grid;place-items:center;border:1px solid #e2e6f1;border-radius:7px;background:#fff;color:#8a94a6;font-size:10px;line-height:1;cursor:pointer;padding:0;z-index:2}
 .budget-tile-edit:hover{color:#6459d8;border-color:#cdc6f2}
 .budget-summary-v2 .budget-summary-label{padding-right:22px}
+.budget-summary-v2 .budget-summary-item.custom:before{background:#9aa2c4}
+.budget-summary-v2 .budget-summary-item.addtile{display:flex;flex-direction:column;justify-content:center;gap:2px;border:1px dashed #c9cdec;background:#fbfbff;cursor:pointer;font:inherit;text-align:left;color:#7b74d8}
+.budget-summary-v2 .budget-summary-item.addtile:hover{background:#f4f4ff;border-color:#b3b8e6}
+.budget-summary-v2 .budget-summary-item.addtile .budget-summary-label{color:#8a90c4}
+.budget-summary-v2 .budget-summary-item.addtile .budget-summary-value{font-size:18px;color:#6459d8}
 #budget-tile-pop{position:fixed;z-index:26000;min-width:230px;max-width:calc(100vw - 20px);display:flex;flex-direction:column;gap:9px;padding:14px;border:1px solid #e2e6f1;border-radius:16px;background:#fff;box-shadow:0 22px 48px rgba(31,40,65,.22)}
 #budget-tile-pop .budget-tile-pop-title{font:900 9px var(--ff);text-transform:uppercase;letter-spacing:.06em;color:#8a94a4}
 #budget-tile-pop .budget-tile-pop-field{display:grid;gap:5px;font:800 10px var(--ff);color:#7b8495}
@@ -2430,8 +2436,8 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
         <div class="budget-summary-item income"><div class="budget-summary-label">Income</div><div class="budget-summary-value" id="budget-sum-income">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('income',event)" aria-label="Edit income">✎</button></div>
         <div class="budget-summary-item bills"><div class="budget-summary-label">Bills</div><div class="budget-summary-value" id="budget-sum-bills">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('bills',event)" aria-label="Edit bills">✎</button></div>
         <div class="budget-summary-item credit"><div class="budget-summary-label">Credit payments</div><div class="budget-summary-value" id="budget-sum-credit">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('credit',event)" aria-label="Edit credit payments">✎</button></div>
-        <div class="budget-summary-item future"><div class="budget-summary-label">Goals &amp; future</div><div class="budget-summary-value" id="budget-sum-future">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('future',event)" aria-label="Edit goals and future">✎</button></div>
-        <div class="budget-summary-item everyday"><div class="budget-summary-label">Everyday spending</div><div class="budget-summary-value good" id="budget-sum-left">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('everyday',event)" aria-label="Everyday spending">✎</button></div>
+        <div class="budget-summary-item future"><div class="budget-summary-label">Saving &amp; investing</div><div class="budget-summary-value" id="budget-sum-future">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('future',event)" aria-label="Edit saving and investing">✎</button></div>
+        <div class="budget-summary-item everyday" id="budget-tile-everyday"><div class="budget-summary-label">Everyday spending</div><div class="budget-summary-value good" id="budget-sum-left">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('everyday',event)" aria-label="Everyday spending">✎</button></div>
       </div>
       <div class="budget-builder-actions"><div class="budget-builder-tip">AI receives your budget totals, selected savings-goal names and target dates, credit-plan balances and APRs, and category totals — not account numbers or merchant-by-merchant details. Review and amend every suggestion before relying on it.</div><button class="budget-build-btn" id="budget-ai-button" onclick="moneyToggleBudgetPlan()">Plan for this month</button></div><div class="money-ai-result" id="budget-ai-result"></div>
     </div>
@@ -6250,16 +6256,19 @@ function budgetPlanValues(){
  const d=hubLoad();d.budgetPlan=d.budgetPlan||{income:0,rent:0,regularBills:0,savings:0,buffer:0,investing:0,extraCredit:0};
  const input=(id,fallback)=>{const e=document.getElementById(id);return e&&e.value!==''?Math.max(0,Number(e.value)||0):Math.max(0,Number(fallback)||0)};
  const income=input('budget-plan-income',d.budgetPlan.income),rent=input('budget-plan-rent',d.budgetPlan.rent),bills=input('budget-plan-regular-bills',d.budgetPlan.regularBills),savings=input('budget-plan-savings',d.budgetPlan.savings),buffer=input('budget-plan-buffer',d.budgetPlan.buffer),investing=input('budget-plan-investing',d.budgetPlan.investing),extraCredit=input('budget-plan-extra-credit',d.budgetPlan.extraCredit);
- const credit=(d.creditPlans||[]).reduce((a,x)=>a+moneyCreditPlanPayment(x),0),availableAfterFixed=income-rent-bills-credit-buffer,flexible=availableAfterFixed-savings-investing-extraCredit;
- return {income,rent,savings,buffer,bills,credit,investing,extraCredit,availableAfterFixed,flexible}
+ const customLines=(Array.isArray(d.budgetPlan.customLines)?d.budgetPlan.customLines:[]).map(l=>({id:l.id,label:String(l.label||'Custom').slice(0,40),amount:Math.max(0,Number(l.amount)||0)}));
+ const customTotal=customLines.reduce((s,l)=>s+l.amount,0);
+ const credit=(d.creditPlans||[]).reduce((a,x)=>a+moneyCreditPlanPayment(x),0),availableAfterFixed=income-rent-bills-credit-buffer-customTotal,flexible=availableAfterFixed-savings-investing-extraCredit;
+ return {income,rent,savings,buffer,bills,credit,investing,extraCredit,customLines,customTotal,availableAfterFixed,flexible}
 }
-function moneyBudgetPlanRecord(current,v,extra={}){return {...current,income:v.income,rent:v.rent,regularBills:v.bills,regularBillSelections:Array.isArray(current.regularBillSelections)?current.regularBillSelections:[],regularBillsSource:current.regularBillsSource||'',incomeSource:current.incomeSource||'',previousRegularBillsSuggestion:Number(current.previousRegularBillsSuggestion)||0,savingGoalSelections:Array.isArray(current.savingGoalSelections)?current.savingGoalSelections:[],savingsSource:current.savingsSource||'',startDay:moneyBudgetStartDay({budgetPlan:current}),savings:v.savings,buffer:v.buffer,investing:v.investing,extraCredit:v.extraCredit,aiNote:current.aiNote||'',aiSuggestedAt:current.aiSuggestedAt||'',autoNote:current.autoNote||'',...extra}}
+function moneyBudgetPlanRecord(current,v,extra={}){return {...current,income:v.income,rent:v.rent,regularBills:v.bills,regularBillSelections:Array.isArray(current.regularBillSelections)?current.regularBillSelections:[],regularBillsSource:current.regularBillsSource||'',incomeSource:current.incomeSource||'',previousRegularBillsSuggestion:Number(current.previousRegularBillsSuggestion)||0,savingGoalSelections:Array.isArray(current.savingGoalSelections)?current.savingGoalSelections:[],savingsSource:current.savingsSource||'',startDay:moneyBudgetStartDay({budgetPlan:current}),savings:v.savings,buffer:v.buffer,investing:v.investing,extraCredit:v.extraCredit,customLines:Array.isArray(current.customLines)?current.customLines:[],aiNote:current.aiNote||'',aiSuggestedAt:current.aiSuggestedAt||'',autoNote:current.autoNote||'',...extra}}
 function moneyIncomeManualInput(){const d=hubLoad(),input=document.getElementById('budget-plan-income');d.budgetPlan=d.budgetPlan||{};d.budgetPlan.incomeSource='manual';d.budgetPlan.income=Math.max(0,Number(input?.value)||0);hubSave(d);budgetPlannerPreview()}
 function budgetPlannerPreview(){
  const d=hubLoad(),v=budgetPlanValues(),current=d.budgetPlan||{};d.budgetPlan=moneyBudgetPlanRecord(current,v);hubSave(d);
  const bills=v.rent+v.bills,credit=v.credit+v.extraCredit,future=v.savings+v.buffer+v.investing,planned=bills+credit+future;
  const set=(id,val,cls)=>{const e=document.getElementById(id);if(e){e.textContent=hubMoney(val,0);if(cls)e.className='budget-summary-value '+cls}};
  set('budget-plan-credit',v.credit);set('budget-plan-flexible',v.flexible);set('budget-sum-income',v.income);set('budget-sum-bills',bills);set('budget-sum-credit',credit);set('budget-sum-future',future);set('budget-sum-left',v.flexible,v.flexible<0?'bad':'good');
+ budgetRenderCustomTiles();
  moneyRenderAiBudgetResult(d,v);
 }
 function moneyBudgetPattern(d){const cycle=moneyBudgetCycle(d),local=(d.money||[]).filter(x=>moneyInBudgetCycle(x.date,cycle)&&x.type==='expense').map(x=>({...x,category:moneyNormaliseCategory(moneyRuleCategory(d,x)||x.category||'Other')})),bank=moneyBankTransactionsForCycle(cycle),tx=[...local,...bank].filter(x=>x.type==='expense'&&!['Transfer','Transfers','Savings & Investments','Bills & Utilities','Rent'].includes(moneyNormaliseCategory(x.category))),actual={};tx.forEach(x=>{const override=x.bank?(d.transactionCategoryOverrides||{})['bank:'+String(x.raw_id||x.id)]||'':'';const cat=moneyNormaliseCategory(override||moneyRuleCategory(d,x)||x.category);actual[cat]=(actual[cat]||0)+Number(x.amount||0)});return actual}
@@ -6294,6 +6303,8 @@ function moneyBudgetPlanSteps(d,v){
   steps.push({key:'credit:'+plan.id,tone:'credit',when:due?'Due '+due:'Every month',title:'Pay '+plan.name,copy,amount:payment});
  });
  if(v.extraCredit>0&&ordered.length)steps.push({key:'extra:'+ordered[0].id,tone:'extra',when:'After required payments',title:'Extra payment to '+ordered[0].name,copy:'Every credit balance keeps its own scheduled payment. Only this extra amount follows your '+(d.creditStrategy==='snowball'?'smallest-balance':'highest-APR')+' priority.',amount:v.extraCredit});
+ if(v.buffer>0)steps.push({key:'buffer',tone:'savings',when:'On payday',title:'Top up your emergency fund',copy:'A cash cushion for unexpected costs, kept separate from your goals.',amount:v.buffer});
+ (v.customLines||[]).forEach(line=>{if(line.amount>0)steps.push({key:'custom:'+line.id,tone:'savings',when:'On payday',title:'Set aside for '+line.label,copy:'Your own budget line.',amount:line.amount})});
  if(v.savings>0)steps.push({key:'savings',tone:'savings',when:'On payday',title:'Move money to '+goalLabel,copy:goals.length?'This is the affordable monthly contribution in this plan; compare it with each goal deadline.':'Keep this transfer visible so you can track it.',amount:v.savings});
  if(v.investing>0)steps.push({key:'investing',tone:'investing',when:'After essentials',title:'Set aside investing money',copy:'Only keep this amount if it fits after bills, every required credit payment and near-term savings.',amount:v.investing});
  return steps.filter(step=>Number(step.amount)>0)
@@ -6324,8 +6335,74 @@ const BUDGET_TILE_FIELDS={
  income:{title:'Monthly income',fields:[{key:'income',label:'Take-home pay',plan:true}]},
  bills:{title:'Bills',fields:[{key:'rent',label:'Rent or mortgage',plan:true},{key:'regularBills',label:'Other regular bills',plan:true}]},
  credit:{title:'Credit payments',fields:[{key:'extraCredit',label:'Extra payment (on top of card minimums)',plan:true}],note:'Each card’s own minimum or planned payment is set on the Credit Plan tab.'},
- future:{title:'Goals & future',fields:[{key:'savings',label:'Monthly savings',plan:true},{key:'investing',label:'Monthly investing',plan:true},{key:'buffer',label:'Safety buffer top-up',plan:true}]}
+ future:{title:'Saving & investing',fields:[{key:'savings',label:'Monthly savings',plan:true},{key:'investing',label:'Monthly investing',plan:true},{key:'buffer',label:'Emergency fund',plan:true}]}
 };
+function budgetCustomLines(d=hubLoad()){return Array.isArray(d.budgetPlan&&d.budgetPlan.customLines)?d.budgetPlan.customLines:[]}
+function budgetRenderCustomTiles(){
+ const row=document.querySelector('#money-pane-budget .budget-summary-v2'),anchor=document.getElementById('budget-tile-everyday');
+ if(!row||!anchor)return;
+ row.querySelectorAll('.budget-summary-item.custom,.budget-summary-item.addtile').forEach(el=>el.remove());
+ const lines=budgetCustomLines();
+ lines.forEach(line=>{
+  const el=document.createElement('div');el.className='budget-summary-item custom';el.dataset.lineId=String(line.id);
+  el.innerHTML='<div class="budget-summary-label">'+hubEsc(line.label||'Custom')+'</div><div class="budget-summary-value">'+hubMoney(Math.max(0,Number(line.amount)||0),0)+'</div><button type="button" class="budget-tile-edit" onclick="budgetEditCustomLine('+line.id+',event)" aria-label="Edit '+hubEsc(line.label||'line')+'">✎</button>';
+  row.insertBefore(el,anchor);
+ });
+ const add=document.createElement('button');add.type='button';add.className='budget-summary-item addtile';
+ add.innerHTML='<span class="budget-summary-label">Add a line</span><span class="budget-summary-value">＋</span>';
+ add.onclick=(e)=>budgetAddCustomLine(e);
+ row.insertBefore(add,anchor);
+}
+function budgetAddCustomLine(event){
+ closeBudgetTilePop();
+ const pop=document.createElement('div');pop.id='budget-tile-pop';pop.setAttribute('role','dialog');
+ pop.innerHTML='<div class="budget-tile-pop-title">New budget line</div>'
+  +'<label class="budget-tile-pop-field"><span>Name</span><input type="text" id="budget-cl-name" placeholder="e.g. Holiday fund, Pet insurance"></label>'
+  +'<label class="budget-tile-pop-field"><span>Monthly amount</span><input type="number" inputmode="decimal" min="0" step="1" id="budget-cl-amount" value="0"></label>'
+  +'<div class="budget-tile-pop-note">This is set aside each month before everyday spending.</div>'
+  +'<div class="budget-tile-pop-actions"><button type="button" class="budget-tile-pop-save" onclick="budgetSaveNewCustomLine()">Add</button></div>';
+ budgetPlaceTilePop(pop,event);
+ setTimeout(()=>document.getElementById('budget-cl-name')?.focus(),40);
+}
+function budgetSaveNewCustomLine(){
+ const name=(document.getElementById('budget-cl-name')?.value||'').trim(),amount=Math.max(0,Number(document.getElementById('budget-cl-amount')?.value)||0);
+ if(!name)return hubToast('Give the line a name');
+ const d=hubLoad();d.budgetPlan=d.budgetPlan||{};d.budgetPlan.customLines=budgetCustomLines(d).slice();
+ d.budgetPlan.customLines.push({id:Date.now(),label:name.slice(0,40),amount});
+ hubSave(d);closeBudgetTilePop();budgetPlannerPreview();hubToast('Budget line added')
+}
+function budgetEditCustomLine(id,event){
+ closeBudgetTilePop();
+ const line=budgetCustomLines().find(l=>String(l.id)===String(id));if(!line)return;
+ const pop=document.createElement('div');pop.id='budget-tile-pop';pop.setAttribute('role','dialog');
+ pop.innerHTML='<div class="budget-tile-pop-title">'+hubEsc(line.label||'Budget line')+'</div>'
+  +'<label class="budget-tile-pop-field"><span>Name</span><input type="text" id="budget-cl-name" value="'+hubEsc(line.label||'')+'"></label>'
+  +'<label class="budget-tile-pop-field"><span>Monthly amount</span><input type="number" inputmode="decimal" min="0" step="1" id="budget-cl-amount" value="'+(Math.round(Number(line.amount)||0))+'"></label>'
+  +'<div class="budget-tile-pop-actions"><button type="button" class="budget-tile-pop-link" onclick="budgetRemoveCustomLine('+line.id+')">Remove</button><button type="button" class="budget-tile-pop-save" onclick="budgetSaveCustomLine('+line.id+')">Save</button></div>';
+ budgetPlaceTilePop(pop,event);
+}
+function budgetSaveCustomLine(id){
+ const name=(document.getElementById('budget-cl-name')?.value||'').trim(),amount=Math.max(0,Number(document.getElementById('budget-cl-amount')?.value)||0);
+ const d=hubLoad();const line=budgetCustomLines(d).find(l=>String(l.id)===String(id));if(!line)return;
+ if(!name)return hubToast('Give the line a name');
+ line.label=name.slice(0,40);line.amount=amount;
+ hubSave(d);closeBudgetTilePop();budgetPlannerPreview();hubToast('Budget line updated')
+}
+function budgetRemoveCustomLine(id){
+ const d=hubLoad();d.budgetPlan=d.budgetPlan||{};
+ d.budgetPlan.customLines=budgetCustomLines(d).filter(l=>String(l.id)!==String(id));
+ hubSave(d);closeBudgetTilePop();budgetPlannerPreview();hubToast('Budget line removed')
+}
+function budgetPlaceTilePop(pop,event){
+ document.body.appendChild(pop);
+ const anchor=event&&event.target&&event.target.closest?event.target.closest('.budget-summary-item'):null;
+ const rect=anchor?anchor.getBoundingClientRect():{left:innerWidth/2-120,bottom:160,top:120,width:0};
+ const pw=pop.offsetWidth||248,ph=pop.offsetHeight||190;
+ let left=Math.max(10,Math.min(rect.left+rect.width/2-pw/2,innerWidth-pw-10));
+ let top=rect.bottom+8;if(top+ph>innerHeight-10)top=Math.max(10,rect.top-ph-8);
+ pop.style.left=left+'px';pop.style.top=top+'px';
+ setTimeout(()=>document.addEventListener('click',budgetTilePopOutside,true),0);
+}
 function closeBudgetTilePop(){document.getElementById('budget-tile-pop')?.remove();document.removeEventListener('click',budgetTilePopOutside,true)}
 function budgetTilePopOutside(e){const p=document.getElementById('budget-tile-pop');if(p&&!p.contains(e.target)&&!(e.target.closest&&e.target.closest('.budget-summary-item')))closeBudgetTilePop()}
 function budgetTileEdit(kind,event){
