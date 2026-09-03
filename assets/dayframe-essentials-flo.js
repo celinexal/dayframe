@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v4';
+  const VERSION = 'flo-v5';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
   const DAY_MS = 86400000;
@@ -304,7 +304,10 @@
       while (s.pillLog.includes(iso(walk)) && streak < 400) { streak += 1; walk.setDate(walk.getDate() - 1); }
       daily = `<div class="df-myflo-pill"><button type="button" class="${takenToday ? 'on' : ''}" onclick="dayframeToggleMyFloPillToday()">${takenToday ? '✓ Taken today' : 'Mark today taken'}</button><div class="df-myflo-pill-dots" aria-hidden="true">${dots.join('')}</div><span>${streak ? `${streak}-day streak` : 'Last 7 days'}</span></div>`;
     }
-    return `<section class="df-myflo-contra"><div class="df-myflo-section-head"><div><span>Contraception</span><h3>Your method</h3></div></div><p class="df-myflo-helper">A personal record only. The fertile and ovulation estimates are not contraception and must not be relied on to prevent or plan pregnancy.</p><label class="df-myflo-contra-field"><span>Method</span><select onchange="dayframeSetMyFloContraception(this.value)">${CONTRA_METHODS.map((m) => `<option value="${esc(m)}" ${m === s.contraception ? 'selected' : ''}>${esc(m || 'Not set / none')}</option>`).join('')}</select></label>${daily}</section>`;
+    const removeBtn = s.contraception
+      ? `<button type="button" class="df-myflo-contra-remove" onclick="dayframeRemoveMyFloContraception()">Remove method</button>`
+      : '';
+    return `<section class="df-myflo-contra"><div class="df-myflo-section-head"><div><span>Contraception</span><h3>Your method</h3></div>${removeBtn}</div><p class="df-myflo-helper">A personal record only. The fertile and ovulation estimates are not contraception and must not be relied on to prevent or plan pregnancy.</p><label class="df-myflo-contra-field"><span>Method</span><select onchange="dayframeSetMyFloContraception(this.value)">${CONTRA_METHODS.map((m) => `<option value="${esc(m)}" ${m === s.contraception ? 'selected' : ''}>${esc(m || 'Not set / none')}</option>`).join('')}</select></label>${daily}</section>`;
   }
   function renderReminders(s) {
     const options = [{ value: 3, label: '3 days before' }, { value: 2, label: '2 days before' }, { value: 1, label: '1 day before' }, { value: 0, label: 'On the day' }];
@@ -345,6 +348,64 @@
   window.dayframeClearMyFloDayLog = function (dateISO) {
     editMyFloDay(dateISO, (entry) => { entry.flow = ''; entry.symptoms = []; entry.sex = ''; });
   };
+  function latestPeriodRun(s) {
+    const runs = periodRuns(s.dayLogs);
+    return runs.length ? runs[runs.length - 1] : null;
+  }
+  function runContaining(s, dateISO) {
+    const runs = periodRuns(s.dayLogs);
+    return runs.find((run) => run.includes(dateISO)) || latestPeriodRun(s);
+  }
+  window.dayframeEndMyFloPeriodOn = function dayframeEndMyFloPeriodOn(dateISO) {
+    if (!isISO(dateISO)) return;
+    const s = settings();
+    const run = latestPeriodRun(s);
+    if (!run) return window.hubToast?.('Log the first period day first');
+    const start = run[0];
+    const length = diffDays(dateISO, start) + 1;
+    if (length < 1) return window.hubToast?.('That day is before this period started');
+    if (length > 14) return window.hubToast?.('That is more than 14 days — log it as a new period');
+    const logs = Object.assign({}, s.dayLogs);
+    let cur = start;
+    for (let i = 0; i < length; i += 1) {
+      const entry = Object.assign({ flow: '', symptoms: [], sex: '' }, logs[cur] || {});
+      entry.symptoms = Array.isArray(entry.symptoms) ? entry.symptoms.slice() : [];
+      if (!entry.flow) entry.flow = 'medium';
+      logs[cur] = entry;
+      cur = addDaysISO(cur, 1);
+    }
+    _openMenuDate = dateISO;
+    if (saveDayLogs(logs)) {
+      renderMyFlo(true);
+      window.renderHome?.();
+      window.hubToast?.(length === 1 ? 'Period logged' : `Period saved · ${length} days`);
+    }
+  };
+  window.dayframeDeleteMyFloPeriod = function dayframeDeleteMyFloPeriod(dateISO) {
+    const s = settings();
+    const run = runContaining(s, dateISO);
+    if (!run || !run.length) return;
+    const logs = Object.assign({}, s.dayLogs);
+    run.forEach((day) => {
+      if (logs[day]) {
+        const entry = Object.assign({}, logs[day]);
+        entry.flow = '';
+        logs[day] = entry;
+      }
+    });
+    closeMyFloDayMenu();
+    if (saveDayLogs(logs)) {
+      renderMyFlo();
+      window.renderHome?.();
+      window.hubToast?.('Period removed');
+    }
+  };
+  window.dayframeRemoveMyFloContraception = function dayframeRemoveMyFloContraception() {
+    if (savePeriod({ contraception: '', pillLog: [] })) {
+      renderMyFlo();
+      window.hubToast?.('Method removed');
+    }
+  };
   window.dayframeOpenMyFloToday = function () {
     const todayISO = iso(new Date());
     const btn = document.querySelector(`.df-myflo-day[data-date="${todayISO}"]`);
@@ -361,16 +422,30 @@
     const symptoms = Array.isArray(log.symptoms) ? log.symptoms : [];
     const sex = (log.sex === 'protected' || log.sex === 'unprotected') ? log.sex : '';
     const hasAny = isPeriod || symptoms.length || sex;
+    const run = latestPeriodRun(s);
+    const inThisRun = !!(run && run.includes(dateISO));
+    const daysFromStart = run ? diffDays(dateISO, run[0]) + 1 : 0;
+    const canEndHere = !!run && !isPeriod
+      && diffDays(dateISO, run[run.length - 1]) >= 1
+      && daysFromStart >= 2 && daysFromStart <= 14;
+    const canDeletePeriod = isPeriod || inThisRun || (run && run.includes(dateISO));
     const parsed = parseISO(dateISO);
     const label = parsed ? parsed.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' }) : dateISO;
+    const startLabel = run ? (parseISO(run[0])?.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) || run[0]) : '';
     const D = dateISO;
     const pop = document.createElement('div');
     pop.id = 'df-myflo-daypop';
     pop.setAttribute('role', 'dialog');
     pop.innerHTML = `<div class="df-myflo-daypop-date">${esc(label)}</div>`
       + `<button type="button" class="df-myflo-dp-period${isPeriod ? ' on' : ''}" onclick="dayframeToggleMyFloPeriodDay('${D}')">${isPeriod ? '● Period day · tap to remove' : 'Log period'}</button>`
+      + (canEndHere
+        ? `<button type="button" class="df-myflo-dp-end" onclick="dayframeEndMyFloPeriodOn('${D}')">End period here · ${daysFromStart} days from ${esc(startLabel)}</button>`
+        : '')
       + (isPeriod
         ? `<div class="df-myflo-dp-seg">${FLOW_LEVELS.map((level) => `<button type="button" class="${flow === level ? 'on' : ''}" onclick="dayframeSetMyFloFlow('${D}','${level}')">${level.charAt(0).toUpperCase() + level.slice(1)}</button>`).join('')}</div>`
+        : '')
+      + (canDeletePeriod
+        ? `<button type="button" class="df-myflo-dp-delperiod" onclick="dayframeDeleteMyFloPeriod('${D}')">Delete this whole period</button>`
         : '')
       + `<div class="df-myflo-dp-label">Symptoms</div>`
       + `<div class="df-myflo-dp-symp">${MYFLO_SYMPTOMS.map((symptom) => `<button type="button" class="${symptoms.includes(symptom) ? 'on' : ''}" onclick="dayframeToggleMyFloSymptom('${D}','${esc(symptom)}')">${esc(symptom)}</button>`).join('')}</div>`
@@ -513,7 +588,10 @@
       .df-myflo-day.has-note:not(.is-period) span{text-decoration:underline;text-decoration-color:#b48bd6;text-underline-offset:3px}
       .df-myflo-day.has-note.is-period:before{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:999px;background:#fff;z-index:3}
       .df-myflo-legend .note{background:#b48bd6}
-      #df-myflo-daypop{position:fixed;z-index:26000;width:250px;max-width:calc(100vw - 20px);max-height:min(74vh,480px);overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid #f0d9ea;border-radius:16px;background:#fff;box-shadow:0 22px 48px rgba(42,54,84,.24)}.df-myflo-daypop-date{font:900 9px var(--ff);text-transform:uppercase;letter-spacing:.06em;color:#8a94a4}#df-myflo-daypop button{height:36px;border:1px solid #f2bdd7;border-radius:11px;background:#fff;color:#d94382;font:850 11px var(--ff);cursor:pointer;text-align:left;padding:0 12px}#df-myflo-daypop button:hover{background:#fff1f6}#df-myflo-daypop .df-myflo-dp-period.on{background:#ff5d93;color:#fff;border-color:#ff5d93}#df-myflo-daypop .df-myflo-dp-label{margin-top:4px;font:900 8px var(--ff);text-transform:uppercase;letter-spacing:.07em;color:#9aa0ab;text-align:left}#df-myflo-daypop .df-myflo-dp-seg{display:flex;gap:5px}#df-myflo-daypop .df-myflo-dp-seg button{flex:1;height:31px;padding:0;text-align:center;border-color:#ecd7e3;color:#8a7f88;font-size:10px}#df-myflo-daypop .df-myflo-dp-seg button.on{background:#f5d9e6;border-color:#e6a9c6;color:#b83a72}#df-myflo-daypop .df-myflo-dp-symp{display:flex;flex-wrap:wrap;gap:5px}#df-myflo-daypop .df-myflo-dp-symp button{height:auto;padding:5px 9px;border-radius:999px;border-color:#e7e0ea;color:#6f6675;font-size:10px}#df-myflo-daypop .df-myflo-dp-symp button.on{background:#efe4f6;border-color:#cdb6dd;color:#7a4fa0}#df-myflo-daypop button.df-myflo-daypop-clear{border-color:#e7eaf3;color:#7b8495}#df-myflo-daypop button.df-myflo-daypop-clear:hover{background:#f6f7fb}#df-myflo-daypop button.df-myflo-daypop-done{text-align:center;background:#fff1f6;border-color:#f3c9dd;color:#b83a72;font-weight:900}
+      #df-myflo-daypop{position:fixed;z-index:26000;width:250px;max-width:calc(100vw - 20px);max-height:min(74vh,480px);overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid #f0d9ea;border-radius:16px;background:#fff;box-shadow:0 22px 48px rgba(42,54,84,.24)}.df-myflo-daypop-date{font:900 9px var(--ff);text-transform:uppercase;letter-spacing:.06em;color:#8a94a4}#df-myflo-daypop button{height:36px;border:1px solid #f2bdd7;border-radius:11px;background:#fff;color:#d94382;font:850 11px var(--ff);cursor:pointer;text-align:left;padding:0 12px}#df-myflo-daypop button:hover{background:#fff1f6}#df-myflo-daypop .df-myflo-dp-period.on{background:#ff5d93;color:#fff;border-color:#ff5d93}#df-myflo-daypop .df-myflo-dp-label{margin-top:4px;font:900 8px var(--ff);text-transform:uppercase;letter-spacing:.07em;color:#9aa0ab;text-align:left}#df-myflo-daypop .df-myflo-dp-seg{display:flex;gap:5px}#df-myflo-daypop .df-myflo-dp-seg button{flex:1;height:31px;padding:0;text-align:center;border-color:#ecd7e3;color:#8a7f88;font-size:10px}#df-myflo-daypop .df-myflo-dp-seg button.on{background:#f5d9e6;border-color:#e6a9c6;color:#b83a72}#df-myflo-daypop .df-myflo-dp-symp{display:flex;flex-wrap:wrap;gap:5px}#df-myflo-daypop .df-myflo-dp-symp button{height:auto;padding:5px 9px;border-radius:999px;border-color:#e7e0ea;color:#6f6675;font-size:10px}#df-myflo-daypop .df-myflo-dp-symp button.on{background:#efe4f6;border-color:#cdb6dd;color:#7a4fa0}#df-myflo-daypop button.df-myflo-daypop-clear{border-color:#e7eaf3;color:#7b8495}#df-myflo-daypop button.df-myflo-daypop-clear:hover{background:#f6f7fb}#df-myflo-daypop button.df-myflo-daypop-done{text-align:center;background:#fff1f6;border-color:#f3c9dd;color:#b83a72;font-weight:900}#df-myflo-daypop button.df-myflo-dp-end{background:#ff5d93;color:#fff;border-color:#ff5d93;text-align:center;font-weight:900;height:auto;min-height:36px;padding:7px 12px;line-height:1.25}#df-myflo-daypop button.df-myflo-dp-end:hover{background:#f5468a}#df-myflo-daypop button.df-myflo-dp-delperiod{border-color:#eddfe3;color:#c0556b;text-align:center;font-weight:850}#df-myflo-daypop button.df-myflo-dp-delperiod:hover{background:#fdf0f3}
+      .df-myflo-contra .df-myflo-section-head{align-items:center}
+      .df-myflo-contra-remove{flex:0 0 auto;height:30px;border:1px solid #e7eaf3;border-radius:999px;background:#fff;color:#c0556b;font:800 10px var(--ff);padding:0 13px;cursor:pointer}
+      .df-myflo-contra-remove:hover{background:#fdf0f3}
       @media(max-width:980px){.df-myflo-stats,.df-myflo-board,.df-myflo-months{grid-template-columns:1fr}.df-myflo-reminder-bottom{grid-template-columns:1fr}.df-myflo-stat{min-height:0}.df-myflo-actions{align-items:flex-start;flex-direction:column}.df-myflo-action-buttons{justify-content:flex-start}}@media(max-width:520px){#df-myflo-view{padding:12px}.df-myflo-stat strong{font-size:24px}.df-myflo-day{font-size:11px}.df-myflo-month{padding:10px}}
     `;
     document.head.appendChild(style);
