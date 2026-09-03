@@ -1,5 +1,5 @@
 const DAYFRAME_CACHE = 'dayframe-shell-v105';
-const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-performance-guard.js', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-budget-redesign.js', '/assets/dayframe-budget-fixups.js', '/assets/dayframe-budget-mobile-strip.js', '/assets/dayframe-budget-limits-editor.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-category-budget-focus.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-essentials-cleanup.js', '/assets/dayframe-essentials-clickfix.js', '/assets/dayframe-essentials-customise.js', '/assets/dayframe-essentials-pill-left.js', '/assets/dayframe-myflo-calendar-actions.js', '/assets/dayframe-diary-delete-fix.js'];
+const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-performance-guard.js', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-essentials-cleanup.js', '/assets/dayframe-essentials-clickfix.js', '/assets/dayframe-essentials-customise.js', '/assets/dayframe-essentials-pill-left.js', '/assets/dayframe-myflo-calendar-actions.js', '/assets/dayframe-diary-delete-fix.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_PERFORMANCE_GUARD_SRC = '/assets/dayframe-performance-guard.js?v=20260901-performance-guard-v1';
 const DAYFRAME_POLISH_SRC = '/assets/dayframe-2026-polish.js?v=20260831-polish-no-nav-wrap';
@@ -9,13 +9,8 @@ const DAYFRAME_RISK_FIX_SRC = '/assets/dayframe-risk-holdings-fix.js?v=20260827-
 const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';
 const DAYFRAME_CAR_COSTS_SRC = '/assets/dayframe-car-costs-merge.js?v=20260831-car-costs-no-nav-wrap';
 const DAYFRAME_MONEY_PERFORMANCE_SRC = '/assets/dayframe-money-performance.js?v=20260829-fast-money-v2';
-const DAYFRAME_BUDGET_REDESIGN_SRC = '/assets/dayframe-budget-redesign.js?v=20260903-no-header-row-edit';
-const DAYFRAME_BUDGET_FIXUPS_SRC = '/assets/dayframe-budget-fixups.js?v=20260830-budget-clean-bills-empty';
-const DAYFRAME_BUDGET_MOBILE_STRIP_SRC = '/assets/dayframe-budget-mobile-strip.js?v=20260830-budget-mobile-strip';
-const DAYFRAME_BUDGET_LIMITS_EDITOR_SRC = '/assets/dayframe-budget-limits-editor.js?v=20260830-budget-limit-editor';
 const DAYFRAME_BILLS_PERSISTENCE_SRC = '/assets/dayframe-bills-persistence-fix.js?v=20260830-auto-paid-bills';
 const DAYFRAME_BILL_SUGGESTIONS_RESTORE_SRC = '/assets/dayframe-bill-suggestions-restore.js?v=20260830-restore-bill-suggestions';
-const DAYFRAME_CATEGORY_BUDGET_SRC = '/assets/dayframe-category-budget-focus.js?v=20260829-lazy-category-detail';
 const DAYFRAME_TRANSACTIONS_CLEANUP_SRC = '/assets/dayframe-transactions-default-cleanup.js?v=20260827-default-transactions-clean-wide';
 const DAYFRAME_VISUAL_TIDY_SRC = '/assets/dayframe-visual-tidy.js?v=20260829-defer-budget-overview';
 const DAYFRAME_VISUAL_CALM_SRC = '/assets/dayframe-visual-calm.js?v=20260829-no-persistent-visual-observer';
@@ -64,7 +59,9 @@ function stripStalePanels(body) {
     .replace(/<h1>\s*Everything\s*<\/h1>/i, '<h1>Everything that matters, without the mental clutter.</h1>')
     .replace(/<div class="pg life-page" id="pg-driving-costs"[\s\S]*?(?=<!-- DIARY -->)/i, '')
     .replace(/<div class="dash-card dash-market-context">[\s\S]*?<\/div>\s*<!-- ROW: Risk \+ Sectors \+ Research -->/i, '<!-- ROW: Risk + Sectors + Research -->')
-    .replace(/Market context/g, 'Big picture');
+    .replace(/Market context/g, 'Big picture')
+    .replace(/<script[^>]*src="[^"]*dayframe-budget-(?:redesign|fixups|limits-editor|mobile-strip)\.js[^"]*"[^>]*><\/script>/gi, '')
+    .replace(/<script[^>]*src="[^"]*dayframe-category-budget-focus\.js[^"]*"[^>]*><\/script>/gi, '');
 }
 
 function refreshScriptVersions(body) {
@@ -80,8 +77,7 @@ function refreshScriptVersions(body) {
     .replace(/\/assets\/dayframe-essentials-customise\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_CUSTOMISE_SRC)
     .replace(/\/assets\/dayframe-essentials-pill-left\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_PILL_LEFT_SRC)
     .replace(/\/assets\/dayframe-myflo-calendar-actions\.js\?v=[^"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC)
-    .replace(/\/assets\/dayframe-sector-themes-current\.js\?v=[^"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC)
-    .replace(/\/assets\/dayframe-budget-redesign\.js\?v=[^"']+/g, DAYFRAME_BUDGET_REDESIGN_SRC);
+    .replace(/\/assets\/dayframe-sector-themes-current\.js\?v=[^"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC);
 }
 
 async function withPolish(response) {
@@ -165,23 +161,8 @@ async function withPolish(response) {
   if (!body.includes('dayframe-money-performance.js')) {
     tags.push(`<script data-dayframe-money-performance-loader src="${DAYFRAME_MONEY_PERFORMANCE_SRC}" defer></script>`);
   }
-  if (!body.includes('dayframe-budget-redesign.js')) {
-    tags.push(`<script data-dayframe-budget-redesign-loader src="${DAYFRAME_BUDGET_REDESIGN_SRC}" defer></script>`);
-  }
-  if (!body.includes('dayframe-budget-fixups.js')) {
-    tags.push(`<script data-dayframe-budget-fixups-loader src="${DAYFRAME_BUDGET_FIXUPS_SRC}" defer></script>`);
-  }
-  if (!body.includes('dayframe-budget-limits-editor.js')) {
-    tags.push(`<script data-dayframe-budget-limits-editor-loader src="${DAYFRAME_BUDGET_LIMITS_EDITOR_SRC}" defer></script>`);
-  }
   if (!body.includes('dayframe-bill-suggestions-restore.js')) {
     tags.push(`<script data-dayframe-bill-suggestions-restore-loader src="${DAYFRAME_BILL_SUGGESTIONS_RESTORE_SRC}" defer></script>`);
-  }
-  if (!body.includes('dayframe-budget-mobile-strip.js')) {
-    tags.push(`<script data-dayframe-budget-mobile-strip-loader src="${DAYFRAME_BUDGET_MOBILE_STRIP_SRC}" defer></script>`);
-  }
-  if (!body.includes('dayframe-category-budget-focus.js')) {
-    tags.push(`<script data-dayframe-category-budget-focus-loader src="${DAYFRAME_CATEGORY_BUDGET_SRC}" defer></script>`);
   }
   if (!body.includes('dayframe-transactions-default-cleanup.js')) {
     tags.push(`<script data-dayframe-transactions-default-cleanup-loader src="${DAYFRAME_TRANSACTIONS_CLEANUP_SRC}" defer></script>`);
