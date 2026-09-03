@@ -1997,11 +1997,9 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 }
 </style>
 <style id="budget-simplify-2026">
-.budget-flow-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border:1px solid #e7e8f2;border-radius:13px;background:rgba(255,255,255,.7);cursor:pointer;margin-bottom:13px;font:700 10.5px var(--ff);color:#596476}
-.budget-flow-toggle:hover{border-color:#d8d6ff;color:#4b5669}
-.budget-flow-toggle b{color:#7a70f2;font-weight:800;white-space:nowrap}
-.budget-flow-grid.collapsed{display:none}
-.budget-ai-plan-head{cursor:pointer}
+.money-pane-grid.budget-lower-grid{grid-template-columns:1fr}
+.budget-categories-card .money-budget-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:720px){.budget-categories-card .money-budget-list{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -2388,64 +2386,9 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
   </div>
 
   <div class="money-pane" id="money-pane-budget">
-    <div class="budget-builder budget-builder-v2">
-      <div class="budget-builder-head budget-v2-head"><div><div class="budget-builder-kicker">Your monthly money map</div><div class="budget-builder-title">Give every part of your money its own place</div><div class="budget-builder-sub">Bills, credit, goals and everyday spending stay separate, so it is clear what each amount is doing.</div></div><span class="money-ai-label">✦ Dayframe AI</span></div>
-
-      <div class="budget-flow-toggle" id="budget-flow-toggle-bar" onclick="moneyToggleBudgetFlow()"><span>Income, bills, credit &amp; savings</span><b id="budget-flow-toggle-label">Edit details ↓</b></div>
-      <div class="budget-flow-grid" id="budget-flow-grid">
-        <section class="budget-flow-card income">
-          <div class="budget-flow-head"><span class="budget-flow-icon">↙</span><div><strong>Income</strong><small>What arrives this month</small></div></div>
-          <div class="budget-field budget-field-clean"><label>Monthly take-home income</label><input id="budget-plan-income" type="number" step="0.01" placeholder="e.g. 2,000" oninput="moneyIncomeManualInput()"><div class="budget-auto-sub">Suggested from transactions categorised as Salary</div></div>
-        </section>
-
-        <section class="budget-flow-card bills">
-          <div class="budget-flow-head"><span class="budget-flow-icon">◷</span><div><strong>Bills</strong><small>Housing and regular essentials</small></div></div>
-          <div class="budget-flow-fields">
-            <div class="budget-field budget-field-clean"><label>Rent or mortgage</label><input id="budget-plan-rent" type="number" step="0.01" placeholder="e.g. 850" oninput="budgetPlannerPreview()"><div class="budget-auto-sub">Based on recognised housing payments</div></div>
-            <div class="budget-field budget-field-clean budget-regular-field"><label>Other regular bills</label><input id="budget-plan-regular-bills" type="number" step="0.01" placeholder="0.00" oninput="moneyRegularBillsManualInput()"><div class="budget-auto-sub" id="budget-regular-bills-source">Choose the payments you want included.</div><button type="button" class="budget-pick-btn" id="budget-regular-bills-button" onclick="moneyToggleRegularBillPicker()">Choose from transactions</button><div class="budget-regular-picker" id="budget-regular-bill-picker"></div></div>
-          </div>
-        </section>
-
-        <section class="budget-flow-card credit">
-          <div class="budget-flow-head"><span class="budget-flow-icon">⌁</span><div><strong>Credit</strong><small>Your payoff plan, kept separate from bills</small></div></div>
-          <div class="budget-flow-fields">
-            <div class="budget-field budget-field-clean"><label>Planned credit payments</label><div class="budget-auto" id="budget-plan-credit">£0</div><div class="budget-auto-sub">From the monthly payments entered in Credit Plan</div><button type="button" class="budget-inline-link" onclick="moneyQuick('credit')">Review credit plan →</button></div>
-            <div class="budget-field budget-field-clean"><label>Extra credit payment (optional)</label><input id="budget-plan-extra-credit" type="number" step="0.01" placeholder="0.00" oninput="budgetPlannerPreview()"><div class="budget-auto-sub">Added above the planned payments</div></div>
-          </div>
-        </section>
-
-        <section class="budget-flow-card future">
-          <div class="budget-flow-head"><span class="budget-flow-icon">✦</span><div><strong>Goals &amp; future money</strong><small>Savings, emergency money and optional investing</small></div></div>
-          <div class="budget-flow-fields future-fields">
-            <div class="budget-field budget-field-clean budget-savings-field"><label>Monthly savings goals</label><input id="budget-plan-savings" type="number" step="0.01" placeholder="e.g. 250" oninput="moneySavingsManualInput()"><div class="budget-auto-sub" id="budget-savings-source">Choose a dated savings goal or enter an amount manually.</div><button type="button" class="budget-pick-btn" id="budget-savings-button" onclick="moneyToggleSavingsGoalPicker()">Choose from goals</button><div class="budget-regular-picker" id="budget-savings-picker"></div></div>
-            <div class="budget-field budget-field-clean"><label>Emergency money</label><input id="budget-plan-buffer" type="number" step="0.01" placeholder="e.g. 100" oninput="budgetPlannerPreview()"><div class="budget-auto-sub">Money kept untouched for unexpected costs</div></div>
-            <div class="budget-field budget-field-clean"><label>Investing (optional)</label><input id="budget-plan-investing" type="number" step="0.01" placeholder="0.00" oninput="budgetPlannerPreview()"><div class="budget-auto-sub">Leave at £0 when it is not part of this plan</div></div>
-          </div>
-        </section>
-      </div>
-
-      <section class="budget-everyday-card">
-        <div class="budget-everyday-copy"><span>Everyday spending left</span><strong id="budget-plan-flexible">£0</strong><small>For groceries, transport, shopping and category limits</small></div>
-        <div class="budget-everyday-orbit">◎</div>
-      </section>
-
-      <div class="budget-summary budget-summary-v2">
-        <div class="budget-summary-item income"><div class="budget-summary-label">Income</div><div class="budget-summary-value" id="budget-sum-income">£0</div></div>
-        <div class="budget-summary-item bills"><div class="budget-summary-label">Bills</div><div class="budget-summary-value" id="budget-sum-bills">£0</div></div>
-        <div class="budget-summary-item credit"><div class="budget-summary-label">Credit payments</div><div class="budget-summary-value" id="budget-sum-credit">£0</div></div>
-        <div class="budget-summary-item future"><div class="budget-summary-label">Goals &amp; future</div><div class="budget-summary-value" id="budget-sum-future">£0</div></div>
-        <div class="budget-summary-item everyday"><div class="budget-summary-label">Everyday spending</div><div class="budget-summary-value good" id="budget-sum-left">£0</div></div>
-      </div>
-
-      <div class="budget-builder-actions"><div class="budget-builder-tip">AI receives your budget totals, selected savings-goal names and target dates, credit-plan balances and APRs, and category totals — not account numbers or merchant-by-merchant details. Review and amend every suggestion before relying on it.</div><button class="budget-build-btn" id="budget-ai-button" onclick="buildSuggestedBudget()">✦ Create my suggested plan</button></div><div class="money-ai-result" id="budget-ai-result"></div>
-    </div>
-
     <div class="money-pane-grid budget-lower-grid">
       <div class="money-col">
-        <section class="life-card money-glass money-form-card budget-categories-card"><div class="life-card-head"><div><div class="life-card-title">Everyday category limits</div><div class="life-card-sub">Split only the everyday amount—not bills, credit or savings</div></div><button class="money-head-action" onclick="moneyBeginNewBudgetItem()">＋ Add category</button></div><div class="life-card-body"><div class="life-form" id="money-budget-form"><div class="life-form-grid"><div class="life-field"><label>Category</label><input class="life-input" id="money-budget-category" list="money-category-options" placeholder="Choose or type your own"><div class="money-category-help">You can type a brand-new category.</div></div><div class="life-field"><label>Monthly limit</label><input class="life-input" id="money-budget-limit" type="number" step="0.01" placeholder="0.00"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="cancelBudgetEdit()">Cancel</button><button class="life-btn-primary" id="money-budget-save-button" onclick="addBudgetItem()">Save limit</button></div></div><div id="money-budgets-list" class="money-budget-list"></div></div></section>
-      </div>
-      <div class="money-col">
-        <section class="life-card money-glass budget-snapshot-card"><div class="life-card-head"><div><div class="life-card-title">This month at a glance</div><div class="life-card-sub">A clean check before you commit to the plan</div></div></div><div class="life-card-body" id="budget-snapshot"></div></section>
+        <section class="life-card money-glass money-form-card budget-categories-card"><div class="life-card-head"><div><div class="life-card-title">Everyday category limits</div><div class="life-card-sub">A monthly limit for each everyday spending category. Bills, credit and savings are handled in their own sections.</div></div><button class="money-head-action" onclick="moneyBeginNewBudgetItem()">＋ Add category</button></div><div class="life-card-body"><div class="life-form" id="money-budget-form"><div class="life-form-grid"><div class="life-field"><label>Category</label><input class="life-input" id="money-budget-category" list="money-category-options" placeholder="Choose or type your own"><div class="money-category-help">You can type a brand-new category.</div></div><div class="life-field"><label>Monthly limit</label><input class="life-input" id="money-budget-limit" type="number" step="0.01" placeholder="0.00"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="cancelBudgetEdit()">Cancel</button><button class="life-btn-primary" id="money-budget-save-button" onclick="addBudgetItem()">Save limit</button></div></div><div id="money-budgets-list" class="money-budget-list"></div></div></section>
       </div>
     </div>
   </div>
@@ -6160,16 +6103,8 @@ function budgetPlanValues(){
 }
 function moneyBudgetPlanRecord(current,v,extra={}){return {...current,income:v.income,rent:v.rent,regularBills:v.bills,regularBillSelections:Array.isArray(current.regularBillSelections)?current.regularBillSelections:[],regularBillsSource:current.regularBillsSource||'',incomeSource:current.incomeSource||'',previousRegularBillsSuggestion:Number(current.previousRegularBillsSuggestion)||0,savingGoalSelections:Array.isArray(current.savingGoalSelections)?current.savingGoalSelections:[],savingsSource:current.savingsSource||'',startDay:moneyBudgetStartDay({budgetPlan:current}),savings:v.savings,buffer:v.buffer,investing:v.investing,extraCredit:v.extraCredit,aiNote:current.aiNote||'',aiSuggestedAt:current.aiSuggestedAt||'',autoNote:current.autoNote||'',...extra}}
 function moneyIncomeManualInput(){const d=hubLoad(),input=document.getElementById('budget-plan-income');d.budgetPlan=d.budgetPlan||{};d.budgetPlan.incomeSource='manual';d.budgetPlan.income=Math.max(0,Number(input?.value)||0);hubSave(d);budgetPlannerPreview()}
-let _budgetFlowOpen=null;
-function moneyToggleBudgetFlow(force){
- const grid=document.getElementById('budget-flow-grid'),label=document.getElementById('budget-flow-toggle-label');
- _budgetFlowOpen=typeof force==='boolean'?force:!_budgetFlowOpen;
- if(grid)grid.classList.toggle('collapsed',!_budgetFlowOpen);
- if(label)label.textContent=_budgetFlowOpen?'Hide details ↑':'Edit details ↓'
-}
 function budgetPlannerPreview(){
  const d=hubLoad(),v=budgetPlanValues(),current=d.budgetPlan||{};d.budgetPlan=moneyBudgetPlanRecord(current,v);hubSave(d);
- if(_budgetFlowOpen===null)moneyToggleBudgetFlow(!((v.income||v.rent||v.bills||v.credit||v.savings||v.buffer||v.investing||v.extraCredit)>0));
  const bills=v.rent+v.bills,credit=v.credit+v.extraCredit,future=v.savings+v.buffer+v.investing,planned=bills+credit+future;
  const set=(id,val,cls)=>{const e=document.getElementById(id);if(e){e.textContent=hubMoney(val,0);if(cls)e.className='budget-summary-value '+cls}};
  set('budget-plan-credit',v.credit);set('budget-plan-flexible',v.flexible);set('budget-sum-income',v.income);set('budget-sum-bills',bills);set('budget-sum-credit',credit);set('budget-sum-future',future);set('budget-sum-left',v.flexible,v.flexible<0?'bad':'good');
@@ -6214,15 +6149,7 @@ function moneyBudgetPlanSteps(d,v){
 }
 function moneyBudgetStepCycleKey(d){return moneyBudgetCycle(d).start}
 function moneyToggleBudgetStep(encoded){const key=decodeURIComponent(String(encoded||'')),d=hubLoad(),cycleKey=moneyBudgetStepCycleKey(d);d.budgetPlan=d.budgetPlan||{};d.budgetPlan.completedSteps=d.budgetPlan.completedSteps||{};const set=new Set(d.budgetPlan.completedSteps[cycleKey]||[]);set.has(key)?set.delete(key):set.add(key);d.budgetPlan.completedSteps[cycleKey]=[...set];hubSave(d);renderMoney()}
-let _budgetAiPlanOpen=false;
-function moneyToggleAiPlanOpen(){_budgetAiPlanOpen=!_budgetAiPlanOpen;renderMoney()}
-function moneyRenderAiBudgetResult(d,v=budgetPlanValues()){
- const box=document.getElementById('budget-ai-result');if(!box)return;const note=d.budgetPlan?.aiNote||'';box.classList.toggle('show',!!note);if(!note){box.innerHTML='';return}
- const steps=moneyBudgetPlanSteps(d,v),doneSet=new Set(d.budgetPlan?.completedSteps?.[moneyBudgetStepCycleKey(d)]||[]),missingCredit=(d.creditPlans||[]).filter(plan=>!moneyIsPayInThree(plan)&&Number(plan.balance||0)>0&&moneyCreditPlanPayment(plan)<=0);
- const missingHtml=missingCredit.length?'<div class="budget-ai-missing"><span>Not included yet</span><strong>'+missingCredit.map(x=>hubEsc(x.name)).join(', ')+'</strong><small>Add a planned or minimum payment for these credit cards.</small></div>':'';
- const doneCount=steps.filter(x=>doneSet.has(x.key)).length;
- box.innerHTML='<div class="budget-ai-plan-head" onclick="moneyToggleAiPlanOpen()"><div><strong>Your plan for this month</strong><span>'+doneCount+' of '+steps.length+' steps done</span></div><span class="budget-ai-editable">'+(_budgetAiPlanOpen?'Hide ▴':'Show ▾')+'</span></div>'+(_budgetAiPlanOpen?('<div class="budget-ai-timeline">'+steps.map((x,i)=>{const done=doneSet.has(x.key);return '<div class="budget-ai-step '+hubEsc(x.tone||'')+(done?' done':'')+'"><button type="button" class="budget-ai-check '+(done?'done':'')+'" onclick="event.stopPropagation();moneyToggleBudgetStep(\''+encodeURIComponent(x.key)+'\')" aria-label="'+(done?'Mark '+hubEsc(x.title)+' not done':'Mark '+hubEsc(x.title)+' done')+'">✓</button><span class="budget-ai-when">'+hubEsc(x.when)+'</span><div><strong>'+hubEsc(x.title)+'</strong><small>'+hubEsc(x.copy)+'</small></div><b>'+hubMoney(x.amount,0)+'</b></div>'}).join('')+'</div>'+missingHtml+'<div class="budget-ai-note"><strong>Why this plan</strong>'+hubEsc(note)+'</div><div class="money-disclaimer">Target-date pace is a simple balance ÷ months estimate before interest. This is an organising aid, not regulated financial advice; check minimums, promotional rates, fees and due dates before changing payments.</div>'):'')
-}
+function moneyRenderAiBudgetResult(){/* Suggested-plan panel removed with the budget builder. */}
 async function buildSuggestedBudget(){
  const d=hubLoad(),v=budgetPlanValues();if(v.income<=0)return hubToast('Add your monthly take-home income first');if(v.availableAfterFixed<=0)return hubToast('Bills, planned credit payments and emergency money currently use all of this income');
  const button=document.getElementById('budget-ai-button'),box=document.getElementById('budget-ai-result');if(button){button.disabled=true;button.textContent='✦ Thinking…'}if(box){box.className='money-ai-result show';box.innerHTML='<strong>Dayframe AI is building the plan</strong>Balancing bills, credit, savings goals, optional investing and everyday spending…'}
