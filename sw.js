@@ -1,4 +1,4 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v119';
+const DAYFRAME_CACHE = 'dayframe-shell-v120';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-performance-guard.js', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-essentials-cleanup.js', '/assets/dayframe-essentials-clickfix.js', '/assets/dayframe-essentials-customise.js', '/assets/dayframe-essentials-pill-left.js', '/assets/dayframe-myflo-calendar-actions.js', '/assets/dayframe-diary-delete-fix.js', '/assets/dayframe-brokers.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_PERFORMANCE_GUARD_SRC = '/assets/dayframe-performance-guard.js?v=20260901-performance-guard-v1';
@@ -43,13 +43,23 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys
-        .filter(key => key.startsWith('dayframe-shell-') && key !== DAYFRAME_CACHE)
-        .map(key => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    const stale = keys.filter(key => key.startsWith('dayframe-shell-') && key !== DAYFRAME_CACHE);
+    await Promise.all(stale.map(key => caches.delete(key)));
+    await self.clients.claim();
+    // If this activation replaced an older shell cache, force every open
+    // window/PWA to reload so it immediately runs the new HTML and assets.
+    // Without this, a stale tab or installed app can keep showing old code
+    // until it is fully closed — which people rarely do on mobile.
+    if (stale.length) {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      await Promise.all(windows.map(client => {
+        try { return Promise.resolve(client.navigate(client.url)).catch(() => undefined); }
+        catch (e) { return undefined; }
+      }));
+    }
+  })());
 });
 
 function stripStalePanels(body) {
