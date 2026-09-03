@@ -222,18 +222,6 @@
     document.head.appendChild(s);
   }
 
-  function teardownHero(pg) {
-    var hero = document.getElementById('df-pf-hero');
-    if (hero) hero.remove();
-    if (pg) pg.classList.remove('df-has-brokers');
-    var bd = document.getElementById('df-broker-breakdown');
-    if (bd) bd.remove();
-    var pills = document.querySelector('#pg-dashboard .df-broker-pills');
-    if (pills) pills.remove();
-    var native = document.querySelector('#pg-dashboard .portfolio-dashboard-header .dash-sync-pill');
-    if (native) native.style.display = '';
-  }
-
   function renderPortfolio() {
     var pg = document.getElementById('pg-dashboard');
     var header = pg && pg.querySelector('.portfolio-dashboard-header');
@@ -242,32 +230,36 @@
     ensureStyle();
 
     var accs = accounts();
-    if (!accs.length) { teardownHero(pg); return; }
-
     var manual = accs.reduce(function (s, a) { return s + (Number(a.value) || 0); }, 0);
     var t = t212Total();
     var hasT = (t != null);
     var tConn = hasT || t212IsConnected();
     var total = (hasT ? t : 0) + manual;
     var pfx = prefix();
-    var totalText = pfx + Math.round(total).toLocaleString('en-GB');
+    var count = (tConn ? 1 : 0) + accs.length;
+    var totalText = count ? pfx + Math.round(total).toLocaleString('en-GB') : pfx + '0';
     if (mval && (hasT || manual > 0)) mval.textContent = totalText;
 
     pg.classList.add('df-has-brokers');
-
-    var count = (tConn ? 1 : 0) + accs.length;
 
     var cards = '';
     if (tConn) {
       cards += '<div class="df-pf-acct"><i></i><b>Trading 212</b><span>'
         + (hasT ? pfx + Math.round(t).toLocaleString('en-GB') : '—') + '</span><em>Auto-synced</em></div>';
+    } else {
+      cards += '<button type="button" class="df-pf-acct df-pf-acct-add" onclick="dfBrokerOpenConnect()">'
+        + '<i>+</i><b>Connect Trading 212</b><span>Live automatic sync</span></button>';
     }
     accs.forEach(function (a) {
       cards += '<div class="df-pf-acct"><i></i><b>' + esc(a.name) + '</b><span>'
         + gbp(a.value) + '</span><em>' + (a.value > 0 ? 'Manual' : 'Add value') + '</em></div>';
     });
     cards += '<button type="button" class="df-pf-acct df-pf-acct-add" onclick="dfBrokerOpenConnect()">'
-      + '<i>+</i><b>Add an investing account</b><span>Vanguard, Moneybox, Trading 212…</span></button>';
+      + '<i>+</i><b>Add an investing account</b><span>Vanguard, Moneybox, AJ Bell…</span></button>';
+
+    var note = count
+      ? (count + ' account' + (count === 1 ? '' : 's') + (hasT ? ' · Trading 212 updates automatically' : ''))
+      : 'Add your first account to see your total';
 
     var hero = document.getElementById('df-pf-hero');
     if (!hero) {
@@ -281,8 +273,7 @@
       '<div class="df-pf-hero-main"><div>'
       + '<span class="df-pf-hero-kicker">Portfolio value</span>'
       + '<strong class="df-pf-hero-total">' + esc(totalText) + '</strong>'
-      + '<span class="df-pf-hero-note">' + (count) + ' account' + (count === 1 ? '' : 's')
-      + (hasT ? ' · Trading 212 updates automatically' : '') + '</span>'
+      + '<span class="df-pf-hero-note">' + esc(note) + '</span>'
       + '</div><button type="button" class="df-pf-hero-manage" onclick="dfBrokerOpenConnect()">Manage</button></div>'
       + '<div class="df-pf-hero-grid">' + cards + '</div>';
 
