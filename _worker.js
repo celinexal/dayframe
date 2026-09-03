@@ -1263,6 +1263,16 @@ async function handleCallback(request,env){
 
 async function refreshTokens(env,t){if(!t?.refresh_token)return null;const form=new URLSearchParams({grant_type:'refresh_token',client_id:env.TRUELAYER_CLIENT_ID,client_secret:env.TRUELAYER_CLIENT_SECRET,refresh_token:t.refresh_token});const r=await fetch(authBase(env)+'/connect/token',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded','accept':'application/json'},body:form});const d=await r.json().catch(()=>({}));if(!r.ok||!d.access_token)return null;return {access_token:d.access_token,refresh_token:d.refresh_token||t.refresh_token,expires_at:Date.now()+(Number(d.expires_in)||3600)*1000,scope:d.scope||t.scope||''}}
 async function apiGet(env,token,path,request){const ip=request.headers.get('CF-Connecting-IP')||'';return fetch(apiBase(env)+path,{headers:{authorization:'Bearer '+token,'accept':'application/json',...(ip?{'X-PSU-IP':ip}:{})}})}
+// Pull the widest practical transaction history (~6 months) so recurring-bill
+// detection can see a payment repeat across separate months, regardless of the
+// user's in-app tracking period. Falls back to the provider default if the
+// dated request is rejected.
+function txHistoryQuery(){const to=new Date();const from=new Date(to.getTime()-185*86400000);return '?from='+from.toISOString().slice(0,10)+'T00:00:00Z&to='+to.toISOString().slice(0,10)+'T23:59:59Z'}
+async function apiGetTransactions(env,token,base,request){
+  let r=await apiGet(env,token,base+txHistoryQuery(),request);
+  if(!r.ok)r=await apiGet(env,token,base,request);
+  return r;
+}
 function category(t){const s=String((t.transaction_category||''))+' '+String(t.transaction_classification||[])+' '+String(t.merchant_name||'')+' '+String(t.description||'');const x=s.toLowerCase();if(/save the change|savings?|investment|wealth|broker|trading 212|vanguard|fidelity/.test(x))return 'Savings & Investments';if(/transfer|bank transfer|faster payment|standing order|^\s*(mr|mrs|ms|miss)\s+[a-z]/.test(x))return 'Transfers';if(/petrol|fuel|shell|esso|bp\b|uber|train|rail|transport|travel|bus|tram|parking/.test(x))return 'Transport';if(/tesco|sainsbury|morrisons(?! petrol)|aldi|lidl|asda|waitrose|grocery|supermarket/.test(x))return 'Groceries';if(/insurance|utility|bill|phone|mobile|broadband|internet|council tax|energy|water/.test(x))return 'Bills & Utilities';if(/netflix|spotify|cinema|entertain|disney|prime video/.test(x))return 'Entertainment';if(/restaurant|cafe|coffee|deliveroo|just eat|uber eats|takeaway|food/.test(x))return 'Eating Out';if(/boots|pharmacy|dentist|medical|health/.test(x))return 'Health';if(/beauty|salon|hair|nails|sephora|space nk/.test(x))return 'Beauty';if(/amazon|shopping|retail|tails\.com|argos|ikea|zara|asos/.test(x))return 'Shopping';return 'Other'}
 function direction(t){const type=String(t.transaction_type||'').toUpperCase();if(type==='CREDIT'||Number(t.amount)>0)return 'income';return 'expense'}
 function cardDirection(t){return Number(t.amount)<0?'income':'expense'}
@@ -1275,7 +1285,7 @@ async function collectAccount(env,token,a,request,connectionId){
   const id=a.account_id;let balance=0,available=null,tx=[];
   const [br,tr]=await Promise.all([
     apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/balance',request),
-    apiGet(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/transactions',request)
+    apiGetTransactions(env,token,'/data/v1/accounts/'+encodeURIComponent(id)+'/transactions',request)
   ]);
   if(br.ok){const b=await br.json().catch(()=>({})),x=b.results?.[0]||{};balance=Number(x.current)||0;available=optionalNumber(x.available)}
   if(tr.ok){const d=await tr.json().catch(()=>({}));tx=(d.results||[]).map(t=>({id:t.transaction_id||crypto.randomUUID(),connection_id:connectionId,account_id:id,account_name:a.display_name||'Bank account',timestamp:t.timestamp||'',description:t.description||'',merchant:t.merchant_name||'',amount:Math.abs(Number(t.amount)||0),direction:direction(t),category:category(t),currency:t.currency||a.currency||'GBP'}))}
@@ -1285,7 +1295,7 @@ async function collectCard(env,token,card,request,connectionId){
   const id=card.account_id;let balance=0,available=null,creditLimit=null,paymentDue=null,paymentDueDate='',lastStatementBalance=null,lastStatementDate='',tx=[];
   const [br,tr]=await Promise.all([
     apiGet(env,token,'/data/v1/cards/'+encodeURIComponent(id)+'/balance',request),
-    apiGet(env,token,'/data/v1/cards/'+encodeURIComponent(id)+'/transactions',request)
+    apiGetTransactions(env,token,'/data/v1/cards/'+encodeURIComponent(id)+'/transactions',request)
   ]);
   if(br.ok){
     const b=await br.json().catch(()=>({})),x=b.results?.[0]||{};
