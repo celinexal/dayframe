@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'life-stage-v4';
+  const VERSION = 'life-stage-v5';
   const FLAG = 'data-dayframe-life-stage';
   const STYLE_ID = 'df-life-stage-style';
 
@@ -209,6 +209,11 @@
       lower.classList.remove('home-visible-0', 'home-visible-1', 'home-visible-2', 'home-visible-3');
       lower.classList.add(`home-visible-${visibleWidgets}`);
     }
+    // Bible now lives in Essentials, so switching it off in Edit Home also
+    // hides its Essentials card, side-nav item and mobile-nav entry.
+    const bibleOff = pref.hidden.includes('bible');
+    ['#df-bible-card', '.driving-side-nav [data-driving-page="bible"]', '.df-mobile-nav button[data-mobile-page="bible"]']
+      .forEach((selector) => document.querySelectorAll(selector).forEach((el) => el.classList.toggle('df-life-hidden', bibleOff)));
   }
 
   function applyLabels() {
