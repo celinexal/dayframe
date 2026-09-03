@@ -2011,6 +2011,19 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 .money-cat-chip{border:1px solid #e2e6f1;background:#f7f7fd;color:#6459d8;border-radius:999px;padding:6px 11px;font:800 10px var(--ff);cursor:pointer}
 .money-cat-chip:hover{background:#efecfb;border-color:#d3ccf7}
 .money-tx-back{margin:0 0 10px}
+#pg-money:has(#money-pane-budget.on) .money-metrics{display:none!important}
+.budget-summary-v2 .budget-summary-item{position:relative}
+.budget-tile-edit{position:absolute;top:6px;right:6px;width:22px;height:22px;display:grid;place-items:center;border:1px solid #e2e6f1;border-radius:7px;background:#fff;color:#8a94a6;font-size:10px;line-height:1;cursor:pointer;padding:0;z-index:2}
+.budget-tile-edit:hover{color:#6459d8;border-color:#cdc6f2}
+.budget-summary-v2 .budget-summary-label{padding-right:22px}
+#budget-tile-pop{position:fixed;z-index:26000;min-width:230px;max-width:calc(100vw - 20px);display:flex;flex-direction:column;gap:9px;padding:14px;border:1px solid #e2e6f1;border-radius:16px;background:#fff;box-shadow:0 22px 48px rgba(31,40,65,.22)}
+#budget-tile-pop .budget-tile-pop-title{font:900 9px var(--ff);text-transform:uppercase;letter-spacing:.06em;color:#8a94a4}
+#budget-tile-pop .budget-tile-pop-field{display:grid;gap:5px;font:800 10px var(--ff);color:#7b8495}
+#budget-tile-pop .budget-tile-pop-field input{height:38px;border:1px solid #dfe3ec;border-radius:11px;padding:0 11px;font:800 13px var(--ff);color:#3d4759;background:#fbfcfe;width:100%;box-sizing:border-box}
+#budget-tile-pop .budget-tile-pop-note{font-size:10px;line-height:1.5;color:#8a94a6}
+#budget-tile-pop .budget-tile-pop-actions{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+#budget-tile-pop .budget-tile-pop-link{margin-right:auto;border:0;background:transparent;color:#6459d8;font:800 11px var(--ff);cursor:pointer;padding:0}
+#budget-tile-pop .budget-tile-pop-save{height:36px;border-radius:10px;border:1px solid #6459d8;background:#6459d8;color:#fff;font:850 11px var(--ff);padding:0 16px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -2399,13 +2412,13 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
   <div class="money-pane" id="money-pane-budget">
     <div class="budget-builder budget-builder-v2">
       <div class="budget-summary budget-summary-v2">
-        <div class="budget-summary-item income"><div class="budget-summary-label">Income</div><div class="budget-summary-value" id="budget-sum-income">£0</div></div>
-        <div class="budget-summary-item bills"><div class="budget-summary-label">Bills</div><div class="budget-summary-value" id="budget-sum-bills">£0</div></div>
-        <div class="budget-summary-item credit"><div class="budget-summary-label">Credit payments</div><div class="budget-summary-value" id="budget-sum-credit">£0</div></div>
-        <div class="budget-summary-item future"><div class="budget-summary-label">Goals &amp; future</div><div class="budget-summary-value" id="budget-sum-future">£0</div></div>
-        <div class="budget-summary-item everyday"><div class="budget-summary-label">Everyday spending</div><div class="budget-summary-value good" id="budget-sum-left">£0</div></div>
+        <div class="budget-summary-item income"><div class="budget-summary-label">Income</div><div class="budget-summary-value" id="budget-sum-income">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('income',event)" aria-label="Edit income">✎</button></div>
+        <div class="budget-summary-item bills"><div class="budget-summary-label">Bills</div><div class="budget-summary-value" id="budget-sum-bills">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('bills',event)" aria-label="Edit bills">✎</button></div>
+        <div class="budget-summary-item credit"><div class="budget-summary-label">Credit payments</div><div class="budget-summary-value" id="budget-sum-credit">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('credit',event)" aria-label="Edit credit payments">✎</button></div>
+        <div class="budget-summary-item future"><div class="budget-summary-label">Goals &amp; future</div><div class="budget-summary-value" id="budget-sum-future">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('future',event)" aria-label="Edit goals and future">✎</button></div>
+        <div class="budget-summary-item everyday"><div class="budget-summary-label">Everyday spending</div><div class="budget-summary-value good" id="budget-sum-left">£0</div><button type="button" class="budget-tile-edit" onclick="budgetTileEdit('everyday',event)" aria-label="Everyday spending">✎</button></div>
       </div>
-      <div class="budget-builder-actions"><div class="budget-builder-tip">AI receives your budget totals, selected savings-goal names and target dates, credit-plan balances and APRs, and category totals — not account numbers or merchant-by-merchant details. Review and amend every suggestion before relying on it.</div><button class="budget-build-btn" id="budget-ai-button" onclick="buildSuggestedBudget()">✦ Create my suggested plan</button></div><div class="money-ai-result" id="budget-ai-result"></div>
+      <div class="budget-builder-actions"><div class="budget-builder-tip">AI receives your budget totals, selected savings-goal names and target dates, credit-plan balances and APRs, and category totals — not account numbers or merchant-by-merchant details. Review and amend every suggestion before relying on it.</div><button class="budget-build-btn" id="budget-ai-button" onclick="moneyToggleBudgetPlan()">Plan for this month</button></div><div class="money-ai-result" id="budget-ai-result"></div>
     </div>
 
     <div class="money-pane-grid budget-lower-grid">
@@ -6173,22 +6186,62 @@ function moneyBudgetPlanSteps(d,v){
 }
 function moneyBudgetStepCycleKey(d){return moneyBudgetCycle(d).start}
 function moneyToggleBudgetStep(encoded){const key=decodeURIComponent(String(encoded||'')),d=hubLoad(),cycleKey=moneyBudgetStepCycleKey(d);d.budgetPlan=d.budgetPlan||{};d.budgetPlan.completedSteps=d.budgetPlan.completedSteps||{};const set=new Set(d.budgetPlan.completedSteps[cycleKey]||[]);set.has(key)?set.delete(key):set.add(key);d.budgetPlan.completedSteps[cycleKey]=[...set];hubSave(d);renderMoney()}
+function moneyUpdateBudgetPlanButton(hasPlan){const b=document.getElementById('budget-ai-button');if(!b)return;if(b.disabled)return;b.textContent=hasPlan?((_budgetPlanOpen?'▾ ':'▸ ')+'Plan for this month'):'✦ Plan for this month'}
+function moneyToggleBudgetPlan(){const d=hubLoad(),note=d.budgetPlan?.aiNote||'';if(!note){_budgetPlanOpen=true;return buildSuggestedBudget()}_budgetPlanOpen=!_budgetPlanOpen;moneyRenderAiBudgetResult(d,budgetPlanValues());if(_budgetPlanOpen)setTimeout(()=>document.getElementById('budget-ai-result')?.scrollIntoView({behavior:'smooth',block:'nearest'}),30)}
 function moneyRenderAiBudgetResult(d,v=budgetPlanValues()){
- const box=document.getElementById('budget-ai-result');if(!box)return;const note=d.budgetPlan?.aiNote||'';box.classList.toggle('show',!!note);if(!note){box.innerHTML='';return}
+ const box=document.getElementById('budget-ai-result');if(!box)return;const note=d.budgetPlan?.aiNote||'';box.classList.toggle('show',!!note&&_budgetPlanOpen);moneyUpdateBudgetPlanButton(!!note);if(!note){box.innerHTML='';return}
  const steps=moneyBudgetPlanSteps(d,v),doneSet=new Set(d.budgetPlan?.completedSteps?.[moneyBudgetStepCycleKey(d)]||[]),missingCredit=(d.creditPlans||[]).filter(plan=>!moneyIsPayInThree(plan)&&Number(plan.balance||0)>0&&moneyCreditPlanPayment(plan)<=0);
  const missingHtml=missingCredit.length?'<div class="budget-ai-missing"><span>Not included yet</span><strong>'+missingCredit.map(x=>hubEsc(x.name)).join(', ')+'</strong><small>Add a planned or minimum payment for these credit cards.</small></div>':'';
  box.innerHTML='<div class="budget-ai-plan-head"><div><strong>Your plan for this month</strong><span>Required payments come first; only extra credit money follows the payoff priority.</span></div><span class="budget-ai-editable">Editable</span></div><div class="budget-ai-timeline">'+steps.map((x,i)=>{const done=doneSet.has(x.key);return '<div class="budget-ai-step '+hubEsc(x.tone||'')+(done?' done':'')+'"><button type="button" class="budget-ai-check '+(done?'done':'')+'" onclick="moneyToggleBudgetStep(\''+encodeURIComponent(x.key)+'\')" aria-label="'+(done?'Mark '+hubEsc(x.title)+' not done':'Mark '+hubEsc(x.title)+' done')+'">✓</button><span class="budget-ai-when">'+hubEsc(x.when)+'</span><div><strong>'+hubEsc(x.title)+'</strong><small>'+hubEsc(x.copy)+'</small></div><b>'+hubMoney(x.amount,0)+'</b></div>'}).join('')+'</div>'+missingHtml+'<div class="budget-ai-note"><strong>Why this plan</strong>'+hubEsc(note)+'</div><div class="money-disclaimer">Target-date pace is a simple balance ÷ months estimate before interest. This is an organising aid, not regulated financial advice; check minimums, promotional rates, fees and due dates before changing payments.</div>'
 }
 async function buildSuggestedBudget(){
  const d=hubLoad(),v=budgetPlanValues();if(v.income<=0)return hubToast('Add your monthly take-home income first');if(v.availableAfterFixed<=0)return hubToast('Bills, planned credit payments and emergency money currently use all of this income');
- const button=document.getElementById('budget-ai-button'),box=document.getElementById('budget-ai-result');if(button){button.disabled=true;button.textContent='✦ Thinking…'}if(box){box.className='money-ai-result show';box.innerHTML='<strong>Dayframe AI is building the plan</strong>Balancing bills, credit, savings goals, optional investing and everyday spending…'}
+ _budgetPlanOpen=true;const button=document.getElementById('budget-ai-button'),box=document.getElementById('budget-ai-result');if(button){button.disabled=true;button.textContent='✦ Thinking…'}if(box){box.className='money-ai-result show';box.innerHTML='<strong>Dayframe AI is building the plan</strong>Balancing bills, credit, savings goals, optional investing and everyday spending…'}
  try{
   const pattern=moneyBudgetPattern(d),payload={monthly_income:Math.round(v.income),rent_or_mortgage:Math.round(v.rent),other_recurring_bills:Math.round(v.bills),planned_credit_payments:Math.round(v.credit),cash_buffer:Math.round(v.buffer),current_savings_amount:Math.round(v.savings),current_investing_amount:Math.round(v.investing),current_extra_credit_payment:Math.round(v.extraCredit),available_after_fixed_costs:Math.round(v.availableAfterFixed),savings_goals:moneySelectedSavingsPayload(d),credit_balances:(d.creditPlans||[]).filter(x=>!moneyIsPayInThree(x)).map(x=>({name:x.name,balance:Math.round(Number(x.balance||0)),apr:Number(x.apr||0),apr_known:moneyHasKnownApr(x),minimum_payment:Math.round(Number(x.minimumPayment||0)),planned_payment:Math.round(Number(x.monthlyPayment||0)),due_date:x.dueDate||'',target_payoff_date:x.targetDate||'',purchase_interest_monthly:Number(x.purchaseInterest||0)})).slice(0,10),pay_in_3_provider_balances:(d.creditPlans||[]).filter(moneyIsPayInThree).map(x=>({provider:moneyPayInThreeProvider(x),amount_still_owed:Math.round(Number(x.balance||0))})).slice(0,10),budget_cycle_spending_by_category:Object.fromEntries(Object.entries(pattern).map(([k,val])=>[k,Math.round(val)]))};
   const answer=await callClaude('You are helping a UK user organise a monthly budget. Return ONLY valid JSON in this exact shape: {"savings_monthly":250,"investing_monthly":0,"extra_credit_payment":100,"categories":[{"category":"Groceries","limit":300}],"note":"a useful 2-4 sentence explanation of the priorities and trade-offs"}. Savings, investing, extra credit and category limits together must not exceed available_after_fixed_costs. Keep every planned or minimum credit-card payment untouched. Pay in 3 provider balances are tracked from bank transactions separately: do not invent a monthly instalment for them and never target them with extra_credit_payment. Treat extra_credit_payment as separate money that can follow the selected credit-card payoff priority; never replace the other cards’ required payments. Use savings goal amounts and dates to suggest an affordable contribution, but do not force an impossible deadline. If high-APR credit exists, generally prioritise an affordable extra payment before optional investing. Use observed categories where available, leave a small cushion when sensible, never recommend a specific investment or financial product, and do not end the note with a question. DATA: '+JSON.stringify(payload));
   const suggestion=moneyParseAiBudget(answer,v,d),next={...v,savings:suggestion.savings,investing:suggestion.investing,extraCredit:suggestion.extraCredit};next.flexible=next.availableAfterFixed-next.savings-next.investing-next.extraCredit;d.budgets=suggestion.rows;d.budgetPlan=moneyBudgetPlanRecord(d.budgetPlan,next,{savingsSource:'ai',aiNote:suggestion.note,aiSuggestedAt:new Date().toISOString()});hubSave(d);renderMoney();hubToast('Your suggested monthly plan is ready')
  }catch(e){
   const available=Math.max(0,v.availableAfterFixed),optional=Math.max(0,v.savings+v.investing+v.extraCredit),scale=optional>available&&optional>0?available/optional:1,next={...v,savings:Math.round(v.savings*scale),investing:Math.round(v.investing*scale),extraCredit:Math.round(v.extraCredit*scale)};next.flexible=Math.max(0,next.availableAfterFixed-next.savings-next.investing-next.extraCredit);d.budgets=moneyFallbackBudgets(d,next);d.budgetPlan=moneyBudgetPlanRecord(d.budgetPlan,next,{savingsSource:d.budgetPlan.savingsSource||'manual',aiNote:'Dayframe used your current spending pattern because the AI response was unavailable. Bills and planned credit payments come first, then the amounts you entered for savings or investing, with the remainder divided across everyday categories.',aiSuggestedAt:new Date().toISOString()});hubSave(d);renderMoney();hubToast('A smart plan was created from your totals')
- }finally{if(button){button.disabled=false;button.textContent='✦ Create my suggested plan'}}
+ }finally{if(button){button.disabled=false;moneyUpdateBudgetPlanButton(!!(hubLoad().budgetPlan?.aiNote))}}
+}
+let _budgetPlanOpen=false;
+const BUDGET_TILE_FIELDS={
+ income:{title:'Monthly income',fields:[{key:'income',label:'Take-home pay',plan:true}]},
+ bills:{title:'Bills',fields:[{key:'rent',label:'Rent or mortgage',plan:true},{key:'regularBills',label:'Other regular bills',plan:true}]},
+ credit:{title:'Credit payments',fields:[{key:'extraCredit',label:'Extra payment (on top of card minimums)',plan:true}],note:'Each card’s own minimum or planned payment is set on the Credit Plan tab.'},
+ future:{title:'Goals & future',fields:[{key:'savings',label:'Monthly savings',plan:true},{key:'investing',label:'Monthly investing',plan:true},{key:'buffer',label:'Safety buffer top-up',plan:true}]}
+};
+function closeBudgetTilePop(){document.getElementById('budget-tile-pop')?.remove();document.removeEventListener('click',budgetTilePopOutside,true)}
+function budgetTilePopOutside(e){const p=document.getElementById('budget-tile-pop');if(p&&!p.contains(e.target)&&!(e.target.closest&&e.target.closest('.budget-summary-item')))closeBudgetTilePop()}
+function budgetTileEdit(kind,event){
+ closeBudgetTilePop();
+ if(kind==='everyday'){const card=document.querySelector('.budget-categories-card');if(card)card.scrollIntoView({behavior:'smooth',block:'start'});hubToast('Everyday spending is whatever’s left. Set category limits below.');return}
+ const cfg=BUDGET_TILE_FIELDS[kind];if(!cfg)return;
+ const d=hubLoad();d.budgetPlan=d.budgetPlan||{};
+ const pop=document.createElement('div');pop.id='budget-tile-pop';pop.setAttribute('role','dialog');
+ pop.innerHTML='<div class="budget-tile-pop-title">'+hubEsc(cfg.title)+'</div>'
+  +cfg.fields.map(f=>'<label class="budget-tile-pop-field"><span>'+hubEsc(f.label)+'</span><input type="number" inputmode="decimal" min="0" step="1" data-key="'+f.key+'" value="'+(Math.round(Number(d.budgetPlan[f.key])||0))+'"></label>').join('')
+  +(cfg.note?'<div class="budget-tile-pop-note">'+hubEsc(cfg.note)+'</div>':'')
+  +'<div class="budget-tile-pop-actions">'
+  +(kind==='credit'?'<button type="button" class="budget-tile-pop-link" onclick="closeBudgetTilePop();moneyOpenTab(\'credit\')">Credit Plan →</button>':'')
+  +'<button type="button" class="budget-tile-pop-save" onclick="budgetTileSave(\''+kind+'\')">Save</button></div>';
+ document.body.appendChild(pop);
+ const anchor=event&&event.target&&event.target.closest?event.target.closest('.budget-summary-item'):null;
+ const rect=anchor?anchor.getBoundingClientRect():{left:innerWidth/2-120,bottom:160,top:120,width:0};
+ const pw=pop.offsetWidth||248,ph=pop.offsetHeight||180;
+ let left=Math.max(10,Math.min(rect.left+rect.width/2-pw/2,innerWidth-pw-10));
+ let top=rect.bottom+8;if(top+ph>innerHeight-10)top=Math.max(10,rect.top-ph-8);
+ pop.style.left=left+'px';pop.style.top=top+'px';
+ setTimeout(()=>{pop.querySelector('input')?.focus();pop.querySelector('input')?.select()},40);
+ setTimeout(()=>document.addEventListener('click',budgetTilePopOutside,true),0);
+}
+function budgetTileSave(kind){
+ const cfg=BUDGET_TILE_FIELDS[kind],pop=document.getElementById('budget-tile-pop');if(!cfg||!pop)return;
+ const d=hubLoad();d.budgetPlan=d.budgetPlan||{};
+ pop.querySelectorAll('input[data-key]').forEach(inp=>{d.budgetPlan[inp.dataset.key]=Math.max(0,Number(inp.value)||0)});
+ if(kind==='income')d.budgetPlan.incomeSource='manual';
+ hubSave(d);closeBudgetTilePop();budgetPlannerPreview();hubToast('Budget updated')
 }
 let _budgetEditingId=null;
 function resetBudgetForm(){_budgetEditingId=null;const cat=document.getElementById('money-budget-category'),lim=document.getElementById('money-budget-limit'),btn=document.getElementById('money-budget-save-button');if(cat)cat.value='';if(lim)lim.value='';if(btn)btn.textContent='Save limit'}
