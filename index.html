@@ -2162,6 +2162,13 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <div class="security-card-copy">This needs a complete enrolment and sign-in challenge flow before it can safely be switched on. Dayframe will not show a decorative toggle that does nothing.</div>
     </section>
     <section class="life-card security-card">
+      <div class="security-card-top"><div class="security-card-icon session">◔</div><div><h2>Reminders</h2><p>A morning notification for what is coming up</p></div><span class="security-status" id="df-reminders-badge">Off</span></div>
+      <div class="security-card-copy">One notification each morning covering renewals, bills, dated tasks, goal dates and your period estimate for the next few days. On iPhone, add Dayframe to your Home Screen first, then turn this on from the installed app.</div>
+      <button class="security-action" type="button" id="df-reminders-btn" onclick="dayframeToggleReminders()">Turn on reminders</button>
+      <button class="security-action ghost" type="button" id="df-reminders-test" onclick="dayframeSendTestReminder()" style="display:none">Send a test</button>
+      <div class="security-inline-status" id="df-reminders-status" role="status" aria-live="polite"></div>
+    </section>
+    <section class="life-card security-card">
       <div class="security-card-top"><div class="security-card-icon session">◎</div><div><h2>Active sessions</h2><p>Control where your account stays signed in</p></div></div>
       <div class="security-session-row"><div><strong id="security-device-name">This browser</strong><span id="security-device-meta">Active now</span></div><span class="security-current">This device</span></div>
       <div class="security-action-row"><button class="security-action ghost" type="button" onclick="securitySignOutOthers()">Sign out other devices</button><button class="security-action ghost" type="button" onclick="securityClearThisDevice()">Sign out and clear this device</button></div>
@@ -4298,6 +4305,67 @@ async function dfBankFetch(url,opts={}){
   let response=await send();
   if(response.status===401){await dfRefreshSession(true);response=await send()}
   return response;
+}
+
+const DAYFRAME_VAPID_PUBLIC_KEY='BP-qWlBLzxKHVcSe6TtiXqD1jOkWzyFgN5Pp3Iauc8rFy0Vvjpr0Wrm7aavCGotxi_eQynOzRVdsiYh7C-C0tws';
+function dfVapidKeyBytes(base64){const pad='='.repeat((4-base64.length%4)%4);const b=(base64+pad).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(b);const out=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out}
+async function dayframeRemindersState(){
+  if(!('serviceWorker'in navigator)||!('PushManager'in window)||!('Notification'in window))return 'unsupported';
+  const reg=await navigator.serviceWorker.ready.catch(()=>null);
+  if(!reg||!reg.pushManager)return 'unsupported';
+  const sub=await reg.pushManager.getSubscription().catch(()=>null);
+  if(sub)return 'on';
+  if(Notification.permission==='denied')return 'blocked';
+  return 'off';
+}
+async function dayframeRefreshRemindersUI(){
+  const badge=document.getElementById('df-reminders-badge'),btn=document.getElementById('df-reminders-btn'),test=document.getElementById('df-reminders-test'),status=document.getElementById('df-reminders-status');
+  if(!badge||!btn)return;
+  const s=await dayframeRemindersState();
+  const map={
+    unsupported:['Not available','',"Reminders need a browser that supports notifications."],
+    blocked:['Blocked','Turn on reminders',"Notifications are blocked for Dayframe in your browser or phone settings."],
+    off:['Off','Turn on reminders',''],
+    on:['On','Turn off reminders','']
+  };
+  badge.textContent=map[s][0];
+  badge.className='security-status'+(s==='on'?' good':s==='blocked'?' planned':'');
+  btn.textContent=map[s][1]||'Turn on reminders';
+  btn.disabled=(s==='unsupported');
+  btn.style.display=(s==='unsupported')?'none':'';
+  if(test)test.style.display=(s==='on')?'':'none';
+  if(status&&map[s][2])status.textContent=map[s][2];
+}
+async function dayframeToggleReminders(){
+  const status=document.getElementById('df-reminders-status');
+  const say=(m)=>{if(status)status.textContent=m};
+  let s;try{s=await dayframeRemindersState()}catch(e){s='unsupported'}
+  if(s==='unsupported')return say('Reminders are not available in this browser.');
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    if(s==='on'){
+      const sub=await reg.pushManager.getSubscription();
+      if(sub){await dfBankFetch('/api/push/unsubscribe',{method:'POST',body:JSON.stringify({endpoint:sub.endpoint})}).catch(()=>{});await sub.unsubscribe().catch(()=>{})}
+      say('Reminders turned off.');
+      return dayframeRefreshRemindersUI();
+    }
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){say('Notifications were not allowed.');return dayframeRefreshRemindersUI()}
+    const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:dfVapidKeyBytes(DAYFRAME_VAPID_PUBLIC_KEY)});
+    const r=await dfBankFetch('/api/push/subscribe',{method:'POST',body:JSON.stringify({subscription:sub.toJSON(),tz:(Intl.DateTimeFormat().resolvedOptions().timeZone)||''})});
+    if(!r.ok){await sub.unsubscribe().catch(()=>{});const j=await r.json().catch(()=>({}));throw new Error(j.error||'Server rejected the subscription.')}
+    say('Reminders are on. Expect a morning summary.');
+  }catch(e){
+    say('Could not turn on reminders. '+(e&&e.message?e.message:''));
+  }
+  dayframeRefreshRemindersUI();
+}
+async function dayframeSendTestReminder(){
+  const status=document.getElementById('df-reminders-status');
+  try{
+    const r=await dfBankFetch('/api/push/test',{method:'POST',body:JSON.stringify({})});
+    if(status)status.textContent=r.ok?'Test sent — it should arrive shortly.':'Could not send a test right now.';
+  }catch(e){if(status)status.textContent='Could not send a test right now.'}
 }
 
 
@@ -6862,6 +6930,7 @@ async function securityRender(){
  if(bankStatus)bankStatus.textContent=bankCount?bankCount+' connection'+(bankCount===1?'':'s'):'Not connected';if(bankDot)bankDot.classList.toggle('on',bankCount>0);
  const tStatus=document.getElementById('security-t212-status'),tDot=document.getElementById('security-t212-dot');
  if(tStatus)tStatus.textContent=t212Connected?'Connected · read only':'Not connected';if(tDot)tDot.classList.toggle('on',t212Connected);
+ dayframeRefreshRemindersUI();
 }
 async function securitySendPasswordReset(){
  securitySetStatus('security-password-status','Sending…');

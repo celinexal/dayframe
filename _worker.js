@@ -519,12 +519,19 @@ export default {
       if(url.pathname==='/api/bible/licensed')return request.method==='GET'?signedEndpoint(request,()=>getLicensedBibleChapter(url,env)):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
       if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request,env);
+      if(url.pathname==='/api/push/subscribe'&&request.method==='POST')return pushSubscribe(request);
+      if(url.pathname==='/api/push/unsubscribe'&&request.method==='POST')return pushUnsubscribe(request);
+      if(url.pathname==='/api/push/test'&&request.method==='POST')return pushTest(request,env);
+      if(url.pathname==='/api/push/run'&&(request.method==='POST'||request.method==='GET'))return pushRun(request,env);
       if(url.pathname.startsWith('/api/'))return json({error:'Not found'},404);
       return env.ASSETS.fetch(request);
     }catch(err){
       console.error(JSON.stringify({event:'dayframe_api_error',path:url.pathname,error:err instanceof Error?err.message:'unknown'}));
       return json({error:'Something went wrong on the secure Dayframe service.'},500);
     }
+  },
+  async scheduled(event,env,ctx){
+    ctx.waitUntil(pushRun(new Request('https://dayframe.internal/api/push/run',{headers:{'x-dayframe-cron':env.PUSH_CRON_SECRET||''}}),env).catch(()=>{}));
   }
 };
 function isConfigured(env){return !!(String(env.TRUELAYER_CLIENT_ID||'').trim()&&String(env.TRUELAYER_CLIENT_SECRET||'').trim()&&String(env.TRUELAYER_RETURN_URI||'').trim())}
@@ -572,6 +579,135 @@ function bearer(request){const h=request.headers.get('authorization')||'';return
 async function verifyUser(request){const token=bearer(request);if(!token)return null;const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON,authorization:'Bearer '+token}});if(!r.ok)return null;const user=await r.json().catch(()=>null);return user?.id?{user,token}:null}
 async function signedEndpoint(request,action){const auth=await verifyUser(request);if(!auth)return json({error:'Sign in to continue.'},401);return action(auth)}
 async function sbRest(path,jwt,opts={}){const headers={apikey:SUPABASE_ANON,authorization:'Bearer '+jwt,'content-type':'application/json',...(opts.headers||{})};return fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers})}
+
+/* ---------- Push reminders (RFC 8291 aes128gcm + RFC 8292 VAPID) ---------- */
+const DAYFRAME_VAPID_PUBLIC_KEY='BP-qWlBLzxKHVcSe6TtiXqD1jOkWzyFgN5Pp3Iauc8rFy0Vvjpr0Wrm7aavCGotxi_eQynOzRVdsiYh7C-C0tws';
+function pushCat(...a){let n=0;for(const x of a)n+=x.length;const o=new Uint8Array(n);let p=0;for(const x of a){o.set(x,p);p+=x.length}return o}
+async function pushHkdf(salt,ikm,info,len){const k=await crypto.subtle.importKey('raw',ikm,'HKDF',false,['deriveBits']);return new Uint8Array(await crypto.subtle.deriveBits({name:'HKDF',hash:'SHA-256',salt,info},k,len*8))}
+function pushVapidKey(env){try{return JSON.parse(env.VAPID_PRIVATE_JWK)}catch(e){return null}}
+async function pushVapidJwt(aud,jwk,sub){
+  const enc=new TextEncoder();
+  const h=b64u(enc.encode(JSON.stringify({typ:'JWT',alg:'ES256'})));
+  const p=b64u(enc.encode(JSON.stringify({aud,exp:Math.floor(Date.now()/1000)+43200,sub})));
+  const key=await crypto.subtle.importKey('jwk',{...jwk,ext:true},{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+  const sig=new Uint8Array(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,enc.encode(h+'.'+p)));
+  return h+'.'+p+'.'+b64u(sig);
+}
+async function pushSend(subscription,payloadObj,env){
+  const jwk=pushVapidKey(env);
+  if(!jwk)return 500;
+  const enc=new TextEncoder();
+  const ua_public=unb64u(subscription.keys.p256dh),auth_secret=unb64u(subscription.keys.auth);
+  const plaintext=enc.encode(JSON.stringify(payloadObj));
+  const as=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+  const as_public=new Uint8Array(await crypto.subtle.exportKey('raw',as.publicKey));
+  const uaKey=await crypto.subtle.importKey('raw',ua_public,{name:'ECDH',namedCurve:'P-256'},false,[]);
+  const ecdh=new Uint8Array(await crypto.subtle.deriveBits({name:'ECDH',public:uaKey},as.privateKey,256));
+  const ikm=await pushHkdf(auth_secret,ecdh,pushCat(enc.encode('WebPush: info\0'),ua_public,as_public),32);
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const cek=await pushHkdf(salt,ikm,enc.encode('Content-Encoding: aes128gcm\0'),16);
+  const nonce=await pushHkdf(salt,ikm,enc.encode('Content-Encoding: nonce\0'),12);
+  const aesKey=await crypto.subtle.importKey('raw',cek,'AES-GCM',false,['encrypt']);
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:nonce},aesKey,pushCat(plaintext,new Uint8Array([2]))));
+  const header=new Uint8Array(21+65);
+  header.set(salt,0);
+  new DataView(header.buffer).setUint32(16,4096);
+  header[20]=65;
+  header.set(as_public,21);
+  const body=pushCat(header,ct);
+  const aud=new URL(subscription.endpoint).origin;
+  const jwt=await pushVapidJwt(aud,jwk,env.VAPID_SUBJECT||'mailto:reminders@dayframe.app');
+  const res=await fetch(subscription.endpoint,{method:'POST',headers:{'Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream','TTL':'86400','Urgency':'normal','Authorization':'vapid t='+jwt+', k='+DAYFRAME_VAPID_PUBLIC_KEY},body});
+  return res.status;
+}
+async function pushSubscribe(request){
+  const auth=await verifyUser(request);
+  if(!auth)return json({error:'Sign in to continue.'},401);
+  const inb=await request.json().catch(()=>null);
+  const s=inb&&inb.subscription;
+  if(!s||!s.endpoint||!s.keys||!s.keys.p256dh||!s.keys.auth)return json({error:'Invalid subscription.'},400);
+  const row={endpoint:s.endpoint,user_id:auth.user.id,p256dh:s.keys.p256dh,auth:s.keys.auth,tz:String(inb.tz||'').slice(0,64),updated_at:new Date().toISOString()};
+  const r=await sbRest('dayframe_push_subscriptions?on_conflict=endpoint',auth.token,{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(row)});
+  if(!r.ok)return json({error:'Could not save the subscription.'},502);
+  return json({ok:true});
+}
+async function pushUnsubscribe(request){
+  const auth=await verifyUser(request);
+  if(!auth)return json({error:'Sign in to continue.'},401);
+  const inb=await request.json().catch(()=>({}));
+  const endpoint=String(inb.endpoint||'');
+  if(!endpoint)return json({error:'No endpoint supplied.'},400);
+  await sbRest('dayframe_push_subscriptions?endpoint=eq.'+encodeURIComponent(endpoint)+'&user_id=eq.'+encodeURIComponent(auth.user.id),auth.token,{method:'DELETE'});
+  return json({ok:true});
+}
+function pushDaysUntil(iso,todayISO){if(!iso)return null;return Math.round((new Date(iso+'T00:00:00Z')-new Date(todayISO+'T00:00:00Z'))/86400000)}
+function pushBuildDigest(hub){
+  const today=new Date().toISOString().slice(0,10);
+  const within=(iso,lo,hi)=>{const n=pushDaysUntil(iso,today);return n!==null&&n>=lo&&n<=hi};
+  const rel=(iso)=>{const n=pushDaysUntil(iso,today);return n<0?'overdue by '+Math.abs(n)+(Math.abs(n)===1?' day':' days'):n===0?'today':n===1?'tomorrow':'in '+n+' days'};
+  const lines=[];
+  (hub.tasks||[]).filter(t=>!t.done&&t.date&&within(t.date,-14,3)).slice(0,4).forEach(t=>lines.push((t.title||'Task')+' — '+rel(t.date)));
+  (hub.bills||[]).forEach(b=>{
+    if(b.paidMonth===today.slice(0,7))return;
+    const dd=Math.min(28,Math.max(1,Number(b.dueDay)||1));
+    const due=today.slice(0,7)+'-'+String(dd).padStart(2,'0');
+    if(within(due,-3,3))lines.push((b.name||'Bill')+' due '+rel(due)+' · £'+(Number(b.amount)||0));
+  });
+  const dates=(hub.vehicle&&hub.vehicle.dates)||{};
+  const RL={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};
+  Object.keys(RL).forEach(k=>{if(dates[k]&&within(dates[k],-30,7))lines.push(RL[k]+' '+rel(dates[k]))});
+  (hub.goals||[]).filter(g=>g.targetDate&&within(g.targetDate,0,3)&&!(g.type==='money'&&Number(g.target)>0&&Number(g.current)>=Number(g.target))).forEach(g=>lines.push((g.name||'Goal')+' target — '+rel(g.targetDate)));
+  const p=hub.essentials&&hub.essentials.period;
+  if(p&&p.lastStart&&/^\d{4}-\d{2}-\d{2}$/.test(p.lastStart)){
+    const cyc=Math.min(60,Math.max(15,Number(p.cycleLength)||28));
+    let nd=new Date(p.lastStart+'T12:00:00Z');nd.setUTCDate(nd.getUTCDate()+cyc);let iso=nd.toISOString().slice(0,10),g=0;
+    while(iso<today&&g++<24){nd.setUTCDate(nd.getUTCDate()+cyc);iso=nd.toISOString().slice(0,10)}
+    if(within(iso,0,3))lines.push('Period estimated '+rel(iso));
+  }
+  if(!lines.length)return null;
+  return {title:lines.length===1?'Dayframe reminder':'Dayframe — '+lines.length+' coming up',body:lines.slice(0,5).join('\n'),url:'/',tag:'dayframe-daily'};
+}
+async function pushTest(request,env){
+  const auth=await verifyUser(request);
+  if(!auth)return json({error:'Sign in to continue.'},401);
+  if(!env.VAPID_PRIVATE_JWK)return json({error:'Push is not configured on the server yet.'},500);
+  const r=await sbRest('dayframe_push_subscriptions?select=endpoint,p256dh,auth&user_id=eq.'+encodeURIComponent(auth.user.id),auth.token);
+  const subs=r.ok?await r.json():[];
+  if(!subs.length)return json({error:'No subscription found.'},404);
+  let sent=0;
+  for(const s of subs){
+    const st=await pushSend({endpoint:s.endpoint,keys:{p256dh:s.p256dh,auth:s.auth}},{title:'Dayframe',body:'Test reminder — notifications are working.',url:'/',tag:'dayframe-test'},env).catch(()=>0);
+    if(st===200||st===201||st===202)sent++;
+  }
+  return json({ok:sent>0,sent});
+}
+async function pushRun(request,env){
+  const secret=request.headers.get('x-dayframe-cron')||new URL(request.url).searchParams.get('key')||'';
+  if(!env.PUSH_CRON_SECRET||secret!==env.PUSH_CRON_SECRET)return json({error:'Forbidden.'},403);
+  if(!env.SUPABASE_SERVICE_ROLE_KEY||!env.VAPID_PRIVATE_JWK)return json({error:'Push is not configured.'},500);
+  const svc=(path,opts={})=>fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers:{apikey:env.SUPABASE_SERVICE_ROLE_KEY,authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,'content-type':'application/json',...(opts.headers||{})}});
+  const subsRes=await svc('dayframe_push_subscriptions?select=user_id,endpoint,p256dh,auth');
+  if(!subsRes.ok)return json({error:'Could not load subscriptions.',status:subsRes.status},502);
+  const subs=await subsRes.json();
+  if(!subs.length)return json({ok:true,sent:0,note:'no subscribers'});
+  const byUser={};
+  subs.forEach(s=>{(byUser[s.user_id]=byUser[s.user_id]||[]).push(s)});
+  const ids=Object.keys(byUser);
+  const dataRes=await svc('dayframe_user_data?select=user_id,hub_data&user_id=in.('+ids.map(encodeURIComponent).join(',')+')');
+  const rows=dataRes.ok?await dataRes.json():[];
+  let sent=0,cleaned=0,failed=0;
+  for(const row of rows){
+    const digest=pushBuildDigest(row.hub_data||{});
+    if(!digest)continue;
+    for(const sub of byUser[row.user_id]||[]){
+      const status=await pushSend({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},digest,env).catch(()=>0);
+      if(status===200||status===201||status===202)sent++;
+      else if(status===404||status===410){await svc('dayframe_push_subscriptions?endpoint=eq.'+encodeURIComponent(sub.endpoint),{method:'DELETE'});cleaned++}
+      else failed++;
+    }
+  }
+  return json({ok:true,users:rows.length,sent,cleaned,failed});
+}
 function validateProfile(name,email){name=String(name||'').trim();email=String(email||'').trim();if(name.length<2||name.length>100)return 'Enter your name.';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return 'Enter a valid email address.';return ''}
 
 async function proxySharedGroq(request){

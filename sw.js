@@ -262,3 +262,35 @@ self.addEventListener('message', event => {
   const data = event.data || {};
   if (data && data.type === 'DAYFRAME_SKIP_WAITING') self.skipWaiting();
 });
+// data-dayframe-skip-waiting-handler-v1
+
+// data-dayframe-push-handlers-v1
+self.addEventListener('push', event => {
+  let payload = {};
+  try { payload = event.data ? event.data.json() : {}; } catch { payload = { body: event.data && event.data.text ? event.data.text() : '' }; }
+  const title = payload.title || 'Dayframe';
+  const options = {
+    body: payload.body || 'You have something coming up.',
+    icon: '/dayframe-icon-2026.svg',
+    badge: '/dayframe-icon-2026.svg',
+    tag: payload.tag || 'dayframe-reminder',
+    renotify: true,
+    data: { url: payload.url || '/' },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || '/';
+  event.waitUntil((async () => {
+    const clientsArr = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of clientsArr) {
+      if ('focus' in client) {
+        client.navigate ? await client.navigate(target).catch(() => {}) : null;
+        return client.focus();
+      }
+    }
+    if (self.clients.openWindow) return self.clients.openWindow(target);
+  })());
+});
