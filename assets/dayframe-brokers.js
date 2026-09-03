@@ -5,8 +5,8 @@
   var STYLE_ID = 'df-brokers-style';
   var PENDING_KEY = 'dayframe_pending_brokers_v1';
   var BROKER_NAMES = [
-    'Vanguard', 'DEGIRO', 'Hargreaves Lansdown', 'AJ Bell', 'Fidelity', 'interactive investor',
-    'Freetrade', 'InvestEngine', 'Moneybox', 'Nutmeg', 'Charles Stanley Direct',
+    'Vanguard', 'Moneybox', 'DEGIRO', 'Hargreaves Lansdown', 'AJ Bell', 'Fidelity',
+    'interactive investor', 'Freetrade', 'InvestEngine', 'Nutmeg', 'Charles Stanley Direct',
     'Wealthify', 'Standard Life', 'Aviva', 'Trading 212 (second account)', 'Other'
   ];
 
@@ -267,7 +267,7 @@
         + gbp(a.value) + '</span><em>' + (a.value > 0 ? 'Manual' : 'Add value') + '</em></div>';
     });
     cards += '<button type="button" class="df-pf-acct df-pf-acct-add" onclick="dfBrokerOpenConnect()">'
-      + '<i>+</i><b>Connect a broker</b><span>Vanguard, AJ Bell, DEGIRO…</span></button>';
+      + '<i>+</i><b>Add an investing account</b><span>Vanguard, Moneybox, Trading 212…</span></button>';
 
     var hero = document.getElementById('df-pf-hero');
     if (!hero) {
@@ -300,18 +300,18 @@
     var sec = document.createElement('section');
     sec.className = 'invest-service-card';
     sec.id = 'df-broker-connect-card';
-    var opts = ['<option value="">Choose a broker…</option>'].concat(
+    var opts = ['<option value="">Choose a provider…</option>'].concat(
       BROKER_NAMES.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; })
     ).join('');
     sec.innerHTML =
       '<div class="invest-service-top"><span class="invest-service-icon">+</span>'
-      + '<div><h3>Other brokers</h3><p>Add Vanguard, AJ Bell, Freetrade and others. Trading 212 syncs automatically above — everything else you keep up to date yourself.</p></div></div>'
+      + '<div><h3>Your other investing accounts</h3><p>A “broker” is just the app or company you invest through — Vanguard, Moneybox, AJ Bell and so on. Trading 212 connects automatically above; add the rest here.</p></div></div>'
       + '<div class="df-broker-add-row">'
       + '<select id="df-broker-add-select">' + opts + '</select>'
       + '<button type="button" class="df-broker-add-btn" onclick="(function(){var s=document.getElementById(\'df-broker-add-select\');if(s&&s.value){dfBrokerAdd(s.value);s.value=\'\'}})()">Add</button>'
       + '</div>'
       + '<div id="df-broker-list"></div>'
-      + '<div class="df-broker-hint">Trading 212 is the only broker that offers a personal API, so it is the only one Dayframe syncs live. Every other broker (Vanguard, DEGIRO and the rest) shows a short guide on where to read the figure — enter it here and it is added to your portfolio total and shown separately by broker.</div>';
+      + '<div class="df-broker-hint">Trading 212 is the only one of these that lets an app pull your balance for you, so it is the only account Dayframe updates live. For the rest (Vanguard, Moneybox and so on) each one shows a short note on where to find the figure — type it in and it is added to your total and shown on its own.</div>';
     grid.appendChild(sec);
     renderDrawerList();
   }
@@ -367,14 +367,14 @@
     var block = document.createElement('div');
     block.className = 'df-signup-brokers auth-field';
     block.id = 'df-signup-brokers';
-    var chips = ['Trading 212', 'Vanguard', 'DEGIRO', 'Hargreaves Lansdown', 'AJ Bell', 'Freetrade', 'InvestEngine', 'interactive investor', 'Moneybox']
+    var chips = ['Trading 212', 'Vanguard', 'Moneybox', 'Hargreaves Lansdown', 'AJ Bell', 'Freetrade', 'InvestEngine', 'DEGIRO']
       .map(function (n) {
         var on = chosen.indexOf(n) !== -1 ? ' on' : '';
         return '<button type="button" class="df-signup-chip' + on + '" onclick="dfSignupToggleBroker(this,\'' + esc(n) + '\')">' + esc(n) + '</button>';
       }).join('');
-    block.innerHTML = '<span>Which brokers do you invest with? (optional)</span>'
+    block.innerHTML = '<span>Where do you invest? (optional)</span>'
       + '<div class="df-chip-wrap">' + chips + '</div>'
-      + '<small>We’ll add these to your investing dashboard. You can connect Trading 212 automatically and add others after signing in.</small>';
+      + '<small>Pick the apps or providers you use — Vanguard, Moneybox, Trading 212 and so on. We’ll add them to your investing dashboard; Trading 212 can connect automatically once you’re signed in.</small>';
     btn.parentNode.insertBefore(block, btn);
   }
 
