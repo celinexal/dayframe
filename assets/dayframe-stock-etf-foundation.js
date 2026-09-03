@@ -16,11 +16,10 @@
 
   function topicDetail() {
     return `
-      <div class="df-stock-etf-lesson" data-df-focus="all">
+      <div class="df-stock-etf-lesson" data-df-focus="stocks">
         <div class="df-stock-etf-backbar">
           <button type="button" class="df-stock-etf-back" onclick="dayframeStockEtfClose()">&larr; Back</button>
           <div class="df-stock-etf-seg" role="tablist" aria-label="Focus this lesson">
-            <button type="button" data-focus="all" onclick="dayframeStockEtfSetFocus('all')">All three</button>
             <button type="button" data-focus="stocks" onclick="dayframeStockEtfSetFocus('stocks')">Stocks</button>
             <button type="button" data-focus="etfs" onclick="dayframeStockEtfSetFocus('etfs')">ETFs</button>
             <button type="button" data-focus="both" onclick="dayframeStockEtfSetFocus('both')">Both</button>
@@ -963,8 +962,8 @@
     }
   }
 
-  const FOCUS_VALUES = ['all', 'stocks', 'etfs', 'both'];
-  let currentFocus = 'all';
+  const FOCUS_VALUES = ['stocks', 'etfs', 'both'];
+  let currentFocus = 'stocks';
 
   function applyStockEtfFocus(scroll) {
     const lesson = document.querySelector('#edu-detail-' + TOPIC_ID + ' .df-stock-etf-lesson');
@@ -981,12 +980,12 @@
   }
 
   globalThis.dayframeStockEtfSetFocus = function dayframeStockEtfSetFocus(focus) {
-    currentFocus = FOCUS_VALUES.indexOf(focus) === -1 ? 'all' : focus;
+    currentFocus = FOCUS_VALUES.indexOf(focus) === -1 ? 'stocks' : focus;
     if (!applyStockEtfFocus(true)) setTimeout(function () { applyStockEtfFocus(true); }, 80);
   };
 
   globalThis.dayframeStockEtfClose = function dayframeStockEtfClose() {
-    currentFocus = 'all';
+    currentFocus = 'stocks';
     try {
       window._eduReturnTicker = null;
       window._eduReturnDive = null;
@@ -1002,7 +1001,7 @@
   };
 
   globalThis.dayframeOpenStocksEtfs = function dayframeOpenStocksEtfs(focus) {
-    currentFocus = FOCUS_VALUES.indexOf(focus) === -1 ? 'all' : focus;
+    currentFocus = FOCUS_VALUES.indexOf(focus) === -1 ? 'stocks' : focus;
     addTopic();
     ensureStyle();
     if (typeof go === 'function') go('education', document.querySelector('.ni[onclick*="education"]'));
