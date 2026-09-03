@@ -16,7 +16,16 @@
 
   function topicDetail() {
     return `
-      <div class="df-stock-etf-lesson">
+      <div class="df-stock-etf-lesson" data-df-focus="all">
+        <div class="df-stock-etf-backbar">
+          <button type="button" class="df-stock-etf-back" onclick="dayframeStockEtfClose()">&larr; Back</button>
+          <div class="df-stock-etf-seg" role="tablist" aria-label="Focus this lesson">
+            <button type="button" data-focus="all" onclick="dayframeStockEtfSetFocus('all')">All three</button>
+            <button type="button" data-focus="stocks" onclick="dayframeStockEtfSetFocus('stocks')">Stocks</button>
+            <button type="button" data-focus="etfs" onclick="dayframeStockEtfSetFocus('etfs')">ETFs</button>
+            <button type="button" data-focus="both" onclick="dayframeStockEtfSetFocus('both')">Both</button>
+          </div>
+        </div>
         <section class="df-stock-etf-spotlight">
           <div class="df-stock-etf-spot-copy">
             <span>Start here</span>
@@ -24,11 +33,11 @@
             <p>Pick the investing style that matches how much time, research and risk you actually want to take on.</p>
           </div>
           <div class="df-stock-etf-route" aria-label="Three ways to build an investment plan">
-            <div><b>Stock</b><small>one company</small></div>
+            <button type="button" onclick="dayframeStockEtfSetFocus('stocks')"><b>Stock</b><small>one company</small></button>
             <i></i>
-            <div><b>ETF</b><small>many holdings</small></div>
+            <button type="button" onclick="dayframeStockEtfSetFocus('etfs')"><b>ETF</b><small>many holdings</small></button>
             <i></i>
-            <div><b>Both</b><small>base plus ideas</small></div>
+            <button type="button" onclick="dayframeStockEtfSetFocus('both')"><b>Both</b><small>base plus ideas</small></button>
           </div>
         </section>
         <div class="df-stock-etf-choice-grid">
@@ -366,8 +375,11 @@
         gap:0;
         align-items:center;
       }
-      .df-stock-etf-route div{
+      .df-stock-etf-route button{
         min-height:102px;
+        width:100%;
+        font-family:var(--ff);
+        cursor:pointer;
         display:grid;
         align-content:center;
         justify-items:center;
@@ -376,10 +388,88 @@
         border:1px solid rgba(255,255,255,.78);
         background:#fff;
         box-shadow:0 16px 30px rgba(39,49,75,.09);
+        transition:transform .12s ease,box-shadow .12s ease;
       }
-      .df-stock-etf-route div:nth-child(1){background:linear-gradient(145deg,#fff,#ffdff0);border-color:#ffc2df}
-      .df-stock-etf-route div:nth-child(3){background:linear-gradient(145deg,#fff,#cefff0);border-color:#9ff2d8}
-      .df-stock-etf-route div:nth-child(5){background:linear-gradient(145deg,#fff,#e6e0ff);border-color:#cdc2ff}
+      .df-stock-etf-route button:hover{transform:translateY(-2px);box-shadow:0 20px 38px rgba(39,49,75,.14)}
+      .df-stock-etf-route button:nth-child(1){background:linear-gradient(145deg,#fff,#ffdff0);border-color:#ffc2df}
+      .df-stock-etf-route button:nth-child(3){background:linear-gradient(145deg,#fff,#cefff0);border-color:#9ff2d8}
+      .df-stock-etf-route button:nth-child(5){background:linear-gradient(145deg,#fff,#e6e0ff);border-color:#cdc2ff}
+
+      .df-stock-etf-backbar{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        flex-wrap:wrap;
+        position:sticky;
+        top:0;
+        z-index:5;
+        margin:-4px 0 2px;
+        padding:8px 4px;
+        background:linear-gradient(#fff 70%,rgba(255,255,255,0));
+      }
+      .df-stock-etf-back{
+        flex:0 0 auto;
+        min-height:38px;
+        padding:0 16px;
+        border-radius:11px;
+        border:1px solid #e2e7f1;
+        background:#fff;
+        color:#5b4be3;
+        font:850 12px var(--ff);
+        cursor:pointer;
+        box-shadow:0 8px 18px rgba(39,49,75,.06);
+      }
+      .df-stock-etf-back:hover{background:#f7f5ff}
+      .df-stock-etf-seg{
+        display:flex;
+        flex-wrap:wrap;
+        gap:4px;
+        padding:4px;
+        border-radius:12px;
+        background:#f3f2fa;
+        border:1px solid #e7e4f4;
+      }
+      .df-stock-etf-seg button{
+        min-height:30px;
+        padding:0 12px;
+        border:0;
+        border-radius:9px;
+        background:transparent;
+        color:#6a7488;
+        font:800 11px var(--ff);
+        cursor:pointer;
+      }
+      .df-stock-etf-seg button.on{
+        background:#fff;
+        color:#4b3fd0;
+        box-shadow:0 6px 14px rgba(39,49,75,.1);
+      }
+
+      /* Focused views — show only the chosen route */
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-spotlight,
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-spotlight,
+      .df-stock-etf-lesson[data-df-focus="both"] .df-stock-etf-spotlight,
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-choice:not(.stocks),
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-choice:not(.etfs),
+      .df-stock-etf-lesson[data-df-focus="both"] .df-stock-etf-choice:not(.mix),
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-duel section.etfs,
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-duel section.stocks,
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-bottom,
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-bottom{
+        display:none!important;
+      }
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-choice-grid,
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-choice-grid,
+      .df-stock-etf-lesson[data-df-focus="both"] .df-stock-etf-choice-grid,
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-duel,
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-duel{
+        grid-template-columns:1fr!important;
+      }
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-habit,
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-habit{
+        display:none!important;
+      }
       .df-stock-etf-route b{
         color:#172033;
         font-size:16px;
@@ -754,7 +844,7 @@
           padding:15px;
           border-radius:18px;
         }
-        .df-stock-etf-route div{
+        .df-stock-etf-route button{
           min-height:74px;
         }
         .df-stock-etf-learn-actions{
@@ -815,9 +905,9 @@
         <p>Use this before picking investments. It explains the difference between buying one company, buying a broad fund, and mixing the two.</p>
       </div>
       <div class="df-stock-etf-mini-grid">
-        <button type="button" onclick="dayframeOpenStocksEtfs()"><strong>Stocks</strong><small>More personal, more research.</small></button>
-        <button type="button" onclick="dayframeOpenStocksEtfs()"><strong>ETFs</strong><small>Broader, simpler exposure.</small></button>
-        <button type="button" onclick="dayframeOpenStocksEtfs()"><strong>Both</strong><small>A steady base plus researched ideas.</small></button>
+        <button type="button" onclick="dayframeOpenStocksEtfs('stocks')"><strong>Stocks</strong><small>More personal, more research.</small></button>
+        <button type="button" onclick="dayframeOpenStocksEtfs('etfs')"><strong>ETFs</strong><small>Broader, simpler exposure.</small></button>
+        <button type="button" onclick="dayframeOpenStocksEtfs('both')"><strong>Both</strong><small>A steady base plus researched ideas.</small></button>
       </div>
     `;
     libraryHead.parentElement.insertBefore(feature, libraryHead);
@@ -864,6 +954,7 @@
         setTimeout(() => {
           ensureEducationFeature();
           tidySelectedLessonTitle();
+          applyStockEtfFocus(false);
         }, 0);
         return result;
       };
@@ -872,7 +963,46 @@
     }
   }
 
-  globalThis.dayframeOpenStocksEtfs = function dayframeOpenStocksEtfs() {
+  const FOCUS_VALUES = ['all', 'stocks', 'etfs', 'both'];
+  let currentFocus = 'all';
+
+  function applyStockEtfFocus(scroll) {
+    const lesson = document.querySelector('#edu-detail-' + TOPIC_ID + ' .df-stock-etf-lesson');
+    if (!lesson) return false;
+    lesson.setAttribute('data-df-focus', currentFocus);
+    lesson.querySelectorAll('.df-stock-etf-seg button').forEach(function (b) {
+      b.classList.toggle('on', b.getAttribute('data-focus') === currentFocus);
+    });
+    if (scroll) {
+      const bar = lesson.querySelector('.df-stock-etf-backbar') || lesson;
+      bar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    return true;
+  }
+
+  globalThis.dayframeStockEtfSetFocus = function dayframeStockEtfSetFocus(focus) {
+    currentFocus = FOCUS_VALUES.indexOf(focus) === -1 ? 'all' : focus;
+    if (!applyStockEtfFocus(true)) setTimeout(function () { applyStockEtfFocus(true); }, 80);
+  };
+
+  globalThis.dayframeStockEtfClose = function dayframeStockEtfClose() {
+    currentFocus = 'all';
+    try {
+      window._eduReturnTicker = null;
+      window._eduReturnDive = null;
+      if (typeof eduActiveTopic !== 'undefined') eduActiveTopic = null;
+      if (typeof eduRender === 'function') eduRender(document.getElementById('edu-content'));
+    } catch (e) {}
+    setTimeout(function () {
+      const feature = document.getElementById('df-stock-etf-feature')
+        || document.querySelector('#pg-education .edu-library-head')
+        || document.getElementById('pg-education');
+      if (feature) feature.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 40);
+  };
+
+  globalThis.dayframeOpenStocksEtfs = function dayframeOpenStocksEtfs(focus) {
+    currentFocus = FOCUS_VALUES.indexOf(focus) === -1 ? 'all' : focus;
     addTopic();
     ensureStyle();
     if (typeof go === 'function') go('education', document.querySelector('.ni[onclick*="education"]'));
@@ -881,11 +1011,19 @@
     } else if (typeof eduOpenTopic === 'function') {
       eduOpenTopic(TOPIC_ID);
     }
-    setTimeout(() => {
+    let tries = 0;
+    (function settle() {
       tidySelectedLessonTitle();
-      const detail = document.getElementById('edu-detail-' + TOPIC_ID) || document.getElementById('df-stock-etf-feature');
-      if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+      const done = applyStockEtfFocus(false);
+      if (done) {
+        const anchor = document.querySelector('#edu-detail-' + TOPIC_ID + ' .df-stock-etf-backbar')
+          || document.getElementById('edu-detail-' + TOPIC_ID)
+          || document.getElementById('df-stock-etf-feature');
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (tries++ < 12) setTimeout(settle, 80);
+    })();
   };
 
   function apply() {
@@ -896,6 +1034,7 @@
     enhanceLearningBridge();
     ensureEducationFeature();
     tidySelectedLessonTitle();
+    applyStockEtfFocus(false);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true });
