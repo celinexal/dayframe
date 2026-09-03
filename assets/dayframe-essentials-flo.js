@@ -208,7 +208,7 @@
       const dateISO = iso(day);
       const state = dayState(dateISO, s);
       if (day.getMonth() !== month.getMonth()) state.classes.push('is-outside');
-      cells.push(`<button class="df-myflo-day ${state.classes.join(' ')}" type="button" onclick="dayframeSetMyFloStart('${dateISO}')" aria-label="${esc(day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}"><span>${day.getDate()}</span><i>${state.dots.slice(0, 2).map(() => '<b></b>').join('')}</i></button>`);
+      cells.push(`<button class="df-myflo-day ${state.classes.join(' ')}" type="button" data-date="${dateISO}" onclick="dayframeMyFloDayMenu('${dateISO}', event)" aria-label="${esc(day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}"><span>${day.getDate()}</span><i>${state.dots.slice(0, 2).map(() => '<b></b>').join('')}</i></button>`);
     }
     return `<article class="df-myflo-month"><h4>${esc(month.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }))}</h4><div class="df-myflo-weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div><div class="df-myflo-days">${cells.join('')}</div></article>`;
   }
@@ -239,7 +239,72 @@
     const permissionText = permission === 'granted' ? 'Phone alerts allowed' : permission === 'denied' ? 'Alerts blocked in browser settings' : 'Allow phone alerts';
     return `<section class="df-myflo-reminders"><div class="df-myflo-section-head"><div><span>Notifications</span><h3>Period reminders</h3></div><button type="button" onclick="dayframeSaveMyFloReminders()">Save</button></div><p class="df-myflo-helper">Choose when Dayframe reminds you before your estimated period. Fertile and ovulation days are marked automatically from your saved dates.</p><div class="df-myflo-chip-row" role="group" aria-label="Period reminder days">${options.map((option) => `<label class="df-myflo-chip"><input type="checkbox" name="df-myflo-reminder-day" value="${option.value}" ${s.reminderDays.includes(option.value) ? 'checked' : ''}><span>${option.label}</span></label>`).join('')}</div><div class="df-myflo-reminder-bottom"><label>Time <input id="df-myflo-reminder-time" type="time" value="${esc(s.reminderTime)}"></label><button type="button" onclick="dayframeEnableMyFloBrowserNotifications()" ${supported ? '' : 'disabled'}>${esc(permissionText)}</button></div></section>`;
   }
+  function closeMyFloDayMenu() {
+    document.getElementById('df-myflo-daypop')?.remove();
+    document.removeEventListener('click', myFloDayMenuOutside, true);
+  }
+  function myFloDayMenuOutside(event) {
+    const pop = document.getElementById('df-myflo-daypop');
+    if (pop && !pop.contains(event.target) && !(event.target.closest && event.target.closest('.df-myflo-day'))) closeMyFloDayMenu();
+  }
+  window.dayframeCloseMyFloDayMenu = closeMyFloDayMenu;
+  window.dayframeMyFloDayMenu = function dayframeMyFloDayMenu(dateISO, event) {
+    if (!isISO(dateISO)) return;
+    closeMyFloDayMenu();
+    const s = settings();
+    const isStart = (s.loggedStarts || []).includes(dateISO);
+    const isEnd = (s.loggedEnds || []).includes(dateISO);
+    const parsed = parseISO(dateISO);
+    const label = parsed ? parsed.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' }) : dateISO;
+    const pop = document.createElement('div');
+    pop.id = 'df-myflo-daypop';
+    pop.setAttribute('role', 'dialog');
+    pop.innerHTML = `<div class="df-myflo-daypop-date">${esc(label)}</div>`
+      + `<button type="button" onclick="dayframeSetMyFloStart('${dateISO}');dayframeCloseMyFloDayMenu()">Period started this day</button>`
+      + `<button type="button" onclick="dayframeSetMyFloEndOn('${dateISO}');dayframeCloseMyFloDayMenu()">Period ended this day</button>`
+      + ((isStart || isEnd) ? `<button type="button" class="df-myflo-daypop-clear" onclick="dayframeClearMyFloDay('${dateISO}');dayframeCloseMyFloDayMenu()">Remove this mark</button>` : '');
+    document.body.appendChild(pop);
+    const anchor = (event && event.target && event.target.closest) ? event.target.closest('.df-myflo-day') : null;
+    const rect = anchor ? anchor.getBoundingClientRect() : { left: 20, right: 20, top: 80, bottom: 100, width: 0 };
+    const pw = pop.offsetWidth || 210;
+    const ph = pop.offsetHeight || 130;
+    let left = rect.left + rect.width / 2 - pw / 2;
+    left = Math.max(10, Math.min(left, window.innerWidth - pw - 10));
+    let top = rect.bottom + 8;
+    if (top + ph > window.innerHeight - 10) top = Math.max(10, rect.top - ph - 8);
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+    setTimeout(() => document.addEventListener('click', myFloDayMenuOutside, true), 0);
+  };
+  window.dayframeSetMyFloEndOn = function dayframeSetMyFloEndOn(dateISO) {
+    if (!isISO(dateISO)) return;
+    const s = formSettings();
+    if (!s.lastStart) return window.hubToast?.('Mark the start day first');
+    const length = diffDays(dateISO, s.lastStart) + 1;
+    if (length < 1) return window.hubToast?.('End day is before the start day');
+    if (length > 14) return window.hubToast?.('That is more than 14 days after the start day');
+    const loggedEnds = [...new Set((s.loggedEnds || []).concat(dateISO))].filter(isISO).slice(-24);
+    if (savePeriod(Object.assign({}, s, { lastEnd: dateISO, loggedEnds, periodLength: clamp(length, s.periodLength, 1, 14) }))) {
+      renderMyFlo();
+      window.renderHome?.();
+      window.hubToast?.('Period end saved');
+    }
+  };
+  window.dayframeClearMyFloDay = function dayframeClearMyFloDay(dateISO) {
+    const s = formSettings();
+    const loggedStarts = (s.loggedStarts || []).filter((x) => x !== dateISO);
+    const loggedEnds = (s.loggedEnds || []).filter((x) => x !== dateISO);
+    const next = Object.assign({}, s, { loggedStarts, loggedEnds });
+    if (s.lastStart === dateISO) next.lastStart = loggedStarts.length ? loggedStarts[loggedStarts.length - 1] : '';
+    if (s.lastEnd === dateISO) next.lastEnd = '';
+    if (savePeriod(next)) {
+      renderMyFlo();
+      window.renderHome?.();
+      window.hubToast?.('Day cleared');
+    }
+  };
   function renderMyFlo() {
+    closeMyFloDayMenu();
     const panel = $('df-period-panel');
     if (!panel) return;
     const s = settings();
@@ -316,6 +381,7 @@
       .df-myflo-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:14px;align-items:start}.df-myflo-calendar,.df-myflo-reminders{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.84);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-calendar-head,.df-myflo-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.df-myflo-calendar-head h3,.df-myflo-section-head h3,.df-myflo-form-title h3{margin:3px 0 0;font-family:var(--fd);font-size:18px;line-height:1.1;color:#172033}.df-myflo-calendar-head button,.df-myflo-section-head button,.df-myflo-reminder-bottom button{height:34px;border:1px solid #eadffc;border-radius:999px;background:#fff;color:#7161f1;font:850 11px var(--ff);padding:0 13px;cursor:pointer}.df-myflo-calendar-head button{width:34px;padding:0;font-size:18px}
       .df-myflo-months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.df-myflo-month{border:1px solid #f0edf5;border-radius:16px;background:#fff;padding:12px}.df-myflo-month h4{margin:0 0 11px;text-align:center;font-family:var(--fd);font-size:18px;color:#172033}.df-myflo-weekdays,.df-myflo-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.df-myflo-weekdays span{text-align:center;color:#8a94a4;font-size:9px;font-weight:900}.df-myflo-day{position:relative;display:grid;place-items:center;aspect-ratio:1;border:0;border-radius:999px;background:transparent;color:#172033;font:850 12px var(--ff);cursor:pointer}.df-myflo-day span{position:relative;z-index:2}.df-myflo-day i{position:absolute;left:50%;bottom:4px;display:flex;gap:2px;transform:translateX(-50%);font-style:normal}.df-myflo-day i b{width:4px;height:4px;border-radius:999px;background:#c6cdd8}.df-myflo-day.is-outside{color:#c4cad5}.df-myflo-day.is-period{background:#ff5d93;color:#fff;box-shadow:0 7px 16px rgba(255,93,147,.22)}.df-myflo-day.is-period:not(.is-logged){background:#fff1f6;color:#e84f87;border:1px dashed #f06fa1;box-shadow:none}.df-myflo-day.is-fertile:not(.is-period){background:#ecfffb;color:#10998f}.df-myflo-day.is-ovulation{outline:2px dotted #32b8ab;outline-offset:2px}.df-myflo-day.is-today:after{content:"";position:absolute;inset:2px;border:2px solid #7564f2;border-radius:999px}.df-myflo-day.is-logged{background:#ff5d93;color:#fff}
       .df-myflo-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;color:#7b8495;font-size:10px;font-weight:850}.df-myflo-legend span{display:inline-flex;align-items:center;gap:6px;border:1px solid #eef1f6;border-radius:999px;background:#fff;padding:6px 8px}.df-myflo-legend b{width:9px;height:9px;border-radius:999px;display:inline-block}.df-myflo-legend .period{background:#ff5d93}.df-myflo-legend .fertile{background:#48d5c2}.df-myflo-legend .ovulation{border:2px dotted #32b8ab}.df-myflo-legend .today{border:2px solid #7564f2}.df-myflo-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.df-myflo-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid #efe5f7;border-radius:999px;background:#fff;padding:8px 10px;color:#606c80;font-size:10.5px;font-weight:850;cursor:pointer}.df-myflo-chip input{accent-color:#ef5f9b}.df-myflo-chip:has(input:checked){background:#fff1f7;border-color:#f4b9d5;color:#d94382}.df-myflo-helper{margin:-3px 0 8px;color:#738095;font-size:10.5px;line-height:1.5;font-weight:750}.df-myflo-reminder-bottom{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:12px}.df-myflo-reminder-bottom label{display:grid;gap:5px;color:#7b8495;font-size:9.5px;font-weight:850}.df-myflo-reminder-bottom input{height:34px;border:1px solid #e7eaf3;border-radius:12px;background:#f8f9fc;padding:0 10px;color:#172033;font:800 12px var(--ff)}#df-period-panel .df-period-body.df-myflo-basics{display:block!important;padding:0 16px 16px!important}#df-period-panel .df-period-form{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.82);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.05)}
+      #df-myflo-daypop{position:fixed;z-index:26000;min-width:196px;max-width:calc(100vw - 20px);display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid #f0d9ea;border-radius:16px;background:#fff;box-shadow:0 22px 48px rgba(42,54,84,.24)}.df-myflo-daypop-date{font:900 9px var(--ff);text-transform:uppercase;letter-spacing:.06em;color:#8a94a4}#df-myflo-daypop button{height:38px;border:1px solid #f2bdd7;border-radius:11px;background:#fff;color:#d94382;font:850 11px var(--ff);cursor:pointer;text-align:left;padding:0 12px}#df-myflo-daypop button:hover{background:#fff1f6}#df-myflo-daypop button.df-myflo-daypop-clear{border-color:#e7eaf3;color:#7b8495}#df-myflo-daypop button.df-myflo-daypop-clear:hover{background:#f6f7fb}
       @media(max-width:980px){.df-myflo-stats,.df-myflo-board,.df-myflo-months{grid-template-columns:1fr}.df-myflo-reminder-bottom{grid-template-columns:1fr}.df-myflo-stat{min-height:0}.df-myflo-actions{align-items:flex-start;flex-direction:column}.df-myflo-action-buttons{justify-content:flex-start}}@media(max-width:520px){#df-myflo-view{padding:12px}.df-myflo-stat strong{font-size:24px}.df-myflo-day{font-size:11px}.df-myflo-month{padding:10px}}
     `;
     document.head.appendChild(style);
