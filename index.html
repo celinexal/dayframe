@@ -1402,6 +1402,9 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 .home-coming-dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 5px rgba(77,130,243,.09);background:#4d82f3}
 .home-coming-dot.bill{background:#21a17e;box-shadow:0 0 0 5px rgba(33,161,126,.09)}
 .home-coming-dot.car{background:#ee7160;box-shadow:0 0 0 5px rgba(238,113,96,.09)}
+.home-coming-dot.goal{background:#e0a83c;box-shadow:0 0 0 5px rgba(224,168,60,.1)}
+.home-coming-dot.flo{background:#d94e9c;box-shadow:0 0 0 5px rgba(217,78,156,.1)}
+.hub-today-meta.is-overdue{color:#c9553f;font-weight:700}
 .home-rich-empty{min-height:125px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-color:rgba(121,132,154,.22);background:rgba(255,255,255,.54);font-size:11.5px}
 .home-rich-empty strong{font-size:13px}.home-rich-empty span:not(.home-empty-emoji){color:#9aa3b2}
 .home-empty-emoji{font-size:24px;margin-bottom:3px}
@@ -5528,8 +5531,10 @@ function renderHome(){
  const d=hubLoad(),today=hubDateISO(),now=new Date(),diary=(d.diary||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.id)-Number(a.id));
  const open=d.tasks.filter(t=>!t.done),todayTasks=open.filter(t=>t.date===today);
  const month=now.toISOString().slice(0,7),monthTx=d.money.filter(x=>(x.date||'').slice(0,7)===month),spent=monthTx.filter(x=>x.type==='expense').reduce((a,x)=>a+Number(x.amount||0),0);
- const drivingDates=Object.entries(d.vehicle?.dates||{}).filter(([,v])=>v&&v>=today).sort((a,b)=>a[1].localeCompare(b[1]));
+ const drivingDates=Object.entries(d.vehicle?.dates||{}).filter(([,v])=>v&&hubDaysUntil(v)>=-45).sort((a,b)=>a[1].localeCompare(b[1]));
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+ const hubRel=(dt)=>{const n=hubDaysUntil(dt);return n===null?'':n<0?Math.abs(n)+(Math.abs(n)===1?' day overdue':' days overdue'):n===0?'Today':n===1?'Tomorrow':n<=14?'In '+n+' days':''};
+ const nextPeriodISO=(()=>{const p=d.essentials&&d.essentials.period;if(!p||!p.lastStart||!/^\d{4}-\d{2}-\d{2}$/.test(p.lastStart))return null;const cyc=Math.min(60,Math.max(15,Number(p.cycleLength)||28));const nd=new Date(p.lastStart+'T12:00:00');if(Number.isNaN(nd.getTime()))return null;nd.setDate(nd.getDate()+cyc);let iso=hubDateISO(nd),g=0;while(iso<today&&g++<24){nd.setDate(nd.getDate()+cyc);iso=hubDateISO(nd)}return iso})();
  set('home-task-count',open.length);set('home-spent',hubMoney(spent,0));set('home-goal-count',d.goals.length);set('home-diary-count',diary.length);
  const dueBillItems=(d.bills||[]).map(b=>({bill:b,meta:moneyBillMeta(b)})).filter(x=>x.meta.status!=='paid'&&x.meta.days<=30);
  set('home-money-status',dueBillItems.length?dueBillItems.length+' bill'+(dueBillItems.length===1?'':'s')+' due soon':spent?hubMoney(spent,0)+' spent this month':'Ready to track');
@@ -5537,7 +5542,7 @@ function renderHome(){
  set('home-goals-status',d.goals.length?d.goals.length+' goal'+(d.goals.length===1?'':'s')+' in progress':'Set your first goal');
  set('home-diary-status',diary.some(x=>x.date===today)?'Checked in today':diary.length?diary.length+' entr'+(diary.length===1?'y':'ies')+' saved':'Start with one thought');
  const bible=bibleState(d);set('home-bible-status',bible.lastRead?'Continue '+bible.lastRead:'Start with John 1');
- set('home-driving-status',drivingDates.length?drivingDates[0][0].toUpperCase()+' · '+hubPrettyDate(drivingDates[0][1]):'Add your vehicle dates');
+ set('home-driving-status',drivingDates.length?drivingDates[0][0].toUpperCase()+' · '+(hubRel(drivingDates[0][1])||hubPrettyDate(drivingDates[0][1])):'Add your vehicle dates');
 
  const bankAccounts=typeof _moneyBankData!=='undefined'&&Array.isArray(_moneyBankData.accounts)?_moneyBankData.accounts:[];
  const hasAccount=Boolean((d.accounts||[]).length||bankAccounts.length);
@@ -5575,10 +5580,12 @@ function renderHome(){
  const upcoming=[
   ...open.filter(t=>t.date).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
   ...drivingDates.map(x=>({title:x[0].toUpperCase()+' renewal',date:x[1],type:'My Car',kind:'car'})),
-  ...dueBillItems.map(x=>({title:x.bill.name||'Bill due',date:x.meta.dateISO,type:'Money',kind:'bill'}))
- ].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
+  ...dueBillItems.map(x=>({title:x.bill.name||'Bill due',date:x.meta.dateISO,type:'Money',kind:'bill'})),
+  ...(d.goals||[]).filter(g=>g.targetDate&&/^\d{4}-\d{2}-\d{2}$/.test(g.targetDate)&&hubDaysUntil(g.targetDate)>=-14&&!(g.type==='money'&&Number(g.target)>0&&Number(g.current)>=Number(g.target))).map(g=>({title:(g.name||'Goal')+' — target',date:g.targetDate,type:'Goal',kind:'goal'})),
+  ...(nextPeriodISO?[{title:'Period estimated',date:nextPeriodISO,type:'MyFlo',kind:'flo'}]:[])
+ ].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
  const cu=document.getElementById('home-coming-up');
- if(cu)cu.innerHTML=upcoming.length?upcoming.map(x=>'<div class="hub-today-item"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta">'+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>').join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Your schedule is clear</strong><span>Nothing urgent is asking for your attention.</span></div>';
+ if(cu)cu.innerHTML=upcoming.length?upcoming.map(x=>{const n=hubDaysUntil(x.date),rel=hubRel(x.date);return '<div class="hub-today-item"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta'+(n!==null&&n<0?' is-overdue':'')+'">'+(rel?hubEsc(rel)+' · ':'')+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>'}).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Your schedule is clear</strong><span>Nothing urgent is asking for your attention.</span></div>';
  const gp=document.getElementById('home-goal-progress');
  if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="openPlannerGoals(true)">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span><div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
  const jg=document.getElementById('home-journal-glance');
