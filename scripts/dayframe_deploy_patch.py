@@ -447,6 +447,21 @@ if index_path.exists():
   let updateReady = false;
   let dismissed = false;
   let refreshing = false;
+  const hadControllerAtLoad = !!navigator.serviceWorker.controller;
+
+  function autoReloadedRecently() {{
+    try {{
+      const at = Number(sessionStorage.getItem('dayframe_auto_reload_at') || 0);
+      return at > 0 && (Date.now() - at) < 12000;
+    }} catch {{ return false; }}
+  }}
+
+  function activateWaiting(reg) {{
+    const waiting = (reg && reg.waiting) || (registration && registration.waiting);
+    if (!waiting) return false;
+    try {{ waiting.postMessage({{ type: 'DAYFRAME_SKIP_WAITING' }}); }} catch {{}}
+    return true;
+  }}
 
   function removePrompt() {{
     const node = document.getElementById('df-app-update');
@@ -510,12 +525,18 @@ if index_path.exists():
 
   function watchRegistration(reg) {{
     registration = reg;
-    if (reg.waiting && navigator.serviceWorker.controller) showUpdatePrompt(reg);
+    if (reg.waiting && navigator.serviceWorker.controller) {{
+      showUpdatePrompt(reg);
+      activateWaiting(reg);
+    }}
     reg.addEventListener('updatefound', () => {{
       const worker = reg.installing;
       if (!worker) return;
       worker.addEventListener('statechange', () => {{
-        if (worker.state === 'installed' && navigator.serviceWorker.controller) showUpdatePrompt(reg);
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) {{
+          showUpdatePrompt(reg);
+          activateWaiting(reg);
+        }}
       }});
     }});
   }}
@@ -528,7 +549,12 @@ if index_path.exists():
       requested = sessionStorage.getItem('dayframe_update_reload') === VERSION;
       if (requested) sessionStorage.removeItem('dayframe_update_reload');
     }} catch {{}}
-    if (requested) {{
+    // A new worker has taken control. Reload straight away when the app was
+    // just opened or resumed from the background; only fall back to the manual
+    // banner if someone has been actively using the page for a while.
+    const activelyUsing = document.visibilityState === 'visible' && performance.now() > 60000;
+    if (requested || (hadControllerAtLoad && !autoReloadedRecently() && !activelyUsing)) {{
+      try {{ sessionStorage.setItem('dayframe_auto_reload_at', String(Date.now())); }} catch {{}}
       window.location.reload();
       return;
     }}
@@ -539,7 +565,10 @@ if index_path.exists():
     try {{
       const reg = registration || await navigator.serviceWorker.ready;
       await reg.update();
-      if (reg.waiting) showUpdatePrompt(reg);
+      if (reg.waiting) {{
+        showUpdatePrompt(reg);
+        activateWaiting(reg);
+      }}
     }} catch {{}}
   }};
 
@@ -548,8 +577,17 @@ if index_path.exists():
       const reg = await navigator.serviceWorker.register('/sw.js', {{ updateViaCache: 'none' }});
       watchRegistration(reg);
       setTimeout(() => reg.update().catch(() => {{}}), 1200);
-      setInterval(() => reg.update().catch(() => {{}}), 30 * 60 * 1000);
+      setInterval(() => reg.update().catch(() => {{}}), 15 * 60 * 1000);
     }} catch {{}}
+  }});
+  // Standalone PWAs (iOS especially) resume instead of reloading, so re-check
+  // for a new version every time the app becomes visible again.
+  document.addEventListener('visibilitychange', () => {{
+    if (document.visibilityState !== 'visible') return;
+    if (registration) registration.update().then(() => activateWaiting(registration)).catch(() => {{}});
+  }});
+  window.addEventListener('focus', () => {{
+    if (registration) registration.update().then(() => activateWaiting(registration)).catch(() => {{}});
   }});
   document.addEventListener('click', () => setTimeout(renderUpdatePrompt, 80), true);
   if (typeof MutationObserver === 'function' && document.body) {{
