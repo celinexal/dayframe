@@ -24,7 +24,7 @@ const DAYFRAME_LOGIN_INPUT_FIX_SRC = '/assets/dayframe-login-input-fix.js?v=2026
 const DAYFRAME_STANDARD_HOME_SRC = '/assets/dayframe-standard-home.js?v=20260902-no-setup-card-v1';
 const DAYFRAME_LIFE_STAGE_SRC = '/assets/dayframe-life-stage.js?v=20260831-essentials-life-v3';
 const DAYFRAME_ESSENTIALS_SRC = '/assets/dayframe-essentials.js?v=20260831-essentials-customise-v20';
-const DAYFRAME_ESSENTIALS_CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260831-essentials-cleanup-v3';
+const DAYFRAME_ESSENTIALS_CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260903-essentials-cleanup-v4';
 const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';
 const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';
 const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';
@@ -74,6 +74,7 @@ function refreshScriptVersions(body) {
     .replace(/\/assets\/dayframe-standard-home\.js\?v=[^"']+/g, DAYFRAME_STANDARD_HOME_SRC)
     .replace(/\/assets\/dayframe-life-stage\.js\?v=[^"']+/g, DAYFRAME_LIFE_STAGE_SRC)
     .replace(/\/assets\/dayframe-essentials\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_SRC)
+    .replace(/\/assets\/dayframe-essentials-cleanup\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_CLEANUP_SRC)
     .replace(/\/assets\/dayframe-essentials-more\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_MORE_SRC)
     .replace(/\/assets\/dayframe-essentials-clickfix\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)
     .replace(/\/assets\/dayframe-essentials-customise\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_CUSTOMISE_SRC)

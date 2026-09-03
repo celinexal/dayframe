@@ -291,7 +291,12 @@
       const desc = current.querySelector('.driving-home-desc');
       if (title) title.textContent = 'My Car';
       if (desc) desc.textContent = 'Car details, renewals and theory help when you need it.';
-      if (!current.querySelector('.df-car-actions')) {
+      // Later Essentials patches strip .df-car-actions but keep the .df-car-question
+      // link, so guard on the question itself. Guarding on .df-car-actions made this
+      // re-append a fresh "Still learning?" block on every apply pass (once per
+      // navigation), stacking up 5-6 copies. Also clean up any extras that slipped in.
+      const questions = current.querySelectorAll('.df-car-question');
+      if (!questions.length) {
         current.insertAdjacentHTML('beforeend', `
           <div class="df-car-question">Need help passing your theory?</div>
           <div class="df-car-actions">
@@ -299,6 +304,9 @@
             <button type="button" onclick="dayframeOpenTheoryHelp()">Theory help</button>
           </div>
         `);
+      } else if (questions.length > 1) {
+        questions.forEach((question, index) => { if (index > 0) question.remove(); });
+        current.querySelectorAll('.df-car-actions').forEach((actions, index) => { if (index > 0) actions.remove(); });
       }
       return;
     }
