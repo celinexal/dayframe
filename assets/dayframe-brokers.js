@@ -5,10 +5,64 @@
   var STYLE_ID = 'df-brokers-style';
   var PENDING_KEY = 'dayframe_pending_brokers_v1';
   var BROKER_NAMES = [
-    'Vanguard', 'Hargreaves Lansdown', 'AJ Bell', 'Fidelity', 'interactive investor',
+    'Vanguard', 'DEGIRO', 'Hargreaves Lansdown', 'AJ Bell', 'Fidelity', 'interactive investor',
     'Freetrade', 'InvestEngine', 'Moneybox', 'Nutmeg', 'Charles Stanley Direct',
     'Wealthify', 'Standard Life', 'Aviva', 'Trading 212 (second account)', 'Other'
   ];
+
+  // Only Trading 212 publishes a personal API, so it is the only broker Dayframe
+  // can sync live. For every other broker we show where to read the figure.
+  var LIVE_SYNC = {
+    'Trading 212': {
+      live: true,
+      steps: [
+        'In the Trading 212 app open Menu → Settings → API (Beta) and accept the warning.',
+        'Choose Generate API key, name it “Dayframe” and enable read-only Account data + Portfolio.',
+        'Copy the API Key and API Secret Key, then paste both into the Trading 212 card above.',
+        'It then refreshes on its own — no need to type a value.'
+      ]
+    },
+    'Trading 212 (second account)': {
+      live: true,
+      steps: [
+        'Switch Trading 212 to the second account (e.g. your ISA), then Menu → Settings → API (Beta).',
+        'Generate a separate read-only key pair for that account.',
+        'Paste it into the Trading 212 card above — Dayframe keeps both accounts in the total.'
+      ]
+    },
+    'Vanguard': {
+      live: false,
+      steps: [
+        'Vanguard UK has no personal API, so this figure is kept up to date by you.',
+        'Open the Vanguard UK app or website and go to My Portfolio.',
+        'Use the Total value shown at the top, and update it here whenever it moves.'
+      ]
+    },
+    'DEGIRO': {
+      live: false,
+      steps: [
+        'DEGIRO has no live personal API. It does offer an Account statement / Portfolio CSV export under Activity, but that is a manual download.',
+        'Open DEGIRO, go to Portfolio and read the total value at the top.',
+        'Enter that number here and refresh it when you check your account.'
+      ]
+    },
+    'Hargreaves Lansdown': { live: false, steps: ['HL has no personal API.', 'Open the HL app → Account summary.', 'Use Total value and update it here.'] },
+    'AJ Bell': { live: false, steps: ['AJ Bell has no personal API.', 'Open the AJ Bell app → Dashboard.', 'Use Total account value and update it here.'] },
+    'Fidelity': { live: false, steps: ['Fidelity UK has no personal API.', 'Open Fidelity → Portfolio summary.', 'Use Total value and update it here.'] },
+    'interactive investor': { live: false, steps: ['ii has no personal API.', 'Open the ii app → Portfolio.', 'Use Total value and update it here.'] },
+    'Freetrade': { live: false, steps: ['Freetrade has no personal API.', 'Open Freetrade → Portfolio tab.', 'Use the large figure at the top and update it here.'] },
+    'InvestEngine': { live: false, steps: ['InvestEngine has no personal API.', 'Open InvestEngine → Portfolio.', 'Use Portfolio value and update it here.'] },
+    'Moneybox': { live: false, steps: ['Moneybox has no personal API.', 'Open the Moneybox app → Home.', 'Use Total balance and update it here.'] },
+    'Nutmeg': { live: false, steps: ['Nutmeg has no personal API.', 'Open Nutmeg → Overview.', 'Use Portfolio value and update it here.'] },
+    'Charles Stanley Direct': { live: false, steps: ['No personal API.', 'Open Charles Stanley Direct → Portfolio valuation.', 'Use the total and update it here.'] },
+    'Wealthify': { live: false, steps: ['No personal API.', 'Open Wealthify → Plans.', 'Add up your plan values, or use the headline total, and update it here.'] },
+    'Standard Life': { live: false, steps: ['No personal API.', 'Open Standard Life → your plan.', 'Use the current plan value and update it here.'] },
+    'Aviva': { live: false, steps: ['No personal API.', 'Open MyAviva → your investment or pension.', 'Use the current value and update it here.'] },
+    'Other': { live: false, steps: ['Most brokers do not offer a personal data feed.', 'Open your broker and find the total portfolio or account value.', 'Enter it here and update it when it changes.'] }
+  };
+  function brokerGuide(name) {
+    return LIVE_SYNC[name] || LIVE_SYNC.Other;
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -131,6 +185,16 @@
       '#df-broker-connect-card .df-broker-add-btn{flex:0 0 auto;height:38px;padding:0 15px;border:0;border-radius:10px;background:#6759df;color:#fff;font:800 12px var(--ff);cursor:pointer}',
       '#df-broker-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}',
       '#df-broker-list:empty{display:none}',
+      '.df-broker-item{border:1px solid #e8eaf1;border-radius:12px;background:#fff;overflow:hidden}',
+      '.df-broker-item .df-broker-row{border:0;border-radius:0}',
+      '.df-broker-guide{border-top:1px solid #eef0f5;background:#fbfbfe}',
+      '.df-broker-guide summary{list-style:none;cursor:pointer;padding:9px 11px;font:750 10.5px var(--ff);color:#6a63c9}',
+      '.df-broker-guide summary::-webkit-details-marker{display:none}',
+      '.df-broker-guide summary:before{content:"▸ ";font-size:9px}',
+      '.df-broker-guide[open] summary:before{content:"▾ "}',
+      '.df-broker-guide-note{margin:0;padding:0 12px;font-size:10px;color:#94a0b4}',
+      '.df-broker-guide ol{margin:6px 0 11px;padding:0 12px 0 27px;display:flex;flex-direction:column;gap:5px}',
+      '.df-broker-guide li{font-size:10.5px;line-height:1.5;color:#5a6273}',
       '.df-broker-row{display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid #e8eaf1;border-radius:12px;background:#fff}',
       '.df-broker-row .df-broker-name{flex:1;font:700 12px var(--ff);color:#2f3852;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '.df-broker-row .df-broker-cur{color:#94a0b4;font-weight:800;font-size:12px}',
@@ -242,7 +306,7 @@
       + '<button type="button" class="df-broker-add-btn" onclick="(function(){var s=document.getElementById(\'df-broker-add-select\');if(s&&s.value){dfBrokerAdd(s.value);s.value=\'\'}})()">Add</button>'
       + '</div>'
       + '<div id="df-broker-list"></div>'
-      + '<div class="df-broker-hint">Most UK brokers (Vanguard included) do not offer a personal data connection, so enter each account’s current value and update it whenever you like. It is added to your portfolio total and shown separately by broker.</div>';
+      + '<div class="df-broker-hint">Trading 212 is the only broker that offers a personal API, so it is the only one Dayframe syncs live. Every other broker (Vanguard, DEGIRO and the rest) shows a short guide on where to read the figure — enter it here and it is added to your portfolio total and shown separately by broker.</div>';
     grid.appendChild(sec);
     renderDrawerList();
   }
@@ -252,7 +316,10 @@
     if (!list) return;
     var accs = accounts();
     list.innerHTML = accs.map(function (a) {
-      return '<div class="df-broker-row" data-id="' + a.id + '">'
+      var g = brokerGuide(a.name);
+      var steps = (g.steps || []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+      return '<div class="df-broker-item">'
+        + '<div class="df-broker-row" data-id="' + a.id + '">'
         + '<span class="df-broker-name">' + esc(a.name) + '</span>'
         + '<span class="df-broker-cur">£</span>'
         + '<input type="number" inputmode="decimal" min="0" step="1" value="' + (Number(a.value) || 0)
@@ -260,6 +327,12 @@
         + 'onchange="dfBrokerSetValue(\'' + a.id + '\',this.value)" '
         + 'onkeydown="if(event.key===\'Enter\')this.blur()">'
         + '<button type="button" class="df-broker-del" title="Remove ' + esc(a.name) + '" onclick="dfBrokerRemove(\'' + a.id + '\')">×</button>'
+        + '</div>'
+        + '<details class="df-broker-guide">'
+        + '<summary>' + (g.live ? 'How to connect ' + esc(a.name) + ' (live sync)' : 'How to keep ' + esc(a.name) + ' up to date') + '</summary>'
+        + (g.live ? '' : '<p class="df-broker-guide-note">' + esc(a.name) + ' does not offer a live connection.</p>')
+        + '<ol>' + steps + '</ol>'
+        + '</details>'
         + '</div>';
     }).join('');
   }
@@ -289,7 +362,7 @@
     var block = document.createElement('div');
     block.className = 'df-signup-brokers auth-field';
     block.id = 'df-signup-brokers';
-    var chips = ['Trading 212', 'Vanguard', 'Hargreaves Lansdown', 'AJ Bell', 'Freetrade', 'InvestEngine', 'interactive investor', 'Moneybox']
+    var chips = ['Trading 212', 'Vanguard', 'DEGIRO', 'Hargreaves Lansdown', 'AJ Bell', 'Freetrade', 'InvestEngine', 'interactive investor', 'Moneybox']
       .map(function (n) {
         var on = chosen.indexOf(n) !== -1 ? ' on' : '';
         return '<button type="button" class="df-signup-chip' + on + '" onclick="dfSignupToggleBroker(this,\'' + esc(n) + '\')">' + esc(n) + '</button>';
