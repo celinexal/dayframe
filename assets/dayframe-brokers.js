@@ -176,7 +176,7 @@
       '.df-pf-hero-note{display:block;font-size:10.5px;color:rgba(255,255,255,.6)}',
       '.df-pf-hero-manage{flex:0 0 auto;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:800 10.5px var(--ff);padding:8px 13px;border-radius:11px;cursor:pointer}',
       '.df-pf-hero-manage:hover{background:rgba(255,255,255,.2)}',
-      '.df-pf-hero-grid{display:grid;gap:8px;margin-top:15px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}',
+      '.df-pf-hero-grid{display:grid;gap:8px;margin-top:15px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}',
       '.df-pf-hero[data-count="1"] .df-pf-hero-grid{grid-template-columns:repeat(2,minmax(0,1fr))}',
       '.df-pf-hero[data-count="2"] .df-pf-hero-grid{grid-template-columns:repeat(3,minmax(0,1fr))}',
       '.df-pf-acct{display:flex;flex-direction:column;gap:2px;padding:12px 13px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.09);min-width:0;text-align:left}',
