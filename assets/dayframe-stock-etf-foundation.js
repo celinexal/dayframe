@@ -102,6 +102,38 @@
           </div>
         </div>
 
+        <div class="df-stock-etf-etf-examples">
+          <h4>Popular ETFs and what they cover</h4>
+          <p class="df-stock-etf-examples-intro">A few funds UK investors reach for most often. Tickers change by exchange, and most come in an accumulating (reinvests income) or income (pays it out) version.</p>
+          <div class="df-stock-etf-example-grid">
+            <div class="df-stock-etf-example">
+              <b>S&amp;P 500</b><span>VUAG &middot; VUSA &middot; SPY</span>
+              <p>The 500 largest US companies &mdash; Apple, Microsoft, Nvidia, Amazon and the rest. The usual "the market" benchmark. Very low cost, but all US and concentrated in big tech.</p>
+            </div>
+            <div class="df-stock-etf-example">
+              <b>Global all&#8209;world</b><span>VWRP &middot; VWRL &middot; FWRG</span>
+              <p>Roughly 3,500 companies across ~50 countries in one fund, developed and emerging. The most hands&#8209;off single&#8209;fund core &mdash; you own a slice of the whole world.</p>
+            </div>
+            <div class="df-stock-etf-example">
+              <b>Developed world</b><span>VHVG &middot; IWDA</span>
+              <p>Rich&#8209;country companies (US, Europe, Japan, UK) with no emerging markets. A common core for people who want slightly less volatility than all&#8209;world.</p>
+            </div>
+            <div class="df-stock-etf-example">
+              <b>FTSE 100 / FTSE All&#8209;Share</b><span>VUKG &middot; ISF &middot; VMID</span>
+              <p>The UK's largest listed companies. Higher dividend income, heavier in banks, energy and miners, little exposure to tech.</p>
+            </div>
+            <div class="df-stock-etf-example">
+              <b>Nasdaq 100</b><span>EQQQ &middot; QQQ</span>
+              <p>100 large non&#8209;financial Nasdaq names &mdash; very tech&#8209;heavy. Bigger moves up and down than the S&amp;P 500; often used as a satellite, not a core.</p>
+            </div>
+            <div class="df-stock-etf-example">
+              <b>Government &amp; corporate bonds</b><span>VGOV &middot; AGGG &middot; VAGP</span>
+              <p>Loans to governments and companies rather than shares. Lower expected return, usually steadier &mdash; used to soften the ride as goals get closer.</p>
+            </div>
+          </div>
+          <p class="df-stock-etf-note">Examples for learning, not recommendations. Check each fund's holdings, charges, size and currency before using it.</p>
+        </div>
+
         <div class="df-stock-etf-bottom">
           <section>
             <h4>Before you buy</h4>
@@ -455,7 +487,8 @@
       .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-duel section.etfs,
       .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-duel section.stocks,
       .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-bottom,
-      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-bottom{
+      .df-stock-etf-lesson[data-df-focus="etfs"] .df-stock-etf-bottom,
+      .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-etf-examples{
         display:none!important;
       }
       .df-stock-etf-lesson[data-df-focus="stocks"] .df-stock-etf-choice-grid,
@@ -730,6 +763,65 @@
         font-size:12px;
         line-height:1.45;
       }
+      .df-stock-etf-etf-examples{
+        padding:20px;
+        border:1px solid #c7f8e2;
+        border-radius:20px;
+        background:linear-gradient(160deg,#fff 0%,#ecfffa 100%);
+        box-shadow:0 16px 34px rgba(52,211,153,.11);
+      }
+      .df-stock-etf-etf-examples h4{
+        margin:0;
+        font-family:var(--fd);
+        font-size:17px;
+        line-height:1.2;
+        color:#182235;
+        letter-spacing:0;
+      }
+      .df-stock-etf-examples-intro{
+        margin:7px 0 14px;
+        max-width:640px;
+        font-size:12px;
+        line-height:1.55;
+        color:#5c6b7f;
+      }
+      .df-stock-etf-example-grid{
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:10px;
+      }
+      .df-stock-etf-example{
+        min-width:0;
+        padding:14px;
+        border:1px solid #d7f2e6;
+        border-radius:15px;
+        background:#fff;
+        box-shadow:0 8px 18px rgba(39,49,75,.04);
+      }
+      .df-stock-etf-example b{
+        display:block;
+        font-size:13px;
+        color:#17233a;
+        letter-spacing:0;
+      }
+      .df-stock-etf-example span{
+        display:block;
+        margin:3px 0 7px;
+        font-size:10px;
+        font-weight:800;
+        letter-spacing:.03em;
+        color:#199a72;
+        text-transform:uppercase;
+      }
+      .df-stock-etf-example p{
+        margin:0;
+        font-size:11.5px;
+        line-height:1.5;
+        color:#5f6c80;
+      }
+      .df-stock-etf-etf-examples .df-stock-etf-note{
+        margin-top:12px!important;
+      }
       .df-stock-etf-bottom{
         display:grid;
         grid-template-columns:minmax(0,1fr) minmax(0,1fr);
@@ -806,6 +898,7 @@
         .df-stock-etf-mini-grid,
         .df-stock-etf-choice-grid,
         .df-stock-etf-duel,
+        .df-stock-etf-example-grid,
         .df-stock-etf-bottom{
           grid-template-columns:1fr;
           min-width:0;
