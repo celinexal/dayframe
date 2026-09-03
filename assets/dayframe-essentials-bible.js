@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'essentials-bible-v1';
+  const VERSION = 'essentials-bible-v2';
   const FLAG = 'data-dayframe-essentials-bible';
   const STYLE_ID = 'df-essentials-bible-style';
   const ORDER = ['car', 'myflo', 'documents', 'health', 'bible'];
@@ -11,7 +11,7 @@
     myflo: 'MyFlo',
     documents: 'Documents',
     health: 'Health',
-    bible: 'Bible Study',
+    bible: 'Bible',
   };
   const DETAILS = {
     car: {
@@ -43,7 +43,7 @@
       page: 'driving-health',
     },
     bible: {
-      label: 'Bible Study',
+      label: 'Bible',
       desc: "Scripture, today's verse and private reflections.",
       icon: 'B',
       card: () => document.getElementById('df-bible-card'),
@@ -91,6 +91,16 @@
     try {
       if (typeof window.hubSave === 'function') window.hubSave(next);
     } catch {}
+  }
+
+  // Switching "Bible" off in Edit Home also hides it from Essentials.
+  function homeBibleHidden() {
+    try {
+      const hidden = hubData()?.preferences?.home?.hidden;
+      return Array.isArray(hidden) && hidden.includes('bible');
+    } catch {
+      return false;
+    }
   }
 
   function normalisePrefs(raw = {}) {
@@ -182,7 +192,7 @@
       </div>
       <div class="driving-home-copy">
         <div class="driving-home-kicker">Faith</div>
-        <div class="driving-home-title">Bible Study</div>
+        <div class="driving-home-title">Bible</div>
         <div class="driving-home-desc">Read Scripture, follow today's verse and keep private reflections.</div>
       </div>
       <div class="driving-card-tags"><span class="driving-card-tag">Verse</span><span class="driving-card-tag">Reader</span><span class="driving-card-tag">Notes</span></div>
@@ -204,9 +214,9 @@
     if (card.type !== 'button') card.type = 'button';
     if (card.dataset.essentialsWidgetKey !== 'bible') card.dataset.essentialsWidgetKey = 'bible';
     if (card.dataset.essentialsOpenPage !== 'bible') card.dataset.essentialsOpenPage = 'bible';
-    if (card.getAttribute('aria-label') !== 'Open Bible Study') card.setAttribute('aria-label', 'Open Bible Study');
+    if (card.getAttribute('aria-label') !== 'Open Bible') card.setAttribute('aria-label', 'Open Bible');
     if (card.hasAttribute('onclick')) card.removeAttribute('onclick');
-    if (!card.querySelector('.driving-home-title') || !/Bible Study/i.test(card.textContent || '')) {
+    if (!card.querySelector('.driving-home-title') || !/Bible/i.test(card.textContent || '')) {
       card.innerHTML = bibleCardHTML();
     }
     return card;
@@ -221,7 +231,7 @@
       item.type = 'button';
       item.dataset.drivingPage = 'bible';
       item.dataset.essentialsOpenPage = 'bible';
-      item.innerHTML = '<span>B</span>Bible Study';
+      item.innerHTML = '<span>B</span>Bible';
       const car = nav.querySelector('[data-driving-page="driving-car"]');
       car?.insertAdjacentElement('afterend', item) || nav.appendChild(item);
     }
@@ -271,7 +281,9 @@
     document.querySelectorAll('#df-essentials-widget-panel [data-widget-choice="home"],#df-essentials-widget-panel [data-widget-choice="work-study"]').forEach((el) => el.remove());
     document.querySelectorAll('#home-editor-content .home-editor-row,#home-editor-content [data-home-editor-row]').forEach((row) => {
       const text = row.textContent || '';
-      if (/Bible Study|Home\s*&\s*Rent|Work\s*&\s*Study/i.test(text)) {
+      // The Bible row stays in Edit Home so it can be switched off there;
+      // only the removed Home & Work/Study rows are hidden.
+      if (/Home\s*&\s*Rent|Work\s*&\s*Study/i.test(text)) {
         if (row.hidden !== true) row.hidden = true;
         if (row.style.display !== 'none') row.style.display = 'none';
       }
@@ -280,7 +292,7 @@
     const drivingTitle = drivingTile?.querySelector('.hub-module-title');
     const drivingDesc = drivingTile?.querySelector('.hub-module-desc');
     if (drivingTitle) drivingTitle.textContent = 'Essentials';
-    if (drivingDesc) drivingDesc.textContent = 'Car, MyFlo, documents, health and Bible Study in one place.';
+    if (drivingDesc) drivingDesc.textContent = 'Car, MyFlo, documents, health and Bible in one place.';
     const back = document.querySelector('#pg-bible .bible-back-new');
     if (back) {
       if (back.textContent !== '< Essentials') back.textContent = '< Essentials';
@@ -292,8 +304,11 @@
     }
   }
 
+  function widgetHidden(prefs, key) {
+    return prefs.hidden.includes(key) || (key === 'bible' && homeBibleHidden());
+  }
   function visibleLabels(prefs) {
-    return prefs.order.filter((key) => !prefs.hidden.includes(key)).map((key) => LABELS[key]).filter(Boolean);
+    return prefs.order.filter((key) => !widgetHidden(prefs, key)).map((key) => LABELS[key]).filter(Boolean);
   }
 
   function ensureCustomiseButton() {
@@ -326,8 +341,8 @@
     const sub = hostPage.querySelector('.driving-hub-sub');
     if (eyebrow && eyebrow.textContent.trim() !== 'Your essentials') eyebrow.innerHTML = '<i></i>Your essentials';
     if (title && title.textContent !== 'Essentials for real life.') title.textContent = 'Essentials for real life.';
-    if (sub && sub.textContent !== 'Keep your car, MyFlo, documents, health and Bible Study together without the extra clutter.') {
-      sub.textContent = 'Keep your car, MyFlo, documents, health and Bible Study together without the extra clutter.';
+    if (sub && sub.textContent !== 'Keep your car, MyFlo, documents, health and Bible together without the extra clutter.') {
+      sub.textContent = 'Keep your car, MyFlo, documents, health and Bible together without the extra clutter.';
     }
     const labels = visibleLabels(prefs).slice(0, 5);
     const pills = hostPage.querySelector('.driving-hub-pills');
@@ -356,7 +371,7 @@
   function choiceHTML(key, prefs) {
     const detail = DETAILS[key];
     if (!detail) return '';
-    const visible = !prefs.hidden.includes(key);
+    const visible = !widgetHidden(prefs, key);
     return `<article class="df-widget-choice ${visible ? 'is-on' : 'is-off'}" data-widget-choice="${esc(key)}"><div class="df-widget-choice-icon">${esc(detail.icon)}</div><div><strong>${esc(detail.label)}</strong><span>${esc(detail.desc)}</span></div><button type="button" class="df-widget-switch ${visible ? 'is-on' : ''}" aria-label="${visible ? 'Hide' : 'Show'} ${esc(detail.label)}" aria-pressed="${visible ? 'true' : 'false'}" onclick="dayframeToggleEssentialsWidget('${esc(key)}', event)"><span></span></button></article>`;
   }
 
@@ -394,7 +409,7 @@
     prefs.order.forEach((key) => {
       const card = cardFor(key);
       if (!card) return;
-      const visible = !prefs.hidden.includes(key);
+      const visible = !widgetHidden(prefs, key);
       setVisible(card, visible);
       if (card.dataset.essentialsWidgetKey !== key) card.dataset.essentialsWidgetKey = key;
       const dragging = isCustomising() && visible;
@@ -427,7 +442,8 @@
     const prefs = cleanSavedPrefs();
     ensureStyle();
     ensureBibleCard();
-    ensureBibleSideNav();
+    const bibleNav = ensureBibleSideNav();
+    setVisible(bibleNav, !widgetHidden(prefs, 'bible'));
     hideStalePieces();
     updateHeroCopy(prefs);
     updateCardOrderAndNumbers(prefs);

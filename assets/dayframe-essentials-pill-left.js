@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'pill-left-v2';
+  const VERSION = 'pill-left-v3';
   const FLAG = 'data-dayframe-essentials-pill-left';
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
@@ -37,10 +37,10 @@
 
   const PATCHES = [
     {
-      src: '/assets/dayframe-essentials-bible.js?v=20260902-essentials-bible-v1',
+      src: '/assets/dayframe-essentials-bible.js?v=20260903-essentials-bible-v2',
       marker: 'data-dayframe-essentials-bible-loader',
       ready: 'data-dayframe-essentials-bible',
-      value: 'essentials-bible-v1',
+      value: 'essentials-bible-v2',
     },
   ];
 

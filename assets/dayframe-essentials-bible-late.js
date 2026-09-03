@@ -3,7 +3,7 @@
 
   const VERSION = 'essentials-bible-late-v1';
   const FLAG = 'data-dayframe-essentials-bible-late';
-  const ALLOWED = ['My Car', 'MyFlo', 'Documents', 'Health', 'Bible Study'];
+  const ALLOWED = ['My Car', 'MyFlo', 'Documents', 'Health', 'Bible'];
   let queued = false;
   let observerStarted = false;
 

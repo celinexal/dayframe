@@ -1,4 +1,4 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v128';
+const DAYFRAME_CACHE = 'dayframe-shell-v129';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-performance-guard.js', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-essentials-cleanup.js', '/assets/dayframe-essentials-clickfix.js', '/assets/dayframe-essentials-customise.js', '/assets/dayframe-essentials-pill-left.js', '/assets/dayframe-myflo-calendar-actions.js', '/assets/dayframe-diary-delete-fix.js', '/assets/dayframe-brokers.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_PERFORMANCE_GUARD_SRC = '/assets/dayframe-performance-guard.js?v=20260901-performance-guard-v1';
@@ -18,13 +18,13 @@ const DAYFRAME_STOCK_ETF_FOUNDATION_SRC = '/assets/dayframe-stock-etf-foundation
 const DAYFRAME_BROKERS_SRC = '/assets/dayframe-brokers.js?v=20260903-brokers-always-hero-v6';
 const DAYFRAME_LOGIN_INPUT_FIX_SRC = '/assets/dayframe-login-input-fix.js?v=20260829-ios-input-focus';
 const DAYFRAME_STANDARD_HOME_SRC = '/assets/dayframe-standard-home.js?v=20260902-no-setup-card-v1';
-const DAYFRAME_LIFE_STAGE_SRC = '/assets/dayframe-life-stage.js?v=20260831-essentials-life-v3';
+const DAYFRAME_LIFE_STAGE_SRC = '/assets/dayframe-life-stage.js?v=20260903-essentials-life-v4';
 const DAYFRAME_ESSENTIALS_SRC = '/assets/dayframe-essentials.js?v=20260831-essentials-customise-v20';
-const DAYFRAME_ESSENTIALS_CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260903-essentials-cleanup-v4';
+const DAYFRAME_ESSENTIALS_CLEANUP_SRC = '/assets/dayframe-essentials-cleanup.js?v=20260903-essentials-cleanup-v5';
 const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260901-clickfix-v19';
 const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';
 const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260901-essentials-more-v12';
-const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260831-pill-left-v1';
+const DAYFRAME_ESSENTIALS_PILL_LEFT_SRC = '/assets/dayframe-essentials-pill-left.js?v=20260903-pill-left-v3';
 const DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC = '/assets/dayframe-myflo-calendar-actions.js?v=20260903-myflo-calendar-actions-disabled-v3';
 const DAYFRAME_DIARY_DELETE_FIX_SRC = '/assets/dayframe-diary-delete-fix.js?v=20260830-diary-delete';
 const DAYFRAME_POLISH_MARKER = 'data-dayframe-polish-loader';

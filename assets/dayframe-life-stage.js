@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'life-stage-v3';
+  const VERSION = 'life-stage-v4';
   const FLAG = 'data-dayframe-life-stage';
   const STYLE_ID = 'df-life-stage-style';
 
@@ -13,7 +13,7 @@
     { key: 'planner', label: 'Plans', note: 'Tasks, goals and dates' },
     { key: 'driving', label: 'Essentials', note: 'My Car, MyFlo, documents and reminders' },
     { key: 'diary', label: 'Diary', note: 'Private notes and mood' },
-    { key: 'bible', label: 'Bible Study', note: 'Reading, notes and highlights' },
+    { key: 'bible', label: 'Bible', note: 'In Essentials — reading, verse and notes' },
     { key: 'investing', label: 'Investing', note: 'Learning, holdings and research' },
   ];
   const WIDGETS = [
@@ -383,6 +383,8 @@
     window.hubSave(d);
     renderEditor();
     applyNow();
+    const label = (MODULES.find((m) => m.key === key) || {}).label || 'Space';
+    try { window.hubToast?.(show ? label + ' shown on Home' : label + ' hidden'); } catch (e) {}
   };
 
   window.dayframeMoveHomeModule = function dayframeMoveHomeModule(key, direction) {
@@ -401,6 +403,7 @@
     window.hubSave(d);
     renderEditor();
     applyNow();
+    try { window.hubToast?.('Order saved'); } catch (e) {}
   };
 
   window.dayframeToggleHomeWidget = function dayframeToggleHomeWidget(key, show) {
@@ -411,6 +414,8 @@
     window.hubSave(d);
     renderEditor();
     applyNow();
+    const label = (WIDGETS.find((w) => w.key === key) || {}).label || 'Widget';
+    try { window.hubToast?.(show ? label + ' shown' : label + ' hidden'); } catch (e) {}
   };
 
   function init() {

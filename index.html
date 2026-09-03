@@ -1762,6 +1762,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .home-editor-check{width:20px;height:20px;accent-color:#6e61e8}.home-editor-copy strong{display:block;font-size:12px;color:#3d4658}.home-editor-copy small{display:block;font-size:9.5px;color:#97a0ae;margin-top:1px}
 .home-editor-move{display:flex;gap:5px}.home-editor-move button{width:32px;height:32px;border:1px solid #e5e7ee;border-radius:9px;background:#fafbfc;color:#707b8d;cursor:pointer}.home-editor-move button:disabled{opacity:.3}
 .home-editor-note{margin-top:14px;padding:11px 12px;border-radius:13px;background:#f4f2ff;color:#7569b6;font-size:10.5px;line-height:1.55}
+.home-editor-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid #edf0f5;position:sticky;bottom:-1px;background:linear-gradient(#fff 60%,#fff)}
+.home-editor-foot span{font-size:10.5px;color:#98a1b1}
+.home-editor-done{flex:0 0 auto;border:0;border-radius:11px;background:#6e61e8;color:#fff;font:850 12px var(--ff);padding:11px 22px;cursor:pointer}
+.home-editor-done:hover{background:#5d51d8}
 
 .df-connection-health{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
 .df-connection-health>div{padding:10px 11px;border:1px solid #e6e9ef;border-radius:12px;background:#fafbfc}
@@ -2068,13 +2072,13 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <section class="auth-public-copy">
         <div class="auth-public-kicker">✦ Your personal dashboard</div>
         <h1 class="auth-public-title">Your money, plans and life.<br><span>One calm place.</span></h1>
-        <p class="auth-public-sub">Dayframe brings the parts of life you want to stay on top of into one private space — money, plans, driving, journaling, Bible study and investing.</p>
+        <p class="auth-public-sub">Dayframe brings the parts of life you want to stay on top of into one private space — money, plans, driving, journaling, Bible and investing.</p>
         <div class="auth-public-grid auth-public-grid-six">
           <div class="auth-public-feature"><b>Money</b><span>Accounts, spending, budgets, bills and credit plans.</span></div>
           <div class="auth-public-feature"><b>Plans &amp; goals</b><span>Today’s tasks and bigger goals without the mental clutter.</span></div>
           <div class="auth-public-feature"><b>Driving</b><span>Theory progress, your car and important renewal dates.</span></div>
           <div class="auth-public-feature"><b>Diary</b><span>A private place for moods, thoughts and gentle reflection.</span></div>
-          <div class="auth-public-feature"><b>Bible Study</b><span>Read Scripture, highlight passages and keep personal notes.</span></div>
+          <div class="auth-public-feature"><b>Bible</b><span>Read Scripture, highlight passages and keep personal notes.</span></div>
           <div class="auth-public-feature"><b>Investing</b><span>Your portfolio, research and learning tools in your account.</span></div>
         </div>
       </section>
@@ -2142,7 +2146,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
   <div class="df-nav-left">
     <div class="df-nav-brand" onclick="go('home')"><i>D</i><span>Dayframe</span></div>
     <div class="df-nav-links">
-      <button class="df-nav-btn on" data-main-page="home" onclick="go('home')">Home</button><button class="df-nav-btn" data-main-page="money" onclick="go('money')">Money</button><button class="df-nav-btn" data-main-page="planner" onclick="go('planner')">Plans</button><button class="df-nav-btn" data-main-page="driving" onclick="go('driving')">Driving</button><button class="df-nav-btn" data-main-page="diary" onclick="go('diary')">Diary</button><button class="df-nav-btn" data-main-page="bible" onclick="go('bible')">Bible Study</button><button class="df-nav-btn" data-main-page="investing" onclick="go('dashboard')">Investing</button>
+      <button class="df-nav-btn on" data-main-page="home" onclick="go('home')">Home</button><button class="df-nav-btn" data-main-page="money" onclick="go('money')">Money</button><button class="df-nav-btn" data-main-page="planner" onclick="go('planner')">Plans</button><button class="df-nav-btn" data-main-page="driving" onclick="go('driving')">Driving</button><button class="df-nav-btn" data-main-page="diary" onclick="go('diary')">Diary</button><button class="df-nav-btn" data-main-page="bible" onclick="go('bible')">Bible</button><button class="df-nav-btn" data-main-page="investing" onclick="go('dashboard')">Investing</button>
     </div>
   </div>
   <div class="df-nav-right"><span class="dayframe-sync-status" id="dayframe-sync-status" role="status" aria-live="polite">Saved</span><button class="df-user-pill" type="button" onclick="go('security')" aria-label="Open account security and privacy"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></button><button class="df-logout" onclick="doLogout()">Log out</button></div>
@@ -2355,7 +2359,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       </article>
       <article class="hub-module hub-bible" data-home-module="bible" onclick="go('bible')">
         <div class="hub-module-icon"><svg viewBox="0 0 24 24"><path d="M4 4.5h6.5A3.5 3.5 0 0114 8v12a3.5 3.5 0 00-3.5-3.5H4z"/><path d="M20 4.5h-6.5A3.5 3.5 0 0010 8v12a3.5 3.5 0 013.5-3.5H20z"/><path d="M15 8h2M16 7v4"/></svg></div>
-        <div class="hub-module-title">Bible Study</div><div class="hub-module-desc">Read Scripture, follow a gentle faith journey and keep private reflections, prayers and questions.</div>
+        <div class="hub-module-title">Bible</div><div class="hub-module-desc">Read Scripture, follow a gentle faith journey and keep private reflections, prayers and questions.</div>
         <div class="hub-module-foot"><span class="hub-arrow">→</span></div>
       </article>
     </div>
@@ -4085,6 +4089,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
   <section class="df-action-sheet home-editor-sheet" id="home-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="home-editor-title">
     <div class="df-sheet-head"><div><span>Personalise</span><h2 id="home-editor-title">Edit Home</h2><p>Show what matters and move your spaces into the order you prefer.</p></div><button type="button" onclick="dfCloseSheets()" aria-label="Close">×</button></div>
     <div id="home-editor-content"></div>
+    <div class="home-editor-foot"><span>Your changes save as you make them.</span><button type="button" class="home-editor-done" onclick="dfCloseSheets()">Done</button></div>
   </section>
 </div>
 </main>
@@ -5560,7 +5565,7 @@ const DF_HOME_MODULES=[
  {key:'planner',label:'Plans',note:'Tasks and bigger goals'},
  {key:'driving',label:'Driving',note:'Theory and My Car'},
  {key:'diary',label:'Diary',note:'Mood and private entries'},
- {key:'bible',label:'Bible Study',note:'Reading, highlights and notes'},
+ {key:'bible',label:'Bible',note:'In Essentials — reading, verse and notes'},
  {key:'investing',label:'Investing',note:'Portfolio and analysis'}
 ];
 const DF_HOME_WIDGETS=[
@@ -5701,7 +5706,7 @@ function renderHome(){
    else items.push({kind:'bill',icon:'£',title:hasAccount?'No bills due soon':'Connect Money when you’re ready',meta:hasAccount?'Your next 30 days are clear':'Add an account for useful reminders'});
    let dailyRef='John 1:1';
    if(typeof BIBLE_DAILY_REFS!=='undefined'&&BIBLE_DAILY_REFS.length){const day=Math.floor(new Date(today+'T12:00:00').getTime()/86400000),pick=BIBLE_DAILY_REFS[Math.abs(day)%BIBLE_DAILY_REFS.length];dailyRef=pick[0]+' '+pick[1]+':'+pick[2]}
-   items.push({kind:'bible',icon:'✦',title:'Today’s verse is ready',meta:'Bible Study · '+dailyRef});
+   items.push({kind:'bible',icon:'✦',title:'Today’s verse is ready',meta:'Bible · '+dailyRef});
    digest.innerHTML=items.slice(0,3).map(x=>'<button type="button" class="home-digest-item" onclick="'+(x.kind==='task'?"go('planner')":x.kind==='bill'?"go('money')":"go('bible')")+'"><span class="home-digest-icon '+x.kind+'">'+x.icon+'</span><span class="home-digest-copy"><strong>'+hubEsc(x.title)+'</strong><span>'+hubEsc(x.meta)+'</span></span></button>').join('');
  }
  const upcoming=[
@@ -7229,7 +7234,7 @@ function bibleEditNote(id){
  const b=bibleState(),n=b.notes.find(x=>String(x.id)===String(id));const noteSide=document.getElementById('bible-note-side');if(noteSide)noteSide.open=true;if(!n)return;document.getElementById('bible-note-id').value=n.id;document.getElementById('bible-note-title').value=n.title||'';document.getElementById('bible-note-body').value=n.body||'';document.getElementById('bible-note-passage').value=n.passage||'';document.getElementById('bible-note-type').value=n.type||'reflection';document.getElementById('bible-selection-preview')?.classList.remove('show');document.getElementById('bible-note-side')?.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>document.getElementById('bible-note-body')?.focus(),250)
 }
 function bibleDeleteNote(id){
- if(!confirm('Delete this Bible study note?'))return;const d=hubLoad(),b=bibleState(d);b.notes=b.notes.filter(x=>String(x.id)!==String(id));d.bible=b;hubSave(d);bibleRenderNotes(b);hubToast('Note deleted')
+ if(!confirm('Delete this Bible note?'))return;const d=hubLoad(),b=bibleState(d);b.notes=b.notes.filter(x=>String(x.id)!==String(id));d.bible=b;hubSave(d);bibleRenderNotes(b);hubToast('Note deleted')
 }
 function bibleRenderNotes(b){
  const host=document.getElementById('bible-notes-list');if(!host)return;const notes=b.notes.slice().sort((a,c)=>String(c.updatedAt||c.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||''))),labels={reflection:'Reflection',prayer:'Prayer',question:'Question'};

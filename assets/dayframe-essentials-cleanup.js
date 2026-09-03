@@ -10,7 +10,7 @@
     { key: 'planner', label: 'Plans', note: 'Tasks, goals and dates' },
     { key: 'driving', label: 'Essentials', note: 'Car and period tracker' },
     { key: 'diary', label: 'Diary', note: 'Private notes and mood' },
-    { key: 'bible', label: 'Bible Study', note: 'Reading, notes and highlights' },
+    { key: 'bible', label: 'Bible', note: 'Reading, notes and highlights' },
     { key: 'investing', label: 'Investing', note: 'Learning, holdings and research' },
   ];
   const WIDGETS = [
