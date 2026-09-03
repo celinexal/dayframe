@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v6';
+  const VERSION = 'flo-v7';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
   const DAY_MS = 86400000;
@@ -503,11 +503,23 @@
       window.hubToast?.('Day cleared');
     }
   };
+  function renderSignature(s) {
+    const notif = ('Notification' in window) ? window.Notification.permission : '';
+    return `v7|${iso(new Date())}|${iso(calendarCursor)}|${notif}|${JSON.stringify(s)}`;
+  }
   function renderMyFlo(preserveMenu) {
     if (!preserveMenu) closeMyFloDayMenu();
     const panel = $('df-period-panel');
     if (!panel) return;
     const s = settings();
+    const sig = renderSignature(s);
+    const existingView = $('df-myflo-view');
+    // Nothing meaningful changed — skip the rebuild. Other patch files'
+    // MutationObservers fire this often; rebuilding innerHTML each time
+    // causes the calendar to flicker and cascades re-renders across scripts.
+    if (!preserveMenu && existingView && existingView.children.length && existingView.dataset.floSig === sig) {
+      return;
+    }
     const sum = summary(s);
     const fertile = nextFertile(s);
     const head = panel.querySelector('.df-period-panel-head');
@@ -515,11 +527,11 @@
       const eyebrow = head.querySelector('span');
       const title = head.querySelector('h2');
       const copy = head.querySelector('p');
-      if (eyebrow) eyebrow.textContent = 'Private tracker';
-      if (title) title.textContent = LABEL;
-      if (copy) copy.textContent = 'Track your dates and let Dayframe estimate the rest.';
+      if (eyebrow && eyebrow.textContent !== 'Private tracker') eyebrow.textContent = 'Private tracker';
+      if (title && title.textContent !== LABEL) title.textContent = LABEL;
+      if (copy && copy.textContent !== 'Track your dates and let Dayframe estimate the rest.') copy.textContent = 'Track your dates and let Dayframe estimate the rest.';
     }
-    let view = $('df-myflo-view');
+    let view = existingView;
     if (!view) {
       view = document.createElement('div');
       view.id = 'df-myflo-view';
@@ -527,6 +539,7 @@
       if (body) panel.insertBefore(view, body);
       else panel.appendChild(view);
     }
+    view.dataset.floSig = sig;
     const todayISO = iso(new Date());
     const todayIsPeriod = !!(s.dayLogs[todayISO] && s.dayLogs[todayISO].flow);
     const savedRange = s.lastStart
@@ -554,10 +567,11 @@
       last.dataset.myfloHint = 'true';
       last.closest('label')?.appendChild(Object.assign(document.createElement('small'), { textContent: 'You can also tap a date on the calendar.' }));
     }
-    if (last) last.value = s.lastStart;
-    if ($('df-period-cycle-length')) $('df-period-cycle-length').value = String(s.cycleLength);
-    if ($('df-period-length')) $('df-period-length').value = String(s.periodLength);
-    if ($('df-period-notes')) $('df-period-notes').value = s.notes;
+    const A = document.activeElement;
+    if (last && A !== last) last.value = s.lastStart;
+    const cyc = $('df-period-cycle-length'); if (cyc && A !== cyc) cyc.value = String(s.cycleLength);
+    const len = $('df-period-length'); if (len && A !== len) len.value = String(s.periodLength);
+    const notes = $('df-period-notes'); if (notes && A !== notes) notes.value = s.notes;
     if (!s.lastStart) calendarCursor = firstOfMonth(new Date());
   }
   function updateSummary(s = settings(), sum = summary(s)) {
@@ -612,26 +626,26 @@
       else nav.appendChild(flo);
     }
     if (flo) {
-      flo.innerHTML = '<span>F</span>MyFlo';
-      flo.classList.remove('df-essentials-hidden');
-      flo.setAttribute('aria-hidden', 'false');
+      if (flo.textContent.replace(/\s+/g, '') !== 'FMyFlo') flo.innerHTML = '<span>F</span>MyFlo';
+      if (flo.classList.contains('df-essentials-hidden')) flo.classList.remove('df-essentials-hidden');
+      if (flo.getAttribute('aria-hidden') !== 'false') flo.setAttribute('aria-hidden', 'false');
     }
     const theory = nav?.querySelector('[data-driving-page="driving-theory"]');
-    if (theory) {
+    if (theory && !theory.classList.contains('df-essentials-hidden')) {
       theory.classList.add('df-essentials-hidden');
       theory.setAttribute('aria-hidden', 'true');
     }
     const card = $('df-period-card');
     if (card) {
-      card.setAttribute('onclick', 'dayframeOpenPeriodTracker(event)');
+      if (card.getAttribute('onclick') !== 'dayframeOpenPeriodTracker(event)') card.setAttribute('onclick', 'dayframeOpenPeriodTracker(event)');
       const title = card.querySelector('.driving-home-title');
       const kicker = card.querySelector('.driving-home-kicker');
-      if (title) title.textContent = LABEL;
-      if (kicker) kicker.textContent = 'Private';
+      if (title && title.textContent !== LABEL) title.textContent = LABEL;
+      if (kicker && kicker.textContent !== 'Private') kicker.textContent = 'Private';
       updateSummary();
     }
     const panelTitle = $('df-period-panel')?.querySelector('.df-period-panel-head h2');
-    if (panelTitle) panelTitle.textContent = LABEL;
+    if (panelTitle && panelTitle.textContent !== LABEL) panelTitle.textContent = LABEL;
   }
 
   window.dayframeSavePeriodTracker = function dayframeSavePeriodTracker() {
@@ -748,9 +762,13 @@
   function observe() {
     if (observing || !document.body || typeof MutationObserver !== 'function') return;
     observing = true;
+    const target = document.getElementById('pg-driving') || document.body;
     new MutationObserver(() => {
-      if (/Period tracker|Cycle tracker|\bFlo\b/.test(document.body.innerText || '') || !$('df-myflo-view')) queue();
-    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+      // Only re-apply if our nav item or rendered view actually went missing.
+      // renderMyFlo() is signature-guarded, so a spurious queue() is cheap.
+      const nav = document.querySelector('.driving-side-nav [data-driving-page="driving-cycle"]');
+      if (!nav || (!$('df-myflo-view') && $('df-period-panel'))) queue(80);
+    }).observe(target, { childList: true, subtree: true });
   }
   function apply() {
     queued = false;
