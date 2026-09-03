@@ -136,6 +136,21 @@ update_block = f"""
   let refreshing = false;
   let checkedOnce = false;
   let checking = false;
+  const hadControllerAtLoad = !!navigator.serviceWorker.controller;
+
+  function autoReloadedRecently() {{
+    try {{
+      const at = Number(sessionStorage.getItem('dayframe_auto_reload_at') || 0);
+      return at > 0 && (Date.now() - at) < 12000;
+    }} catch {{ return false; }}
+  }}
+
+  function activateWaiting() {{
+    const waiting = registration && registration.waiting;
+    if (!waiting) return false;
+    try {{ waiting.postMessage({{ type: 'DAYFRAME_SKIP_WAITING' }}); }} catch {{}}
+    return true;
+  }}
 
   function removePrompt() {{
     const node = document.getElementById('df-app-update');
@@ -241,12 +256,18 @@ update_block = f"""
 
   function watchRegistration(reg) {{
     registration = reg;
-    if (reg.waiting && navigator.serviceWorker.controller) showUpdatePrompt(reg);
+    if (reg.waiting && navigator.serviceWorker.controller) {{
+      showUpdatePrompt(reg);
+      activateWaiting();
+    }}
     reg.addEventListener('updatefound', () => {{
       const worker = reg.installing;
       if (!worker) return;
       worker.addEventListener('statechange', () => {{
-        if (worker.state === 'installed' && navigator.serviceWorker.controller) showUpdatePrompt(reg);
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) {{
+          showUpdatePrompt(reg);
+          activateWaiting();
+        }}
       }});
     }});
   }}
@@ -259,12 +280,25 @@ update_block = f"""
       requested = sessionStorage.getItem('dayframe_update_reload') === VERSION;
       if (requested) sessionStorage.removeItem('dayframe_update_reload');
     }} catch {{}}
-    if (requested) {{
+    // A new worker just took control. Reload straight away when the app was
+    // only just opened or resumed from the background; fall back to the manual
+    // banner if the page has been actively open for over a minute.
+    const activelyUsing = document.visibilityState === 'visible' && performance.now() > 60000;
+    if (requested || (hadControllerAtLoad && !autoReloadedRecently() && !activelyUsing)) {{
+      try {{ sessionStorage.setItem('dayframe_auto_reload_at', String(Date.now())); }} catch {{}}
       window.location.reload();
       return;
     }}
     showUpdatePrompt(registration);
   }});
+
+  function recheckOnResume() {{
+    if (document.visibilityState && document.visibilityState !== 'visible') return;
+    if (!registration) return;
+    registration.update().then(() => activateWaiting()).catch(() => {{}});
+  }}
+  document.addEventListener('visibilitychange', recheckOnResume);
+  window.addEventListener('focus', recheckOnResume);
 
   window.dayframeCheckForUpdate = async function dayframeCheckForUpdate() {{
     if (checking) return;
@@ -289,7 +323,7 @@ update_block = f"""
       watchRegistration(reg);
       setTimeout(renderUpdatePrompt, 800);
       setTimeout(() => reg.update().catch(() => {{}}), 1200);
-      setInterval(() => reg.update().catch(() => {{}}), 30 * 60 * 1000);
+      setInterval(() => reg.update().catch(() => {{}}), 15 * 60 * 1000);
     }} catch {{}}
   }});
   document.addEventListener('click', () => setTimeout(renderUpdatePrompt, 120), true);
