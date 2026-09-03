@@ -9,7 +9,7 @@ const DAYFRAME_RISK_FIX_SRC = '/assets/dayframe-risk-holdings-fix.js?v=20260827-
 const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';
 const DAYFRAME_CAR_COSTS_SRC = '/assets/dayframe-car-costs-merge.js?v=20260831-car-costs-no-nav-wrap';
 const DAYFRAME_MONEY_PERFORMANCE_SRC = '/assets/dayframe-money-performance.js?v=20260829-fast-money-v2';
-const DAYFRAME_BUDGET_REDESIGN_SRC = '/assets/dayframe-budget-redesign.js?v=20260830-aligned-budget-layout';
+const DAYFRAME_BUDGET_REDESIGN_SRC = '/assets/dayframe-budget-redesign.js?v=20260903-no-header-row-edit';
 const DAYFRAME_BUDGET_FIXUPS_SRC = '/assets/dayframe-budget-fixups.js?v=20260830-budget-clean-bills-empty';
 const DAYFRAME_BUDGET_MOBILE_STRIP_SRC = '/assets/dayframe-budget-mobile-strip.js?v=20260830-budget-mobile-strip';
 const DAYFRAME_BUDGET_LIMITS_EDITOR_SRC = '/assets/dayframe-budget-limits-editor.js?v=20260830-budget-limit-editor';
@@ -80,7 +80,8 @@ function refreshScriptVersions(body) {
     .replace(/\/assets\/dayframe-essentials-customise\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_CUSTOMISE_SRC)
     .replace(/\/assets\/dayframe-essentials-pill-left\.js\?v=[^"']+/g, DAYFRAME_ESSENTIALS_PILL_LEFT_SRC)
     .replace(/\/assets\/dayframe-myflo-calendar-actions\.js\?v=[^"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC)
-    .replace(/\/assets\/dayframe-sector-themes-current\.js\?v=[^"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC);
+    .replace(/\/assets\/dayframe-sector-themes-current\.js\?v=[^"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC)
+    .replace(/\/assets\/dayframe-budget-redesign\.js\?v=[^"']+/g, DAYFRAME_BUDGET_REDESIGN_SRC);
 }
 
 async function withPolish(response) {

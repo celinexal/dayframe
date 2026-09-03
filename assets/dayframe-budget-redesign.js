@@ -161,8 +161,11 @@
       '.df-budget-filter{border:1px solid #e4e8f2;background:#fff;color:#69758a;border-radius:999px;padding:9px 12px;font:850 12px/1 var(--fd,inherit);cursor:pointer}',
       '.df-budget-filter.active{background:#ede9ff;color:#6d5df0;border-color:#ded6ff}',
       '.df-budget-category-list{display:flex;flex-direction:column;gap:9px;max-height:590px;overflow:auto;padding-right:3px}',
-      '.df-budget-row{border:1px solid #e8ecf4;background:#fff;border-radius:18px;padding:14px;text-align:left;cursor:pointer;box-shadow:0 8px 22px rgba(29,39,64,.04)}',
+      '.df-budget-row{display:flex;align-items:stretch;border:1px solid #e8ecf4;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 22px rgba(29,39,64,.04)}',
       '.df-budget-row.active{border-color:#aa9dff;box-shadow:0 12px 30px rgba(117,101,242,.12)}',
+      '.df-budget-row-open{flex:1;min-width:0;display:block;width:100%;border:0;background:transparent;text-align:left;cursor:pointer;padding:14px;font:inherit;color:inherit}',
+      '.df-budget-row-edit{flex:0 0 auto;align-self:stretch;width:46px;border:0;border-left:1px solid #eef1f7;background:#fbfbfe;color:#8490a2;font-size:14px;cursor:pointer}',
+      '.df-budget-row-edit:hover{background:#f4f2ff;color:#6d5df0}',
       '.df-budget-row-top,.df-budget-row-meta{display:flex;align-items:center;justify-content:space-between;gap:12px}',
       '.df-budget-row-title{display:flex;align-items:center;gap:10px;min-width:0}',
       '.df-budget-dot{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 5px rgba(124,97,243,.1);flex:none}',
@@ -215,8 +218,9 @@
       '.df-budget-filter{background:#fff;border-color:#e5e9f2;color:#6e798b}',
       '.df-budget-filter.active{background:#f0ecff;color:#6d5df0;border-color:#ded6ff;box-shadow:0 8px 18px rgba(117,101,242,.1)}',
       '.df-budget-category-list{gap:10px;max-height:560px}',
-      '.df-budget-row{position:relative;border-radius:17px;padding:15px 16px;border-color:#e8ebf4;background:#fff;box-shadow:0 8px 22px rgba(31,40,65,.045);overflow:hidden}',
-      '.df-budget-row:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}',
+      '.df-budget-row{position:relative;display:flex;align-items:stretch;border-radius:17px;border-color:#e8ebf4;background:#fff;box-shadow:0 8px 22px rgba(31,40,65,.045);overflow:hidden}',
+      '.df-budget-row-open{padding:15px 16px}',
+      '.df-budget-row:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent;z-index:1}',
       '.df-budget-row.over-budget:before{background:#ff7aa8}',
       '.df-budget-row.near-limit:before{background:#e9b64a}',
       '.df-budget-row.steady:before{background:#38bfa7}',
@@ -454,11 +458,14 @@
     var encoded = encodeURIComponent(row.category).replace(/'/g, '%27');
     var barColor = row.status === 'over' ? '#ec6a86' : row.status === 'close' ? '#e9b64a' : row.color;
     var rowTone = row.status === 'over' ? 'over-budget' : row.status === 'close' ? 'near-limit' : 'steady';
-    return '<button type="button" class="df-budget-row ' + rowTone + ' ' + (state.selected === row.category ? 'active' : '') + '" onclick="dayframeBudgetSelectCategory(\'' + encoded + '\')">' +
+    return '<div class="df-budget-row ' + rowTone + ' ' + (state.selected === row.category ? 'active' : '') + '">' +
+      '<button type="button" class="df-budget-row-open" onclick="dayframeBudgetSelectCategory(\'' + encoded + '\')">' +
       '<span class="df-budget-row-top"><span class="df-budget-row-title"><i class="df-budget-dot" style="background:' + row.color + '"></i><strong>' + esc(row.category) + '</strong></span><span class="df-budget-status ' + row.status + '">' + statusText(row) + '</span></span>' +
       '<span class="df-budget-row-bar"><i style="width:' + pct.toFixed(1) + '%;background:' + barColor + '"></i></span>' +
       '<span class="df-budget-row-meta"><span>' + money(row.spent, 2) + (row.limit ? ' of ' + money(row.limit, 0) : ' spent') + '</span><span>' + esc(useText(row)) + '</span></span>' +
-      '</button>';
+      '</button>' +
+      '<button type="button" class="df-budget-row-edit" title="Edit ' + esc(row.category) + ' limit" aria-label="Edit ' + esc(row.category) + ' limit" onclick="dayframeBudgetEditCategory(\'' + encoded + '\')">✎</button>' +
+      '</div>';
   }
 
   function filterButton(filter, label, count) {
@@ -483,7 +490,7 @@
   }
 
   function emptyHtml(values) {
-    return '<div class="df-budget-shell"><div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div></div>' +
+    return '<div class="df-budget-shell">' +
       '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left for everyday spending</small><strong>' + money(Number(values.flexible || 0), 0) + '</strong></div><div class="df-budget-meter"><i style="width:0%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">No categories yet</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
       '<div class="df-budget-empty"><strong>No category limits yet</strong><br>Add a category limit to start tracking everyday spending.</div></div>';
   }
@@ -522,7 +529,6 @@
     var footClass = totals.over ? ' warning' : '';
     var leftLabel = totals.left < 0 ? money(Math.abs(totals.left), 0) + ' over' : money(totals.left, 0);
     root.innerHTML = '<div class="df-budget-shell">' +
-      '<div class="df-budget-header"><div><span class="df-budget-kicker">Budget</span><h2>Budget</h2><p>Income, fixed costs, credit and everyday categories in one place.</p></div></div>' +
       '<section class="df-budget-top"><div class="df-budget-total"><div><small>Left for everyday spending</small><strong class="' + (totals.left < 0 ? 'over' : '') + '">' + leftLabel + '</strong></div><div class="df-budget-meter"><i style="width:' + usedPct.toFixed(1) + '%"></i></div><div class="df-budget-total-foot"><span class="df-budget-pill">' + money(totals.spent, 0) + ' used from ' + money(totals.allocated, 0) + '</span><span class="df-budget-pill' + footClass + '">' + esc(footLabel) + '</span></div></div><div class="df-budget-checks">' + renderChecks(values) + '</div></section>' +
       '<div class="df-budget-main"><section class="df-budget-panel">' +
       '<div class="df-budget-panel-head"><div><span class="df-budget-panel-eyebrow">Categories</span><h3>Everyday spending</h3><p>Flexible categories for this cycle.</p></div><button type="button" class="df-budget-add" onclick="dayframeBudgetAddCategory()">Add category</button></div>' +
