@@ -137,6 +137,17 @@ update_block = f"""
   let checkedOnce = false;
   let checking = false;
   const hadControllerAtLoad = !!navigator.serviceWorker.controller;
+  let becameVisibleAt = document.visibilityState === 'visible' ? 0 : -1;
+
+  function safeToReloadNow() {{
+    // Reload without asking when the page is hidden, was only just opened, or
+    // has just been brought back to the foreground (a background resume, not
+    // someone mid-task). Otherwise leave the manual banner to do the job.
+    if (document.visibilityState !== 'visible') return true;
+    const now = performance.now();
+    if (now < 60000) return true;
+    return becameVisibleAt >= 0 && (now - becameVisibleAt) < 4000;
+  }}
 
   function autoReloadedRecently() {{
     try {{
@@ -280,16 +291,17 @@ update_block = f"""
       requested = sessionStorage.getItem('dayframe_update_reload') === VERSION;
       if (requested) sessionStorage.removeItem('dayframe_update_reload');
     }} catch {{}}
-    // A new worker just took control. Reload straight away when the app was
-    // only just opened or resumed from the background; fall back to the manual
-    // banner if the page has been actively open for over a minute.
-    const activelyUsing = document.visibilityState === 'visible' && performance.now() > 60000;
-    if (requested || (hadControllerAtLoad && !autoReloadedRecently() && !activelyUsing)) {{
+    // A new worker just took control.
+    if (requested || (hadControllerAtLoad && !autoReloadedRecently() && safeToReloadNow())) {{
       try {{ sessionStorage.setItem('dayframe_auto_reload_at', String(Date.now())); }} catch {{}}
       window.location.reload();
       return;
     }}
     showUpdatePrompt(registration);
+  }});
+
+  document.addEventListener('visibilitychange', () => {{
+    if (document.visibilityState === 'visible') becameVisibleAt = performance.now();
   }});
 
   function recheckOnResume() {{
