@@ -1263,11 +1263,14 @@ async function handleCallback(request,env){
 
 async function refreshTokens(env,t){if(!t?.refresh_token)return null;const form=new URLSearchParams({grant_type:'refresh_token',client_id:env.TRUELAYER_CLIENT_ID,client_secret:env.TRUELAYER_CLIENT_SECRET,refresh_token:t.refresh_token});const r=await fetch(authBase(env)+'/connect/token',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded','accept':'application/json'},body:form});const d=await r.json().catch(()=>({}));if(!r.ok||!d.access_token)return null;return {access_token:d.access_token,refresh_token:d.refresh_token||t.refresh_token,expires_at:Date.now()+(Number(d.expires_in)||3600)*1000,scope:d.scope||t.scope||''}}
 async function apiGet(env,token,path,request){const ip=request.headers.get('CF-Connecting-IP')||'';return fetch(apiBase(env)+path,{headers:{authorization:'Bearer '+token,'accept':'application/json',...(ip?{'X-PSU-IP':ip}:{})}})}
-// Pull the widest practical transaction history (~6 months) so recurring-bill
-// detection can see a payment repeat across separate months, regardless of the
-// user's in-app tracking period. Falls back to the provider default if the
-// dated request is rejected.
-function txHistoryQuery(){const to=new Date();const from=new Date(to.getTime()-185*86400000);return '?from='+from.toISOString().slice(0,10)+'T00:00:00Z&to='+to.toISOString().slice(0,10)+'T23:59:59Z'}
+// Pull enough transaction history (~2.5 months) for recurring-bill detection to
+// see a payment repeat across separate months, without requesting a window so
+// wide it risks the provider truncating results for busy accounts (which was
+// silently dropping some of the current cycle's own transactions). `to` is
+// padded a day forward so a user just past local midnight in a UTC+ timezone
+// still gets today's transactions in range. Falls back to the provider default
+// if the dated request is rejected.
+function txHistoryQuery(){const to=new Date(Date.now()+86400000);const from=new Date(to.getTime()-75*86400000);return '?from='+from.toISOString().slice(0,10)+'T00:00:00Z&to='+to.toISOString().slice(0,10)+'T23:59:59Z'}
 async function apiGetTransactions(env,token,base,request){
   let r=await apiGet(env,token,base+txHistoryQuery(),request);
   if(!r.ok)r=await apiGet(env,token,base,request);
