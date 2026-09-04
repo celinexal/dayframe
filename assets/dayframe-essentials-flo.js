@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v7';
+  const VERSION = 'flo-v8';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
   const DAY_MS = 86400000;
@@ -143,17 +143,37 @@
     });
     return runs;
   }
+  function median(values) {
+    const sorted = values.slice().sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+  }
+  function deriveCycle(runs) {
+    const starts = runs.map((run) => run[0]);
+    if (starts.length < 2) return null;
+    const gaps = [];
+    for (let i = 1; i < starts.length; i += 1) {
+      const gap = diffDays(starts[i], starts[i - 1]);
+      if (gap >= 15 && gap <= 60) gaps.push(gap);
+    }
+    if (!gaps.length) return null;
+    return clamp(median(gaps.slice(-4)), 28, 15, 60);
+  }
   function derivePeriod(dayLogs) {
     const runs = periodRuns(dayLogs);
     if (!runs.length) return null;
     const latest = runs[runs.length - 1];
-    return {
+    const out = {
       lastStart: latest[0],
       lastEnd: latest[latest.length - 1],
-      periodLength: clamp(latest.length, 5, 1, 14),
       loggedStarts: runs.map((run) => run[0]).slice(-24),
       loggedEnds: runs.map((run) => run[run.length - 1]).slice(-24),
     };
+    // Cycle length works itself out from the gap between logged periods.
+    // Period length is left to the user (set in the day popover).
+    const cyc = deriveCycle(runs);
+    if (cyc) out.cycleLength = cyc;
+    return out;
   }
   function saveDayLogs(dayLogs) {
     const clean = cleanDayLogs(dayLogs);
@@ -177,14 +197,10 @@
       window.renderHome?.();
     }
   }
+  // The old "Basics" form is removed — everything comes from logged days
+  // and the calendar-day popover now.
   function formSettings() {
-    const current = settings();
-    return Object.assign({}, current, {
-      lastStart: $('df-period-last-start')?.value || current.lastStart,
-      cycleLength: clamp($('df-period-cycle-length')?.value, current.cycleLength, 15, 60),
-      periodLength: clamp($('df-period-length')?.value, current.periodLength, 1, 14),
-      notes: $('df-period-notes')?.value || '',
-    });
+    return settings();
   }
   function cycleAnchor(s, base = new Date()) {
     let anchor = parseISO(s.lastStart);
@@ -406,6 +422,24 @@
       window.hubToast?.('Method removed');
     }
   };
+  window.dayframeSetMyFloPeriodLength = function dayframeSetMyFloPeriodLength(delta) {
+    const s = settings();
+    const next = clamp(s.periodLength + (Number(delta) || 0), s.periodLength, 1, 14);
+    if (next === s.periodLength) return;
+    if (savePeriod({ periodLength: next })) {
+      renderMyFlo(true);
+      window.renderHome?.();
+    }
+  };
+  window.dayframeResetMyFlo = function dayframeResetMyFlo() {
+    if (!window.confirm('Clear all your MyFlo data? This removes every logged day, symptom and note.')) return;
+    if (savePeriod({ lastStart: '', lastEnd: '', cycleLength: 28, periodLength: 5, notes: '', loggedStarts: [], loggedEnds: [], dayLogs: {} })) {
+      calendarCursor = firstOfMonth(new Date());
+      renderMyFlo();
+      window.renderHome?.();
+      window.hubToast?.('MyFlo cleared');
+    }
+  };
   window.dayframeOpenMyFloToday = function () {
     const todayISO = iso(new Date());
     const btn = document.querySelector(`.df-myflo-day[data-date="${todayISO}"]`);
@@ -447,8 +481,9 @@
       + (canDeletePeriod
         ? `<button type="button" class="df-myflo-dp-delperiod" onclick="dayframeDeleteMyFloPeriod('${D}')">Delete this whole period</button>`
         : '')
-      + `<div class="df-myflo-dp-label">Symptoms</div>`
-      + `<div class="df-myflo-dp-symp">${MYFLO_SYMPTOMS.map((symptom) => `<button type="button" class="${symptoms.includes(symptom) ? 'on' : ''}" onclick="dayframeToggleMyFloSymptom('${D}','${esc(symptom)}')">${esc(symptom)}</button>`).join('')}</div>`
+      + `<div class="df-myflo-dp-plen"><span>Typical period length</span><div><button type="button" onclick="dayframeSetMyFloPeriodLength(-1)" aria-label="Fewer days">−</button><b>${s.periodLength} day${s.periodLength === 1 ? '' : 's'}</b><button type="button" onclick="dayframeSetMyFloPeriodLength(1)" aria-label="More days">+</button></div></div>`
+      + `<details class="df-myflo-dp-sympwrap"${symptoms.length ? ' open' : ''}><summary>Symptoms${symptoms.length ? ` · ${symptoms.length}` : ''}</summary>`
+      + `<div class="df-myflo-dp-symp">${MYFLO_SYMPTOMS.map((symptom) => `<button type="button" class="${symptoms.includes(symptom) ? 'on' : ''}" onclick="dayframeToggleMyFloSymptom('${D}','${esc(symptom)}')">${esc(symptom)}</button>`).join('')}</div></details>`
       + `<div class="df-myflo-dp-label">Intimacy</div>`
       + `<div class="df-myflo-dp-seg"><button type="button" class="${sex === 'protected' ? 'on' : ''}" onclick="dayframeSetMyFloIntimacy('${D}','protected')">Protected</button><button type="button" class="${sex === 'unprotected' ? 'on' : ''}" onclick="dayframeSetMyFloIntimacy('${D}','unprotected')">Unprotected</button></div>`
       + (hasAny ? `<button type="button" class="df-myflo-daypop-clear" onclick="dayframeClearMyFloDayLog('${D}');dayframeCloseMyFloDayMenu()">Clear this day</button>` : '')
@@ -505,7 +540,7 @@
   };
   function renderSignature(s) {
     const notif = ('Notification' in window) ? window.Notification.permission : '';
-    return `v7|${iso(new Date())}|${iso(calendarCursor)}|${notif}|${JSON.stringify(s)}`;
+    return `v8|${iso(new Date())}|${iso(calendarCursor)}|${notif}|${JSON.stringify(s)}`;
   }
   function renderMyFlo(preserveMenu) {
     if (!preserveMenu) closeMyFloDayMenu();
@@ -545,8 +580,7 @@
     const savedRange = s.lastStart
       ? `Period logged ${shortDate(s.lastStart)}${s.lastEnd && s.lastEnd !== s.lastStart ? ' to ' + shortDate(s.lastEnd) : ''}. Tap any day to add flow, symptoms or a note.`
       : 'Tap a day on the calendar — or the button here — to log a period day. Log each day it continues; Dayframe works out the start and end.';
-    view.innerHTML = `<section class="df-myflo-calendar df-myflo-calendar-top"><div class="df-myflo-calendar-head"><button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button><div><span>Calendar</span><h3>Tap a day to log period, symptoms or intimacy</h3></div><button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button></div><div class="df-myflo-months">${renderMonth(calendarCursor, s)}${renderMonth(addMonths(calendarCursor, 1), s)}</div><div class="df-myflo-legend"><span><b class="period"></b>Period</span><span><b class="fertile"></b>Fertile</span><span><b class="ovulation"></b>Ovulation</span><span><b class="note"></b>Logged note</span><span><b class="today"></b>Today</span></div></section><section class="df-myflo-stats" aria-label="MyFlo overview"><article class="df-myflo-stat is-main"><span>${esc(sum.status)}</span><strong>${esc(sum.headline)}</strong><small>${esc(sum.detail)}</small></article><article class="df-myflo-stat"><span>Fertile window</span><strong>${esc(fertile ? shortRange(fertile.start, fertile.end) : 'Not set')}</strong><small>Estimated automatically from your period dates.</small></article><article class="df-myflo-stat"><span>Ovulation</span><strong>${esc(fertile ? shortDate(fertile.ovulation) : 'Not set')}</strong><small>Estimate only, not contraception guidance.</small></article></section><section class="df-myflo-actions" aria-label="Period tracking"><div><span>Today</span><h3>Log your day</h3><p>${esc(savedRange)}</p></div><div class="df-myflo-action-buttons"><button type="button" onclick="dayframeToggleMyFloPeriodDay('${todayISO}')">${todayIsPeriod ? '✓ Period logged today' : 'Log today’s period'}</button><button type="button" onclick="dayframeOpenMyFloToday()">Add symptoms or intimacy</button></div></section>${renderContraception(s)}${renderReminders(s)}`;
-    decorateBaseForm(s);
+    view.innerHTML = `<section class="df-myflo-calendar df-myflo-calendar-top"><div class="df-myflo-calendar-head"><button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button><div><span>Calendar</span><h3>Tap a day to log period, symptoms or intimacy</h3></div><button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button></div><div class="df-myflo-months">${renderMonth(calendarCursor, s)}${renderMonth(addMonths(calendarCursor, 1), s)}</div><div class="df-myflo-legend"><span><b class="period"></b>Period</span><span><b class="fertile"></b>Fertile</span><span><b class="ovulation"></b>Ovulation</span><span><b class="note"></b>Logged note</span><span><b class="today"></b>Today</span></div></section><section class="df-myflo-stats" aria-label="MyFlo overview"><article class="df-myflo-stat is-main"><span>${esc(sum.status)}</span><strong>${esc(sum.headline)}</strong><small>${esc(sum.detail)}</small></article><article class="df-myflo-stat"><span>Fertile window</span><strong>${esc(fertile ? shortRange(fertile.start, fertile.end) : 'Not set')}</strong><small>Estimated automatically from your period dates.</small></article><article class="df-myflo-stat"><span>Ovulation</span><strong>${esc(fertile ? shortDate(fertile.ovulation) : 'Not set')}</strong><small>Estimate only, not contraception guidance.</small></article></section><section class="df-myflo-actions" aria-label="Period tracking"><div><span>Today</span><h3>Log your day</h3><p>${esc(savedRange)}</p></div><div class="df-myflo-action-buttons"><button type="button" onclick="dayframeToggleMyFloPeriodDay('${todayISO}')">${todayIsPeriod ? '✓ Period logged today' : 'Log today’s period'}</button><button type="button" onclick="dayframeOpenMyFloToday()">Add symptoms or intimacy</button></div></section>${renderContraception(s)}${renderReminders(s)}<div class="df-myflo-reset-row"><button type="button" onclick="dayframeResetMyFlo()">Reset all MyFlo data</button></div>`;
     updateSummary(s, sum);
     sendDueReminder(s);
     if (preserveMenu) reopenMyFloDayMenu();
@@ -591,7 +625,10 @@
     const style = document.createElement('style');
     style.id = 'df-essentials-flo-style';
     style.textContent = `
-      #pg-driving .driving-hub-sub{display:none!important}.df-flo-nav{display:flex!important}#df-period-panel{border:1px solid #f0d9ec!important;background:linear-gradient(145deg,#fff 0%,#fff7fb 52%,#edfffb 100%)!important}#df-period-panel .df-period-panel-head{background:linear-gradient(120deg,#fff7fb 0%,#fff 48%,#effffb 100%)!important}#df-period-panel .df-period-estimate{display:none!important}
+      #pg-driving .driving-hub-sub{display:none!important}.df-flo-nav{display:flex!important}#df-period-panel{border:1px solid #f0d9ec!important;background:linear-gradient(145deg,#fff 0%,#fff7fb 52%,#edfffb 100%)!important}#df-period-panel .df-period-panel-head{background:linear-gradient(120deg,#fff7fb 0%,#fff 48%,#effffb 100%)!important}#df-period-panel .df-period-estimate{display:none!important}#df-period-panel .df-period-body{display:none!important}
+      .df-myflo-reset-row{display:flex;justify-content:center;margin-top:2px}.df-myflo-reset-row button{border:0;background:transparent;color:#a2879a;font:750 10px var(--ff);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px}.df-myflo-reset-row button:hover{color:#d94382}
+      #df-myflo-daypop .df-myflo-dp-plen{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #ecd7e3;border-radius:11px;background:#fff}#df-myflo-daypop .df-myflo-dp-plen>span{font:900 8px var(--ff);text-transform:uppercase;letter-spacing:.06em;color:#9aa0ab}#df-myflo-daypop .df-myflo-dp-plen>div{display:flex;align-items:center;gap:8px}#df-myflo-daypop .df-myflo-dp-plen b{font:850 11px var(--ff);color:#b83a72;min-width:44px;text-align:center}#df-myflo-daypop .df-myflo-dp-plen button{width:26px;height:26px;padding:0;text-align:center;border-radius:8px;border-color:#ecd7e3;color:#b83a72;font-size:14px}
+      #df-myflo-daypop .df-myflo-dp-sympwrap{border:1px solid #e7e0ea;border-radius:11px;background:#fff}#df-myflo-daypop .df-myflo-dp-sympwrap>summary{list-style:none;cursor:pointer;padding:8px 11px;font:800 10.5px var(--ff);color:#7a4fa0}#df-myflo-daypop .df-myflo-dp-sympwrap>summary::-webkit-details-marker{display:none}#df-myflo-daypop .df-myflo-dp-sympwrap>summary:before{content:"▸ ";font-size:9px}#df-myflo-daypop .df-myflo-dp-sympwrap[open]>summary:before{content:"▾ "}#df-myflo-daypop .df-myflo-dp-sympwrap .df-myflo-dp-symp{padding:0 9px 9px}
       #df-myflo-view{display:grid;gap:14px;padding:16px}.df-myflo-stats{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px}.df-myflo-stat{min-height:118px;border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.78);padding:16px;box-shadow:0 14px 28px rgba(42,54,84,.055)}.df-myflo-stat.is-main{background:linear-gradient(135deg,#fff 0%,#fff1f7 55%,#eefffb 100%);border-color:#f5cde2}.df-myflo-stat span,.df-myflo-section-head span,.df-myflo-calendar-head span,.df-myflo-form-title span,.df-myflo-actions span{display:block;color:#7c879a;font-size:9px;font-weight:900;text-transform:uppercase}.df-myflo-stat strong{display:block;margin:8px 0 7px;font-family:var(--fd);font-size:28px;line-height:1;color:#172033}.df-myflo-stat small{display:block;color:#6f7a8c;font-size:11px;line-height:1.45;font-weight:750}
       .df-myflo-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid #f3d8e8;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#fff3f8 58%,#effffc 100%);padding:15px 16px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-actions h3{margin:3px 0 4px;font-family:var(--fd);font-size:19px;color:#172033}.df-myflo-actions p{margin:0;color:#6f7a8c;font-size:11px;line-height:1.45;font-weight:750}.df-myflo-action-buttons{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.df-myflo-action-buttons button{height:38px;border:1px solid #f2bdd7;border-radius:999px;background:#fff;color:#d94382;font:850 11px var(--ff);padding:0 14px;cursor:pointer}.df-myflo-action-buttons button:first-child{background:#ff5d93;color:#fff;border-color:#ff5d93;box-shadow:0 10px 20px rgba(255,93,147,.18)}
       .df-myflo-contra{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.84);padding:14px 16px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-contra-field{display:grid;gap:6px;color:#7b8495;font-size:9.5px;font-weight:850;max-width:340px}.df-myflo-contra-field select{height:38px;border:1px solid #e7eaf3;border-radius:12px;background:#f8f9fc;padding:0 10px;color:#172033;font:800 12px var(--ff)}.df-myflo-pill{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.df-myflo-pill button{height:38px;border:1px solid #f2bdd7;border-radius:999px;background:#fff;color:#d94382;font:850 11px var(--ff);padding:0 16px;cursor:pointer}.df-myflo-pill button.on{background:#ff5d93;color:#fff;border-color:#ff5d93;box-shadow:0 10px 20px rgba(255,93,147,.18)}.df-myflo-pill-dots{display:flex;gap:5px}.df-myflo-pill-dots b{width:10px;height:10px;border-radius:999px;background:#eceef4;display:inline-block}.df-myflo-pill-dots b.on{background:#ff5d93}.df-myflo-pill span{color:#7b8495;font-size:10.5px;font-weight:850}
