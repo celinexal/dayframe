@@ -1441,6 +1441,10 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 .home-coming-dot.goal{background:#e0a83c;box-shadow:0 0 0 5px rgba(224,168,60,.1)}
 .home-coming-dot.flo{background:#d94e9c;box-shadow:0 0 0 5px rgba(217,78,156,.1)}
 .hub-today-meta.is-overdue{color:#c9553f;font-weight:700}
+#home-coming-up:has(.home-coming-group){justify-content:flex-start;gap:14px}
+.home-coming-group{display:flex;flex-direction:column;gap:6px}
+.home-coming-group-label{font-size:9px;font-weight:850;letter-spacing:.09em;text-transform:uppercase;color:#9aa3b4}
+.home-goal-deadline{display:flex!important;align-items:center;gap:5px;font-size:10px!important;font-weight:750;color:#b07d1e!important;margin:-4px 0 10px!important}
 .home-rich-empty{min-height:125px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-color:rgba(121,132,154,.22);background:rgba(255,255,255,.54);font-size:11.5px}
 .home-rich-empty strong{font-size:13px}.home-rich-empty span:not(.home-empty-emoji){color:#9aa3b2}
 .home-empty-emoji{font-size:24px;margin-bottom:3px}
@@ -2366,7 +2370,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 
     <div class="hub-lower-grid home-glance-grid">
       <section class="hub-panel home-glance-panel home-coming-panel" data-home-widget="coming">
-        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">✓</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">The next few things on your radar</div></div></div><button class="hub-panel-link" onclick="go('planner')">Open plans →</button></div>
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">✓</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">Your to-do list and the next 5 days</div></div></div><button class="hub-panel-link" onclick="go('planner')">Open plans →</button></div>
         <div class="hub-panel-body" id="home-coming-up"></div>
       </section>
       <section class="hub-panel home-glance-panel home-goal-panel" data-home-widget="goals">
@@ -5707,17 +5711,23 @@ function renderHome(){
    items.push({kind:'bible',icon:'✦',title:'Today’s verse is ready',meta:'Bible · '+dailyRef});
    digest.innerHTML=items.slice(0,3).map(x=>'<button type="button" class="home-digest-item" onclick="'+(x.kind==='task'?"go('planner')":x.kind==='bill'?"go('money')":"go('bible')")+'"><span class="home-digest-icon '+x.kind+'">'+x.icon+'</span><span class="home-digest-copy"><strong>'+hubEsc(x.title)+'</strong><span>'+hubEsc(x.meta)+'</span></span></button>').join('');
  }
+ const comingRow=(x)=>{const n=hubDaysUntil(x.date),rel=hubRel(x.date);return '<div class="hub-today-item"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta'+(n!==null&&n<0?' is-overdue':'')+'">'+(rel?hubEsc(rel)+' · ':'')+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>'};
+ const todoList=open.filter(t=>t.date&&t.date<=today).sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'}));
  const upcoming=[
-  ...open.filter(t=>t.date).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
-  ...drivingDates.map(x=>({title:x[0].toUpperCase()+' renewal',date:x[1],type:'My Car',kind:'car'})),
+  ...open.filter(t=>t.date&&t.date>today).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
+  ...drivingDates.filter(x=>x[1]>today).map(x=>({title:x[0].toUpperCase()+' renewal',date:x[1],type:'My Car',kind:'car'})),
   ...dueBillItems.map(x=>({title:x.bill.name||'Bill due',date:x.meta.dateISO,type:'Money',kind:'bill'})),
-  ...(d.goals||[]).filter(g=>g.targetDate&&/^\d{4}-\d{2}-\d{2}$/.test(g.targetDate)&&hubDaysUntil(g.targetDate)>=-14&&!(g.type==='money'&&Number(g.target)>0&&Number(g.current)>=Number(g.target))).map(g=>({title:(g.name||'Goal')+' — target',date:g.targetDate,type:'Goal',kind:'goal'})),
   ...(nextPeriodISO?[{title:'Period estimated',date:nextPeriodISO,type:'MyFlo',kind:'flo'}]:[])
- ].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+ ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n<=5}).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
  const cu=document.getElementById('home-coming-up');
- if(cu)cu.innerHTML=upcoming.length?upcoming.map(x=>{const n=hubDaysUntil(x.date),rel=hubRel(x.date);return '<div class="hub-today-item"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta'+(n!==null&&n<0?' is-overdue':'')+'">'+(rel?hubEsc(rel)+' · ':'')+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>'}).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Your schedule is clear</strong><span>Nothing urgent is asking for your attention.</span></div>';
+ if(cu){
+   let cuHtml='';
+   if(todoList.length)cuHtml+='<div class="home-coming-group"><div class="home-coming-group-label">To do</div>'+todoList.map(comingRow).join('')+'</div>';
+   if(upcoming.length)cuHtml+='<div class="home-coming-group"><div class="home-coming-group-label">Next 5 days</div>'+upcoming.map(comingRow).join('')+'</div>';
+   cu.innerHTML=cuHtml||'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Your schedule is clear</strong><span>Nothing in the next few days needs you.</span></div>';
+ }
  const gp=document.getElementById('home-goal-progress');
- if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="openPlannerGoals(true)">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span><div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
+ if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="openPlannerGoals(true)">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));const gdl=x.targetDate&&/^\d{4}-\d{2}-\d{2}$/.test(x.targetDate)?(()=>{const n=hubDaysUntil(x.targetDate);return n===null?'':n<0?'Target date passed · '+hubPrettyDate(x.targetDate):n===0?'Target date: today':'Target '+hubPrettyDate(x.targetDate)+' · '+(n===1?'tomorrow':'in '+n+' days')})():'';gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span>'+(gdl?'<span class="home-goal-deadline">◷ '+hubEsc(gdl)+'</span>':'')+'<div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
  const jg=document.getElementById('home-journal-glance');
  if(jg){const todayEntry=diary.find(x=>x.date===today),latest=diary[0];if(todayEntry){const mood=diaryMoodMeta(todayEntry.mood);jg.innerHTML='<div class="home-journal-entry"><div class="home-journal-mood">'+mood.emoji+'</div><div><span class="home-journal-label">You checked in today</span><strong>'+hubEsc(todayEntry.title||mood.label+' thoughts')+'</strong></div></div>'}else{jg.innerHTML='<div class="home-journal-prompt"><span class="home-journal-quote">“</span><div><span>Today’s prompt</span><strong>'+hubEsc(diaryPromptFor(today))+'</strong><button onclick="go(\'diary\')">'+(latest?'Write today’s entry':'Start your diary')+' →</button></div></div>'}} homeApplyPreferences(d);
 }
