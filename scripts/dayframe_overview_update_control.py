@@ -231,9 +231,20 @@ update_block = f"""
     bar.id = 'df-app-update';
     bar.setAttribute('role', 'status');
     bar.innerHTML = '<div><strong>Dayframe updates</strong><span>Use this if the installed app looks behind.</span></div><button type="button" class="df-app-update-refresh">Check</button><button type="button" class="df-app-update-later">Later</button>';
-    bar.querySelector('.df-app-update-refresh')?.addEventListener('click', () => {{
+    bar.querySelector('.df-app-update-refresh')?.addEventListener('click', async () => {{
       if (updateReady) {{
         try {{ sessionStorage.setItem('dayframe_update_reload', VERSION); }} catch {{}}
+        // Belt-and-suspenders: the new service worker's own activate handler
+        // already clears out old dayframe-shell-* cache entries, but that
+        // only runs once it takes control. Clearing Cache Storage here too
+        // means the reload below can never serve a stale cached response,
+        // regardless of activation timing.
+        try {{
+          if (window.caches && caches.keys) {{
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k).catch(() => {{}})));
+          }}
+        }} catch {{}}
         const waiting = registration?.waiting;
         if (waiting) waiting.postMessage({{ type: 'DAYFRAME_SKIP_WAITING' }});
         setTimeout(() => window.location.reload(), 180);
