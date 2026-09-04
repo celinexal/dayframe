@@ -2077,6 +2077,8 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 #budget-tile-pop{position:fixed;z-index:26000;min-width:230px;max-width:calc(100vw - 20px);display:flex;flex-direction:column;gap:9px;padding:14px;border:1px solid #e2e6f1;border-radius:16px;background:#fff;box-shadow:0 22px 48px rgba(31,40,65,.22)}
 #budget-tile-pop .budget-tile-pop-title{font:900 9px var(--ff);text-transform:uppercase;letter-spacing:.06em;color:#8a94a4}
 #budget-tile-pop .budget-tile-pop-field{display:grid;gap:5px;font:800 10px var(--ff);color:#7b8495}
+#budget-tile-pop .budget-tile-pop-suggest{justify-self:start;border:1px dashed #cdc6f2;border-radius:999px;background:#f7f5ff;color:#6459d8;font:750 9.5px var(--ff);padding:5px 10px;cursor:pointer}
+#budget-tile-pop .budget-tile-pop-suggest:hover{background:#efebff}
 #budget-tile-pop .budget-tile-pop-field input{height:38px;border:1px solid #dfe3ec;border-radius:11px;padding:0 11px;font:800 13px var(--ff);color:#3d4759;background:#fbfcfe;width:100%;box-sizing:border-box}
 #budget-tile-pop .budget-tile-pop-note{font-size:10px;line-height:1.5;color:#8a94a6}
 #budget-tile-pop .budget-tile-pop-actions{display:flex;gap:8px;justify-content:flex-end;align-items:center}
@@ -6412,7 +6414,7 @@ function moneyCreditTargetPace(plan){
 function moneyCreditPlanPayment(plan){if(Math.max(0,Number(plan.balance||0))<=0)return 0;return Math.max(0,Number(plan.monthlyPayment||0),Number(plan.minimumPayment||0))}
 const BUDGET_TILE_FIELDS={
  income:{title:'Monthly income',fields:[{key:'income',label:'Take-home pay',plan:true}]},
- bills:{title:'Bills',fields:[{key:'rent',label:'Rent or mortgage',plan:true},{key:'regularBills',label:'Other regular bills',plan:true}]},
+ bills:{title:'Bills',fields:[{key:'rent',label:'Rent or mortgage',plan:true},{key:'regularBills',label:'Other regular bills',plan:true,suggest:d=>{const rows=(d.bills||[]).filter(b=>moneyNormaliseCategory(b.category)!=='Rent'),amount=Math.round(rows.reduce((a,x)=>a+Number(x.amount||0),0)*100)/100;return rows.length&&amount>0?{amount,note:rows.length+' bill'+(rows.length===1?'':'s')+' in your Bills list'}:null}}]},
  credit:{title:'Credit payments',fields:[{key:'extraCredit',label:'Extra payment (on top of card minimums)',plan:true}],note:'Each card’s own minimum or planned payment is set on the Credit Plan tab.'},
  future:{title:'Saving & investing',fields:[{key:'savings',label:'Monthly savings',plan:true},{key:'investing',label:'Monthly investing',plan:true},{key:'buffer',label:'Emergency fund',plan:true}]}
 };
@@ -6491,7 +6493,11 @@ function budgetTileEdit(kind,event){
  const d=hubLoad();d.budgetPlan=d.budgetPlan||{};
  const pop=document.createElement('div');pop.id='budget-tile-pop';pop.setAttribute('role','dialog');
  pop.innerHTML='<div class="budget-tile-pop-title">'+hubEsc(cfg.title)+'</div>'
-  +cfg.fields.map(f=>'<label class="budget-tile-pop-field"><span>'+hubEsc(f.label)+'</span><input type="number" inputmode="decimal" min="0" step="1" data-key="'+f.key+'" value="'+(Math.round(Number(d.budgetPlan[f.key])||0))+'"></label>').join('')
+  +cfg.fields.map(f=>{
+    const cur=Math.round(Number(d.budgetPlan[f.key])||0),sug=typeof f.suggest==='function'?f.suggest(d):null;
+    const hint=(sug&&sug.amount>0&&sug.amount!==cur)?'<button type="button" class="budget-tile-pop-suggest" onclick="budgetTileFillSuggestion(this,\''+f.key+'\','+sug.amount+')">Use '+hubEsc(hubMoney(sug.amount,0))+(sug.note?' — '+hubEsc(sug.note):'')+'</button>':'';
+    return '<label class="budget-tile-pop-field"><span>'+hubEsc(f.label)+'</span><input type="number" inputmode="decimal" min="0" step="1" data-key="'+f.key+'" value="'+cur+'">'+hint+'</label>';
+  }).join('')
   +(cfg.note?'<div class="budget-tile-pop-note">'+hubEsc(cfg.note)+'</div>':'')
   +'<div class="budget-tile-pop-actions">'
   +(kind==='credit'?'<button type="button" class="budget-tile-pop-link" onclick="closeBudgetTilePop();moneyOpenTab(\'credit\')">Credit Plan →</button>':'')
@@ -6506,6 +6512,7 @@ function budgetTileEdit(kind,event){
  setTimeout(()=>{pop.querySelector('input')?.focus();pop.querySelector('input')?.select()},40);
  setTimeout(()=>document.addEventListener('click',budgetTilePopOutside,true),0);
 }
+function budgetTileFillSuggestion(btn,key,amount){const input=btn.parentElement?.querySelector('input[data-key="'+key+'"]');if(input){input.value=Math.round(Number(amount)||0);input.focus()}}
 function budgetTileSave(kind){
  const cfg=BUDGET_TILE_FIELDS[kind],pop=document.getElementById('budget-tile-pop');if(!cfg||!pop)return;
  const d=hubLoad();d.budgetPlan=d.budgetPlan||{};
