@@ -1441,9 +1441,12 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 .home-coming-dot.goal{background:#e0a83c;box-shadow:0 0 0 5px rgba(224,168,60,.1)}
 .home-coming-dot.flo{background:#d94e9c;box-shadow:0 0 0 5px rgba(217,78,156,.1)}
 .hub-today-meta.is-overdue{color:#c9553f;font-weight:700}
-#home-coming-up:has(.home-coming-group){justify-content:flex-start;gap:14px}
-.home-coming-group{display:flex;flex-direction:column;gap:6px}
-.home-coming-group-label{font-size:9px;font-weight:850;letter-spacing:.09em;text-transform:uppercase;color:#9aa3b4}
+.home-todo-panel{background:linear-gradient(145deg,#fff 42%,#ecf9f1)}
+.home-todo-panel .home-panel-icon{background:#e0f5e9;color:#1f9d63}
+#home-todo-list:has(.home-todo-item){justify-content:flex-start;gap:2px}
+.home-todo-item{display:flex;align-items:center;gap:11px;padding:7px 0}
+.home-todo-item .hub-today-copy{flex:1;min-width:0;cursor:pointer}
+.home-todo-item .hub-check{flex:0 0 auto}
 .home-goal-deadline{display:flex!important;align-items:center;gap:5px;font-size:10px!important;font-weight:750;color:#b07d1e!important;margin:-4px 0 10px!important}
 .home-rich-empty{min-height:125px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-color:rgba(121,132,154,.22);background:rgba(255,255,255,.54);font-size:11.5px}
 .home-rich-empty strong{font-size:13px}.home-rich-empty span:not(.home-empty-emoji){color:#9aa3b2}
@@ -1805,8 +1808,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .df-connection-health{grid-template-columns:1fr}.money-connection-board{grid-template-columns:1fr}
   .hub-section-head{align-items:flex-start}.home-edit-button{padding:0 10px;font-size:10px}
 }
-.home-glance-grid.home-visible-0{display:none}.home-glance-grid.home-visible-1{grid-template-columns:minmax(0,1fr)}.home-glance-grid.home-visible-2{grid-template-columns:repeat(2,minmax(0,1fr))}.home-glance-grid.home-visible-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media(max-width:760px){.home-glance-grid.home-visible-1,.home-glance-grid.home-visible-2,.home-glance-grid.home-visible-3{grid-template-columns:1fr!important}}
+.home-glance-grid.home-visible-0{display:none}.home-glance-grid.home-visible-1{grid-template-columns:minmax(0,1fr)}.home-glance-grid.home-visible-2{grid-template-columns:repeat(2,minmax(0,1fr))}.home-glance-grid.home-visible-3{grid-template-columns:repeat(3,minmax(0,1fr))}.home-glance-grid.home-visible-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1200px){.home-glance-grid.home-visible-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.home-glance-grid.home-visible-1,.home-glance-grid.home-visible-2,.home-glance-grid.home-visible-3,.home-glance-grid.home-visible-4{grid-template-columns:1fr!important}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 
@@ -2369,8 +2373,12 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
     </div>
 
     <div class="hub-lower-grid home-glance-grid">
+      <section class="hub-panel home-glance-panel home-todo-panel" data-home-widget="todo">
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">✓</span><div><div class="hub-panel-title">To do</div><div class="home-panel-sub">Today’s tasks and daily habits</div></div></div><button class="hub-panel-link" onclick="go('planner')">Open plans →</button></div>
+        <div class="hub-panel-body" id="home-todo-list"></div>
+      </section>
       <section class="hub-panel home-glance-panel home-coming-panel" data-home-widget="coming">
-        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">✓</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">Your to-do list and the next 5 days</div></div></div><button class="hub-panel-link" onclick="go('planner')">Open plans →</button></div>
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">◷</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">The next 5 days</div></div></div><button class="hub-panel-link" onclick="go('planner')">Open plans →</button></div>
         <div class="hub-panel-body" id="home-coming-up"></div>
       </section>
       <section class="hub-panel home-glance-panel home-goal-panel" data-home-widget="goals">
@@ -5571,7 +5579,8 @@ const DF_HOME_MODULES=[
  {key:'investing',label:'Investing',note:'Portfolio and analysis'}
 ];
 const DF_HOME_WIDGETS=[
- {key:'coming',label:'Coming up',note:'Tasks, bills and vehicle dates'},
+ {key:'todo',label:'To do',note:'Today’s tasks and daily habits'},
+ {key:'coming',label:'Coming up',note:'Bills, renewals and dated tasks — next 5 days'},
  {key:'goals',label:'Goal progress',note:'Your first active goal'},
  {key:'diary',label:'Diary prompt',note:'A gentle daily check-in'}
 ];
@@ -5579,7 +5588,7 @@ function homePreferenceData(d=hubLoad()){
  d.preferences=d.preferences||{};const raw=d.preferences.home||{};
  const allowed=DF_HOME_MODULES.map(x=>x.key),saved=Array.isArray(raw.modules)?raw.modules.filter(x=>allowed.includes(x)):[];
  const modules=[...new Set(saved.concat(allowed))],hidden=Array.isArray(raw.hidden)?raw.hidden.filter(x=>allowed.includes(x)):[];
- const widgets=Object.assign({coming:true,goals:true,diary:true},raw.widgets||{});
+ const widgets=Object.assign({todo:true,coming:true,goals:true,diary:true},raw.widgets||{});
  const out={modules,hidden,widgets};d.preferences.home=out;return out
 }
 function homeApplyPreferences(d=hubLoad()){
@@ -5587,7 +5596,7 @@ function homeApplyPreferences(d=hubLoad()){
  if(grid){pref.modules.forEach((key,index)=>{const card=grid.querySelector('[data-home-module="'+key+'"]');if(card){card.style.order=String(index);card.classList.toggle('home-item-hidden',pref.hidden.includes(key))}})}
  let visibleWidgets=0;
  document.querySelectorAll('[data-home-widget]').forEach(card=>{const show=pref.widgets[card.dataset.homeWidget]!==false;card.classList.toggle('home-item-hidden',!show);if(show)visibleWidgets++});
- const lower=document.querySelector('.home-glance-grid');if(lower){lower.classList.remove('home-visible-0','home-visible-1','home-visible-2','home-visible-3');lower.classList.add('home-visible-'+visibleWidgets)}
+ const lower=document.querySelector('.home-glance-grid');if(lower){lower.classList.remove('home-visible-0','home-visible-1','home-visible-2','home-visible-3','home-visible-4');lower.classList.add('home-visible-'+visibleWidgets)}
 }
 function homeRenderEditor(){
  const out=document.getElementById('home-editor-content');if(!out)return;
@@ -5712,7 +5721,6 @@ function renderHome(){
    digest.innerHTML=items.slice(0,3).map(x=>'<button type="button" class="home-digest-item" onclick="'+(x.kind==='task'?"go('planner')":x.kind==='bill'?"go('money')":"go('bible')")+'"><span class="home-digest-icon '+x.kind+'">'+x.icon+'</span><span class="home-digest-copy"><strong>'+hubEsc(x.title)+'</strong><span>'+hubEsc(x.meta)+'</span></span></button>').join('');
  }
  const comingRow=(x)=>{const n=hubDaysUntil(x.date),rel=hubRel(x.date);return '<div class="hub-today-item"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta'+(n!==null&&n<0?' is-overdue':'')+'">'+(rel?hubEsc(rel)+' · ':'')+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>'};
- const todoList=open.filter(t=>t.date&&t.date<=today).sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'}));
  const upcoming=[
   ...open.filter(t=>t.date&&t.date>today).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
   ...drivingDates.filter(x=>x[1]>today).map(x=>({title:x[0].toUpperCase()+' renewal',date:x[1],type:'My Car',kind:'car'})),
@@ -5720,11 +5728,12 @@ function renderHome(){
   ...(nextPeriodISO?[{title:'Period estimated',date:nextPeriodISO,type:'MyFlo',kind:'flo'}]:[])
  ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n<=5}).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
  const cu=document.getElementById('home-coming-up');
- if(cu){
-   let cuHtml='';
-   if(todoList.length)cuHtml+='<div class="home-coming-group"><div class="home-coming-group-label">To do</div>'+todoList.map(comingRow).join('')+'</div>';
-   if(upcoming.length)cuHtml+='<div class="home-coming-group"><div class="home-coming-group-label">Next 5 days</div>'+upcoming.map(comingRow).join('')+'</div>';
-   cu.innerHTML=cuHtml||'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Your schedule is clear</strong><span>Nothing in the next few days needs you.</span></div>';
+ if(cu)cu.innerHTML=upcoming.length?upcoming.map(comingRow).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Nothing in the next 5 days</strong><span>Dated tasks, bills and renewals show up here.</span></div>';
+ const todoW=document.getElementById('home-todo-list');
+ if(todoW){
+   const seenTodo={};
+   const todos=open.filter(t=>{const daily=t.repeat==='daily',dueNow=t.date&&t.date<=today;if(!daily&&!dueNow)return false;if(seenTodo[t.id])return false;seenTodo[t.id]=1;return true}).sort((a,b)=>String(a.date||'0').localeCompare(String(b.date||'0'))).slice(0,7);
+   todoW.innerHTML=todos.length?todos.map(t=>{const overdue=t.date&&t.date<today,daily=t.repeat==='daily',meta=daily?'Every day':overdue?hubRel(t.date):t.date===today?'Today':hubPrettyDate(t.date);return '<div class="home-todo-item"><button type="button" class="hub-check" onclick="event.stopPropagation();toggleTask('+t.id+')" aria-label="Mark done"></button><div class="hub-today-copy" onclick="go(\'planner\')"><div class="hub-today-title">'+hubEsc(t.title)+'</div><div class="hub-today-meta'+(overdue?' is-overdue':'')+'">'+hubEsc(meta)+' · '+hubEsc(t.area||'Task')+'</div></div></div>'}).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">✓</span><strong>Nothing to do today</strong><span>Tasks you set for today and daily habits show up here.</span><button onclick="go(\'planner\')">Add a task</button></div>';
  }
  const gp=document.getElementById('home-goal-progress');
  if(gp){if(!d.goals.length)gp.innerHTML='<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">◎</span><strong>Choose something lovely to work towards</strong><span>Your first goal will grow here.</span><button onclick="openPlannerGoals(true)">Create a goal</button></div>';else{const x=d.goals[0],pct=Math.max(0,Math.min(100,Number(x.target)?Number(x.current||0)/Number(x.target)*100:0));const gdl=x.targetDate&&/^\d{4}-\d{2}-\d{2}$/.test(x.targetDate)?(()=>{const n=hubDaysUntil(x.targetDate);return n===null?'':n<0?'Target date passed · '+hubPrettyDate(x.targetDate):n===0?'Target date: today':'Target '+hubPrettyDate(x.targetDate)+' · '+(n===1?'tomorrow':'in '+n+' days')})():'';gp.innerHTML='<div class="home-goal-glance"><div class="home-goal-orb" style="--goal-pct:'+pct+'%"><span>'+Math.round(pct)+'</span>%</div><div class="home-goal-copy"><strong>'+hubEsc(x.name)+'</strong><span>'+(x.type==='money'?hubMoney(x.current||0,0)+' of '+hubMoney(x.target||0,0):hubEsc(x.current||0)+' of '+hubEsc(x.target||0))+'</span>'+(gdl?'<span class="home-goal-deadline">◷ '+hubEsc(gdl)+'</span>':'')+'<div class="hub-progress"><div class="hub-progress-fill" style="width:'+pct+'%"></div></div></div></div>'}}
