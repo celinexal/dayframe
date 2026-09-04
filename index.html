@@ -5799,7 +5799,22 @@ function renderHome(){
 }
 
 
-let _moneyBankData={accounts:[],transactions:[],connections:[],refreshedAt:'',error:''};
+// Show the last successfully synced accounts/transactions immediately on load,
+// instead of a blank overview while the fresh fetch is in flight. moneyLoadBankData
+// still runs every time and silently replaces this the moment it resolves.
+function moneyBankCacheKey(){return dfKey('dayframe_bank_cache_v1')}
+function moneyLoadBankCache(){
+ try{
+  const raw=localStorage.getItem(moneyBankCacheKey());if(!raw)throw 0;
+  const parsed=JSON.parse(raw);
+  return {accounts:Array.isArray(parsed.accounts)?parsed.accounts:[],transactions:Array.isArray(parsed.transactions)?parsed.transactions:[],connections:Array.isArray(parsed.connections)?parsed.connections:[],refreshedAt:parsed.refreshedAt||'',error:''};
+ }catch(e){return {accounts:[],transactions:[],connections:[],refreshedAt:'',error:''}}
+}
+function moneySaveBankCache(data){
+ try{localStorage.setItem(moneyBankCacheKey(),JSON.stringify({accounts:data.accounts||[],transactions:data.transactions||[],connections:data.connections||[],refreshedAt:data.refreshedAt||new Date().toISOString()}))}catch(e){}
+}
+function moneyClearBankCache(){try{localStorage.removeItem(moneyBankCacheKey())}catch(e){}}
+let _moneyBankData=moneyLoadBankCache();
 let _moneyBankLoaded=false,_moneyBankLoading=false;
 function moneyOpenConnectModal(){const m=document.getElementById('money-connect-modal');if(m)m.classList.add('open');moneySetConnectStatus('','')}
 function moneyCloseConnectModal(){document.getElementById('money-connect-modal')?.classList.remove('open')}
@@ -5842,13 +5857,14 @@ async function moneyLoadBankData(force=false){
  try{
    const r=await dfBankFetch('/api/money/data');
    const d=await r.json().catch(()=>({}));
-   if(r.status===404){_moneyBankData={accounts:[],transactions:[],connections:[],refreshedAt:'',error:''};_moneyBankLoaded=true;renderMoney();return}
+   if(r.status===404){_moneyBankData={accounts:[],transactions:[],connections:[],refreshedAt:'',error:''};_moneyBankLoaded=true;moneyClearBankCache();renderMoney();return}
    if(!r.ok){
      _moneyBankData.error=d.error||(r.status===401?'Sign in again to refresh your connected accounts.':'Connected accounts could not be refreshed.');_moneyBankLoaded=true;
      if(r.status===401)hubToast('Your saved bank connection is still there. Sign in again to refresh it.');renderMoney();return;
    }
    _moneyBankData={accounts:d.accounts||[],transactions:d.transactions||[],connections:d.connections||[],refreshedAt:d.refreshed_at||new Date().toISOString(),error:''};
    _moneyBankLoaded=true;
+   moneySaveBankCache(_moneyBankData);
    renderMoney();
  }catch(e){_moneyBankData.error=e.message||'Connected accounts could not be refreshed.';_moneyBankLoaded=true;renderMoney()}finally{_moneyBankLoading=false}
 }
