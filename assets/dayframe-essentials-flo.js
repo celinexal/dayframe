@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v8';
+  const VERSION = 'flo-v9';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
   const DAY_MS = 86400000;
@@ -94,10 +94,12 @@
     const reminderDays = Array.isArray(raw.reminderDays)
       ? raw.reminderDays.map(Number).filter((day) => [3, 2, 1, 0].includes(day))
       : [3, 1];
+    const dayLogs = cleanDayLogs(raw.dayLogs);
+    const derivedCycle = deriveCycle(periodRuns(dayLogs));
     return {
       lastStart: isISO(raw.lastStart) ? raw.lastStart : '',
       lastEnd: isISO(raw.lastEnd) ? raw.lastEnd : '',
-      cycleLength: clamp(raw.cycleLength, 28, 15, 60),
+      cycleLength: derivedCycle || clamp(raw.cycleLength, 28, 15, 60),
       periodLength: clamp(raw.periodLength, 5, 1, 14),
       notes: String(raw.notes || ''),
       loggedStarts: Array.isArray(raw.loggedStarts) ? raw.loggedStarts.filter(isISO).slice(-24) : [],
@@ -108,7 +110,7 @@
       lastReminders: raw.lastReminders && typeof raw.lastReminders === 'object' ? raw.lastReminders : {},
       contraception: typeof raw.contraception === 'string' ? raw.contraception : '',
       pillLog: Array.isArray(raw.pillLog) ? raw.pillLog.filter(isISO).slice(-90) : [],
-      dayLogs: cleanDayLogs(raw.dayLogs),
+      dayLogs,
     };
   }
   const CONTRA_METHODS = ['', 'Combined pill', 'Progestogen-only pill', 'Contraceptive patch', 'Vaginal ring', 'Contraceptive implant', 'Hormonal coil (IUS)', 'Copper coil (IUD)', 'Contraceptive injection', 'Condoms only', 'Other'];
@@ -540,7 +542,7 @@
   };
   function renderSignature(s) {
     const notif = ('Notification' in window) ? window.Notification.permission : '';
-    return `v8|${iso(new Date())}|${iso(calendarCursor)}|${notif}|${JSON.stringify(s)}`;
+    return `v9|${iso(new Date())}|${iso(calendarCursor)}|${notif}|${JSON.stringify(s)}`;
   }
   function renderMyFlo(preserveMenu) {
     if (!preserveMenu) closeMyFloDayMenu();
