@@ -181,7 +181,7 @@
     // is excluded outright since it's a catch-all meant to be reclassified away,
     // not something to budget against. Rent and Bills & Utilities are excluded
     // too — those already have their own summary tiles at the top of Budget.
-    const HIDDEN_HERE = new Set(['Other', 'Rent', 'Bills & Utilities']);
+    const HIDDEN_HERE = new Set(['Other', 'Rent', 'Bills & Utilities', 'Subscriptions']);
     const categories = [...new Set(
       (d.budgets || []).map((budget) => normaliseCategory(budget.category))
     )].filter((category) => category && !HIDDEN_HERE.has(category) && !isTransferCategory(category));
