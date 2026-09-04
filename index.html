@@ -6894,7 +6894,7 @@ function renderMoney(){
  const budgetSpending={}; spendingTx.forEach(x=>{const c=moneyNormaliseCategory(x.category); budgetSpending[c]=(budgetSpending[c]||0)+Number(x.amount||0)});
  const budgetOverview=document.getElementById('money-budget-overview');
  const budgetsList=document.getElementById('money-budgets-list');
- const everydayBudgets=d.budgets.filter(b=>moneyNormaliseCategory(b.category)!=='Credit Balance');
+ const everydayBudgets=d.budgets.filter(b=>!['Credit Balance','Rent','Bills & Utilities'].includes(moneyNormaliseCategory(b.category)));
  // A rent payment (standing order to a landlord/letting agent) is rarely
  // auto-categorised as "Rent" by the bank — there's no merchant name to match.
  // If a Rent budget category exists, also credit it with any expense this cycle
