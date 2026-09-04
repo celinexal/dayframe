@@ -420,16 +420,18 @@
     var categoryMatch = normaliseCategory(bill.category) !== 'Other' && normaliseCategory(bill.category) === category;
     var dueISO = isoFromDate(billDueDateForCycle(cycle, bill.dueDay || 1));
     var dueGap = daysBetween(tx.date, dueISO);
-    var dueClose = dueGap <= 10;
+    var dueClose = dueGap <= 15;
 
     var score = 0;
     if (sourceMatch) score += 8;
     if (nameMatch) score += 4;
     if (categoryMatch) score += 2;
-    if (dueGap <= 3) score += 3;
+    if (dueGap <= 4) score += 3;
     else if (dueClose) score += 1;
     if (score >= 8) return score;
-    if (dueClose && score >= 5) return score;
+    // A clear name + amount match anywhere near the due date is enough to
+    // auto-mark paid — these are the "obviously in my transactions" bills.
+    if (dueClose && score >= 4) return score;
     return 0;
   }
 
@@ -497,18 +499,39 @@
     return changed;
   }
 
+  // Grace window: a bill whose due date this month has already passed is only
+  // flagged "overdue" for this many days. After that we roll the shown date
+  // forward to next month's occurrence and treat it as upcoming again — a
+  // monthly bill 10+ days past its date is really just waiting for its next run,
+  // not something to nag about with a stale last-month date.
+  var OVERDUE_GRACE_DAYS = 6;
+
   function cycleBillMeta(bill) {
     var data = loadHub() || {};
     var cycle = budgetCycle(data);
     var today = dateFromISO(todayISO());
-    var currentDue = billDueDateForCycle(cycle, bill && bill.dueDay || 1);
-    var due = currentDue;
-    var status = 'upcoming';
-    if (billPaidForCycle(bill, cycle)) {
-      due = billDueDateForCycle(nextBudgetCycle(cycle), bill && bill.dueDay || 1);
+    var dueDay = (bill && bill.dueDay) || 1;
+    var paid = billPaidForCycle(bill, cycle);
+    var todayMonth = todayISO().slice(0, 7);
+    var thisMonthDue = dateForMonth(todayMonth, dueDay);
+    var nextMonthDue = dateForMonth(shiftMonth(todayMonth, 1), dueDay);
+    var due;
+    var status;
+    if (paid) {
       status = 'paid';
-    } else if (currentDue < today) {
-      status = 'overdue';
+      due = thisMonthDue >= today ? thisMonthDue : nextMonthDue;
+    } else if (thisMonthDue >= today) {
+      status = 'upcoming';
+      due = thisMonthDue;
+    } else {
+      var daysPast = Math.round((today - thisMonthDue) / 86400000);
+      if (daysPast <= OVERDUE_GRACE_DAYS) {
+        status = 'overdue';
+        due = thisMonthDue;
+      } else {
+        status = 'upcoming';
+        due = nextMonthDue;
+      }
     }
     var days = Math.round((dateFromISO(isoFromDate(due)) - today) / 86400000);
     return { due: due, status: status, days: days, dateISO: isoFromDate(due) };
