@@ -5872,9 +5872,14 @@ async function moneyLoadBankData(force=false){
  try{
    const r=await dfBankFetch('/api/money/data');
    const d=await r.json().catch(()=>({}));
-   if(r.status===404){_moneyBankData={accounts:[],transactions:[],connections:[],refreshedAt:'',error:''};_moneyBankLoaded=true;moneyClearBankCache();renderMoney();return}
    if(!r.ok){
-     _moneyBankData.error=d.error||(r.status===401?'Sign in again to refresh your connected accounts.':'Connected accounts could not be refreshed.');_moneyBankLoaded=true;
+     // A failed request (including a stray 404 — the real "nothing connected"
+     // case is a 200 with empty arrays, not a 404) is treated as transient: keep
+     // whatever accounts/transactions we already have (cached or from an
+     // earlier successful load) on screen instead of wiping them to empty, and
+     // just surface the error. A genuine disconnect is not something Dayframe
+     // decides from a single failed fetch.
+     _moneyBankData.error=d.error||(r.status===401?'Sign in again to refresh your connected accounts.':r.status===404?'Connected accounts could not be refreshed — showing your last synced data.':'Connected accounts could not be refreshed.');_moneyBankLoaded=true;
      if(r.status===401)hubToast('Your saved bank connection is still there. Sign in again to refresh it.');renderMoney();return;
    }
    _moneyBankData={accounts:d.accounts||[],transactions:d.transactions||[],connections:d.connections||[],refreshedAt:d.refreshed_at||new Date().toISOString(),error:''};
