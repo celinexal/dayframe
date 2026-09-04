@@ -5550,11 +5550,38 @@ async function forceSyncNow(){
     hubToast(ok?'Synced — this device is up to date':'Could not sync — check your connection and try again');
   }finally{if(btn)btn.disabled=false}
 }
+// Tracks the server's updated_at as last confirmed by THIS tab/session, via
+// either a pull or a successful push. Seeded by loadHubFromSupabase() at
+// startup — see there.
+let _hubKnownRemoteTs='';
 function syncHubToSupabase(data){
   const run=async()=>{
     let session=await dfRefreshSession(false);
     if(!session?.access_token||!session?.user?.id||session?._refreshInvalid){hubSetSyncState('offline');return false}
     const stamp=hubLocalStamp()||new Date().toISOString();
+    // Guard against a stale tab clobbering a newer save made elsewhere: check
+    // what the server actually has right now before overwriting it. If it has
+    // moved on since this session last confirmed its state (and that move is
+    // not simply our own pending write racing ahead), someone/something else
+    // changed it — pull that in and skip this push rather than silently
+    // destroying it. This is the root cause behind "I deleted X and it came
+    // back" — a session with an older in-memory copy re-saving later.
+    try{
+      const check=await fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?user_id=eq.'+encodeURIComponent(session.user.id)+'&select=hub_data,updated_at&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token}});
+      if(check.ok){
+        const rows=await check.json().catch(()=>[]);
+        const remote=rows?.[0],serverTs=String(remote?.updated_at||'');
+        if(remote?.hub_data&&serverTs&&_hubKnownRemoteTs&&serverTs!==_hubKnownRemoteTs&&serverTs>=stamp){
+          localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(Object.assign(hubDefault(),remote.hub_data)));
+          localStorage.setItem(dfKey(HUB_STORE_KEY+'_ts'),serverTs);
+          _hubKnownRemoteTs=serverTs;
+          hubSetSyncState('saved');
+          try{hubToast?.('Your data changed elsewhere — refreshed to the latest version. Redo your last change here if it’s still needed.')}catch(e){}
+          try{renderMoney?.();renderHome?.();}catch(e){}
+          return false;
+        }
+      }
+    }catch(e){}
     const send=()=>fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?on_conflict=user_id',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:session.user.id,hub_data:data,updated_at:stamp})});
     try{
       let response=await send();
@@ -5564,6 +5591,7 @@ function syncHubToSupabase(data){
         response=await send();
       }
       if(!response.ok){console.warn('Dayframe data sync failed',response.status);hubSetSyncState('offline');return false}
+      _hubKnownRemoteTs=stamp;
       hubSetSyncState('saved');return true;
     }catch(e){console.warn('Dayframe data sync unavailable');hubSetSyncState('offline');return false}
   };
@@ -5582,13 +5610,16 @@ async function loadHubFromSupabase(){
       if(!localTs||(remoteTs&&remoteTs>localTs)){
         localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(Object.assign(hubDefault(),remote.hub_data)));
         try{localStorage.setItem(dfKey(HUB_STORE_KEY+'_ts'),remoteTs||new Date().toISOString())}catch(e){}
+        _hubKnownRemoteTs=remoteTs||hubLocalStamp();
       }else{
         // Local edits are newer than the server copy (e.g. a change made just
         // before a refresh). Keep local and push it instead of overwriting.
+        _hubKnownRemoteTs=remoteTs;
         await syncHubToSupabase(hubLoad());
       }
       return;
     }
+    _hubKnownRemoteTs='';
     const local=hubLoad();await syncHubToSupabase(local);
   }catch(e){console.log('Dayframe data load error',e)}
 }
