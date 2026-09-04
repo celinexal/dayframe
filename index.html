@@ -1989,7 +1989,9 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 }
 
 /* Dayframe security, readability and sync-state hardening — 2026-08-26 */
-.dayframe-sync-status{display:inline-flex;align-items:center;gap:6px;min-width:62px;justify-content:center;padding:6px 10px;border-radius:999px;background:#edf8f3;color:#21765a;font-size:11px;font-weight:700;white-space:nowrap}
+.dayframe-sync-status{display:inline-flex;align-items:center;gap:6px;min-width:62px;justify-content:center;padding:6px 10px;border:0;border-radius:999px;background:#edf8f3;color:#21765a;font-family:var(--ff);font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer}
+.dayframe-sync-status:hover{filter:brightness(0.96)}
+.dayframe-sync-status:disabled{cursor:wait;opacity:.75}
 .dayframe-sync-status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .dayframe-sync-status[data-state="saving"]{background:#f5f2ff;color:#6f5aca}
 .dayframe-sync-status[data-state="offline"]{background:#fff2f2;color:#b54f5a}
@@ -2177,7 +2179,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
       <button class="df-nav-btn on" data-main-page="home" onclick="go('home')">Home</button><button class="df-nav-btn" data-main-page="money" onclick="go('money')">Money</button><button class="df-nav-btn" data-main-page="planner" onclick="go('planner')">Plans</button><button class="df-nav-btn" data-main-page="driving" onclick="go('driving')">Driving</button><button class="df-nav-btn" data-main-page="diary" onclick="go('diary')">Diary</button><button class="df-nav-btn" data-main-page="bible" onclick="go('bible')">Bible</button><button class="df-nav-btn" data-main-page="investing" onclick="go('dashboard')">Investing</button>
     </div>
   </div>
-  <div class="df-nav-right"><span class="dayframe-sync-status" id="dayframe-sync-status" role="status" aria-live="polite">Saved</span><button class="df-user-pill" type="button" onclick="go('security')" aria-label="Open account security and privacy"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></button><button class="df-logout" onclick="doLogout()">Log out</button></div>
+  <div class="df-nav-right"><button type="button" class="dayframe-sync-status" id="dayframe-sync-status" role="status" aria-live="polite" onclick="forceSyncNow()" title="Tap to sync now">Saved</button><button class="df-user-pill" type="button" onclick="go('security')" aria-label="Open account security and privacy"><div class="df-user-avatar" id="df-user-avatar">U</div><div class="df-user-name" id="df-user-name">Account</div></button><button class="df-logout" onclick="doLogout()">Log out</button></div>
 </div>
 
 <nav class="df-mobile-nav" aria-label="Main navigation">
@@ -5520,6 +5522,13 @@ function hubSaveImmediate(d){
   hubSetSyncState('saving');
   clearTimeout(_hubSyncTimer);
   return syncHubToSupabase(d);
+}
+async function forceSyncNow(){
+  const btn=document.getElementById('dayframe-sync-status');if(btn)btn.disabled=true;
+  try{
+    const ok=await hubSaveImmediate(hubLoad());
+    hubToast(ok?'Synced — this device is up to date':'Could not sync — check your connection and try again');
+  }finally{if(btn)btn.disabled=false}
 }
 function syncHubToSupabase(data){
   const run=async()=>{
