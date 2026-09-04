@@ -960,6 +960,15 @@ tbody td{padding:10px 13px;vertical-align:middle;}
 .budget-auto{font-family:var(--fd);font-size:17px;font-weight:800;color:#3f4a5d}.budget-savings-field{grid-column:span 2}.budget-auto-sub{font-size:8px;color:#9ba4b4;margin-top:3px}.budget-regular-field{grid-column:span 2}.budget-pick-btn{margin-top:8px;border:1px solid #ddd9fb;border-radius:9px;background:#f5f3ff;color:#6c61e6;padding:7px 9px;font:800 8.5px var(--ff);cursor:pointer}.budget-regular-picker{display:none;margin-top:9px;max-height:245px;overflow:auto;border-top:1px solid #ececf4;padding-top:7px}.budget-regular-picker.open{display:block}.budget-regular-option{display:flex;align-items:center;gap:8px;padding:7px 5px;border-bottom:1px solid #eff1f5;cursor:pointer}.budget-regular-option:last-child{border-bottom:0}.budget-regular-option input{width:14px;height:14px;flex:0 0 auto}.budget-regular-option-copy{min-width:0;flex:1}.budget-regular-option-copy strong{display:block;font-size:9px;color:#566174;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.budget-regular-option-copy span{display:block;font-size:8px;color:#99a2b2;margin-top:1px}.budget-regular-option-amount{font-size:9px;font-weight:800;color:#596579;white-space:nowrap}.money-category-list{max-height:300px;overflow:auto;padding-right:3px}.budget-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.budget-summary-item{background:#fff;border:1px solid #e9ebf3;border-radius:12px;padding:10px 11px}.budget-summary-label{font-size:8px;text-transform:uppercase;letter-spacing:.65px;color:#9aa4b5;font-weight:800}.budget-summary-value{font-family:var(--fd);font-size:15px;font-weight:800;color:#3e485a;margin-top:4px}.budget-summary-value.good{color:#209475}.budget-summary-value.bad{color:#df6b5d}
 .budget-builder-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}.budget-builder-tip{font-size:9px;color:#9099aa;line-height:1.5;max-width:590px}.budget-build-btn{height:38px;padding:0 15px;border:0;border-radius:11px;background:linear-gradient(135deg,#7668f5,#8c72ef);color:white;font:800 10px var(--ff);cursor:pointer;box-shadow:0 8px 17px rgba(118,104,245,.2)}
 .budget-reset-row{display:flex;justify-content:flex-end;margin-top:10px}.budget-reset-link{border:0;background:transparent;color:#a8afbd;font:800 9.5px var(--ff);cursor:pointer;padding:4px 2px}.budget-reset-link:hover{color:#c65f5f;text-decoration:underline}
+.budget-allocate-summary{margin-bottom:16px;padding:12px 14px;border:1px solid #e9ecf5;border-radius:14px;background:#fbfbff}
+.budget-allocate-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:10.5px;color:#7b8495}
+.budget-allocate-row b{color:#3d4759;font-weight:850}
+#budget-allocate-left{font-weight:850;color:#21a17e;white-space:nowrap}
+#budget-allocate-left.over{color:#d74f32}
+.budget-allocate-summary .money-progress{background:#eff1f6}
+.budget-allocate-summary .money-progress.over{background:#fff1ed}
+#budget-allocate-bar{display:block;height:100%;border-radius:999px;background:#7668f5;transition:width .2s ease}
+.budget-allocate-summary .money-progress.over #budget-allocate-bar{background:#ef5f44}
 .budget-overview-cta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border:1px dashed #dcdaf5;border-radius:14px;background:#fbfaff}.budget-overview-cta strong{display:block;font-size:11px;color:#5c6577}.budget-overview-cta span{font-size:9px;color:#9aa3b3;margin-top:2px;display:block}.budget-overview-cta button{white-space:nowrap;border:0;border-radius:9px;padding:8px 10px;background:#7668f5;color:#fff;font:800 9px var(--ff);cursor:pointer}
 .credit-apr-pill{display:inline-flex;align-items:center;font-size:8px;font-weight:800;padding:4px 7px;border-radius:999px;background:#fff5e9;color:#c17a1f;margin-left:5px}.credit-warning{margin-top:9px;padding:9px 10px;border-radius:10px;background:#fff3f0;border:1px solid #ffe0da;color:#c55c4d;font-size:9px;font-weight:650}
 @media(max-width:900px){.budget-builder-grid{grid-template-columns:1fr 1fr}.budget-summary{grid-template-columns:1fr 1fr}}@media(max-width:560px){.money-cycle-inline{align-items:flex-start;flex-direction:column}.money-cycle-inline-picker{width:100%;justify-content:space-between}.budget-builder-grid{grid-template-columns:1fr}.budget-regular-field,.budget-savings-field{grid-column:span 1}.budget-builder-actions{align-items:stretch;flex-direction:column}.budget-build-btn{width:100%}}
@@ -2499,7 +2508,12 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 
     <div class="money-pane-grid budget-lower-grid">
       <div class="money-col">
-        <section class="life-card money-glass money-form-card budget-categories-card"><div class="life-card-head"><div><div class="life-card-title">Budget at a glance</div><div class="life-card-sub">How each everyday category is tracking this cycle. Tap ✎ to change an amount.</div></div><button class="money-head-action" onclick="moneyBeginNewBudgetItem()">＋ Add category</button></div><div class="life-card-body"><div class="life-form" id="money-budget-form"><div class="life-form-grid"><div class="life-field"><label>Category</label><input class="life-input" id="money-budget-category" list="money-category-options" placeholder="Choose or type your own"><div class="money-category-help">Start typing for suggestions, or pick one below.</div><div class="money-cat-quick" id="money-budget-cat-quick"></div></div><div class="life-field"><label>Monthly limit</label><input class="life-input" id="money-budget-limit" type="number" step="0.01" placeholder="0.00" onkeydown="if(event.key==='Enter'){event.preventDefault();addBudgetItem()}"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="cancelBudgetEdit()">Cancel</button><button class="life-btn-primary" id="money-budget-save-button" onclick="addBudgetItem()">Save limit</button></div></div><div id="money-budgets-list" class="money-budget-list"></div></div></section>
+        <section class="life-card money-glass money-form-card budget-categories-card"><div class="life-card-head"><div><div class="life-card-title">Budget at a glance</div><div class="life-card-sub">How each everyday category is tracking this cycle. Tap ✎ to change an amount.</div></div><button class="money-head-action" onclick="moneyBeginNewBudgetItem()">＋ Add category</button></div><div class="life-card-body">
+          <div class="budget-allocate-summary" id="budget-allocate-summary">
+            <div class="budget-allocate-row"><span><b id="budget-allocate-used">£0</b> of <b id="budget-allocate-total">£0</b> everyday budget allocated</span><span id="budget-allocate-left">£0 left</span></div>
+            <div class="money-progress"><i id="budget-allocate-bar" style="width:0%"></i></div>
+          </div>
+          <div class="life-form" id="money-budget-form"><div class="life-form-grid"><div class="life-field"><label>Category</label><input class="life-input" id="money-budget-category" list="money-category-options" placeholder="Choose or type your own"><div class="money-category-help">Start typing for suggestions, or pick one below.</div><div class="money-cat-quick" id="money-budget-cat-quick"></div></div><div class="life-field"><label>Monthly limit</label><input class="life-input" id="money-budget-limit" type="number" step="0.01" placeholder="0.00" oninput="budgetPreviewAllocation()" onkeydown="if(event.key==='Enter'){event.preventDefault();addBudgetItem()}"><div class="money-category-help" id="money-budget-limit-preview"></div></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="cancelBudgetEdit()">Cancel</button><button class="life-btn-primary" id="money-budget-save-button" onclick="addBudgetItem()">Save limit</button></div></div><div id="money-budgets-list" class="money-budget-list"></div></div></section>
       </div>
     </div>
   </div>
@@ -6424,9 +6438,18 @@ function budgetPlannerPreview(){
  budgetRenderCustomTiles();
  const d=hubLoad(),v=budgetPlanValues(),current=d.budgetPlan||{};d.budgetPlan=moneyBudgetPlanRecord(current,v);hubSave(d);
  try{
- const credit=v.credit+v.extraCredit;
+ const credit=v.credit+v.extraCredit,future=v.savings+v.buffer+v.investing;
  const set=(id,val,cls)=>{const e=document.getElementById(id);if(e){e.textContent=hubMoney(val,0);if(cls)e.className='budget-summary-value '+cls}};
  set('budget-plan-credit',v.credit);set('budget-plan-flexible',v.flexible);set('budget-sum-income',v.income);set('budget-sum-rent',v.rent);set('budget-sum-bills',v.bills);set('budget-sum-credit',credit);set('budget-sum-future',future);set('budget-sum-left',v.flexible,v.flexible<0?'bad':'good');
+ const everydayLimitSum=(d.budgets||[]).filter(b=>!['Credit Balance','Rent'].includes(moneyNormaliseCategory(b.category))).reduce((a,x)=>a+Number(x.limit||0),0);
+ const everydayPool=Math.max(0,v.flexible),everydayLeft=everydayPool-everydayLimitSum;
+ const setTxt=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
+ setTxt('budget-allocate-used',hubMoney(everydayLimitSum,0));
+ setTxt('budget-allocate-total',hubMoney(everydayPool,0));
+ setTxt('budget-allocate-left',everydayLeft<0?hubMoney(Math.abs(everydayLeft),0)+' over':hubMoney(everydayLeft,0)+' left');
+ const allocBar=document.getElementById('budget-allocate-bar');
+ if(allocBar){allocBar.style.width=(everydayPool>0?Math.min(100,everydayLimitSum/everydayPool*100):(everydayLimitSum>0?100:0))+'%';allocBar.parentElement?.classList.toggle('over',everydayLeft<0)}
+ document.getElementById('budget-allocate-left')?.classList.toggle('over',everydayLeft<0);
  budgetRenderCustomTiles();
  }catch(e){console.warn('budgetPlannerPreview',e)}
 }
@@ -6548,7 +6571,16 @@ function budgetTileSave(kind){
  hubSave(d);closeBudgetTilePop();budgetPlannerPreview();hubToast('Budget updated')
 }
 let _budgetEditingId=null;
-function resetBudgetForm(){_budgetEditingId=null;const cat=document.getElementById('money-budget-category'),lim=document.getElementById('money-budget-limit'),btn=document.getElementById('money-budget-save-button');if(cat)cat.value='';if(lim)lim.value='';if(btn)btn.textContent='Save limit'}
+function resetBudgetForm(){_budgetEditingId=null;const cat=document.getElementById('money-budget-category'),lim=document.getElementById('money-budget-limit'),btn=document.getElementById('money-budget-save-button');if(cat)cat.value='';if(lim)lim.value='';if(btn)btn.textContent='Save limit';budgetPreviewAllocation()}
+function budgetPreviewAllocation(){
+ const hint=document.getElementById('money-budget-limit-preview');if(!hint)return;
+ const d=hubLoad(),v=budgetPlanValues();
+ const otherLimitSum=(d.budgets||[]).filter(b=>!['Credit Balance','Rent'].includes(moneyNormaliseCategory(b.category))&&(!_budgetEditingId||b.id!==_budgetEditingId)).reduce((a,x)=>a+Number(x.limit||0),0);
+ const typed=Math.max(0,Number(document.getElementById('money-budget-limit')?.value)||0);
+ if(!typed){hint.textContent='';return}
+ const left=Math.max(0,v.flexible)-otherLimitSum-typed;
+ hint.textContent=left<0?hubMoney(Math.abs(left),0)+' over your everyday budget':hubMoney(left,0)+' would be left from your everyday budget';
+}
 const BUDGET_CAT_EXCLUDE=['Salary','Income','Transfers','Savings & Investments','Credit Balance'];
 function moneyBudgetPickCat(name){const cat=document.getElementById('money-budget-category');if(cat)cat.value=name;const limit=document.getElementById('money-budget-limit');if(limit){limit.focus();limit.select()}}
 function moneyRenderBudgetCatQuick(){
@@ -6558,9 +6590,9 @@ function moneyRenderBudgetCatQuick(){
  const all=moneyKnownCategories(d).filter(x=>!BUDGET_CAT_EXCLUDE.includes(x)&&(x===editCat||!used.has(x)));
  host.innerHTML=all.length?all.map(p=>'<button type="button" class="money-cat-chip'+(p===editCat?' on':'')+'" onclick="moneyBudgetPickCat(\''+p.replace(/'/g,"\\'")+'\')">'+hubEsc(p)+'</button>').join(''):'';
 }
-function moneyBeginNewBudgetItem(){resetBudgetForm();moneyRenderCategoryOptions(hubLoad());toggleLifeForm('money-budget-form',true);moneyRenderBudgetCatQuick()}
+function moneyBeginNewBudgetItem(){resetBudgetForm();moneyRenderCategoryOptions(hubLoad());toggleLifeForm('money-budget-form',true);moneyRenderBudgetCatQuick();budgetPreviewAllocation()}
 function cancelBudgetEdit(){resetBudgetForm();toggleLifeForm('money-budget-form',false)}
-function editBudgetItem(id){const d=hubLoad(),b=d.budgets.find(x=>x.id===id);if(!b)return;_budgetEditingId=b.id;moneyRenderCategoryOptions(d);const cat=document.getElementById('money-budget-category'),lim=document.getElementById('money-budget-limit'),btn=document.getElementById('money-budget-save-button');if(cat)cat.value=b.category||'';if(lim)lim.value=b.limit??'';if(btn)btn.textContent='Update limit';toggleLifeForm('money-budget-form',true);moneyRenderBudgetCatQuick()}
+function editBudgetItem(id){const d=hubLoad(),b=d.budgets.find(x=>x.id===id);if(!b)return;_budgetEditingId=b.id;moneyRenderCategoryOptions(d);const cat=document.getElementById('money-budget-category'),lim=document.getElementById('money-budget-limit'),btn=document.getElementById('money-budget-save-button');if(cat)cat.value=b.category||'';if(lim)lim.value=b.limit??'';if(btn)btn.textContent='Update limit';toggleLifeForm('money-budget-form',true);moneyRenderBudgetCatQuick();budgetPreviewAllocation()}
 function addBudgetItem(){const raw=document.getElementById('money-budget-category').value,limit=Number(document.getElementById('money-budget-limit').value);if(!raw||!Number.isFinite(limit)||limit<=0)return hubToast('Add a category and monthly limit');const d=hubLoad(),category=moneyRememberCategory(d,raw);if(!_budgetEditingId&&category==='Credit Balance')return hubToast('Credit balances are tracked in your Credit Plan, not as an everyday category');const existing=_budgetEditingId?d.budgets.find(x=>x.id===_budgetEditingId):d.budgets.find(x=>moneyNormaliseCategory(x.category)===category);if(existing){existing.limit=limit;existing.category=category}else d.budgets.unshift({id:Date.now(),category,limit,source:'manual'});hubSave(d);resetBudgetForm();toggleLifeForm('money-budget-form',false);renderMoney();hubToast(existing?'Budget updated':'Budget saved')}
 function deleteBudgetItem(id){const d=hubLoad();d.budgets=d.budgets.filter(x=>x.id!==id);if(_budgetEditingId===id)resetBudgetForm();hubSave(d);renderMoney()}
 function resetAllBudgets(){
