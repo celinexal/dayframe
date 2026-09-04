@@ -6604,6 +6604,7 @@ function budgetTileSave(kind){
  const d=hubLoad();d.budgetPlan=d.budgetPlan||{};
  pop.querySelectorAll('input[data-key]').forEach(inp=>{d.budgetPlan[inp.dataset.key]=Math.max(0,Number(inp.value)||0)});
  if(kind==='income')d.budgetPlan.incomeSource='manual';
+ if(kind==='future'){d.budgetPlan.savingsSource='manual';d.budgetPlan.savingGoalSelections=[]}
  hubSave(d);closeBudgetTilePop();budgetPlannerPreview();hubToast('Budget updated')
 }
 let _budgetEditingId=null;
