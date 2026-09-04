@@ -5510,14 +5510,18 @@ function hubSetSyncState(state){
   el.textContent=labels[state]||labels.saved;
   el.dataset.state=state||'saved';
 }
+function hubStamp(){try{localStorage.setItem(dfKey(HUB_STORE_KEY+'_ts'),new Date().toISOString())}catch(e){}}
+function hubLocalStamp(){try{return localStorage.getItem(dfKey(HUB_STORE_KEY+'_ts'))||''}catch(e){return ''}}
 function hubSave(d){
   localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));
+  hubStamp();
   hubSetSyncState('saving');
   clearTimeout(_hubSyncTimer);
   _hubSyncTimer=setTimeout(()=>syncHubToSupabase(d),180);
 }
 function hubSaveImmediate(d){
   localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(d));
+  hubStamp();
   hubSetSyncState('saving');
   clearTimeout(_hubSyncTimer);
   return syncHubToSupabase(d);
@@ -5526,7 +5530,8 @@ function syncHubToSupabase(data){
   const run=async()=>{
     let session=await dfRefreshSession(false);
     if(!session?.access_token||!session?.user?.id||session?._refreshInvalid){hubSetSyncState('offline');return false}
-    const send=()=>fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?on_conflict=user_id',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:session.user.id,hub_data:data,updated_at:new Date().toISOString()})});
+    const stamp=hubLocalStamp()||new Date().toISOString();
+    const send=()=>fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?on_conflict=user_id',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:session.user.id,hub_data:data,updated_at:stamp})});
     try{
       let response=await send();
       if(response.status===401){
@@ -5546,9 +5551,20 @@ function syncHubToSupabase(data){
 async function loadHubFromSupabase(){
   const s=await dfRefreshSession();if(!s?.access_token||!s?.user?.id)return;
   try{
-    const r=await fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?user_id=eq.'+encodeURIComponent(s.user.id)+'&select=hub_data&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token}});
-    if(!r.ok)return;const rows=await r.json();
-    if(rows?.[0]?.hub_data){localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(Object.assign(hubDefault(),rows[0].hub_data)));return}
+    const r=await fetch(SUPABASE_URL+'/rest/v1/dayframe_user_data?user_id=eq.'+encodeURIComponent(s.user.id)+'&select=hub_data,updated_at&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token}});
+    if(!r.ok)return;const rows=await r.json();const remote=rows?.[0];
+    if(remote?.hub_data){
+      const localTs=hubLocalStamp(),remoteTs=String(remote.updated_at||'');
+      if(!localTs||(remoteTs&&remoteTs>localTs)){
+        localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(Object.assign(hubDefault(),remote.hub_data)));
+        try{localStorage.setItem(dfKey(HUB_STORE_KEY+'_ts'),remoteTs||new Date().toISOString())}catch(e){}
+      }else{
+        // Local edits are newer than the server copy (e.g. a change made just
+        // before a refresh). Keep local and push it instead of overwriting.
+        await syncHubToSupabase(hubLoad());
+      }
+      return;
+    }
     const local=hubLoad();await syncHubToSupabase(local);
   }catch(e){console.log('Dayframe data load error',e)}
 }
