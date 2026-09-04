@@ -439,7 +439,7 @@
       button.classList.toggle('on', button.dataset.mainPage === main);
     });
     document.querySelectorAll('.df-mobile-nav button[data-mobile-page]').forEach((button) => {
-      const key = ['home', 'money', 'planner', 'bible'].includes(main) ? main : 'more';
+      const key = ['home', 'money', 'planner', 'driving'].includes(main) ? main : 'more';
       button.classList.toggle('on', button.dataset.mobilePage === key);
     });
     document.querySelectorAll('.invest-side-nav button').forEach((button) => {

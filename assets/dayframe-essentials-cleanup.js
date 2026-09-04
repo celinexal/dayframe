@@ -549,7 +549,7 @@
     document.querySelectorAll('.df-nav-btn[data-main-page]').forEach((button) => button.classList.remove('on'));
     const mainKey = isInvesting ? 'investing' : isDriving ? 'driving' : name;
     document.querySelector(`.df-nav-btn[data-main-page="${mainKey}"]`)?.classList.add('on');
-    const mobileKey = ['home', 'money', 'planner', 'bible'].includes(mainKey) ? mainKey : 'more';
+    const mobileKey = ['home', 'money', 'planner', 'driving'].includes(mainKey) ? mainKey : 'more';
     document.querySelectorAll('.df-mobile-nav button[data-mobile-page]').forEach((button) => button.classList.toggle('on', button.dataset.mobilePage === mobileKey));
     window.dfCloseSheets?.();
     document.querySelectorAll('.invest-side-nav button').forEach((button) => button.classList.toggle('on', button.dataset.investPage === name));

@@ -2169,7 +2169,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
   <button class="on" data-mobile-page="home" onclick="go('home')"><span>⌂</span><small>Home</small></button>
   <button data-mobile-page="money" onclick="go('money')"><span>£</span><small>Money</small></button>
   <button data-mobile-page="planner" onclick="go('planner')"><span>✓</span><small>Plans</small></button>
-  <button data-mobile-page="bible" onclick="go('bible')"><span>✦</span><small>Bible</small></button>
+  <button data-mobile-page="driving" onclick="go('driving')"><span>⌁</span><small>Essentials</small></button>
   <button data-mobile-page="more" onclick="dfOpenMore()"><span>•••</span><small>More</small></button>
 </nav>
 
@@ -7399,7 +7399,7 @@ function go(name,btn){
   const mainKey=isInvesting?'investing':isDriving?'driving':name;
   const mainBtn=document.querySelector(`.df-nav-btn[data-main-page="${mainKey}"]`);
   if(mainBtn)mainBtn.classList.add('on');
-  const mobileKey=['home','money','planner','bible'].includes(mainKey)?mainKey:'more';
+  const mobileKey=['home','money','planner','driving'].includes(mainKey)?mainKey:'more';
   document.querySelectorAll('.df-mobile-nav button[data-mobile-page]').forEach(b=>b.classList.toggle('on',b.dataset.mobilePage===mobileKey));
   dfCloseSheets();
   document.querySelectorAll('.invest-side-nav button').forEach(b=>b.classList.toggle('on',b.dataset.investPage===name));
