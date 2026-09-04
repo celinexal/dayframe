@@ -5997,7 +5997,7 @@ function moneyCategoryForKey(key){
  const raw=(_moneyBankData.transactions||[]).find(x=>String(x.id)===key.slice(5));
  return moneyNormaliseCategory((d.transactionCategoryOverrides||{})[key]||moneyRuleCategory(d,raw)||raw?.category||'Other')
 }
-const MONEY_SPEND_CATEGORIES=['Groceries','Eating Out','Transport','Shopping','Bills & Utilities','Subscriptions','Entertainment','Beauty','Health','Personal care','Pets','Hobbies','Gifts','Other'];
+const MONEY_SPEND_CATEGORIES=['Groceries','Eating Out','Transport','Shopping','Bills & Utilities','Subscriptions','Entertainment','Beauty','Health','Personal care','Pets','Hobbies','Gifts','Savings','Investing','Other'];
 const MONEY_MERCHANT_HINTS=[
  ['Eating Out',['burger king','mcdonald','kfc','nando','greggs','pret','subway','domino','pizza','papa john','five guys','taco bell','wagamama','franco manca','leon rest','itsu','wasabi','yo! sushi','chipotle','costa','starbucks','caffe nero','cafe nero','deliveroo','uber eats','ubereats','just eat','justeat','restaurant','diner','grill','kebab','chip shop','fish and chip','bakery','patisserie','coffee','wetherspoon','harvester','toby carvery','pizza express','zizzi','bella italia','tgi','gourmet burger','honest burger','busaba','dishoom','byron','mowgli']],
  ['Groceries',['tesco','sainsbury','asda','aldi','lidl','morrison','waitrose','co-op food','co op food','coop food','iceland','ocado','marks & spencer food','m&s food','m and s food','spar','budgens','nisa','costcutter','farmfoods','booths','whole foods','londis','premier store','grocer','supermarket','food warehouse']],
