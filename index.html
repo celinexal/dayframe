@@ -6842,9 +6842,9 @@ function renderMoney(){
    const paidCycle=billMeta.filter(x=>x.status==='paid');
    const grp=(cls,label,note,arr)=>arr.length?`<div class="money-bill-group ${cls}"><div class="money-bill-group-head"><span>${hubEsc(label)}</span><span class="money-bill-group-sum">${hubEsc(note)}</span></div>${arr.map(billRow).join('')}</div>`:'';
    billsList.innerHTML=
-     grp('due','Still to pay this cycle',hubMoney(billSum(thisCycle))+' left',thisCycle)
-    +grp('next','Coming up next cycle',hubMoney(billSum(nextCycle)),nextCycle)
-    +grp('paidgrp','Paid this cycle',paidCycle.length+' bill'+(paidCycle.length===1?'':'s'),paidCycle)
+     grp('due','This cycle',hubMoney(billSum(thisCycle))+' left',thisCycle)
+    +grp('next','Next cycle',hubMoney(billSum(nextCycle)),nextCycle)
+    +grp('paidgrp','Paid',paidCycle.length+' bill'+(paidCycle.length===1?'':'s'),paidCycle)
     ||billMeta.map(billRow).join('');
   }
  }
