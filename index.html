@@ -6881,11 +6881,6 @@ function renderMoney(){
  if(br) br.innerHTML=entries.length?entries.map(([k,v],i)=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:10px"><span style="font-weight:700;color:#606b7d">${hubEsc(k)}</span><span style="color:#8d97a7">${hubMoney(v)}</span></div><div class="money-progress-row color-${(i%5)+1}"><div class="money-progress"><i style="width:${expenses&&v?Math.max(5,v/expenses*100):0}%"></i></div><div class="money-progress-right">${expenses?Math.round(v/expenses*100):0}%</div></div></div>`).join(''):'<div class="hub-empty"><strong>No spending yet</strong>Your category breakdown will appear here.</div>';
  
  const budgetSpending={}; spendingTx.forEach(x=>{const c=moneyNormaliseCategory(x.category); budgetSpending[c]=(budgetSpending[c]||0)+Number(x.amount||0)});
- // Rent is usually paid in the last few days before the cycle turns over ("next
- // month's rent"), so count a Rent payment from the week before cycle.start too.
- const rentWindowStart=(()=>{const s=new Date(cycle.start+'T12:00:00');s.setDate(s.getDate()-7);return hubDateISO(s)})();
- const rentSpent=allTx.filter(x=>x.type==='expense'&&moneyNormaliseCategory(x.category)==='Rent'&&x.date>=rentWindowStart&&x.date<=cycle.end).reduce((a,x)=>a+Number(x.amount||0),0);
- if(rentSpent>0)budgetSpending['Rent']=rentSpent;
  const budgetOverview=document.getElementById('money-budget-overview');
  const budgetsList=document.getElementById('money-budgets-list');
  const everydayBudgets=d.budgets.filter(b=>moneyNormaliseCategory(b.category)!=='Credit Balance');
