@@ -172,7 +172,7 @@ jobs:
           s = sw.read_text(encoding='utf-8')
           s, cache_count = re.subn(
               r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';",
-              "const DAYFRAME_CACHE = 'dayframe-shell-v175';",
+              "const DAYFRAME_CACHE = 'dayframe-shell-v176';",
               s,
               count=1,
           )
