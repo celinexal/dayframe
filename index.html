@@ -1442,6 +1442,8 @@ button,.hub-module,.driving-home-card{-webkit-tap-highlight-color:transparent}
 .home-coming-dot.bill{background:#21a17e;box-shadow:0 0 0 5px rgba(33,161,126,.09)}
 .home-coming-dot.car{background:#ee7160;box-shadow:0 0 0 5px rgba(238,113,96,.09)}
 .home-coming-dot.goal{background:#e0a83c;box-shadow:0 0 0 5px rgba(224,168,60,.1)}
+.home-coming-dot.expiry{background:#e0a83c;box-shadow:0 0 0 5px rgba(224,168,60,.12)}
+.hub-pill.hub-pill-expiry{background:#fff2d9;color:#a9761c}
 .home-coming-dot.flo{background:#d94e9c;box-shadow:0 0 0 5px rgba(217,78,156,.1)}
 .hub-today-meta.is-overdue{color:#c9553f;font-weight:700}
 .home-todo-panel{background:linear-gradient(145deg,#fff 42%,#ecf9f1)}
@@ -2383,7 +2385,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
         <div class="hub-panel-body" id="home-todo-list"></div>
       </section>
       <section class="hub-panel home-glance-panel home-coming-panel" data-home-widget="coming">
-        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">◷</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">Bills, renewals, cycle and dated tasks — next 5 days</div></div></div></div>
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">◷</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">Tasks and bills in the next 5 days, plus anything expiring soon</div></div></div></div>
         <div class="hub-panel-body" id="home-coming-up"></div>
       </section>
       <section class="hub-panel home-glance-panel home-goal-panel" data-home-widget="goals">
@@ -5725,16 +5727,22 @@ function renderHome(){
    items.push({kind:'bible',icon:'✦',title:'Today’s verse is ready',meta:'Bible · '+dailyRef});
    digest.innerHTML=items.slice(0,3).map(x=>'<button type="button" class="home-digest-item" onclick="'+(x.kind==='task'?"go('planner')":x.kind==='bill'?"go('money')":"go('bible')")+'"><span class="home-digest-icon '+x.kind+'">'+x.icon+'</span><span class="home-digest-copy"><strong>'+hubEsc(x.title)+'</strong><span>'+hubEsc(x.meta)+'</span></span></button>').join('');
  }
- const comingPage={task:'planner',car:'driving',bill:'money',flo:'driving'};
- const comingRow=(x)=>{const n=hubDaysUntil(x.date),rel=hubRel(x.date),pg=comingPage[x.kind]||'planner';return '<div class="hub-today-item home-coming-clickable" onclick="go(\''+pg+'\')"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta'+(n!==null&&n<0?' is-overdue':'')+'">'+(rel?hubEsc(rel)+' · ':'')+hubPrettyDate(x.date)+'</div></div><span class="hub-pill">'+hubEsc(x.type)+'</span></div>'};
+ const comingPage={task:'planner',car:'driving',bill:'money',flo:'driving',expiry:'driving'};
+ const comingRel=(dt)=>{const n=hubDaysUntil(dt);if(n===null)return '';if(n<0)return Math.abs(n)+(Math.abs(n)===1?' day ago':' days ago');if(n===0)return 'Today';if(n===1)return 'Tomorrow';if(n<=21)return 'In '+n+' days';const m=Math.round(n/30);return 'In '+m+' month'+(m===1?'':'s')};
+ const comingRow=(x)=>{const n=hubDaysUntil(x.date),rel=comingRel(x.date),pg=comingPage[x.kind]||'planner';return '<div class="hub-today-item home-coming-clickable" onclick="go(\''+pg+'\')"><div class="home-coming-dot '+x.kind+'"></div><div class="hub-today-copy"><div class="hub-today-title">'+hubEsc(x.title)+'</div><div class="hub-today-meta'+(n!==null&&n<0?' is-overdue':'')+'">'+(rel?hubEsc(rel)+' · ':'')+hubPrettyDate(x.date)+'</div></div><span class="hub-pill'+(x.kind==='expiry'?' hub-pill-expiry':'')+'">'+hubEsc(x.type)+'</span></div>'};
+ const carRenewLabels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};
+ const docStore=d.essentials&&d.essentials.documents,docItems=Array.isArray(docStore)?docStore:(docStore&&Array.isArray(docStore.items)?docStore.items:[]);
+ const expiring=[
+  ...drivingDates.map(x=>({title:(carRenewLabels[x[0]]||x[0])+' renewal',date:x[1],type:'Expiring soon',kind:'expiry'})),
+  ...docItems.filter(it=>it&&/^\d{4}-\d{2}-\d{2}$/.test(String(it.date||''))).map(it=>({title:String(it.title||'Document').slice(0,80),date:String(it.date),type:'Expiring soon',kind:'expiry'}))
+ ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n>=-31&&n<=92});
  const upcoming=[
   ...open.filter(t=>t.date&&t.date>today).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
-  ...drivingDates.filter(x=>x[1]>today).map(x=>({title:x[0].toUpperCase()+' renewal',date:x[1],type:'My Car',kind:'car'})),
   ...dueBillItems.map(x=>({title:x.bill.name||'Bill due',date:x.meta.dateISO,type:'Money',kind:'bill'})),
   ...(nextPeriodISO?[{title:'Period estimated',date:nextPeriodISO,type:'MyFlo',kind:'flo'}]:[])
- ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n<=5}).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+ ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n<=5}).concat(expiring).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
  const cu=document.getElementById('home-coming-up');
- if(cu)cu.innerHTML=upcoming.length?upcoming.map(comingRow).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Nothing in the next 5 days</strong><span>Dated tasks, bills and renewals show up here.</span></div>';
+ if(cu)cu.innerHTML=upcoming.length?upcoming.map(comingRow).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Nothing coming up</strong><span>Dated tasks, bills and anything expiring soon show up here.</span></div>';
  const todoW=document.getElementById('home-todo-list');
  if(todoW){
    const seenTodo={};
