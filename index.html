@@ -849,8 +849,8 @@ tbody td{padding:10px 13px;vertical-align:middle;}
 .money-bill-group-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 1px}
 .money-bill-group-head>span:first-child{font-size:9px;font-weight:850;letter-spacing:.7px;text-transform:uppercase;color:#8a94a6}
 .money-bill-group-sum{font-size:10px;font-weight:800;color:#6b7688}
-.money-bill-group.next .money-bill-row{background:#fbfcfe;border-style:dashed}
-.money-bill-group.paidgrp .money-bill-row{opacity:.62}
+.money-bill-group.paidgrp{margin-top:4px}
+.money-bill-group.paidgrp .money-bill-row{opacity:.6;background:#fbfcfd}
 .money-account-row,.money-budget-row,.money-credit-row,.money-bill-row{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid #edf0f4;border-radius:15px;background:#fff;}
 .money-account-icon,.money-mini-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6b63f0;background:#f2efff;flex:0 0 auto;}
 .money-mini-icon{width:32px;height:32px;border-radius:10px;font-size:12px;}
@@ -6899,20 +6899,17 @@ function renderMoney(){
  moneyRenderPayInThreeHub(d);
   const billsOverview=document.getElementById('money-bills-overview');
  const billsList=document.getElementById('money-bills-list');
- if(billsOverview) billsOverview.innerHTML=billMeta.length ? billMeta.slice(0,5).map(x=>`<div class="money-account-row"><div class="money-account-icon" style="background:${x.status==='paid'?'#eaf9f5':'#fff0ed'};color:${x.status==='paid'?'#27a884':'#ef7464'}">◷</div><div class="money-account-main"><div class="money-account-name">${hubEsc(x.bill.name)}</div><div class="money-account-meta">${hubEsc(x.bill.category)} · ${hubPrettyDate(x.dateISO)}${x.status!=='paid'&&x.dateISO>cycle.end?' · next cycle':''}</div><div class="money-chip-status ${x.status==='paid'?'paid':'due'}">${x.status==='paid'?'Paid this month':x.days<0?'Overdue '+Math.abs(x.days)+' day'+(Math.abs(x.days)===1?'':'s'):x.days===0?'Due today':'Due in '+x.days+' day'+(x.days===1?'':'s')}</div></div><div class="money-account-value">${hubMoney(x.bill.amount)}</div></div>`).join('') : `<div class="money-empty-soft"><strong>No bills added yet</strong>Add your recurring payments and Dayframe will surface what is due next.</div>`;
+ if(billsOverview) billsOverview.innerHTML=billMeta.length ? billMeta.slice(0,5).map(x=>`<div class="money-account-row"><div class="money-account-icon" style="background:${x.status==='paid'?'#eaf9f5':'#fff0ed'};color:${x.status==='paid'?'#27a884':'#ef7464'}">◷</div><div class="money-account-main"><div class="money-account-name">${hubEsc(x.bill.name)}</div><div class="money-account-meta">${hubEsc(x.bill.category)} · ${hubPrettyDate(x.dateISO)}</div><div class="money-chip-status ${x.status==='paid'?'paid':'due'}">${x.status==='paid'?'Paid this month':x.days<0?'Overdue '+Math.abs(x.days)+' day'+(Math.abs(x.days)===1?'':'s'):x.days===0?'Due today':'Due in '+x.days+' day'+(x.days===1?'':'s')}</div></div><div class="money-account-value">${hubMoney(x.bill.amount)}</div></div>`).join('') : `<div class="money-empty-soft"><strong>No bills added yet</strong>Add your recurring payments and Dayframe will surface what is due next.</div>`;
  if(billsList){
   if(!billMeta.length){
    billsList.innerHTML=`<div class="money-empty-soft"><strong>No recurring bills yet</strong>Use “Add bill” or review a suggestion from your connected account.</div>`;
   }else{
    const billRow=x=>`<div class="money-bill-row"><div class="money-bill-main"><div class="money-bill-name">${hubEsc(x.bill.name)}</div><div class="money-bill-meta">${hubEsc(x.bill.category)} · Due day ${hubEsc(x.bill.dueDay)} · ${hubPrettyDate(x.dateISO)}</div><div class="money-chip-status ${x.status==='paid'?'paid':'due'}">${x.status==='paid'?'Paid this cycle':x.days<0?'Overdue':x.days===0?'Due today':'Due in '+x.days+' day'+(x.days===1?'':'s')}</div></div><div class="money-bill-value">${hubMoney(x.bill.amount)}</div><button class="money-bill-toggle ${x.status==='paid'?'paid':''}" onclick="toggleBillPaid(${x.bill.id})">${x.status==='paid'?'Paid':'Mark paid'}</button><button class="life-row-delete" onclick="deleteBillItem(${x.bill.id})">×</button></div>`;
-   const billSum=arr=>arr.reduce((a,x)=>a+Number(x.bill.amount||0),0);
-   const thisCycle=billMeta.filter(x=>x.status!=='paid'&&x.dateISO<=cycle.end);
-   const nextCycle=billMeta.filter(x=>x.status!=='paid'&&x.dateISO>cycle.end);
+   const unpaid=billMeta.filter(x=>x.status!=='paid');
    const paidCycle=billMeta.filter(x=>x.status==='paid');
    const grp=(cls,label,note,arr)=>arr.length?`<div class="money-bill-group ${cls}"><div class="money-bill-group-head"><span>${hubEsc(label)}</span><span class="money-bill-group-sum">${hubEsc(note)}</span></div>${arr.map(billRow).join('')}</div>`:'';
    billsList.innerHTML=
-     grp('due','This cycle',hubMoney(billSum(thisCycle))+' left',thisCycle)
-    +grp('next','Next cycle',hubMoney(billSum(nextCycle)),nextCycle)
+     unpaid.map(billRow).join('')
     +grp('paidgrp','Paid',paidCycle.length+' bill'+(paidCycle.length===1?'':'s'),paidCycle)
     ||billMeta.map(billRow).join('');
   }
