@@ -2486,7 +2486,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
   <div class="money-pane" id="money-pane-credit">
     <div class="money-pane-grid money-credit-layout">
       <div class="money-col">
-        <section class="life-card money-glass money-form-card"><div class="life-card-head"><div><div class="life-card-title">Credit payoff plan</div><div class="life-card-sub">Credit cards and interest-bearing balances only</div></div><button class="money-head-action" onclick="beginCreditPlanAdd()">＋ Add credit</button></div><div class="life-card-body"><div class="life-form" id="money-credit-form"><div class="life-form-grid"><div class="life-field money-credit-link-field"><label>Link to a connected account</label><select class="life-select" id="money-credit-link" onchange="moneyCreditLinkChanged()"><option value="">Not linked — enter manually</option></select><div class="money-category-help" id="money-credit-link-help">Linking keeps the balance in sync automatically and stops it being counted twice.</div></div><div class="life-field"><label>Name</label><input class="life-input" id="money-credit-name" placeholder="e.g. Barclaycard"></div><div class="life-field"><label>Type</label><select class="life-select" id="money-credit-type"><option>Credit card</option><option>PayPal Credit</option><option>Other</option></select></div><div class="life-field"><label>Current balance</label><input class="life-input" id="money-credit-balance-input" type="number" step="0.01" placeholder="0.00"></div><div class="life-field"><label>APR %</label><input class="life-input" id="money-credit-apr" type="number" step="0.01" min="0" placeholder="e.g. 24.9"><div class="money-category-help">Enter 0 when the balance is genuinely interest-free.</div></div><div class="life-field"><label class="credit-label-info">Purchase interest this month <span class="credit-info-dot" tabindex="0" aria-label="About purchase interest">i<span class="credit-info-tip">Enter the purchase-interest charge shown on your latest statement. Dayframe uses this instead of estimating interest from APR, because the balance can rise even when you make no new purchases.</span></span></label><input class="life-input" id="money-credit-interest" type="number" step="0.01" min="0" placeholder="e.g. 18.42"><div class="money-category-help">Monthly £ amount from your statement—not a percentage.</div></div><div class="life-field"><label>Minimum payment</label><input class="life-input" id="money-credit-minimum" type="number" step="0.01" placeholder="Optional"></div><div class="life-field"><label>Planned monthly payment</label><input class="life-input" id="money-credit-payment" type="number" step="0.01" placeholder="0.00"></div><div class="life-field"><label>Next due date</label><input class="life-input" id="money-credit-due" type="date"></div><div class="life-field"><label>Target payoff date</label><input class="life-input" id="money-credit-target" type="date"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="cancelCreditPlanEdit()">Cancel</button><button class="life-btn-primary" id="money-credit-save-button" onclick="addCreditPlan()">Save plan</button></div></div><div id="money-credit-list" class="money-credit-list"></div></div></section>
+        <section class="life-card money-glass money-form-card"><div class="life-card-head"><div><div class="life-card-title">Credit payoff plan</div><div class="life-card-sub">Credit cards and interest-bearing balances only</div></div><button class="money-head-action" onclick="beginCreditPlanAdd()">＋ Add credit</button></div><div class="life-card-body"><div class="life-form" id="money-credit-form"><div class="life-form-grid"><div class="life-field money-credit-link-field"><label>Link to a connected account</label><select class="life-select" id="money-credit-link" onchange="moneyCreditLinkChanged()"><option value="">Not linked — enter manually</option></select><div class="money-category-help" id="money-credit-link-help">Linking keeps the balance in sync automatically and stops it being counted twice.</div></div><div class="life-field"><label>Name</label><input class="life-input" id="money-credit-name" placeholder="e.g. Barclaycard"></div><div class="life-field"><label>Type</label><select class="life-select" id="money-credit-type"><option>Credit card</option><option>PayPal Credit</option><option>Other</option></select></div><div class="life-field"><label>Current balance</label><input class="life-input" id="money-credit-balance-input" type="number" step="0.01" placeholder="0.00"></div><div class="life-field"><label>APR %</label><input class="life-input" id="money-credit-apr" type="number" step="0.01" min="0" placeholder="e.g. 24.9"><div class="money-category-help">Open Banking never shares APR, so this stays manual — check your statement or card summary box. Enter 0 when the balance is genuinely interest-free.</div></div><div class="life-field"><label class="credit-label-info">Purchase interest this month <span class="credit-info-dot" tabindex="0" aria-label="About purchase interest">i<span class="credit-info-tip">Enter the purchase-interest charge shown on your latest statement. Dayframe uses this instead of estimating interest from APR, because the balance can rise even when you make no new purchases.</span></span></label><input class="life-input" id="money-credit-interest" type="number" step="0.01" min="0" placeholder="e.g. 18.42"><div class="money-category-help">Monthly £ amount from your statement — not a percentage. Auto-filled from a linked card when Dayframe can spot the interest charge in its transactions.</div></div><div class="life-field"><label>Minimum payment</label><input class="life-input" id="money-credit-minimum" type="number" step="0.01" placeholder="Optional"></div><div class="life-field"><label>Planned monthly payment</label><input class="life-input" id="money-credit-payment" type="number" step="0.01" placeholder="0.00"></div><div class="life-field"><label>Next due date</label><input class="life-input" id="money-credit-due" type="date"></div><div class="life-field"><label>Target payoff date</label><input class="life-input" id="money-credit-target" type="date"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="cancelCreditPlanEdit()">Cancel</button><button class="life-btn-primary" id="money-credit-save-button" onclick="addCreditPlan()">Save plan</button></div></div><div id="money-credit-list" class="money-credit-list"></div></div></section>
       </div>
       <div class="money-col">
         <section class="life-card money-glass credit-ai-shell"><div class="life-card-head"><div><div class="life-card-title credit-ai-title">Suggested monthly payments <span class="credit-info-dot" tabindex="0" aria-label="How payment suggestions work">i<span class="credit-info-tip">Dayframe uses your monthly income, bills, savings, everyday category limits, each credit-card balance, minimum payment, interest and target date. Pay in 3 provider balances stay separate because their payments are detected from synced transactions.</span></span></div><div class="life-card-sub">A realistic amount for every credit balance, based on your whole budget</div></div></div><div class="life-card-body" id="credit-ai-suggestion"></div></section>
@@ -6222,14 +6222,31 @@ function moneyCreditLinkChanged(){
  const select=document.getElementById('money-credit-link');if(!select)return;
  const d=hubLoad(),account=select.value?moneyLinkableCreditAccounts(d).find(a=>String(a.id)===String(select.value)):null;
  const nameInput=document.getElementById('money-credit-name'),balanceInput=document.getElementById('money-credit-balance-input'),help=document.getElementById('money-credit-link-help');
+ const minInput=document.getElementById('money-credit-minimum'),dueInput=document.getElementById('money-credit-due'),intInput=document.getElementById('money-credit-interest');
  if(account){
   if(nameInput&&!nameInput.value.trim())nameInput.value=account.name||account.provider_name||'';
   if(balanceInput){balanceInput.value=Math.abs(Number(account.balance||0));balanceInput.readOnly=true}
-  if(help)help.textContent='Balance syncs automatically from '+(account.name||account.provider_name||'this account')+' — it will no longer be counted separately.'
+  const pulled=[];
+  const liveMin=Number(account.payment_due);
+  if(minInput&&Number.isFinite(liveMin)&&liveMin>0&&!Number(minInput.value||0)){minInput.value=Math.round(liveMin*100)/100;pulled.push('minimum payment')}
+  const liveDue=String(account.payment_due_date||'').slice(0,10);
+  if(dueInput&&/^\d{4}-\d{2}-\d{2}$/.test(liveDue)&&!dueInput.value){dueInput.value=liveDue;pulled.push('due date')}
+  const det=moneyDetectCardInterest(account.id);
+  if(intInput&&det&&!Number(intInput.value||0)){intInput.value=det.amount;pulled.push('purchase interest from your statement')}
+  if(help)help.textContent='Balance'+(pulled.length?', '+pulled.join(', '):'')+' sync'+(pulled.length?'':'s')+' automatically from '+(account.name||account.provider_name||'this account')+'. APR is never shared through Open Banking — add it yourself if you want an interest estimate.'
  }else{
   if(balanceInput)balanceInput.readOnly=false;
-  if(help)help.textContent='Linking keeps the balance in sync automatically and stops it being counted twice.'
+  if(help)help.textContent='Linking keeps the balance, minimum payment and due date in sync automatically and stops the balance being counted twice.'
  }
+}
+function moneyDetectCardInterest(accountId){
+ const all=(typeof _moneyBankData!=='undefined'&&Array.isArray(_moneyBankData.transactions))?_moneyBankData.transactions:[];
+ const hits=all.filter(t=>String(t.account_id)===String(accountId)&&t.direction==='expense'&&/interest/i.test(String(t.description||''))&&!/interest[\s-]*free|0%/i.test(String(t.description||'')));
+ if(!hits.length)return null;
+ hits.sort((a,b)=>String(b.timestamp||'').localeCompare(String(a.timestamp||'')));
+ const recent=hits[0],amt=Math.round(Math.abs(Number(recent.amount||0))*100)/100;
+ const age=recent.timestamp?Math.round((Date.now()-new Date(recent.timestamp).getTime())/86400000):999;
+ return (amt>0&&age<=45)?{amount:amt,date:String(recent.timestamp||'').slice(0,10)}:null;
 }
 function moneySyncLinkedCreditPlans(d,bankAccounts){
  let changed=false;
@@ -6237,8 +6254,30 @@ function moneySyncLinkedCreditPlans(d,bankAccounts){
   if(!plan.linkedAccountId)return;
   const account=(bankAccounts||[]).find(a=>String(a.id)===String(plan.linkedAccountId))||(d.accounts||[]).find(a=>String(a.id)===String(plan.linkedAccountId));
   if(!account)return;
+  const s=plan.synced&&typeof plan.synced==='object'?plan.synced:{};
   const liveBalance=Math.abs(Number(account.balance||0));
   if(Number(plan.balance||0)!==liveBalance){plan.original=Math.max(Number(plan.original||0),liveBalance,Number(plan.balance||0));plan.balance=liveBalance;changed=true}
+  // Minimum payment — Open Banking exposes this as payment_due
+  const liveMin=Number(account.payment_due);
+  if(Number.isFinite(liveMin)&&liveMin>0){
+   const cur=Number(plan.minimumPayment||0);
+   if((!cur||cur===Number(s.minimumPayment||0))&&cur!==Math.round(liveMin*100)/100){plan.minimumPayment=Math.round(liveMin*100)/100;changed=true}
+   s.minimumPayment=Math.round(liveMin*100)/100;
+  }
+  // Next due date — Open Banking exposes this as payment_due_date
+  const liveDue=String(account.payment_due_date||'').slice(0,10);
+  if(/^\d{4}-\d{2}-\d{2}$/.test(liveDue)){
+   if((!plan.dueDate||plan.dueDate===s.dueDate)&&plan.dueDate!==liveDue){plan.dueDate=liveDue;changed=true}
+   s.dueDate=liveDue;
+  }
+  // Purchase interest — not a field in Open Banking, but the charge shows on the statement as a transaction
+  const det=moneyDetectCardInterest(plan.linkedAccountId);
+  if(det){
+   const cur=Number(plan.purchaseInterest||0);
+   if((!cur||cur===Number(s.purchaseInterest||0))&&cur!==det.amount){plan.purchaseInterest=det.amount;changed=true}
+   s.purchaseInterest=det.amount;
+  }
+  if(changed)plan.synced=s;
  });
  return changed
 }
