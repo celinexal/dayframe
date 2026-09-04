@@ -1652,8 +1652,8 @@ body.invest-drawer-open{overflow:hidden}
 .money-metric-link{position:relative;display:block;width:100%;text-align:left;font-family:var(--ff);cursor:pointer;appearance:none;-webkit-appearance:none;color:inherit}
 .money-metric-link>*{pointer-events:none}.money-metric-link .life-metric-label,.money-metric-link .life-metric-value,.money-metric-link .life-metric-sub{display:block}
 .money-metric-arrow{position:absolute;right:15px;bottom:14px;display:grid!important;place-items:center;width:25px;height:25px;border-radius:50%;background:rgba(255,255,255,.72);color:#6d63e9;font-size:12px;font-weight:900;transition:.18s ease}
-.money-bills-rent-chip{position:absolute;left:15px;bottom:14px;height:25px;padding:0 10px;border:1px solid rgba(239,116,100,.3);border-radius:999px;background:rgba(255,255,255,.8);color:#ef7464;font:800 9.5px var(--ff);cursor:pointer}
-.money-bills-rent-chip:hover{background:#fff;border-color:#ef7464}
+.money-bills-rent-chip{display:block;margin-top:9px;border:0;background:transparent;padding:0;color:#ef7464;font:800 9.5px var(--ff);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.money-bills-rent-chip:hover{color:#d85f4e}
 .money-metric-link:hover{transform:translateY(-2px);border-color:#d8d6f7;box-shadow:0 13px 28px rgba(54,48,116,.1)}.money-metric-link:hover .money-metric-arrow{transform:translateX(2px);background:#fff}
 .money-metric-link:focus-visible{outline:3px solid rgba(118,104,245,.2);outline-offset:2px}
 
@@ -2437,7 +2437,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 
   <div class="life-metrics money-metrics">
     <div class="life-metric money-metric money-networth"><div class="money-metric-icon">⌂</div><div class="life-metric-label">Current account</div><div class="life-metric-value" id="money-networth">£0.00</div><div class="life-metric-sub" id="money-networth-sub">Connect a current account</div></div>
-    <div class="life-metric money-metric money-bills money-metric-link" onclick="moneyQuick('bills')" role="button" tabindex="0" aria-label="Open bills"><span class="money-metric-icon">◷</span><span class="life-metric-label">Bills</span><span class="life-metric-value" id="money-bills-due">£0.00</span><span class="life-metric-sub" id="money-bills-due-sub"></span><button type="button" class="money-bills-rent-chip" onclick="event.stopPropagation();budgetTileEdit('rent',event)">✎ Rent</button><span class="money-metric-arrow">→</span></div>
+    <div class="life-metric money-metric money-bills money-metric-link" onclick="moneyQuick('bills')" role="button" tabindex="0" aria-label="Open bills"><span class="money-metric-icon">◷</span><span class="life-metric-label">Bills</span><span class="life-metric-value" id="money-bills-due">£0.00</span><span class="life-metric-sub" id="money-bills-due-sub"></span><button type="button" class="money-bills-rent-chip" onclick="event.stopPropagation();budgetTileEdit('rent',event)">Edit rent →</button><span class="money-metric-arrow">→</span></div>
     <button type="button" class="life-metric money-metric money-credit money-metric-link" onclick="moneyQuick('credit')" aria-label="Open credit payoff plan"><span class="money-metric-icon">⌁</span><span class="life-metric-label">Credit balance</span><span class="life-metric-value" id="money-credit-balance">£0.00</span><span class="life-metric-sub" id="money-credit-sub">Open payoff plan</span><span class="money-metric-arrow">→</span></button>
     <div class="life-metric money-metric money-savings"><div class="money-metric-icon">✦</div><div class="life-metric-label">Savings</div><div class="life-metric-value" id="money-savings">£0.00</div><div class="life-metric-sub" id="money-savings-sub">Money set aside</div></div>
   </div>
