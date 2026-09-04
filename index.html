@@ -6431,7 +6431,7 @@ function moneyCreditTargetPace(plan){
 function moneyCreditPlanPayment(plan){if(Math.max(0,Number(plan.balance||0))<=0)return 0;return Math.max(0,Number(plan.monthlyPayment||0),Number(plan.minimumPayment||0))}
 const BUDGET_TILE_FIELDS={
  income:{title:'Monthly income',fields:[{key:'income',label:'Take-home pay',plan:true}]},
- bills:{title:'Bills',fields:[{key:'rent',label:'Rent or mortgage',plan:true},{key:'regularBills',label:'Other regular bills',plan:true,suggest:d=>{const rows=(d.bills||[]).filter(b=>moneyNormaliseCategory(b.category)!=='Rent'),amount=Math.round(rows.reduce((a,x)=>a+Number(x.amount||0),0)*100)/100;return rows.length&&amount>0?{amount,note:rows.length+' bill'+(rows.length===1?'':'s')+' in your Bills list'}:null}}]},
+ bills:{title:'Bills',fields:[{key:'rent',label:'Rent or mortgage',plan:true},{key:'regularBills',label:'Other regular bills',plan:true,suggest:d=>{const rentLike=/\b(rent|mortgage|landlord|letting)\b/i;const rows=(d.bills||[]).filter(b=>moneyNormaliseCategory(b.category)!=='Rent'&&!rentLike.test(String(b.name||'')));const amount=Math.round(rows.reduce((a,x)=>a+Number(x.amount||0),0)*100)/100;return rows.length&&amount>0?{amount,note:rows.length+' bill'+(rows.length===1?'':'s')+' in your Bills list'}:null}}]},
  credit:{title:'Credit payments',fields:[{key:'extraCredit',label:'Extra payment (on top of card minimums)',plan:true}],note:'Each card’s own minimum or planned payment is set on the Credit Plan tab.'},
  future:{title:'Saving & investing',fields:[{key:'savings',label:'Monthly savings',plan:true},{key:'investing',label:'Monthly investing',plan:true},{key:'buffer',label:'Emergency fund',plan:true}]}
 };
