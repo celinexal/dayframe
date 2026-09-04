@@ -117,6 +117,7 @@ update_block = f"""
 #df-app-update strong{{display:block;font-size:13px;font-weight:900;line-height:1.2}}
 #df-app-update span{{display:block;margin-top:2px;color:#718096;font-size:12px;font-weight:700;line-height:1.35}}
 #df-app-update button{{border:0;border-radius:999px;font:inherit;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}}
+#df-app-update button:disabled{{cursor:wait;opacity:.65}}
 #df-app-update .df-app-update-refresh{{padding:10px 14px;background:linear-gradient(135deg,#7564f2,#ec5aa6);color:#fff;box-shadow:0 10px 20px rgba(117,100,242,.22)}}
 #df-app-update .df-app-update-later{{padding:9px 11px;background:#f7f4ff;color:#6d60e8}}
 #df-app-update:not([data-ready="true"]) .df-app-update-later{{display:none}}
@@ -136,6 +137,7 @@ update_block = f"""
   let refreshing = false;
   let checkedOnce = false;
   let checking = false;
+  let applying = false;
   const hadControllerAtLoad = !!navigator.serviceWorker.controller;
   let becameVisibleAt = document.visibilityState === 'visible' ? 0 : -1;
 
@@ -192,7 +194,16 @@ update_block = f"""
     const title = bar.querySelector('strong');
     const detail = bar.querySelector('span');
     const action = bar.querySelector('.df-app-update-refresh');
+    const later = bar.querySelector('.df-app-update-later');
     bar.dataset.ready = updateReady ? 'true' : 'false';
+    if (action) action.disabled = applying;
+    if (later) later.disabled = applying;
+    if (applying) {{
+      if (title) title.textContent = 'Updating…';
+      if (detail) detail.textContent = 'Clearing the old version and reloading — one moment.';
+      if (action) action.textContent = 'Updating…';
+      return;
+    }}
     if (updateReady) {{
       if (title) title.textContent = 'Update ready';
       if (detail) detail.textContent = 'Refresh Dayframe for the newest fixes.';
@@ -233,6 +244,8 @@ update_block = f"""
     bar.innerHTML = '<div><strong>Dayframe updates</strong><span>Use this if the installed app looks behind.</span></div><button type="button" class="df-app-update-refresh">Check</button><button type="button" class="df-app-update-later">Later</button>';
     bar.querySelector('.df-app-update-refresh')?.addEventListener('click', async () => {{
       if (updateReady) {{
+        applying = true;
+        ensurePrompt();
         try {{ sessionStorage.setItem('dayframe_update_reload', VERSION); }} catch {{}}
         // Belt-and-suspenders: the new service worker's own activate handler
         // already clears out old dayframe-shell-* cache entries, but that
