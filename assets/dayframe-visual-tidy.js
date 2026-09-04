@@ -175,11 +175,14 @@
     const transactions = allTransactions(d);
     const currentSpending = spendingSummary(transactions, cycle);
     const previousSpending = spendingSummary(transactions, previous);
-    const categories = [...new Set([
-      ...(d.budgets || []).map((budget) => normaliseCategory(budget.category)),
-      ...Object.keys(currentSpending),
-      ...Object.keys(previousSpending),
-    ])].filter((category) => category && !isTransferCategory(category));
+    // Only show categories the user has actually put a budget limit on here —
+    // this panel is a progress tracker for budgets that exist, not a prompt to
+    // create new ones for every category that happens to have spending. "Other"
+    // is excluded outright since it's a catch-all meant to be reclassified away,
+    // not something to budget against.
+    const categories = [...new Set(
+      (d.budgets || []).map((budget) => normaliseCategory(budget.category))
+    )].filter((category) => category && category !== 'Other' && !isTransferCategory(category));
 
     host.classList.add('df-budget-overview');
     const card = host.closest('section');

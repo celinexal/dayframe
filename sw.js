@@ -1,4 +1,4 @@
-const DAYFRAME_CACHE = 'dayframe-shell-v174';
+const DAYFRAME_CACHE = 'dayframe-shell-v175';
 const DAYFRAME_SHELL = ['/', '/manifest.webmanifest', '/dayframe-icon.svg', '/dayframe-icon-2026.svg', '/assets/dayframe-performance-guard.js', '/assets/dayframe-theory-session.js', '/assets/dayframe-2026-polish.js', '/assets/dayframe-news-sources.js', '/assets/dayframe-remove-panels.js', '/assets/dayframe-risk-holdings-fix.js', '/assets/dayframe-sector-themes-current.js', '/assets/dayframe-car-costs-merge.js', '/assets/dayframe-money-performance.js', '/assets/dayframe-bills-persistence-fix.js', '/assets/dayframe-bill-suggestions-restore.js', '/assets/dayframe-transactions-default-cleanup.js', '/assets/dayframe-visual-tidy.js', '/assets/dayframe-visual-calm.js', '/assets/dayframe-stock-etf-foundation.js', '/assets/dayframe-login-input-fix.js', '/assets/dayframe-standard-home.js', '/assets/dayframe-life-stage.js', '/assets/dayframe-essentials.js', '/assets/dayframe-essentials-cleanup.js', '/assets/dayframe-essentials-clickfix.js', '/assets/dayframe-essentials-customise.js', '/assets/dayframe-essentials-pill-left.js', '/assets/dayframe-myflo-calendar-actions.js', '/assets/dayframe-diary-delete-fix.js', '/assets/dayframe-brokers.js'];
 const DAYFRAME_THEORY_SESSION_SRC = '/assets/dayframe-theory-session.js?v=20260827-theory-frame';
 const DAYFRAME_PERFORMANCE_GUARD_SRC = '/assets/dayframe-performance-guard.js?v=20260901-performance-guard-v1';
@@ -12,7 +12,7 @@ const DAYFRAME_MONEY_PERFORMANCE_SRC = '/assets/dayframe-money-performance.js?v=
 const DAYFRAME_BILLS_PERSISTENCE_SRC = '/assets/dayframe-bills-persistence-fix.js?v=20260904-bill-due-grace-v2';
 const DAYFRAME_BILL_SUGGESTIONS_RESTORE_SRC = '/assets/dayframe-bill-suggestions-restore.js?v=20260830-restore-bill-suggestions';
 const DAYFRAME_TRANSACTIONS_CLEANUP_SRC = '/assets/dayframe-transactions-default-cleanup.js?v=20260827-default-transactions-clean-wide';
-const DAYFRAME_VISUAL_TIDY_SRC = '/assets/dayframe-visual-tidy.js?v=20260829-defer-budget-overview';
+const DAYFRAME_VISUAL_TIDY_SRC = '/assets/dayframe-visual-tidy.js?v=20260904-budgeted-only-v2';
 const DAYFRAME_VISUAL_CALM_SRC = '/assets/dayframe-visual-calm.js?v=20260829-no-persistent-visual-observer';
 const DAYFRAME_STOCK_ETF_FOUNDATION_SRC = '/assets/dayframe-stock-etf-foundation.js?v=20260903-stock-etf-examples-v6';
 const DAYFRAME_BROKERS_SRC = '/assets/dayframe-brokers.js?v=20260903-brokers-always-hero-v6';
