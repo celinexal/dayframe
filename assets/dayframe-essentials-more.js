@@ -8,7 +8,7 @@
 
   const TOOLS = [
     { key: 'documents', page: 'driving-documents', label: 'Documents', icon: 'D', kicker: 'Important', desc: 'IDs, renewals and documents you might need quickly.', tags: ['ID', 'Passport', 'Licence', 'Renewals'], empty: 'No documents saved', list: 'Saved documents', itemLabel: 'Document or card', dateLabel: 'Renewal or expiry date', placeholder: 'Passport, provisional licence, railcard or insurance document.', save: 'Save document', saved: 'Document saved', deleted: 'Document deleted', store: 'documents' },
-    { key: 'health', page: 'driving-health', label: 'Health', icon: 'H', kicker: 'Appointments', desc: 'Dentist, GP, prescriptions and checkups.', tags: ['Dentist', 'GP', 'Optician', 'Medication'], empty: 'No health reminders saved', list: 'Health reminders', itemLabel: 'Reminder', dateLabel: 'Date', placeholder: 'Dentist, prescription, GP appointment or optician reminder.', save: 'Save reminder', saved: 'Reminder saved', deleted: 'Reminder deleted', store: 'health' },
+    { key: 'health', page: 'driving-health', label: 'Health', icon: 'H', kicker: 'Appointments', desc: 'Dentist, GP, prescriptions and checkups.', tags: ['Dentist', 'GP', 'Optician', 'Medication'], empty: 'No health reminders saved', list: 'Health reminders', itemLabel: 'Reminder', dateLabel: 'Date', placeholder: 'Dentist, prescription, GP appointment or optician reminder.', save: 'Save reminder', saved: 'Reminder saved', deleted: 'Reminder deleted', store: 'health', info: { label: 'Key health info', note: 'Handy to have in one place — saved privately to your Dayframe account.', fields: ['NHS number', 'GP surgery', 'Surgery phone', 'Blood type', 'Allergies', 'Repeat prescription', 'Health insurance or cover'] } },
     { key: 'home', page: 'driving-home-admin', label: 'Home & Rent', icon: 'H', kicker: 'Home', desc: 'Track rent dates, tenancy notes and moving tasks.', tags: ['Rent date', 'Tenancy', 'Deposit', 'Moving'], empty: 'No home or rent reminders saved', list: 'Home and rent reminders', itemLabel: 'Home or rent item', dateLabel: 'Date', placeholder: 'Rent review, tenancy end, deposit note or moving task.', save: 'Save note', saved: 'Home note saved', deleted: 'Home note deleted', store: 'home' },
     { key: 'work-study', page: 'driving-work-study', label: 'Work & Study', icon: 'W', kicker: 'Dates', desc: 'Keep shifts, applications, certificates and deadlines visible.', tags: ['Shifts', 'Courses', 'Applications', 'Certificates'], empty: 'No work or study dates saved', list: 'Work and study dates', itemLabel: 'Work or study item', dateLabel: 'Date', placeholder: 'Shift, course date, application, interview or certificate.', save: 'Save date', saved: 'Date saved', deleted: 'Date deleted', store: 'workStudy' },
   ];
@@ -124,6 +124,17 @@
   }
 
   const inputId = (tool, name) => `df-${tool.key}-${name}`;
+  const infoInputId = (tool, field) => `df-${tool.key}-info-${safeId(field)}`;
+  function toolInfoValues(tool) {
+    const raw = data()?.essentials?.[tool.store];
+    const info = raw && typeof raw === 'object' && !Array.isArray(raw) && raw.info && typeof raw.info === 'object' ? raw.info : {};
+    return info;
+  }
+  function infoPanelHTML(tool) {
+    if (!tool.info || !Array.isArray(tool.info.fields) || !tool.info.fields.length) return '';
+    const note = tool.info.note ? `<p class="df-tool-info-note">${esc(tool.info.note)}</p>` : '';
+    return `<section class="df-tool-panel df-tool-info"><h2>${esc(tool.info.label || 'Key info')}</h2>${note}<form class="df-tool-form" autocomplete="off" onsubmit="dayframeSaveEssentialsInfo('${esc(tool.key)}', event)">${tool.info.fields.map((field) => `<label>${esc(field)}<input id="${esc(infoInputId(tool, field))}" type="text" autocomplete="off" maxlength="120"></label>`).join('')}<div class="df-tool-actions"><button class="primary" type="submit">Save key info</button></div></form></section>`;
+  }
 
   function ensureStyle() {
     if ($('df-essentials-more-style')) return;
@@ -161,7 +172,7 @@
       #pg-driving .df-widget-panel-head button,#pg-driving .df-widget-actions button{height:34px!important;border:1px solid #dfd9ff!important;border-radius:999px!important;background:#fff!important;color:#6d60e8!important;font:900 11px var(--ff)!important;padding:0 14px!important;cursor:pointer!important}
       #pg-driving .df-widget-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.df-widget-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:12px!important;border:1px solid #e8ebf3!important;border-radius:16px!important;background:rgba(255,255,255,.84)!important;padding:13px!important}.df-widget-row.is-off{background:rgba(248,249,252,.75)!important}.df-widget-row strong{display:block!important;color:#151d33!important;font-size:13px!important}.df-widget-row span{display:block!important;margin-top:5px!important;color:#718096!important;font-size:10.5px!important;line-height:1.4!important;font-weight:750!important}.df-widget-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:7px!important;flex-wrap:wrap!important}.df-widget-actions .df-widget-toggle{min-width:68px!important;background:#f1fffa!important;color:#1b9b83!important}.df-widget-row.is-off .df-widget-toggle{background:#fff3f8!important;color:#d84d91!important}
       #pg-driving .df-essentials-empty{grid-column:1/-1!important;border:1px dashed #dde4ef!important;border-radius:18px!important;background:rgba(255,255,255,.78)!important;color:#738095!important;text-align:center!important;font-size:13px!important;font-weight:850!important;padding:28px!important}
-      .df-essentials-tool-page{padding:32px clamp(18px,4vw,42px)!important}.df-essentials-tool-page:not(.on){display:none!important}.df-tool-hero,.df-tool-panel{border:1px solid #e8ebf3;border-radius:20px;background:#fff;box-shadow:0 16px 38px rgba(39,49,75,.06)}.df-tool-hero{position:relative;margin-bottom:18px;background:linear-gradient(135deg,#fff,#fff7fb 48%,#effefa);padding:24px;overflow:hidden}.df-tool-kicker{margin-bottom:7px;color:#d75096;font-size:10px;font-weight:900;text-transform:uppercase}.df-tool-hero h1{margin:0;font-family:var(--fd);font-size:clamp(30px,4vw,48px);line-height:1;color:#172033}.df-tool-hero p{margin:10px 0 0;color:#6e798c;font-size:13px;line-height:1.55}.df-tool-layout{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);gap:18px}.df-tool-panel{padding:18px}.df-tool-panel h2,.df-tool-list-head h2{margin:0 0 12px;font-family:var(--fd);font-size:22px;color:#172033}.df-tool-form{display:grid;gap:11px}.df-tool-form label{display:grid;gap:6px;color:#7b8494;font-size:10px;font-weight:850}.df-tool-form input,.df-tool-form textarea{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none}.df-tool-form textarea{min-height:98px;resize:vertical;line-height:1.5}.df-tool-actions,.df-tool-item-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.df-tool-actions button,.df-tool-item-actions button{height:34px;border-radius:999px;border:1px solid #ded8ff;background:#fff;color:#6e5ff0;font:850 10px var(--ff);padding:0 13px;cursor:pointer}.df-tool-actions button.primary{border-color:transparent;background:linear-gradient(135deg,#7564f2,#ef6aa9);color:#fff}.df-tool-list{display:grid;gap:10px}.df-tool-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.df-tool-count{color:#8a94a4;font-size:10px;font-weight:850}.df-tool-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #e8ebf3;border-radius:16px;background:linear-gradient(145deg,#fff,#fbfcff);padding:13px}.df-tool-item strong{display:block;color:#172033;font-size:13px}.df-tool-item span{display:block;margin-top:4px;color:#758094;font-size:10.5px;line-height:1.45}.df-tool-empty{border:1px dashed #dfe5ef;border-radius:17px;background:#fafbfe;color:#8a94a4;text-align:center;font-size:12px;font-weight:800;padding:26px}
+      .df-essentials-tool-page{padding:32px clamp(18px,4vw,42px)!important}.df-essentials-tool-page:not(.on){display:none!important}.df-tool-hero,.df-tool-panel{border:1px solid #e8ebf3;border-radius:20px;background:#fff;box-shadow:0 16px 38px rgba(39,49,75,.06)}.df-tool-hero{position:relative;margin-bottom:18px;background:linear-gradient(135deg,#fff,#fff7fb 48%,#effefa);padding:24px;overflow:hidden}.df-tool-kicker{margin-bottom:7px;color:#d75096;font-size:10px;font-weight:900;text-transform:uppercase}.df-tool-hero h1{margin:0;font-family:var(--fd);font-size:clamp(30px,4vw,48px);line-height:1;color:#172033}.df-tool-hero p{margin:10px 0 0;color:#6e798c;font-size:13px;line-height:1.55}.df-tool-layout{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);gap:18px}.df-tool-panel{padding:18px}.df-tool-panel h2,.df-tool-list-head h2{margin:0 0 12px;font-family:var(--fd);font-size:22px;color:#172033}.df-tool-form{display:grid;gap:11px}.df-tool-form label{display:grid;gap:6px;color:#7b8494;font-size:10px;font-weight:850}.df-tool-form input,.df-tool-form textarea{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none}.df-tool-form textarea{min-height:98px;resize:vertical;line-height:1.5}.df-tool-actions,.df-tool-item-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.df-tool-actions button,.df-tool-item-actions button{height:34px;border-radius:999px;border:1px solid #ded8ff;background:#fff;color:#6e5ff0;font:850 10px var(--ff);padding:0 13px;cursor:pointer}.df-tool-actions button.primary{border-color:transparent;background:linear-gradient(135deg,#7564f2,#ef6aa9);color:#fff}.df-tool-list{display:grid;gap:10px}.df-tool-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.df-tool-count{color:#8a94a4;font-size:10px;font-weight:850}.df-tool-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #e8ebf3;border-radius:16px;background:linear-gradient(145deg,#fff,#fbfcff);padding:13px}.df-tool-item strong{display:block;color:#172033;font-size:13px}.df-tool-item span{display:block;margin-top:4px;color:#758094;font-size:10.5px;line-height:1.45}.df-tool-empty{border:1px dashed #dfe5ef;border-radius:17px;background:#fafbfe;color:#8a94a4;text-align:center;font-size:12px;font-weight:800;padding:26px}.df-tool-info{margin-top:18px}.df-tool-info-note{margin:-4px 0 12px;color:#8a94a4;font-size:11px;font-weight:750;line-height:1.5}
       @media(max-width:1180px){#pg-driving .driving-hub-hero{grid-template-columns:1fr!important;align-items:start!important}#pg-driving .driving-hub-pills{justify-content:flex-start!important}#pg-driving .driving-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#pg-driving .df-car-card,#pg-driving #df-period-card,#pg-driving #df-documents-card,#pg-driving #df-health-card,#pg-driving #df-home-card,#pg-driving #df-work-study-card{grid-column:auto!important}.df-tool-layout{grid-template-columns:1fr}}@media(max-width:760px){#pg-driving .driving-hub-hero{padding:24px 20px!important}#pg-driving .driving-home-grid,#pg-driving .df-widget-list{grid-template-columns:1fr!important}#pg-driving .driving-home-card{min-height:0!important;padding:20px!important}.df-widget-row,.df-tool-item{grid-template-columns:1fr!important}.df-widget-actions,.df-tool-item-actions{justify-content:flex-start!important}.df-tool-actions button{flex:1}.df-essentials-tool-page{padding:20px 14px!important}}
     `;
     document.head.appendChild(style);
@@ -172,7 +183,7 @@
   }
 
   function pageHTML(tool) {
-    return `<section class="pg df-essentials-tool-page" id="pg-${esc(tool.page)}"><button class="life-back" type="button" onclick="go('driving')">&lt; Essentials</button><section class="df-tool-hero"><div class="df-tool-kicker">Essentials</div><h1>${esc(tool.label)}</h1><p>${esc(tool.desc)}</p></section><div class="df-tool-layout"><section class="df-tool-panel"><h2>Add or edit</h2><form class="df-tool-form" onsubmit="dayframeSaveEssentialsItem('${esc(tool.key)}', event)"><input id="${esc(inputId(tool, 'id'))}" type="hidden"><label>${esc(tool.itemLabel)}<input id="${esc(inputId(tool, 'title'))}" type="text" maxlength="120" placeholder="${esc(tool.placeholder)}"></label><label>${esc(tool.dateLabel)}<input id="${esc(inputId(tool, 'date'))}" type="date"></label><label>Notes<textarea id="${esc(inputId(tool, 'notes'))}" maxlength="500" placeholder="Anything useful to remember."></textarea></label><div class="df-tool-actions"><button type="button" onclick="dayframeClearEssentialsForm('${esc(tool.key)}')">Clear</button><button class="primary" type="submit">${esc(tool.save)}</button></div></form></section><section class="df-tool-panel"><div class="df-tool-list-head"><h2>${esc(tool.list)}</h2><span class="df-tool-count" id="df-${esc(tool.key)}-count"></span></div><div class="df-tool-list" id="df-${esc(tool.key)}-list"></div></section></div></section>`;
+    return `<section class="pg df-essentials-tool-page" id="pg-${esc(tool.page)}"><button class="life-back" type="button" onclick="go('driving')">&lt; Essentials</button><section class="df-tool-hero"><div class="df-tool-kicker">Essentials</div><h1>${esc(tool.label)}</h1><p>${esc(tool.desc)}</p></section><div class="df-tool-layout"><section class="df-tool-panel"><h2>Add or edit</h2><form class="df-tool-form" onsubmit="dayframeSaveEssentialsItem('${esc(tool.key)}', event)"><input id="${esc(inputId(tool, 'id'))}" type="hidden"><label>${esc(tool.itemLabel)}<input id="${esc(inputId(tool, 'title'))}" type="text" maxlength="120" placeholder="${esc(tool.placeholder)}"></label><label>${esc(tool.dateLabel)}<input id="${esc(inputId(tool, 'date'))}" type="date"></label><label>Notes<textarea id="${esc(inputId(tool, 'notes'))}" maxlength="500" placeholder="Anything useful to remember."></textarea></label><div class="df-tool-actions"><button type="button" onclick="dayframeClearEssentialsForm('${esc(tool.key)}')">Clear</button><button class="primary" type="submit">${esc(tool.save)}</button></div></form></section><section class="df-tool-panel"><div class="df-tool-list-head"><h2>${esc(tool.list)}</h2><span class="df-tool-count" id="df-${esc(tool.key)}-count"></span></div><div class="df-tool-list" id="df-${esc(tool.key)}-list"></div></section></div>${infoPanelHTML(tool)}</section>`;
   }
 
   function ensureSideNav() {
@@ -340,6 +351,13 @@
     const count = $(`df-${tool.key}-count`);
     if (summary) summary.textContent = summaryFor(tool);
     if (count) count.textContent = items.length === 1 ? '1 item' : `${items.length} items`;
+    if (tool.info && Array.isArray(tool.info.fields)) {
+      const info = toolInfoValues(tool);
+      tool.info.fields.forEach((field) => {
+        const el = $(infoInputId(tool, field));
+        if (el && document.activeElement !== el) el.value = info[field] || '';
+      });
+    }
     if (!list) return;
     if (!items.length) {
       list.innerHTML = `<div class="df-tool-empty">${esc(tool.empty)}</div>`;
@@ -510,6 +528,23 @@
     saveItems(tool, toolItems(tool).filter((item) => item.id !== id));
     renderTool(tool);
     window.hubToast?.(tool.deleted);
+  };
+  window.dayframeSaveEssentialsInfo = function dayframeSaveEssentialsInfo(key, event) {
+    event?.preventDefault?.();
+    const tool = TOOL_MAP.get(key);
+    if (!tool || !tool.info || !Array.isArray(tool.info.fields)) return;
+    const next = data();
+    next.essentials = next.essentials || {};
+    const previous = next.essentials[tool.store];
+    const base = previous && typeof previous === 'object' && !Array.isArray(previous) ? previous : {};
+    const info = {};
+    tool.info.fields.forEach((field) => {
+      const value = ($(infoInputId(tool, field))?.value || '').trim();
+      if (value) info[field] = value.slice(0, 200);
+    });
+    next.essentials[tool.store] = { ...base, info, updatedAt: new Date().toISOString() };
+    save(next);
+    window.hubToast?.('Key info saved');
   };
   window.dayframeSaveEssentialsItem = function dayframeSaveEssentialsItem(key, event) {
     event?.preventDefault?.();
