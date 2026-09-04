@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v9';
+  const VERSION = 'flo-v10';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
   const DAY_MS = 86400000;
@@ -542,7 +542,7 @@
   };
   function renderSignature(s) {
     const notif = ('Notification' in window) ? window.Notification.permission : '';
-    return `v9|${iso(new Date())}|${iso(calendarCursor)}|${notif}|${JSON.stringify(s)}`;
+    return `v10|${iso(new Date())}|${iso(calendarCursor)}|${notif}|${JSON.stringify(s)}`;
   }
   function renderMyFlo(preserveMenu) {
     if (!preserveMenu) closeMyFloDayMenu();
@@ -577,12 +577,7 @@
       else panel.appendChild(view);
     }
     view.dataset.floSig = sig;
-    const todayISO = iso(new Date());
-    const todayIsPeriod = !!(s.dayLogs[todayISO] && s.dayLogs[todayISO].flow);
-    const savedRange = s.lastStart
-      ? `Period logged ${shortDate(s.lastStart)}${s.lastEnd && s.lastEnd !== s.lastStart ? ' to ' + shortDate(s.lastEnd) : ''}. Tap any day to add flow, symptoms or a note.`
-      : 'Tap a day on the calendar — or the button here — to log a period day. Log each day it continues; Dayframe works out the start and end.';
-    view.innerHTML = `<section class="df-myflo-calendar df-myflo-calendar-top"><div class="df-myflo-calendar-head"><button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button><div><span>Calendar</span><h3>Tap a day to log period, symptoms or intimacy</h3></div><button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button></div><div class="df-myflo-months">${renderMonth(calendarCursor, s)}${renderMonth(addMonths(calendarCursor, 1), s)}</div><div class="df-myflo-legend"><span><b class="period"></b>Period</span><span><b class="fertile"></b>Fertile</span><span><b class="ovulation"></b>Ovulation</span><span><b class="note"></b>Logged note</span><span><b class="today"></b>Today</span></div></section><section class="df-myflo-stats" aria-label="MyFlo overview"><article class="df-myflo-stat is-main"><span>${esc(sum.status)}</span><strong>${esc(sum.headline)}</strong><small>${esc(sum.detail)}</small></article><article class="df-myflo-stat"><span>Fertile window</span><strong>${esc(fertile ? shortRange(fertile.start, fertile.end) : 'Not set')}</strong><small>Estimated automatically from your period dates.</small></article><article class="df-myflo-stat"><span>Ovulation</span><strong>${esc(fertile ? shortDate(fertile.ovulation) : 'Not set')}</strong><small>Estimate only, not contraception guidance.</small></article></section><section class="df-myflo-actions" aria-label="Period tracking"><div><span>Today</span><h3>Log your day</h3><p>${esc(savedRange)}</p></div><div class="df-myflo-action-buttons"><button type="button" onclick="dayframeToggleMyFloPeriodDay('${todayISO}')">${todayIsPeriod ? '✓ Period logged today' : 'Log today’s period'}</button><button type="button" onclick="dayframeOpenMyFloToday()">Add symptoms or intimacy</button></div></section>${renderContraception(s)}${renderReminders(s)}<div class="df-myflo-reset-row"><button type="button" onclick="dayframeResetMyFlo()">Reset all MyFlo data</button></div>`;
+    view.innerHTML = `<section class="df-myflo-calendar df-myflo-calendar-top"><div class="df-myflo-calendar-head"><button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button><div><span>Calendar</span><h3>Tap a day to log period, symptoms or intimacy</h3></div><button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button></div><div class="df-myflo-months">${renderMonth(calendarCursor, s)}${renderMonth(addMonths(calendarCursor, 1), s)}</div><div class="df-myflo-legend"><span><b class="period"></b>Period</span><span><b class="fertile"></b>Fertile</span><span><b class="ovulation"></b>Ovulation</span><span><b class="note"></b>Logged note</span><span><b class="today"></b>Today</span></div></section><section class="df-myflo-stats" aria-label="MyFlo overview"><article class="df-myflo-stat is-main"><span>${esc(sum.status)}</span><strong>${esc(sum.headline)}</strong><small>${esc(sum.detail)}</small></article><article class="df-myflo-stat"><span>Fertile window</span><strong>${esc(fertile ? shortRange(fertile.start, fertile.end) : 'Not set')}</strong><small>Estimated automatically from your period dates.</small></article><article class="df-myflo-stat"><span>Ovulation</span><strong>${esc(fertile ? shortDate(fertile.ovulation) : 'Not set')}</strong><small>Estimate only, not contraception guidance.</small></article></section>${renderContraception(s)}${renderReminders(s)}<div class="df-myflo-reset-row"><button type="button" onclick="dayframeResetMyFlo()">Reset all MyFlo data</button></div>`;
     updateSummary(s, sum);
     sendDueReminder(s);
     if (preserveMenu) reopenMyFloDayMenu();
