@@ -10,6 +10,9 @@ insert into storage.buckets (id, name, public)
 values ('dayframe-documents', 'dayframe-documents', false)
 on conflict (id) do nothing;
 
+-- Dropped first so this script is safe to run more than once.
+drop policy if exists "Users manage their own documents" on storage.objects;
+
 create policy "Users manage their own documents"
 on storage.objects
 for all
