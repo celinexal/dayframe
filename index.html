@@ -4376,7 +4376,25 @@ function showStockInfo(ticker) {
 
 const SUPABASE_URL = 'https://xvquxwvapgzxyuntylci.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2cXV4d3ZhcGd6eHl1bnR5bGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjQ4MzQsImV4cCI6MjA4OTYwMDgzNH0.ovxzwMPaoyqdM4tJnjh28ovzj9mpsl87ToDiA2mXADw';
-function dfCurrentUserId(){try{const s=JSON.parse(localStorage.getItem('dayframe_session')||'{}');return s?.user?.id||s?.email||'guest'}catch(e){return 'guest'}}
+// Every piece of a user's data is stored under 'df_<user id>_...'. If that id
+// ever changes, the whole app reads an empty namespace and looks wiped even
+// though nothing was deleted. That used to be possible: a stored session that
+// briefly lacked its `user` object fell through to the email, or to 'guest',
+// silently pointing the app at a different bucket. So the id is pinned the
+// first time it is known and reused whenever the session cannot supply one.
+let _dfPinnedUid=null;
+function dfPinnedUserId(){if(_dfPinnedUid!==null)return _dfPinnedUid;try{_dfPinnedUid=localStorage.getItem('dayframe_uid')||''}catch(e){_dfPinnedUid=''}return _dfPinnedUid}
+function dfPinUserId(id){if(!id||id===dfPinnedUserId())return;_dfPinnedUid=id;try{localStorage.setItem('dayframe_uid',id)}catch(e){}}
+function dfForgetPinnedUserId(){_dfPinnedUid='';try{localStorage.removeItem('dayframe_uid')}catch(e){}}
+function dfCurrentUserId(){
+  try{
+    const s=JSON.parse(localStorage.getItem('dayframe_session')||'{}');
+    if(s?.user?.id){dfPinUserId(s.user.id);return s.user.id}
+    const pinned=dfPinnedUserId();
+    if(pinned)return pinned;
+    return s?.email||'guest';
+  }catch(e){return dfPinnedUserId()||'guest'}
+}
 function dfKey(key){return 'df_'+dfCurrentUserId()+'_'+key}
 function dfSession(){try{return JSON.parse(localStorage.getItem('dayframe_session')||'{}')}catch(e){return {}}}
 function dfSessionExpiry(data){const raw=Number(data?.expires_at)||0;if(raw)return raw>1e12?raw:raw*1000;return Date.now()+Math.max(60,Number(data?.expires_in)||3600)*1000}
@@ -4780,6 +4798,7 @@ async function doLogout(clearDevice=false){
     console.warn('Dayframe sign-out revocation was unavailable.');
   }finally{
     if(clearDevice)dayframeClearUserDeviceData(userId);
+    dfForgetPinnedUserId();
     localStorage.removeItem('dayframe_session');
     location.reload();
   }
@@ -4798,7 +4817,11 @@ async function doLogout(clearDevice=false){
   }catch(e){
     const current=dfSession();
     document.documentElement.classList.remove('df-session-pending');
-    if(current?.access_token&&!current?._refreshInvalid){
+    // Only carry on into the app if we can still say WHO this is. Without a
+    // user id every read lands in an empty namespace, so the app would open
+    // looking like all the user's data had been deleted. Showing the sign-in
+    // screen is the honest outcome: signing back in restores everything.
+    if(current?.access_token&&!current?._refreshInvalid&&(current?.user?.id||dfPinnedUserId())){
       console.warn('Dayframe reopened with a partial data load:',e?.message||e);
       document.getElementById('auth-screen')?.classList.add('hidden');
       personalHubInit(current.name||current.email?.split('@')[0]||'User');
