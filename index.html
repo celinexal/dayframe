@@ -772,6 +772,11 @@ tbody td{padding:10px 13px;vertical-align:middle;}
 .life-sub{font-size:12px;color:#929bad;margin-top:5px;}
 .life-add{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:12px;padding:10px 14px;color:#fff;background:#252c3d;font-family:var(--ff);font-size:11px;font-weight:750;cursor:pointer;box-shadow:0 7px 16px rgba(37,44,61,.16);}
 .life-add:hover{transform:translateY(-1px);}
+.vehicle-switcher{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.vehicle-chip{border:1px solid #e5e9f2;border-radius:999px;background:#fff;color:#5b6577;font:800 11px var(--ff);padding:8px 14px;cursor:pointer;}
+.vehicle-chip.on{border-color:transparent;background:linear-gradient(135deg,#7564f2,#ef6aa9);color:#fff;}
+.vehicle-chip-add{border-style:dashed;color:#6e5ff0;}
+.life-card-action-remove{border:0;background:transparent;color:#d84d6b;font:800 10.5px var(--ff);padding:0;cursor:pointer;text-decoration:underline;white-space:nowrap;}
 .life-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
 .life-metric{background:#fff;border:1px solid #e9ecf2;border-radius:17px;padding:16px 17px;box-shadow:0 4px 14px rgba(33,43,65,.035);}
 .life-metric-label{font-size:9px;font-weight:800;color:#9aa4b5;text-transform:uppercase;letter-spacing:.75px;margin-bottom:8px;}
@@ -2745,8 +2750,9 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
     <div class="personal-hero-orbit orbit-a"></div><div class="personal-hero-orbit orbit-b"></div>
   </section>
 
+  <div class="vehicle-switcher" id="vehicle-switcher"></div>
   <div class="life-metrics"><div class="life-metric"><div class="life-metric-label">Vehicle</div><div class="life-metric-value" id="vehicle-name">Not set</div><div class="life-metric-sub" id="vehicle-reg">Add your car details</div></div><div class="life-metric"><div class="life-metric-label">Next renewal</div><div class="life-metric-value" id="driving-next">—</div><div class="life-metric-sub" id="driving-next-label">No dates added</div></div><div class="life-metric"><div class="life-metric-label">Dates saved</div><div class="life-metric-value" id="driving-count">0</div><div class="life-metric-sub">MOT, tax, insurance, service</div></div><div class="life-metric"><div class="life-metric-label">Status</div><div class="life-metric-value" id="driving-status">Clear</div><div class="life-metric-sub">Based on your saved dates</div></div></div>
-  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Renewals & servicing</div><div class="life-card-sub">Tap edit to save each date</div></div></div><div class="life-card-body"><div class="life-form" id="vehicle-form"><div class="life-form-grid"><div class="life-field"><label>Vehicle name</label><input class="life-input" id="vehicle-name-input" placeholder="e.g. My car"></div><div class="life-field"><label>Registration</label><input class="life-input" id="vehicle-reg-input" placeholder="e.g. AB12 CDE"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('vehicle-form',false)">Cancel</button><button class="life-btn-primary" onclick="saveVehicle()">Save vehicle</button></div></div><div class="renewal-grid" id="renewal-grid"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Driving notes</div><div class="life-card-sub">A handy place for small reminders</div></div></div><div class="life-card-body"><textarea class="life-input" id="driving-notes" style="height:125px;padding:10px 11px;resize:vertical;line-height:1.55" placeholder="Garage details, tyre size, parking permit notes…" oninput="saveDrivingNotes(this.value)"></textarea></div></section><section class="life-card"><div class="life-card-head"><div class="life-card-title">Reminders</div></div><div class="life-card-body"><div class="hub-empty"><strong>Put the date in once</strong>Dayframe will surface the nearest saved renewal back on your Home page.</div></div></section></div></div>
+  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Renewals & servicing</div><div class="life-card-sub">Tap edit to save each date</div></div><button type="button" class="life-card-action-remove" id="vehicle-delete-btn" onclick="deleteActiveVehicle()">Remove car</button></div><div class="life-card-body"><div class="life-form" id="vehicle-form"><div class="life-form-grid"><div class="life-field"><label>Vehicle name</label><input class="life-input" id="vehicle-name-input" placeholder="e.g. My car"></div><div class="life-field"><label>Registration</label><input class="life-input" id="vehicle-reg-input" placeholder="e.g. AB12 CDE"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('vehicle-form',false)">Cancel</button><button class="life-btn-primary" onclick="saveVehicle()">Save vehicle</button></div></div><div class="renewal-grid" id="renewal-grid"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Driving notes</div><div class="life-card-sub">A handy place for small reminders</div></div></div><div class="life-card-body"><textarea class="life-input" id="driving-notes" style="height:125px;padding:10px 11px;resize:vertical;line-height:1.55" placeholder="Garage details, tyre size, parking permit notes…" oninput="saveDrivingNotes(this.value)"></textarea></div></section><section class="life-card"><div class="life-card-head"><div class="life-card-title">Reminders</div></div><div class="life-card-body"><div class="hub-empty"><strong>Put the date in once</strong>Dayframe will surface the nearest saved renewal back on your Home page.</div></div></section></div></div>
 </div></div>
 
 
@@ -5813,7 +5819,8 @@ function renderHome(){
  const d=hubLoad(),today=hubDateISO(),now=new Date(),diary=(d.diary||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.id)-Number(a.id));
  const open=d.tasks.filter(t=>!t.done),todayTasks=open.filter(t=>t.date===today);
  const month=now.toISOString().slice(0,7),monthTx=d.money.filter(x=>(x.date||'').slice(0,7)===month),spent=monthTx.filter(x=>x.type==='expense').reduce((a,x)=>a+Number(x.amount||0),0);
- const drivingDates=Object.entries(d.vehicle?.dates||{}).filter(([,v])=>v&&hubDaysUntil(v)>=-45).sort((a,b)=>a[1].localeCompare(b[1]));
+ const vehicleList=Array.isArray(d.vehicles)&&d.vehicles.length?d.vehicles:(d.vehicle&&(d.vehicle.name||d.vehicle.reg||Object.values(d.vehicle.dates||{}).some(Boolean))?[d.vehicle]:[]);
+ const drivingDates=vehicleList.flatMap(veh=>Object.entries(veh.dates||{}).map(([k,v])=>[k,v,veh.name||veh.reg||''])).filter(([,v])=>v&&hubDaysUntil(v)>=-45).sort((a,b)=>a[1].localeCompare(b[1]));
  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
  const hubRel=(dt)=>{const n=hubDaysUntil(dt);return n===null?'':n<0?Math.abs(n)+(Math.abs(n)===1?' day overdue':' days overdue'):n===0?'Today':n===1?'Tomorrow':n<=14?'In '+n+' days':''};
  const nextPeriodISO=(()=>{const p=d.essentials&&d.essentials.period;if(!p||!p.lastStart||!/^\d{4}-\d{2}-\d{2}$/.test(p.lastStart))return null;const cyc=Math.min(60,Math.max(15,Number(p.cycleLength)||28));const nd=new Date(p.lastStart+'T12:00:00');if(Number.isNaN(nd.getTime()))return null;nd.setDate(nd.getDate()+cyc);let iso=hubDateISO(nd),g=0;while(iso<today&&g++<24){nd.setDate(nd.getDate()+cyc);iso=hubDateISO(nd)}return iso})();
@@ -5824,7 +5831,7 @@ function renderHome(){
  set('home-goals-status',d.goals.length?d.goals.length+' goal'+(d.goals.length===1?'':'s')+' in progress':'Set your first goal');
  set('home-diary-status',diary.some(x=>x.date===today)?'Checked in today':diary.length?diary.length+' entr'+(diary.length===1?'y':'ies')+' saved':'Start with one thought');
  const bible=bibleState(d);set('home-bible-status',bible.lastRead?'Continue '+bible.lastRead:'Start with John 1');
- set('home-driving-status',drivingDates.length?drivingDates[0][0].toUpperCase()+' · '+(hubRel(drivingDates[0][1])||hubPrettyDate(drivingDates[0][1])):'Add your vehicle dates');
+ set('home-driving-status',drivingDates.length?drivingDates[0][0].toUpperCase()+(vehicleList.length>1&&drivingDates[0][2]?' ('+drivingDates[0][2]+')':'')+' · '+(hubRel(drivingDates[0][1])||hubPrettyDate(drivingDates[0][1])):'Add your vehicle dates');
 
  const bankAccounts=typeof _moneyBankData!=='undefined'&&Array.isArray(_moneyBankData.accounts)?_moneyBankData.accounts:[];
  const hasAccount=Boolean((d.accounts||[]).length||bankAccounts.length);
@@ -5865,7 +5872,7 @@ function renderHome(){
  const carRenewLabels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};
  const docStore=d.essentials&&d.essentials.documents,docItems=Array.isArray(docStore)?docStore:(docStore&&Array.isArray(docStore.items)?docStore.items:[]);
  const expiring=[
-  ...drivingDates.map(x=>({title:(carRenewLabels[x[0]]||x[0])+' renewal',date:x[1],type:'Expiring soon',kind:'expiry'})),
+  ...drivingDates.map(x=>({title:(carRenewLabels[x[0]]||x[0])+' renewal'+(vehicleList.length>1&&x[2]?' — '+x[2]:''),date:x[1],type:'Expiring soon',kind:'expiry'})),
   ...docItems.filter(it=>it&&/^\d{4}-\d{2}-\d{2}$/.test(String(it.date||''))).map(it=>({title:String(it.title||'Document').slice(0,80),date:String(it.date),type:'Expiring soon',kind:'expiry'}))
  ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n>=-31&&n<=92});
  const upcoming=[
@@ -7083,12 +7090,43 @@ function renderDrivingCosts(){
   if(br)br.innerHTML=entries.length?entries.map(([k,v])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0f2f6"><span style="font-size:10px;font-weight:700;color:#5b6678">${hubEsc(k)}</span><span style="font-size:10px;font-weight:800;color:#6d7788">${hubMoney(v)}</span></div>`).join(''):'<div class="hub-empty"><strong>Nothing to break down yet</strong>Your categories will appear here as you add costs.</div>';
 }
 
-function saveVehicle(){const d=hubLoad();d.vehicle=d.vehicle||{};d.vehicle.name=document.getElementById('vehicle-name-input').value.trim();d.vehicle.reg=document.getElementById('vehicle-reg-input').value.trim().toUpperCase();d.vehicle.dates=d.vehicle.dates||{};d.vehicle.notes=d.vehicle.notes||'';hubSave(d);toggleLifeForm('vehicle-form',false);renderDriving();renderHome();hubToast('Vehicle saved')}
-function saveDrivingNotes(v){const d=hubLoad();d.vehicle=d.vehicle||{};d.vehicle.notes=v;d.vehicle.dates=d.vehicle.dates||{};hubSave(d)}
-function setRenewalDate(type,v){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};d.vehicle=d.vehicle||{};d.vehicle.dates=d.vehicle.dates||{};d.vehicle.dates[type]=v||'';hubSave(d);renderDriving();renderHome();hubToast(v?labels[type]+' date saved':labels[type]+' date cleared')}
+// ── MULTI-VEHICLE SUPPORT ──
+// d.vehicles is the array of cars. Legacy single-car accounts only had
+// d.vehicle — migrated forward into vehicles[0] the first time it's read,
+// leaving the old field untouched (harmless, never read again).
+let _activeVehicleId=null;
+function vehiclesOf(d){
+ if(!Array.isArray(d.vehicles)){
+  const legacy=d.vehicle&&(d.vehicle.name||d.vehicle.reg||d.vehicle.notes||Object.values(d.vehicle.dates||{}).some(Boolean))?d.vehicle:null;
+  d.vehicles=legacy?[{id:1,name:legacy.name||'',reg:legacy.reg||'',dates:legacy.dates||{},intervals:legacy.intervals||{},notes:legacy.notes||''}]:[];
+ }
+ return d.vehicles
+}
+function activeVehicle(d,createIfMissing){
+ const list=vehiclesOf(d);
+ let v=list.find(x=>String(x.id)===String(_activeVehicleId));
+ if(!v&&list.length){v=list[0];_activeVehicleId=v.id}
+ if(!v&&createIfMissing){v={id:Date.now(),name:'',reg:'',dates:{},intervals:{},notes:''};list.push(v);_activeVehicleId=v.id}
+ return v||null
+}
+function switchVehicle(id){_activeVehicleId=id;renderDriving()}
+function addVehicle(){
+ const d=hubLoad(),list=vehiclesOf(d),v={id:Date.now(),name:'',reg:'',dates:{},intervals:{},notes:''};
+ list.push(v);hubSave(d);_activeVehicleId=v.id;renderDriving();toggleLifeForm('vehicle-form',true);
+ setTimeout(()=>document.getElementById('vehicle-name-input')?.focus(),50)
+}
+function deleteActiveVehicle(){
+ const v=activeVehicle(hubLoad(),false);if(!v)return;
+ if(!confirm('Remove '+(v.name||v.reg||'this car')+' and all its saved dates?'))return;
+ const d=hubLoad();d.vehicles=vehiclesOf(d).filter(x=>String(x.id)!==String(v.id));
+ hubSave(d);_activeVehicleId=null;renderDriving();renderHome();hubToast('Car removed')
+}
+function saveVehicle(){const d=hubLoad(),v=activeVehicle(d,true);v.name=document.getElementById('vehicle-name-input').value.trim();v.reg=document.getElementById('vehicle-reg-input').value.trim().toUpperCase();v.dates=v.dates||{};v.notes=v.notes||'';hubSave(d);toggleLifeForm('vehicle-form',false);renderDriving();renderHome();hubToast('Vehicle saved')}
+function saveDrivingNotes(val){const d=hubLoad(),v=activeVehicle(d,true);v.notes=val;v.dates=v.dates||{};hubSave(d)}
+function setRenewalDate(type,val){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'},v=activeVehicle(d,true);v.dates=v.dates||{};v.dates[type]=val||'';hubSave(d);renderDriving();renderHome();hubToast(val?labels[type]+' date saved':labels[type]+' date cleared')}
 const RENEWAL_CYCLE_DEFAULTS={mot:'yearly',tax:'6-monthly',insurance:'yearly',service:'yearly'};
-function markRenewed(type){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};d.vehicle=d.vehicle||{};d.vehicle.dates=d.vehicle.dates||{};const cur=d.vehicle.dates[type];if(!cur)return editRenewal(type);const iv=(d.vehicle.intervals&&d.vehicle.intervals[type])||RENEWAL_CYCLE_DEFAULTS[type]||'yearly';const next=hubNextDueDate(hubAddInterval(cur,iv),iv);d.vehicle.dates[type]=next;hubSave(d);renderDriving();renderHome();hubToast(labels[type]+' set to '+hubPrettyDate(next))}
-function setRenewalCycle(type,val){const d=hubLoad();d.vehicle=d.vehicle||{};d.vehicle.intervals=d.vehicle.intervals||{};d.vehicle.intervals[type]=val;hubSave(d);renderDriving()}
+function markRenewed(type){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'},v=activeVehicle(d,true);v.dates=v.dates||{};const cur=v.dates[type];if(!cur)return editRenewal(type);const iv=(v.intervals&&v.intervals[type])||RENEWAL_CYCLE_DEFAULTS[type]||'yearly';const next=hubNextDueDate(hubAddInterval(cur,iv),iv);v.dates[type]=next;hubSave(d);renderDriving();renderHome();hubToast(labels[type]+' set to '+hubPrettyDate(next))}
+function setRenewalCycle(type,val){const d=hubLoad(),v=activeVehicle(d,true);v.intervals=v.intervals||{};v.intervals[type]=val;hubSave(d);renderDriving()}
 function dfIcsEscape(s){return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n')}
 function dfDownloadICS(uid,title,dateISO,desc){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(dateISO))return hubToast('Add a date first');
@@ -7101,13 +7139,13 @@ function dfDownloadICS(uid,title,dateISO,desc){
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),5000);
 }
-function dfRenewalToCalendar(type){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};const date=d.vehicle&&d.vehicle.dates&&d.vehicle.dates[type];if(!date)return editRenewal(type);const reg=(d.vehicle&&d.vehicle.reg)||'my car';dfDownloadICS('renewal-'+type+'-'+date,labels[type]+' due — '+reg,date,'Car '+labels[type].toLowerCase()+' renewal. Added from Dayframe.')}
+function dfRenewalToCalendar(type){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'},v=activeVehicle(d,false);const date=v&&v.dates&&v.dates[type];if(!date)return editRenewal(type);const reg=(v&&(v.name||v.reg))||'my car';dfDownloadICS('renewal-'+type+'-'+date,labels[type]+' due — '+reg,date,'Car '+labels[type].toLowerCase()+' renewal. Added from Dayframe.')}
 function closeRenewalPop(){document.getElementById('renewal-datepop')?.remove();document.removeEventListener('click',renewalPopOutside,true)}
 function renewalPopOutside(e){const p=document.getElementById('renewal-datepop');if(p&&!p.contains(e.target)&&!(e.target.closest&&e.target.closest('.renewal-card')))closeRenewalPop()}
 function saveRenewalFromPop(type){const v=document.getElementById('renewal-datepop-input')?.value||'';closeRenewalPop();setRenewalDate(type,v)}
 function editRenewal(type,event){
  const labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};
- const current=hubLoad().vehicle?.dates?.[type]||'';
+ const current=activeVehicle(hubLoad(),false)?.dates?.[type]||'';
  closeRenewalPop();
  const pop=document.createElement('div');pop.id='renewal-datepop';pop.setAttribute('role','dialog');
  pop.innerHTML='<div class="renewal-datepop-title">'+hubEsc(labels[type]||'Renewal')+' date</div>'
@@ -7128,7 +7166,22 @@ function editRenewal(type,event){
  setTimeout(()=>{try{input.focus();if(typeof input.showPicker==='function')input.showPicker()}catch(e){}},40);
  setTimeout(()=>document.addEventListener('click',renewalPopOutside,true),0);
 }
-function renderDriving(){closeRenewalPop();const d=hubLoad();if(!d.vehicle)d.vehicle=JSON.parse(JSON.stringify(hubDefault().vehicle));const v=d.vehicle,dates=v.dates=v.dates||{},labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};const intervals=v.intervals=Object.assign({mot:'yearly',tax:'6-monthly',insurance:'yearly',service:'yearly'},v.intervals||{});let _rolled=false;Object.keys(labels).forEach(k=>{const du=hubDaysUntil(dates[k]);if(dates[k]&&du!==null&&du<-60){dates[k]=hubNextDueDate(dates[k],intervals[k]);_rolled=true}});if(_rolled)hubSave(d);const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};set('vehicle-name',v.name||'Not set');set('vehicle-reg',v.reg||'Add your car details');document.getElementById('vehicle-name-input').value=v.name||'';document.getElementById('vehicle-reg-input').value=v.reg||'';document.getElementById('driving-notes').value=v.notes||'';const entries=Object.entries(dates).filter(([,x])=>x).sort((a,b)=>a[1].localeCompare(b[1])),future=entries.filter(([,x])=>x>=hubDateISO());set('driving-count',entries.length);if(future.length){const day=hubDaysUntil(future[0][1]);set('driving-next',day===0?'Today':day===1?'Tomorrow':day+' days');set('driving-next-label',labels[future[0][0]]+' · '+hubPrettyDate(future[0][1]));set('driving-status',day<=30?'Soon':'Clear')}else{set('driving-next','—');set('driving-next-label','No upcoming dates');set('driving-status','Clear')}const grid=document.getElementById('renewal-grid');if(grid)grid.innerHTML=Object.keys(labels).map(k=>{const dv=dates[k],du=hubDaysUntil(dv),overdue=dv&&du!==null&&du<0;const note=dv?(overdue?'Overdue by '+Math.abs(du)+(Math.abs(du)===1?' day':' days'):du===0?'Due today':'In '+du+(du===1?' day':' days')):'Opens a calendar';const cyc=intervals[k]||'yearly';const cycOpts=[['monthly','Monthly'],['6-monthly','Every 6 months'],['yearly','Yearly']].map(([val,lab])=>`<option value="${val}"${val===cyc?' selected':''}>${lab}</option>`).join('');return `<div class="renewal-card${overdue?' renewal-overdue':''}" onclick="editRenewal('${k}',event)" style="cursor:pointer"><div class="renewal-top"><div class="renewal-name">${labels[k]}</div><button class="renewal-edit" onclick="event.stopPropagation();editRenewal('${k}',event)" title="Pick ${labels[k]} date" aria-label="Pick ${labels[k]} date">📅</button></div><div class="renewal-date">${dv?hubPrettyDate(dv):'Pick a date'}</div><div class="renewal-note">${note}</div>${dv?`<div class="renewal-actions" onclick="event.stopPropagation()"><button type="button" class="renewal-renewed" onclick="markRenewed('${k}')">Renewed →</button><button type="button" class="renewal-cal" onclick="dfRenewalToCalendar('${k}')" title="Add to your calendar">＋ Cal</button><select class="renewal-cycle" aria-label="${labels[k]} renewal cycle" onchange="setRenewalCycle('${k}',this.value)">${cycOpts}</select></div>`:''}</div>`}).join('')}
+function renderDriving(){
+ closeRenewalPop();
+ const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};
+ const list=vehiclesOf(d);
+ let _rolled=false;
+ list.forEach(veh=>{
+  veh.dates=veh.dates||{};veh.intervals=Object.assign({mot:'yearly',tax:'6-monthly',insurance:'yearly',service:'yearly'},veh.intervals||{});
+  Object.keys(labels).forEach(k=>{const du=hubDaysUntil(veh.dates[k]);if(veh.dates[k]&&du!==null&&du<-60){veh.dates[k]=hubNextDueDate(veh.dates[k],veh.intervals[k]);_rolled=true}});
+ });
+ if(_rolled)hubSave(d);
+ const v=activeVehicle(d,false)||{name:'',reg:'',dates:{},intervals:{mot:'yearly',tax:'6-monthly',insurance:'yearly',service:'yearly'},notes:''};
+ const dates=v.dates,intervals=v.intervals;
+ const switcher=document.getElementById('vehicle-switcher');
+ if(switcher)switcher.innerHTML=list.map(veh=>'<button type="button" class="vehicle-chip'+(veh.id===v.id?' on':'')+'" onclick="switchVehicle(\''+veh.id+'\')">'+hubEsc(veh.name||veh.reg||'Unnamed car')+'</button>').join('')+'<button type="button" class="vehicle-chip vehicle-chip-add" onclick="addVehicle()">+ Add car</button>';
+ const removeBtn=document.getElementById('vehicle-delete-btn');if(removeBtn)removeBtn.style.display=list.length?'':'none';
+ const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};set('vehicle-name',v.name||'Not set');set('vehicle-reg',v.reg||'Add your car details');document.getElementById('vehicle-name-input').value=v.name||'';document.getElementById('vehicle-reg-input').value=v.reg||'';document.getElementById('driving-notes').value=v.notes||'';const entries=Object.entries(dates).filter(([,x])=>x).sort((a,b)=>a[1].localeCompare(b[1])),future=entries.filter(([,x])=>x>=hubDateISO());set('driving-count',entries.length);if(future.length){const day=hubDaysUntil(future[0][1]);set('driving-next',day===0?'Today':day===1?'Tomorrow':day+' days');set('driving-next-label',labels[future[0][0]]+' · '+hubPrettyDate(future[0][1]));set('driving-status',day<=30?'Soon':'Clear')}else{set('driving-next','—');set('driving-next-label','No upcoming dates');set('driving-status',entries.length?'Clear':'—')}const grid=document.getElementById('renewal-grid');if(grid)grid.innerHTML=Object.keys(labels).map(k=>{const dv=dates[k],du=hubDaysUntil(dv),overdue=dv&&du!==null&&du<0;const note=dv?(overdue?'Overdue by '+Math.abs(du)+(Math.abs(du)===1?' day':' days'):du===0?'Due today':'In '+du+(du===1?' day':' days')):'Opens a calendar';const cyc=intervals[k]||'yearly';const cycOpts=[['monthly','Monthly'],['6-monthly','Every 6 months'],['yearly','Yearly']].map(([val,lab])=>`<option value="${val}"${val===cyc?' selected':''}>${lab}</option>`).join('');return `<div class="renewal-card${overdue?' renewal-overdue':''}" onclick="editRenewal('${k}',event)" style="cursor:pointer"><div class="renewal-top"><div class="renewal-name">${labels[k]}</div><button class="renewal-edit" onclick="event.stopPropagation();editRenewal('${k}',event)" title="Pick ${labels[k]} date" aria-label="Pick ${labels[k]} date">📅</button></div><div class="renewal-date">${dv?hubPrettyDate(dv):'Pick a date'}</div><div class="renewal-note">${note}</div>${dv?`<div class="renewal-actions" onclick="event.stopPropagation()"><button type="button" class="renewal-renewed" onclick="markRenewed('${k}')">Renewed →</button><button type="button" class="renewal-cal" onclick="dfRenewalToCalendar('${k}')" title="Add to your calendar">＋ Cal</button><select class="renewal-cycle" aria-label="${labels[k]} renewal cycle" onchange="setRenewalCycle('${k}',this.value)">${cycOpts}</select></div>`:''}</div>`}).join('')}
 function addGoal(){
  const name=document.getElementById('goal-name').value.trim(),type=document.getElementById('goal-type').value,categoryChoice=document.getElementById('goal-category')?.value||'Personal',customCategory=document.getElementById('goal-custom-category')?.value.trim()||'',category=categoryChoice==='custom'?customCategory:categoryChoice,target=Number(document.getElementById('goal-target').value),current=Number(document.getElementById('goal-current').value)||0,targetDate=document.getElementById('goal-target-date')?.value||'';
  if(!name||target<=0)return hubToast('Add a goal and target');if(!category)return hubToast('Name your goal category');if(category==='Savings'&&!targetDate)return hubToast('Add a target date for this savings goal');if(current<0)return hubToast('Current progress cannot be negative');

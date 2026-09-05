@@ -653,9 +653,12 @@ function pushBuildDigest(hub){
     const due=today.slice(0,7)+'-'+String(dd).padStart(2,'0');
     if(within(due,-3,3))lines.push((b.name||'Bill')+' due '+rel(due)+' · £'+(Number(b.amount)||0));
   });
-  const dates=(hub.vehicle&&hub.vehicle.dates)||{};
+  const vehicles=Array.isArray(hub.vehicles)&&hub.vehicles.length?hub.vehicles:(hub.vehicle?[hub.vehicle]:[]);
   const RL={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'};
-  Object.keys(RL).forEach(k=>{if(dates[k]&&within(dates[k],-30,7))lines.push(RL[k]+' '+rel(dates[k]))});
+  vehicles.forEach(veh=>{
+    const dates=veh.dates||{},tag=vehicles.length>1&&(veh.name||veh.reg)?' ('+(veh.name||veh.reg)+')':'';
+    Object.keys(RL).forEach(k=>{if(dates[k]&&within(dates[k],-30,7))lines.push(RL[k]+tag+' '+rel(dates[k]))});
+  });
   (hub.goals||[]).filter(g=>g.targetDate&&within(g.targetDate,0,3)&&!(g.type==='money'&&Number(g.target)>0&&Number(g.current)>=Number(g.target))).forEach(g=>lines.push((g.name||'Goal')+' target — '+rel(g.targetDate)));
   const p=hub.essentials&&hub.essentials.period;
   if(p&&p.lastStart&&/^\d{4}-\d{2}-\d{2}$/.test(p.lastStart)){
