@@ -15,7 +15,7 @@
     { key: 'investing', label: 'Investing', note: 'Learning, holdings and research' },
   ];
   const WIDGETS = [
-    { key: 'coming', label: 'Coming up', note: 'Tasks, bills and saved dates' },
+    { key: 'coming', label: 'Coming up', note: 'Bills and renewals — next 5 days' },
     { key: 'goals', label: 'Goal progress', note: 'Your first active goal' },
     { key: 'diary', label: 'Diary prompt', note: 'Daily check-in' },
   ];
@@ -132,15 +132,18 @@
     `;
   }
 
-  function homeRow(item, index, pref, visibleModules) {
-    const checked = !pref.hidden.includes(item.key);
+  function homeRow(item, pref, spaceHidden, enabledKeys) {
+    const checked = !spaceHidden && !pref.hidden.includes(item.key);
+    const enabledIndex = enabledKeys.indexOf(item.key);
+    const upDisabled = spaceHidden || enabledIndex <= 0;
+    const downDisabled = spaceHidden || enabledIndex === -1 || enabledIndex === enabledKeys.length - 1;
     return `
-      <div class="df-life-home-row">
-        <input class="df-life-home-check" type="checkbox" ${checked ? 'checked' : ''} aria-label="Show ${esc(item.label)} on Home" onchange="dayframeToggleHomeModule('${item.key}',this.checked)">
-        <div class="df-life-home-copy"><strong>${esc(item.label)}</strong><small>${esc(item.note)}</small></div>
+      <div class="df-life-home-row${spaceHidden ? ' df-life-home-row-off' : ''}">
+        <input class="df-life-home-check" type="checkbox" ${checked ? 'checked' : ''} ${spaceHidden ? 'disabled' : ''} aria-label="Show ${esc(item.label)} on Home" onchange="dayframeToggleHomeModule('${item.key}',this.checked)">
+        <div class="df-life-home-copy"><strong>${esc(item.label)}</strong><small>${spaceHidden ? 'Turned off in Spaces above' : esc(item.note)}</small></div>
         <div class="df-life-home-move">
-          <button type="button" ${index === 0 ? 'disabled' : ''} onclick="dayframeMoveHomeModule('${item.key}',-1)" aria-label="Move ${esc(item.label)} up">^</button>
-          <button type="button" ${index === visibleModules.length - 1 ? 'disabled' : ''} onclick="dayframeMoveHomeModule('${item.key}',1)" aria-label="Move ${esc(item.label)} down">v</button>
+          <button type="button" ${upDisabled ? 'disabled' : ''} onclick="dayframeMoveHomeModule('${item.key}',-1)" aria-label="Move ${esc(item.label)} up">^</button>
+          <button type="button" ${downDisabled ? 'disabled' : ''} onclick="dayframeMoveHomeModule('${item.key}',1)" aria-label="Move ${esc(item.label)} down">v</button>
         </div>
       </div>
     `;
@@ -226,6 +229,7 @@
       .df-life-space-toggle.on .df-life-switch i{transform:translateX(14px)}
       .df-life-home-list{display:grid;gap:8px}
       .df-life-home-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;border:1px solid #e8ebf3;border-radius:14px;background:#fff}
+      .df-life-home-row-off{background:#fafbfd;opacity:.6}
       .df-life-home-check{width:18px;height:18px;accent-color:#7564f2}
       .df-life-home-move{display:flex;gap:5px}
       .df-life-home-move button{width:28px;height:28px;border-radius:10px;border:1px solid #e2e7f1;background:#f8f9fc;color:#697489;font-weight:900;cursor:pointer}
@@ -493,8 +497,8 @@
     const setup = setupFromData(d);
     const hidden = hiddenSpaces(setup);
     const pref = homePrefs(d);
-    const stageModules = MODULES.filter((item) => !hidden.has(item.key));
-    const visibleModules = pref.modules.map((key) => stageModules.find((item) => item.key === key)).filter(Boolean);
+    const allModules = pref.modules.map((key) => MODULES.find((item) => item.key === key)).filter(Boolean);
+    const enabledKeys = allModules.filter((item) => !hidden.has(item.key)).map((item) => item.key);
     const spaces = MODULES.filter((item) => ['money', 'planner', 'driving', 'diary'].includes(item.key));
     out.innerHTML = `
       <div class="df-life-editor">
@@ -519,7 +523,7 @@
         <section class="df-life-editor-section">
           <h3 class="df-life-section-title">Home layout</h3>
           <p class="df-life-section-copy">Choose what appears on Home and put the important spaces first.</p>
-          <div class="df-life-home-list">${visibleModules.length ? visibleModules.map((item, index) => homeRow(item, index, pref, visibleModules)).join('') : '<div class="df-life-note">Turn on a space above to add it back to Home.</div>'}</div>
+          <div class="df-life-home-list">${allModules.length ? allModules.map((item) => homeRow(item, pref, hidden.has(item.key), enabledKeys)).join('') : '<div class="df-life-note">Turn on a space above to add it back to Home.</div>'}</div>
         </section>
         <section class="df-life-editor-section">
           <h3 class="df-life-section-title">At a glance</h3>

@@ -18,7 +18,7 @@
     { key: 'investing', label: 'Investing', note: 'Learning, holdings and research' },
   ];
   const WIDGETS = [
-    { key: 'coming', label: 'Coming up', note: 'Tasks, bills and vehicle dates' },
+    { key: 'coming', label: 'Coming up', note: 'Bills and renewals — next 5 days' },
     { key: 'goals', label: 'Goal progress', note: 'Your first active goal' },
     { key: 'diary', label: 'Diary prompt', note: 'Daily check-in' },
   ];
