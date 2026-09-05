@@ -2755,7 +2755,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
 
   <div class="vehicle-switcher" id="vehicle-switcher"></div>
   <div class="life-metrics"><div class="life-metric"><div class="life-metric-label">Vehicle</div><div class="life-metric-value" id="vehicle-name">Not set</div><div class="life-metric-sub" id="vehicle-reg">Add your car details</div></div><div class="life-metric"><div class="life-metric-label">Next renewal</div><div class="life-metric-value" id="driving-next">—</div><div class="life-metric-sub" id="driving-next-label">No dates added</div></div><div class="life-metric"><div class="life-metric-label">Dates saved</div><div class="life-metric-value" id="driving-count">0</div><div class="life-metric-sub">MOT, tax, insurance, service</div></div><div class="life-metric"><div class="life-metric-label">Status</div><div class="life-metric-value" id="driving-status">Clear</div><div class="life-metric-sub">Based on your saved dates</div></div></div>
-  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Renewals & servicing</div><div class="life-card-sub">Tap edit to save each date</div></div><button type="button" class="life-card-action-remove" id="vehicle-delete-btn" onclick="deleteActiveVehicle()">Remove car</button></div><div class="life-card-body"><div class="life-form" id="vehicle-form"><div class="life-form-grid"><div class="life-field"><label>Vehicle name</label><input class="life-input" id="vehicle-name-input" placeholder="e.g. My car"></div><div class="life-field"><label>Registration</label><input class="life-input" id="vehicle-reg-input" placeholder="e.g. AB12 CDE"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('vehicle-form',false)">Cancel</button><button class="life-btn-primary" onclick="saveVehicle()">Save vehicle</button></div></div><div class="renewal-grid" id="renewal-grid"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Driving notes</div><div class="life-card-sub">A handy place for small reminders</div></div></div><div class="life-card-body"><textarea class="life-input" id="driving-notes" style="height:125px;padding:10px 11px;resize:vertical;line-height:1.55" placeholder="Garage details, tyre size, parking permit notes…" oninput="saveDrivingNotes(this.value)"></textarea><label class="life-checkbox-field"><input type="checkbox" id="driving-remind" onchange="saveDrivingReminder()"> Remind me about these notes</label><div class="life-field" id="driving-remind-repeat-field"><label>How often</label><select class="life-input" id="driving-remind-repeat" onchange="saveDrivingReminder()"><option value="daily">Every day</option><option value="weekly">Every week</option><option value="fortnightly">Every 2 weeks</option><option value="monthly">Every month</option><option value="quarterly">Every 3 months</option><option value="6-monthly">Every 6 months</option><option value="yearly">Every year</option></select></div></div></section></div></div>
+  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Renewals & servicing</div><div class="life-card-sub">Tap edit to save each date</div></div><button type="button" class="life-card-action-remove" id="vehicle-delete-btn" onclick="deleteActiveVehicle()">Remove car</button></div><div class="life-card-body"><div class="life-form" id="vehicle-form"><div class="life-form-grid"><div class="life-field"><label>Vehicle name</label><input class="life-input" id="vehicle-name-input" placeholder="e.g. My car"></div><div class="life-field"><label>Registration</label><input class="life-input" id="vehicle-reg-input" placeholder="e.g. AB12 CDE"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('vehicle-form',false)">Cancel</button><button class="life-btn-primary" onclick="saveVehicle()">Save vehicle</button></div></div><div class="renewal-grid" id="renewal-grid"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Driving notes</div><div class="life-card-sub">Add as many as you like, with a reminder if you want one</div></div></div><div class="life-card-body"><textarea class="life-input" id="driving-note-input" style="height:70px;padding:10px 11px;resize:vertical;line-height:1.5" placeholder="Garage details, tyre size, parking permit notes…"></textarea><label class="life-checkbox-field"><input type="checkbox" id="driving-note-remind"> Remind me about this note</label><div class="life-field" id="driving-note-remind-repeat-field"><label>How often</label><select class="life-input" id="driving-note-remind-repeat"><option value="daily">Every day</option><option value="weekly">Every week</option><option value="fortnightly">Every 2 weeks</option><option value="monthly">Every month</option><option value="quarterly">Every 3 months</option><option value="6-monthly">Every 6 months</option><option value="yearly">Every year</option></select></div><div class="life-form-actions"><button class="life-btn-secondary" id="driving-note-cancel-btn" onclick="cancelDrivingNoteEdit()" style="display:none">Cancel</button><button class="life-btn-primary" id="driving-note-save-btn" onclick="saveDrivingNote()">Add note</button></div><div id="driving-notes-list" style="margin-top:8px"></div></div></section></div></div>
 </div></div>
 
 
@@ -7117,43 +7117,91 @@ function addVehicle(){
  list.push(v);hubSave(d);_activeVehicleId=v.id;renderDriving();toggleLifeForm('vehicle-form',true);
  setTimeout(()=>document.getElementById('vehicle-name-input')?.focus(),50)
 }
+function vehicleNotesList(v){
+ if(!Array.isArray(v.notesList)){
+  const legacyText=String(v.notes||'').trim();
+  v.notesList=legacyText?[{id:1,text:legacyText,remind:Boolean(v.remind),remindRepeat:v.remindRepeat||'daily',taskId:v.remindTaskId||''}]:[];
+ }
+ return v.notesList
+}
 function deleteActiveVehicle(){
  const v=activeVehicle(hubLoad(),false);if(!v)return;
  if(!confirm('Remove '+(v.name||v.reg||'this car')+' and all its saved dates?'))return;
- if(v.remindTaskId)syncDrivingReminderTask(v,false,v.remindRepeat);
+ vehicleNotesList(v).forEach(note=>{if(note.taskId)syncNoteReminderTask(note.taskId,'',false,'daily')});
  const d=hubLoad();d.vehicles=vehiclesOf(d).filter(x=>String(x.id)!==String(v.id));
  hubSave(d);_activeVehicleId=null;renderDriving();renderHome();hubToast('Car removed')
 }
-function saveVehicle(){const d=hubLoad(),v=activeVehicle(d,true);v.name=document.getElementById('vehicle-name-input').value.trim();v.reg=document.getElementById('vehicle-reg-input').value.trim().toUpperCase();v.dates=v.dates||{};v.notes=v.notes||'';hubSave(d);toggleLifeForm('vehicle-form',false);renderDriving();renderHome();hubToast('Vehicle saved')}
-function saveDrivingNotes(val){const d=hubLoad(),v=activeVehicle(d,true);v.notes=val;v.dates=v.dates||{};hubSave(d)}
-// Keeps a linked "Check driving notes" task in sync with the active
-// vehicle's reminder checkbox + frequency, mirroring the same pattern used
-// for Health reminders. Non-daily repeats need a real due date to surface
-// on the to-do list (daily bypasses date-gating); the date only resets when
-// the frequency changes or the task is new, so re-saving doesn't restart an
-// in-progress cycle.
-function syncDrivingReminderTask(v,wantReminder,repeat){
+function saveVehicle(){const d=hubLoad(),v=activeVehicle(d,true);v.name=document.getElementById('vehicle-name-input').value.trim();v.reg=document.getElementById('vehicle-reg-input').value.trim().toUpperCase();v.dates=v.dates||{};hubSave(d);toggleLifeForm('vehicle-form',false);renderDriving();renderHome();hubToast('Vehicle saved')}
+// Keeps a linked reminder task in sync with one driving note's checkbox +
+// frequency, mirroring the pattern used for Health reminders. Non-daily
+// repeats need a real due date to surface on the to-do list (daily bypasses
+// date-gating); the date only resets when the frequency changes or the task
+// is new, so re-saving doesn't restart an in-progress cycle.
+function syncNoteReminderTask(taskId,title,wantReminder,repeat){
  const d=hubLoad();d.tasks=d.tasks||[];
- let taskId=v.remindTaskId||'';
+ let id=taskId||'';
  if(wantReminder){
-  let t=taskId?d.tasks.find(x=>String(x.id)===String(taskId)):null;
+  let t=id?d.tasks.find(x=>String(x.id)===String(id)):null;
   const repeatChanged=!t||t.repeat!==repeat;
   if(!t){t={id:Date.now(),title:'',date:'',area:'Driving',priority:'Normal',repeat:'daily',done:false};d.tasks.unshift(t)}
-  t.title='Check driving notes'+(v.name||v.reg?' — '+(v.name||v.reg):'');
-  t.area='Driving';t.repeat=repeat;
+  t.title=title;t.area='Driving';t.repeat=repeat;
   if(repeat!=='daily'&&(repeatChanged||!t.date))t.date=hubDateISO();
   if(repeat==='daily')t.date='';
-  taskId=t.id;
- }else if(taskId){
-  d.tasks=d.tasks.filter(x=>String(x.id)!==String(taskId));taskId=''
+  id=t.id;
+ }else if(id){
+  d.tasks=d.tasks.filter(x=>String(x.id)!==String(id));id=''
  }
- hubSave(d);return taskId
+ hubSave(d);return id
 }
-function saveDrivingReminder(){
- const d=hubLoad(),v=activeVehicle(d,true);
- const checked=document.getElementById('driving-remind')?.checked||false,repeat=document.getElementById('driving-remind-repeat')?.value||'daily';
- v.remind=checked;v.remindRepeat=repeat;v.remindTaskId=syncDrivingReminderTask(v,checked,repeat);
- hubSave(d);renderHome();hubToast(checked?'Reminder set':'Reminder removed')
+let _drivingNoteEditingId=null;
+function resetDrivingNoteForm(){
+ _drivingNoteEditingId=null;
+ const input=document.getElementById('driving-note-input');if(input)input.value='';
+ const remind=document.getElementById('driving-note-remind');if(remind)remind.checked=false;
+ const repeat=document.getElementById('driving-note-remind-repeat');if(repeat)repeat.value='daily';
+ const cancelBtn=document.getElementById('driving-note-cancel-btn');if(cancelBtn)cancelBtn.style.display='none';
+ const saveBtn=document.getElementById('driving-note-save-btn');if(saveBtn)saveBtn.textContent='Add note'
+}
+function cancelDrivingNoteEdit(){resetDrivingNoteForm()}
+function saveDrivingNote(){
+ const text=document.getElementById('driving-note-input')?.value.trim()||'';
+ if(!text)return hubToast('Add a note first');
+ const remind=document.getElementById('driving-note-remind')?.checked||false,repeat=document.getElementById('driving-note-remind-repeat')?.value||'daily';
+ const d=hubLoad(),v=activeVehicle(d,true),list=vehicleNotesList(v);
+ const id=_drivingNoteEditingId||Date.now(),existing=list.find(x=>x.id===id);
+ const note={id,text,remind,remindRepeat:repeat,taskId:existing?.taskId||''};
+ note.taskId=syncNoteReminderTask(note.taskId,text.slice(0,80),remind,repeat);
+ v.notesList=list.filter(x=>x.id!==id).concat(note);
+ hubSave(d);resetDrivingNoteForm();renderDriving();hubToast(existing?'Note updated':'Note added')
+}
+function editDrivingNote(id){
+ const v=activeVehicle(hubLoad(),false);if(!v)return;
+ const note=vehicleNotesList(v).find(x=>x.id===id);if(!note)return;
+ _drivingNoteEditingId=id;
+ document.getElementById('driving-note-input').value=note.text;
+ document.getElementById('driving-note-remind').checked=note.remind;
+ document.getElementById('driving-note-remind-repeat').value=note.remindRepeat||'daily';
+ const cancelBtn=document.getElementById('driving-note-cancel-btn');if(cancelBtn)cancelBtn.style.display='';
+ const saveBtn=document.getElementById('driving-note-save-btn');if(saveBtn)saveBtn.textContent='Update note';
+ document.getElementById('driving-note-input')?.focus()
+}
+function deleteDrivingNote(id){
+ const d=hubLoad(),v=activeVehicle(d,false);if(!v)return;
+ const list=vehicleNotesList(v),note=list.find(x=>x.id===id);
+ if(note?.taskId)syncNoteReminderTask(note.taskId,'',false,'daily');
+ v.notesList=list.filter(x=>x.id!==id);
+ hubSave(d);if(_drivingNoteEditingId===id)resetDrivingNoteForm();
+ renderDriving();hubToast('Note removed')
+}
+const DRIVING_NOTE_REPEAT_LABELS={daily:'Every day',weekly:'Every week',fortnightly:'Every 2 weeks',monthly:'Every month',quarterly:'Every 3 months','6-monthly':'Every 6 months',yearly:'Every year'};
+function renderDrivingNotesList(v){
+ const list=vehicleNotesList(v);
+ if(_drivingNoteEditingId&&!list.some(x=>x.id===_drivingNoteEditingId))resetDrivingNoteForm();
+ const host=document.getElementById('driving-notes-list');if(!host)return;
+ host.innerHTML=list.length?list.slice().sort((a,b)=>b.id-a.id).map(note=>{
+  const remindMeta=note.remind?'Reminder set · ↻ '+(DRIVING_NOTE_REPEAT_LABELS[note.remindRepeat]||'Every day'):'No reminder';
+  return '<div class="life-list-row"><div class="life-list-main"><div class="life-list-title">'+hubEsc(note.text.replace(/\s+/g,' '))+'</div><div class="life-list-meta">'+remindMeta+'</div></div><button class="renewal-edit" onclick="editDrivingNote('+note.id+')" title="Edit note" aria-label="Edit note">✎</button><button class="life-row-delete" onclick="deleteDrivingNote('+note.id+')">×</button></div>'
+ }).join('') : '<div class="life-empty"><div class="life-empty-icon">✎</div><strong>No notes yet</strong>Add garage details, tyre size, parking permit notes or anything else worth remembering — with a reminder if you want one.</div>'
 }
 function setRenewalDate(type,val){const d=hubLoad(),labels={mot:'MOT',tax:'Road tax',insurance:'Insurance',service:'Service'},v=activeVehicle(d,true);v.dates=v.dates||{};v.dates[type]=val||'';hubSave(d);renderDriving();renderHome();hubToast(val?labels[type]+' date saved':labels[type]+' date cleared')}
 const RENEWAL_CYCLE_DEFAULTS={mot:'yearly',tax:'6-monthly',insurance:'yearly',service:'yearly'};
@@ -7213,7 +7261,7 @@ function renderDriving(){
  const switcher=document.getElementById('vehicle-switcher');
  if(switcher)switcher.innerHTML=list.map(veh=>'<button type="button" class="vehicle-chip'+(veh.id===v.id?' on':'')+'" onclick="switchVehicle(\''+veh.id+'\')">'+hubEsc(veh.name||veh.reg||'Unnamed car')+'</button>').join('')+'<button type="button" class="vehicle-chip vehicle-chip-add" onclick="addVehicle()">+ Add car</button>';
  const removeBtn=document.getElementById('vehicle-delete-btn');if(removeBtn)removeBtn.style.display=list.length?'':'none';
- const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};set('vehicle-name',v.name||'Not set');set('vehicle-reg',v.reg||'Add your car details');document.getElementById('vehicle-name-input').value=v.name||'';document.getElementById('vehicle-reg-input').value=v.reg||'';document.getElementById('driving-notes').value=v.notes||'';const remindBox=document.getElementById('driving-remind');if(remindBox)remindBox.checked=Boolean(v.remind);const remindRepeat=document.getElementById('driving-remind-repeat');if(remindRepeat)remindRepeat.value=v.remindRepeat||'daily';const entries=Object.entries(dates).filter(([,x])=>x).sort((a,b)=>a[1].localeCompare(b[1])),future=entries.filter(([,x])=>x>=hubDateISO());set('driving-count',entries.length);if(future.length){const day=hubDaysUntil(future[0][1]);set('driving-next',day===0?'Today':day===1?'Tomorrow':day+' days');set('driving-next-label',labels[future[0][0]]+' · '+hubPrettyDate(future[0][1]));set('driving-status',day<=30?'Soon':'Clear')}else{set('driving-next','—');set('driving-next-label','No upcoming dates');set('driving-status',entries.length?'Clear':'—')}const grid=document.getElementById('renewal-grid');if(grid)grid.innerHTML=Object.keys(labels).map(k=>{const dv=dates[k],du=hubDaysUntil(dv),overdue=dv&&du!==null&&du<0;const note=dv?(overdue?'Overdue by '+Math.abs(du)+(Math.abs(du)===1?' day':' days'):du===0?'Due today':'In '+du+(du===1?' day':' days')):'Opens a calendar';const cyc=intervals[k]||'yearly';const cycOpts=[['monthly','Monthly'],['6-monthly','Every 6 months'],['yearly','Yearly']].map(([val,lab])=>`<option value="${val}"${val===cyc?' selected':''}>${lab}</option>`).join('');return `<div class="renewal-card${overdue?' renewal-overdue':''}" onclick="editRenewal('${k}',event)" style="cursor:pointer"><div class="renewal-top"><div class="renewal-name">${labels[k]}</div><button class="renewal-edit" onclick="event.stopPropagation();editRenewal('${k}',event)" title="Pick ${labels[k]} date" aria-label="Pick ${labels[k]} date">📅</button></div><div class="renewal-date">${dv?hubPrettyDate(dv):'Pick a date'}</div><div class="renewal-note">${note}</div>${dv?`<div class="renewal-actions" onclick="event.stopPropagation()"><button type="button" class="renewal-renewed" onclick="markRenewed('${k}')">Renewed →</button><button type="button" class="renewal-cal" onclick="dfRenewalToCalendar('${k}')" title="Add to your calendar">＋ Cal</button><select class="renewal-cycle" aria-label="${labels[k]} renewal cycle" onchange="setRenewalCycle('${k}',this.value)">${cycOpts}</select></div>`:''}</div>`}).join('')}
+ const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};set('vehicle-name',v.name||'Not set');set('vehicle-reg',v.reg||'Add your car details');document.getElementById('vehicle-name-input').value=v.name||'';document.getElementById('vehicle-reg-input').value=v.reg||'';renderDrivingNotesList(v);const entries=Object.entries(dates).filter(([,x])=>x).sort((a,b)=>a[1].localeCompare(b[1])),future=entries.filter(([,x])=>x>=hubDateISO());set('driving-count',entries.length);if(future.length){const day=hubDaysUntil(future[0][1]);set('driving-next',day===0?'Today':day===1?'Tomorrow':day+' days');set('driving-next-label',labels[future[0][0]]+' · '+hubPrettyDate(future[0][1]));set('driving-status',day<=30?'Soon':'Clear')}else{set('driving-next','—');set('driving-next-label','No upcoming dates');set('driving-status',entries.length?'Clear':'—')}const grid=document.getElementById('renewal-grid');if(grid)grid.innerHTML=Object.keys(labels).map(k=>{const dv=dates[k],du=hubDaysUntil(dv),overdue=dv&&du!==null&&du<0;const note=dv?(overdue?'Overdue by '+Math.abs(du)+(Math.abs(du)===1?' day':' days'):du===0?'Due today':'In '+du+(du===1?' day':' days')):'Opens a calendar';const cyc=intervals[k]||'yearly';const cycOpts=[['monthly','Monthly'],['6-monthly','Every 6 months'],['yearly','Yearly']].map(([val,lab])=>`<option value="${val}"${val===cyc?' selected':''}>${lab}</option>`).join('');return `<div class="renewal-card${overdue?' renewal-overdue':''}" onclick="editRenewal('${k}',event)" style="cursor:pointer"><div class="renewal-top"><div class="renewal-name">${labels[k]}</div><button class="renewal-edit" onclick="event.stopPropagation();editRenewal('${k}',event)" title="Pick ${labels[k]} date" aria-label="Pick ${labels[k]} date">📅</button></div><div class="renewal-date">${dv?hubPrettyDate(dv):'Pick a date'}</div><div class="renewal-note">${note}</div>${dv?`<div class="renewal-actions" onclick="event.stopPropagation()"><button type="button" class="renewal-renewed" onclick="markRenewed('${k}')">Renewed →</button><button type="button" class="renewal-cal" onclick="dfRenewalToCalendar('${k}')" title="Add to your calendar">＋ Cal</button><select class="renewal-cycle" aria-label="${labels[k]} renewal cycle" onchange="setRenewalCycle('${k}',this.value)">${cycOpts}</select></div>`:''}</div>`}).join('')}
 function addGoal(){
  const name=document.getElementById('goal-name').value.trim(),type=document.getElementById('goal-type').value,categoryChoice=document.getElementById('goal-category')?.value||'Personal',customCategory=document.getElementById('goal-custom-category')?.value.trim()||'',category=categoryChoice==='custom'?customCategory:categoryChoice,target=Number(document.getElementById('goal-target').value),current=Number(document.getElementById('goal-current').value)||0,targetDate=document.getElementById('goal-target-date')?.value||'';
  if(!name||target<=0)return hubToast('Add a goal and target');if(!category)return hubToast('Name your goal category');if(category==='Savings'&&!targetDate)return hubToast('Add a target date for this savings goal');if(current<0)return hubToast('Current progress cannot be negative');
