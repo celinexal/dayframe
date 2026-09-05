@@ -385,7 +385,12 @@
         </section>
       `);
     }
-    renderPeriodTracker();
+    // Deliberately no renderPeriodTracker() call here — this only needs to
+    // create the card/panel once. dayframe-essentials-flo.js owns filling
+    // in the actual summary text; this used to also call
+    // renderPeriodTracker() on every periodic re-apply (independent of
+    // flo.js's own render cycle), and whichever one wrote last would
+    // silently overwrite the other's text — the visible MyFlo flicker.
   }
 
   function renderPeriodTracker() {
