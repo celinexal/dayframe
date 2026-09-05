@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v11';
+  const VERSION = 'flo-v10';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
   const DAY_MS = 86400000;
@@ -68,6 +68,10 @@
     const date = typeof value === 'string' ? parseISO(value) : value;
     return date ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'Not set';
   }
+  function shortRange(start, end) {
+    if (!start || !end) return 'Not set';
+    return start.slice(0, 7) === end.slice(0, 7) ? `${Number(start.slice(8))}-${shortDate(end)}` : `${shortDate(start)}-${shortDate(end)}`;
+  }
 
   function loadData() {
     const data = typeof window.hubLoad === 'function' ? (window.hubLoad() || {}) : {};
@@ -109,6 +113,7 @@
       dayLogs,
     };
   }
+  const CONTRA_METHODS = ['', 'Combined pill', 'Progestogen-only pill', 'Contraceptive patch', 'Vaginal ring', 'Contraceptive implant', 'Hormonal coil (IUS)', 'Copper coil (IUD)', 'Contraceptive injection', 'Condoms only', 'Other'];
   const FLOW_LEVELS = ['light', 'medium', 'heavy'];
   const MYFLO_SYMPTOMS = ['Cramps', 'Headache', 'Bloating', 'Tender breasts', 'Fatigue', 'Low mood', 'Mood swings', 'Acne', 'Backache', 'Nausea', 'Cravings', 'Spotting'];
   function normDayLog(entry) {
@@ -217,6 +222,13 @@
     const ovulation = addDaysISO(periodStart, -14);
     return { start: addDaysISO(ovulation, -5), end: ovulation, ovulation };
   }
+  function nextFertile(s, base = new Date()) {
+    if (!s.lastStart) return null;
+    let start = nextPeriodStart(s, base);
+    let fertile = fertileForPeriod(start);
+    if (fertile && diffDays(fertile.end, base) < 0) fertile = fertileForPeriod(addDaysISO(start, s.cycleLength));
+    return fertile;
+  }
   function summary(s = settings()) {
     if (!s.lastStart) return { status: 'Not set', headline: 'Set your dates', detail: 'Add a start date to see your calendar.', card: 'Calendar and reminders' };
     const today = dayStart(new Date());
@@ -291,6 +303,36 @@
       cells.push(`<button class="df-myflo-day ${state.classes.join(' ')}" type="button" data-date="${dateISO}" onclick="dayframeMyFloDayMenu('${dateISO}', event)" aria-label="${esc(day.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}"><span>${day.getDate()}</span><i>${state.dots.slice(0, 2).map(() => '<b></b>').join('')}</i></button>`);
     }
     return `<article class="df-myflo-month"><h4>${esc(month.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }))}</h4><div class="df-myflo-weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div><div class="df-myflo-days">${cells.join('')}</div></article>`;
+  }
+  function renderContraception(s) {
+    const isDaily = /pill/i.test(s.contraception);
+    const todayISO = iso(new Date());
+    const takenToday = s.pillLog.includes(todayISO);
+    let daily = '';
+    if (isDaily) {
+      const dots = [];
+      for (let i = 6; i >= 0; i -= 1) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const di = iso(d);
+        dots.push(`<b class="${s.pillLog.includes(di) ? 'on' : ''}"></b>`);
+      }
+      let streak = 0;
+      const walk = new Date();
+      while (s.pillLog.includes(iso(walk)) && streak < 400) { streak += 1; walk.setDate(walk.getDate() - 1); }
+      daily = `<div class="df-myflo-pill"><button type="button" class="${takenToday ? 'on' : ''}" onclick="dayframeToggleMyFloPillToday()">${takenToday ? '✓ Taken today' : 'Mark today taken'}</button><div class="df-myflo-pill-dots" aria-hidden="true">${dots.join('')}</div><span>${streak ? `${streak}-day streak` : 'Last 7 days'}</span></div>`;
+    }
+    const removeBtn = s.contraception
+      ? `<button type="button" class="df-myflo-contra-remove" onclick="dayframeRemoveMyFloContraception()">Remove method</button>`
+      : '';
+    return `<section class="df-myflo-contra"><div class="df-myflo-section-head"><div><span>Private record</span><h3>Contraception</h3></div>${removeBtn}</div><p class="df-myflo-helper">A personal record only. The fertile and ovulation estimates are not contraception and must not be relied on to prevent or plan pregnancy.</p><label class="df-myflo-contra-field"><span>Method</span><select onchange="dayframeSetMyFloContraception(this.value)">${CONTRA_METHODS.map((m) => `<option value="${esc(m)}" ${m === s.contraception ? 'selected' : ''}>${esc(m || 'Not set / none')}</option>`).join('')}</select></label>${daily}</section>`;
+  }
+  function renderReminders(s) {
+    const options = [{ value: 3, label: '3 days before' }, { value: 2, label: '2 days before' }, { value: 1, label: '1 day before' }, { value: 0, label: 'On the day' }];
+    const supported = 'Notification' in window;
+    const permission = supported ? window.Notification.permission : 'unsupported';
+    const permissionText = permission === 'granted' ? 'Phone alerts allowed' : permission === 'denied' ? 'Alerts blocked in browser settings' : 'Allow phone alerts';
+    return `<section class="df-myflo-reminders"><div class="df-myflo-section-head"><div><span>Notifications</span><h3>Period reminders</h3></div><button type="button" onclick="dayframeSaveMyFloReminders()">Save</button></div><p class="df-myflo-helper">Choose when Dayframe reminds you before your estimated period. Fertile and ovulation days are marked automatically from your saved dates.</p><div class="df-myflo-chip-row" role="group" aria-label="Period reminder days">${options.map((option) => `<label class="df-myflo-chip"><input type="checkbox" name="df-myflo-reminder-day" value="${option.value}" ${s.reminderDays.includes(option.value) ? 'checked' : ''}><span>${option.label}</span></label>`).join('')}</div><div class="df-myflo-reminder-bottom"><label>Time <input id="df-myflo-reminder-time" type="time" value="${esc(s.reminderTime)}"></label><button type="button" onclick="dayframeEnableMyFloBrowserNotifications()" ${supported ? '' : 'disabled'}>${esc(permissionText)}</button></div></section>`;
   }
   function closeMyFloDayMenu() {
     _openMenuDate = '';
@@ -374,6 +416,12 @@
       renderMyFlo();
       window.renderHome?.();
       window.hubToast?.('Period removed');
+    }
+  };
+  window.dayframeRemoveMyFloContraception = function dayframeRemoveMyFloContraception() {
+    if (savePeriod({ contraception: '', pillLog: [] })) {
+      renderMyFlo();
+      window.hubToast?.('Method removed');
     }
   };
   window.dayframeSetMyFloPeriodLength = function dayframeSetMyFloPeriodLength(delta) {
@@ -510,6 +558,7 @@
       return;
     }
     const sum = summary(s);
+    const fertile = nextFertile(s);
     const head = panel.querySelector('.df-period-panel-head');
     if (head) {
       const eyebrow = head.querySelector('span');
@@ -528,11 +577,34 @@
       else panel.appendChild(view);
     }
     view.dataset.floSig = sig;
-    view.innerHTML = `<section class="df-myflo-calendar df-myflo-calendar-top"><div class="df-myflo-calendar-head"><button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button><div><span>Calendar</span><h3>Tap a day to log an entry</h3></div><button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button></div><div class="df-myflo-months">${renderMonth(calendarCursor, s)}${renderMonth(addMonths(calendarCursor, 1), s)}</div><div class="df-myflo-legend"><span><b class="period"></b>Period</span><span><b class="fertile"></b>Fertile</span><span><b class="ovulation"></b>Ovulation</span><span><b class="note"></b>Logged note</span><span><b class="today"></b>Today</span></div></section><div class="df-myflo-reset-row"><button type="button" onclick="dayframeResetMyFlo()">Reset all MyFlo data</button></div>`;
+    view.innerHTML = `<section class="df-myflo-calendar df-myflo-calendar-top"><div class="df-myflo-calendar-head"><button type="button" onclick="dayframeShiftMyFloCalendar(-1)" aria-label="Previous month">&lt;</button><div><span>Calendar</span><h3>Tap a day to log period, symptoms or intimacy</h3></div><button type="button" onclick="dayframeShiftMyFloCalendar(1)" aria-label="Next month">&gt;</button></div><div class="df-myflo-months">${renderMonth(calendarCursor, s)}${renderMonth(addMonths(calendarCursor, 1), s)}</div><div class="df-myflo-legend"><span><b class="period"></b>Period</span><span><b class="fertile"></b>Fertile</span><span><b class="ovulation"></b>Ovulation</span><span><b class="note"></b>Logged note</span><span><b class="today"></b>Today</span></div></section><section class="df-myflo-stats" aria-label="MyFlo overview"><article class="df-myflo-stat is-main"><span>${esc(sum.status)}</span><strong>${esc(sum.headline)}</strong><small>${esc(sum.detail)}</small></article><article class="df-myflo-stat"><span>Fertile window</span><strong>${esc(fertile ? shortRange(fertile.start, fertile.end) : 'Not set')}</strong><small>Estimated automatically from your period dates.</small></article><article class="df-myflo-stat"><span>Ovulation</span><strong>${esc(fertile ? shortDate(fertile.ovulation) : 'Not set')}</strong><small>Estimate only, not contraception guidance.</small></article></section>${renderContraception(s)}${renderReminders(s)}<div class="df-myflo-reset-row"><button type="button" onclick="dayframeResetMyFlo()">Reset all MyFlo data</button></div>`;
     updateSummary(s, sum);
+    sendDueReminder(s);
     if (preserveMenu) reopenMyFloDayMenu();
   }
 
+  function decorateBaseForm(s) {
+    const body = $('df-period-panel')?.querySelector('.df-period-body');
+    const form = body?.querySelector('.df-period-form');
+    if (!body || !form) return;
+    body.classList.add('df-myflo-basics');
+    if (!form.querySelector('.df-myflo-form-title')) form.insertAdjacentHTML('afterbegin', '<div class="df-myflo-form-title"><span>Basics</span><h3>Keep the estimate accurate</h3></div>');
+    const save = form.querySelector('.df-period-actions button.primary');
+    const clear = form.querySelector('.df-period-actions button:not(.primary)');
+    if (save) save.textContent = 'Save MyFlo';
+    if (clear) clear.textContent = 'Reset';
+    const last = $('df-period-last-start');
+    if (last && !last.dataset.myfloHint) {
+      last.dataset.myfloHint = 'true';
+      last.closest('label')?.appendChild(Object.assign(document.createElement('small'), { textContent: 'You can also tap a date on the calendar.' }));
+    }
+    const A = document.activeElement;
+    if (last && A !== last) last.value = s.lastStart;
+    const cyc = $('df-period-cycle-length'); if (cyc && A !== cyc) cyc.value = String(s.cycleLength);
+    const len = $('df-period-length'); if (len && A !== len) len.value = String(s.periodLength);
+    const notes = $('df-period-notes'); if (notes && A !== notes) notes.value = s.notes;
+    if (!s.lastStart) calendarCursor = firstOfMonth(new Date());
+  }
   function updateSummary(s = settings(), sum = summary(s)) {
     const card = $('df-period-card');
     const desc = $('df-period-card-desc') || card?.querySelector('.driving-home-desc');
@@ -657,6 +729,43 @@
     calendarCursor = addMonths(calendarCursor, Number(months) || 0);
     renderMyFlo();
   };
+  window.dayframeSaveMyFloReminders = function dayframeSaveMyFloReminders() {
+    const s = formSettings();
+    const reminderDays = [...document.querySelectorAll('input[name="df-myflo-reminder-day"]:checked')]
+      .map((input) => Number(input.value))
+      .filter((value) => [3, 2, 1, 0].includes(value));
+    if (savePeriod(Object.assign({}, s, {
+      reminderDays: reminderDays.length ? reminderDays : [1],
+      reminderTime: $('df-myflo-reminder-time')?.value || s.reminderTime,
+    }))) {
+      renderMyFlo();
+      window.hubToast?.('MyFlo reminders saved');
+    }
+  };
+  window.dayframeSetMyFloContraception = function dayframeSetMyFloContraception(value) {
+    const v = CONTRA_METHODS.includes(value) ? value : '';
+    if (savePeriod({ contraception: v })) {
+      renderMyFlo();
+      window.hubToast?.(v ? 'Contraception saved' : 'Contraception cleared');
+    }
+  };
+  window.dayframeToggleMyFloPillToday = function dayframeToggleMyFloPillToday() {
+    const s = settings();
+    const todayISO = iso(new Date());
+    const set = new Set(s.pillLog);
+    set.has(todayISO) ? set.delete(todayISO) : set.add(todayISO);
+    if (savePeriod({ pillLog: [...set].sort().slice(-90) })) {
+      renderMyFlo();
+      window.hubToast?.(set.has(todayISO) ? 'Logged for today' : 'Removed today');
+    }
+  };
+  window.dayframeEnableMyFloBrowserNotifications = async function dayframeEnableMyFloBrowserNotifications() {
+    if (!('Notification' in window)) return window.hubToast?.('Notifications are not available in this browser');
+    const permission = await window.Notification.requestPermission();
+    savePeriod({ browserNotifications: permission === 'granted' });
+    renderMyFlo();
+    window.hubToast?.(permission === 'granted' ? 'Phone alerts allowed' : 'Notifications not allowed');
+  };
   window.dayframeOpenPeriodTracker = function dayframeOpenPeriodTracker(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
@@ -671,6 +780,19 @@
     }
   };
 
+  function sendDueReminder(s) {
+    if (!s.browserNotifications || !('Notification' in window) || window.Notification.permission !== 'granted' || !s.lastStart) return;
+    const today = iso(new Date());
+    const next = nextPeriodStart(s, new Date());
+    const lead = diffDays(next, today);
+    if (!s.reminderDays.includes(lead)) return;
+    const key = `period-${next}-${lead}`;
+    if (s.lastReminders[key]) return;
+    try {
+      new window.Notification('MyFlo', { body: lead === 0 ? 'Your period is estimated for today.' : `Your period is estimated in ${lead} day${lead === 1 ? '' : 's'}.` });
+    } catch {}
+    savePeriod({ lastReminders: Object.assign({}, s.lastReminders, { [key]: new Date().toISOString() }) });
+  }
   function observe() {
     if (observing || !document.body || typeof MutationObserver !== 'function') return;
     observing = true;
