@@ -519,6 +519,10 @@ export default {
       if(url.pathname==='/api/bible/licensed')return request.method==='GET'?signedEndpoint(request,()=>getLicensedBibleChapter(url,env)):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
       if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request,env);
+      if(url.pathname==='/api/files/status'&&request.method==='GET')return json({configured:!!env.SUPABASE_SERVICE_ROLE_KEY});
+      if(url.pathname==='/api/files/object'&&request.method==='POST')return filesUpload(request,env);
+      if(url.pathname==='/api/files/sign'&&request.method==='POST')return filesSign(request,env);
+      if(url.pathname==='/api/files/object'&&request.method==='DELETE')return filesDelete(request,env);
       if(url.pathname==='/api/push/subscribe'&&request.method==='POST')return pushSubscribe(request);
       if(url.pathname==='/api/push/unsubscribe'&&request.method==='POST')return pushUnsubscribe(request);
       if(url.pathname==='/api/push/test'&&request.method==='POST')return pushTest(request,env);
@@ -579,6 +583,74 @@ function bearer(request){const h=request.headers.get('authorization')||'';return
 async function verifyUser(request){const token=bearer(request);if(!token)return null;const r=await fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_ANON,authorization:'Bearer '+token}});if(!r.ok)return null;const user=await r.json().catch(()=>null);return user?.id?{user,token}:null}
 async function signedEndpoint(request,action){const auth=await verifyUser(request);if(!auth)return json({error:'Sign in to continue.'},401);return action(auth)}
 async function sbRest(path,jwt,opts={}){const headers={apikey:SUPABASE_ANON,authorization:'Bearer '+jwt,'content-type':'application/json',...(opts.headers||{})};return fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers})}
+
+/* ---------- Private file attachments (Essentials > Documents) ----------
+   Uploads go through the worker rather than straight from the browser to
+   Supabase Storage. The worker verifies the caller's session, derives the
+   user id from it, and forces every object to live under "<user_id>/", so
+   one user can never read or overwrite another's files. That check is what
+   a storage.objects RLS policy would otherwise do — doing it here means the
+   feature needs no SQL run against the database, only the service-role key
+   that is already configured for push reminders. */
+const FILES_BUCKET='dayframe-documents';
+const FILES_MAX_BYTES=10*1024*1024;
+let filesBucketReady=false;
+function filesKey(url){
+  const raw=String(url.searchParams.get('key')||'').trim();
+  if(!raw||raw.length>200)return '';
+  if(raw.startsWith('/')||raw.includes('..')||raw.includes('//'))return '';
+  return /^[A-Za-z0-9][A-Za-z0-9._\-/]*$/.test(raw)?raw:'';
+}
+function filesObjectUrl(kind,userId,key){
+  const path=(userId+'/'+key).split('/').map(encodeURIComponent).join('/');
+  return SUPABASE_URL+'/storage/v1/object/'+(kind==='sign'?'sign/':'')+FILES_BUCKET+'/'+path;
+}
+function filesServiceHeaders(env,extra={}){
+  return {apikey:env.SUPABASE_SERVICE_ROLE_KEY,authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,...extra};
+}
+async function filesEnsureBucket(env){
+  if(filesBucketReady)return true;
+  const r=await fetch(SUPABASE_URL+'/storage/v1/bucket',{method:'POST',headers:filesServiceHeaders(env,{'content-type':'application/json'}),body:JSON.stringify({id:FILES_BUCKET,name:FILES_BUCKET,public:false,file_size_limit:FILES_MAX_BYTES})});
+  // 409 (and some 400s) mean it already exists, which is the normal case.
+  if(r.ok||r.status===409){filesBucketReady=true;return true}
+  const body=await r.text().catch(()=>'');
+  if(/exist/i.test(body)){filesBucketReady=true;return true}
+  console.error(JSON.stringify({event:'dayframe_bucket_create_failed',status:r.status,body:body.slice(0,200)}));
+  return false;
+}
+async function filesEndpoint(request,env,action){
+  if(!env.SUPABASE_SERVICE_ROLE_KEY)return json({error:'File storage is not configured.'},503);
+  const auth=await verifyUser(request);
+  if(!auth)return json({error:'Sign in to continue.'},401);
+  const url=new URL(request.url),key=filesKey(url);
+  if(!key)return json({error:'Bad file reference.'},400);
+  if(!await filesEnsureBucket(env))return json({error:'File storage is unavailable.'},502);
+  return action(auth.user.id,key,url);
+}
+function filesUpload(request,env){
+  return filesEndpoint(request,env,async(userId,key)=>{
+    const size=Number(request.headers.get('content-length')||0);
+    if(size>FILES_MAX_BYTES)return json({error:'File is too large (max 10MB).'},413);
+    const r=await fetch(filesObjectUrl('object',userId,key),{method:'POST',headers:filesServiceHeaders(env,{'content-type':request.headers.get('content-type')||'application/octet-stream','x-upsert':'true'}),body:request.body});
+    if(!r.ok)return json({error:'Upload failed.',status:r.status},502);
+    return json({ok:true});
+  });
+}
+function filesSign(request,env){
+  return filesEndpoint(request,env,async(userId,key,url)=>{
+    const expiresIn=Math.min(3600,Math.max(30,Number(url.searchParams.get('expires'))||60));
+    const r=await fetch(filesObjectUrl('sign',userId,key),{method:'POST',headers:filesServiceHeaders(env,{'content-type':'application/json'}),body:JSON.stringify({expiresIn})});
+    if(!r.ok)return json({error:'Could not open that file.'},502);
+    const data=await r.json().catch(()=>null);
+    return data?.signedURL?json({url:SUPABASE_URL+'/storage/v1'+data.signedURL}):json({error:'Could not open that file.'},502);
+  });
+}
+function filesDelete(request,env){
+  return filesEndpoint(request,env,async(userId,key)=>{
+    const r=await fetch(filesObjectUrl('object',userId,key),{method:'DELETE',headers:filesServiceHeaders(env)});
+    return json({ok:r.ok||r.status===404});
+  });
+}
 
 /* ---------- Push reminders (RFC 8291 aes128gcm + RFC 8292 VAPID) ---------- */
 const DAYFRAME_VAPID_PUBLIC_KEY='BP-qWlBLzxKHVcSe6TtiXqD1jOkWzyFgN5Pp3Iauc8rFy0Vvjpr0Wrm7aavCGotxi_eQynOzRVdsiYh7C-C0tws';

@@ -5646,35 +5646,37 @@ async function loadHubFromSupabase(){
     const local=hubLoad();await syncHubToSupabase(local);
   }catch(e){console.log('Dayframe data load error',e)}
 }
-// ── FILE STORAGE (Supabase Storage) ──
-// Private per-user file attachments (e.g. Essentials > Documents). Objects
-// live at "<user_id>/<...>" so the storage.objects RLS policy can scope each
-// user to their own folder. See scripts/dayframe_storage_setup.sql for the
-// one-time bucket + policy setup this depends on.
-const DAYFRAME_STORAGE_BUCKET='dayframe-documents';
-async function dfStoragePath(fileKey){const s=await dfRefreshSession(false);if(!s?.access_token||!s?.user?.id)return null;return {session:s,path:s.user.id+'/'+fileKey}}
+// ── FILE STORAGE ──
+// Private per-user file attachments (e.g. Essentials > Documents). The browser
+// never talks to Supabase Storage directly: it calls /api/files/* on the
+// Dayframe worker, which checks the session and forces every object under
+// "<user_id>/", so files stay scoped to their owner. Keeping that check in the
+// worker is what lets this work without any database setup.
+async function dfStorageAuth(){const s=await dfRefreshSession(false);return s?.access_token||null}
+function dfStorageEndpoint(path,fileKey,extra=''){return path+'?key='+encodeURIComponent(fileKey)+extra}
 async function dfStorageUpload(fileKey,file){
-  const ctx=await dfStoragePath(fileKey);if(!ctx)return {ok:false,error:'Not signed in'};
+  const token=await dfStorageAuth();if(!token)return {ok:false,error:'Not signed in'};
   if(file.size>10*1024*1024)return {ok:false,error:'File is too large (max 10MB)'};
   try{
-    const r=await fetch(SUPABASE_URL+'/storage/v1/object/'+DAYFRAME_STORAGE_BUCKET+'/'+ctx.path.split('/').map(encodeURIComponent).join('/'),{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+ctx.session.access_token,'Content-Type':file.type||'application/octet-stream','x-upsert':'true'},body:file});
-    if(!r.ok)return {ok:false,error:'Upload failed ('+r.status+')'};
-    return {ok:true};
+    const r=await fetch(dfStorageEndpoint('/api/files/object',fileKey),{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':file.type||'application/octet-stream'},body:file});
+    if(r.ok)return {ok:true};
+    const j=await r.json().catch(()=>null);
+    return {ok:false,error:j?.error||'Upload failed ('+r.status+')'};
   }catch(e){return {ok:false,error:'Upload failed — check your connection'}}
 }
 async function dfStorageSignedUrl(fileKey,expiresIn=60){
-  const ctx=await dfStoragePath(fileKey);if(!ctx)return null;
+  const token=await dfStorageAuth();if(!token)return null;
   try{
-    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/'+DAYFRAME_STORAGE_BUCKET+'/'+ctx.path.split('/').map(encodeURIComponent).join('/'),{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+ctx.session.access_token,'Content-Type':'application/json'},body:JSON.stringify({expiresIn})});
+    const r=await fetch(dfStorageEndpoint('/api/files/sign',fileKey,'&expires='+encodeURIComponent(expiresIn)),{method:'POST',headers:{Authorization:'Bearer '+token}});
     if(!r.ok)return null;
     const j=await r.json().catch(()=>null);
-    return j?.signedURL?SUPABASE_URL+'/storage/v1'+j.signedURL:null;
+    return j?.url||null;
   }catch(e){return null}
 }
 async function dfStorageDelete(fileKey){
-  const ctx=await dfStoragePath(fileKey);if(!ctx)return false;
+  const token=await dfStorageAuth();if(!token)return false;
   try{
-    const r=await fetch(SUPABASE_URL+'/storage/v1/object/'+DAYFRAME_STORAGE_BUCKET+'/'+ctx.path.split('/').map(encodeURIComponent).join('/'),{method:'DELETE',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+ctx.session.access_token}});
+    const r=await fetch(dfStorageEndpoint('/api/files/object',fileKey),{method:'DELETE',headers:{Authorization:'Bearer '+token}});
     return r.ok;
   }catch(e){return false}
 }

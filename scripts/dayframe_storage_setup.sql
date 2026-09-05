@@ -1,5 +1,13 @@
--- One-time setup for Dayframe's private file attachments (Essentials > Documents).
--- Run this once in the Supabase project's SQL Editor (dashboard > SQL Editor > New query).
+-- OPTIONAL — not required for file attachments to work.
+--
+-- Uploads now go through the Dayframe worker (/api/files/* in _worker.js),
+-- which verifies the session and forces every object under "<user_id>/". That
+-- is enforced before Supabase is ever called, so the feature runs without this
+-- script. Keep this only as defence in depth: if the project's SQL Editor is
+-- ever reachable again, running it adds the same restriction at the database
+-- level, so a leaked service-role key could not cross between users either.
+--
+-- Run in the Supabase dashboard > SQL Editor > New query.
 --
 -- Creates a private storage bucket and restricts every object in it to the
 -- user who owns the folder it lives in. The app always uploads to
