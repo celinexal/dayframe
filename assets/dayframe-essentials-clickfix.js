@@ -1,10 +1,10 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v20';
+  const VERSION = 'clickfix-v21';
   const FLAG = 'data-dayframe-essentials-clickfix';
   const STYLE_ID = 'df-essentials-clickfix-style';
-  const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}.df-tool-form select{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none;cursor:pointer}.df-tool-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}.df-tool-type{display:inline-flex;align-items:center;border-radius:999px;background:#f4f1ff;color:#6e5ff0;font-size:10px;font-weight:900;padding:6px 9px}.df-tool-reference{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:#effefa;color:#168a76;font-size:10px;font-weight:900;padding:6px 9px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.df-tool-empty{line-height:1.5}.df-tool-empty strong{display:block;color:#172033;font-size:14px;margin-bottom:4px}.df-tool-file-hint{display:block;margin-top:2px;color:#8a94a4;font-size:10px;font-weight:700;line-height:1.4}.df-tool-file-current{display:block;margin-top:2px;color:#4f5b70;font-size:11px;font-weight:750}.df-tool-file-current button,.df-tool-item-file button{border:0;background:transparent;color:#6e5ff0;font-size:10.5px;font-weight:850;padding:0;cursor:pointer;text-decoration:underline}.df-tool-item-file{display:block;margin-top:6px;color:#758094;font-size:10.5px}';
+  const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}.df-tool-form select{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none;cursor:pointer}.df-tool-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}.df-tool-type{display:inline-flex;align-items:center;border-radius:999px;background:#f4f1ff;color:#6e5ff0;font-size:10px;font-weight:900;padding:6px 9px}.df-tool-reference{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:#effefa;color:#168a76;font-size:10px;font-weight:900;padding:6px 9px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.df-tool-empty{line-height:1.5}.df-tool-empty strong{display:block;color:#172033;font-size:14px;margin-bottom:4px}.df-tool-file-hint{display:block;margin-top:2px;color:#8a94a4;font-size:10px;font-weight:700;line-height:1.4}.df-tool-file-current{display:block;margin-top:2px;color:#4f5b70;font-size:11px;font-weight:750}.df-tool-file-current button,.df-tool-item-file button{border:0;background:transparent;color:#6e5ff0;font-size:10.5px;font-weight:850;padding:0;cursor:pointer;text-decoration:underline}.df-tool-item-file{display:block;margin-top:6px;color:#758094;font-size:10.5px}.df-tool-checkbox-field{display:flex!important;flex-direction:row!important;align-items:center;gap:9px;color:#4f5b70;font-size:11.5px;font-weight:750}.df-tool-checkbox-field input{width:17px;height:17px;accent-color:#7564f2;flex:0 0 auto}';
   const WIDGET_LABELS = {
     car: 'My Car',
     myflo: 'MyFlo',
@@ -16,7 +16,7 @@
   const DEFAULT_WIDGET_ORDER = ['car', 'myflo', 'documents', 'health', 'home', 'work-study'];
   const REAL_TOOLS = {
     documents: { page: 'driving-documents', label: 'Documents', desc: 'IDs, expiry dates and where each document is kept.', tags: ['ID', 'Passport', 'Licence', 'Renewals'], types: ['ID', 'Passport', 'Licence', 'Renewal', 'Insurance', 'Other'], empty: 'No documents saved', emptyHint: 'Save a passport expiry, licence renewal or the place you keep an important document.', list: 'Saved documents', formTitle: 'Add a document', itemLabel: 'Document name', dateLabel: 'Expiry or renewal date', placeholder: 'Passport, provisional licence, railcard or insurance document.', referenceLabel: 'Saved at / link', referencePlaceholder: 'iCloud folder, Drive link, photo album or where you keep it.', save: 'Save document', saved: 'Document saved', deleted: 'Document deleted', store: 'documents', attachments: true },
-    health: { page: 'driving-health', label: 'Health', desc: 'Dentist, GP, prescriptions and checkups.', tags: ['Dentist', 'GP', 'Optician', 'Medication'], types: ['Dentist', 'GP', 'Optician', 'Medication', 'Checkup', 'Other'], empty: 'No health reminders saved', emptyHint: 'Add the next appointment, prescription refill or checkup date.', list: 'Health reminders', formTitle: 'Add a health reminder', itemLabel: 'What is it?', dateLabel: 'Date', placeholder: 'Dentist appointment, GP call, prescription refill or eye test.', save: 'Save reminder', saved: 'Reminder saved', deleted: 'Reminder deleted', store: 'health' },
+    health: { page: 'driving-health', label: 'Health', desc: 'Dentist, GP, prescriptions and checkups.', tags: ['Dentist', 'GP', 'Optician', 'Medication'], types: ['Dentist', 'GP', 'Optician', 'Medication', 'Checkup', 'Other'], empty: 'No health reminders saved', emptyHint: 'Add the next appointment, prescription refill or checkup date.', list: 'Health reminders', formTitle: 'Add a health reminder', itemLabel: 'What is it?', dateLabel: 'Date', placeholder: 'Dentist appointment, GP call, prescription refill or eye test.', save: 'Save reminder', saved: 'Reminder saved', deleted: 'Reminder deleted', store: 'health', reminders: true },
     home: { page: 'driving-home-admin', label: 'Home & Rent', desc: 'Rent dates, tenancy notes and moving tasks.', tags: ['Rent date', 'Tenancy', 'Deposit', 'Moving'], types: ['Rent date', 'Tenancy', 'Deposit', 'Moving', 'Utility', 'Other'], empty: 'No home or rent reminders saved', emptyHint: 'Keep rent dates, tenancy renewals, deposit notes or moving tasks here.', list: 'Home and rent', formTitle: 'Add a home reminder', itemLabel: 'What needs tracking?', dateLabel: 'Date', placeholder: 'Rent review, tenancy end, deposit note or moving task.', save: 'Save reminder', saved: 'Home reminder saved', deleted: 'Home reminder deleted', store: 'home' },
     'work-study': { page: 'driving-work-study', label: 'Work & Study', desc: 'Shifts, applications, courses and deadlines.', tags: ['Shifts', 'Courses', 'Applications', 'Certificates'], types: ['Shift', 'Course', 'Application', 'Interview', 'Certificate', 'Deadline', 'Other'], empty: 'No work or study dates saved', emptyHint: 'Add a shift, interview, deadline, course date or certificate renewal.', list: 'Work and study dates', formTitle: 'Add a work or study date', itemLabel: 'What is it?', dateLabel: 'Date', placeholder: 'Shift, course date, application, interview or certificate.', save: 'Save date', saved: 'Date saved', deleted: 'Date deleted', store: 'workStudy' },
   };
@@ -153,6 +153,8 @@
       fileName: String(item?.fileName || '').trim().slice(0, 200),
       fileSize: Number(item?.fileSize) || 0,
       fileType: String(item?.fileType || '').trim().slice(0, 100),
+      remind: Boolean(item?.remind),
+      taskId: item?.taskId || '',
     })).filter((item) => item.title).sort((a, b) => {
       if (a.date && b.date) return a.date.localeCompare(b.date);
       if (a.date) return -1;
@@ -207,9 +209,40 @@
     return `<label>Attach a file (optional)<input id="${esc(inputId(tool.key, 'file'))}" type="file" accept="image/*,.pdf" onchange="dayframeEssentialsFilePicked('${esc(tool.key)}', event)"><span class="df-tool-file-hint">Photos or PDFs, up to 10MB. Stored privately — only you can view it.</span><span class="df-tool-file-current" id="${esc(inputId(tool.key, 'file-current'))}"></span></label>`;
   }
 
+  function reminderFieldHTML(tool) {
+    if (!tool.reminders) return '';
+    return `<label class="df-tool-checkbox-field"><input type="checkbox" id="${esc(inputId(tool.key, 'remind'))}"> Remind me every day (adds a daily task to Plans)</label>`;
+  }
+
+  // Keeps a linked "Take X" daily task in sync with a health item's reminder
+  // checkbox. Runs as its own hubLoad/hubSave round trip so the task list is
+  // updated atomically, independent of when the health item itself saves.
+  function syncReminderTask(item, title, wantReminder) {
+    if (typeof window.hubLoad !== 'function' || typeof window.hubSave !== 'function') return item.taskId || '';
+    const d = window.hubLoad();
+    d.tasks = Array.isArray(d.tasks) ? d.tasks : [];
+    let taskId = item.taskId || '';
+    if (wantReminder) {
+      let t = taskId ? d.tasks.find((x) => String(x.id) === String(taskId)) : null;
+      if (!t) {
+        t = { id: Date.now(), title: '', date: '', area: 'Health & wellbeing', priority: 'Normal', repeat: 'daily', done: false };
+        d.tasks.unshift(t);
+      }
+      t.title = `Take ${title}`;
+      t.area = 'Health & wellbeing';
+      t.repeat = 'daily';
+      taskId = t.id;
+    } else if (taskId) {
+      d.tasks = d.tasks.filter((x) => String(x.id) !== String(taskId));
+      taskId = '';
+    }
+    window.hubSave(d);
+    return taskId;
+  }
+
   function realPageHTML(tool) {
     const referenceField = tool.referenceLabel ? `<label>${esc(tool.referenceLabel)}<input id="${esc(inputId(tool.key, 'reference'))}" type="text" maxlength="240" placeholder="${esc(tool.referencePlaceholder || '')}"></label>` : '';
-    return `<section class="pg df-essentials-tool-page" id="pg-${esc(tool.page)}"><button class="life-back" type="button" onclick="go('driving')">&lt; Essentials</button><section class="df-tool-hero"><div class="df-tool-kicker">Essentials</div><h1>${esc(tool.label)}</h1><p>${esc(tool.desc)}</p></section><div class="df-tool-layout"><section class="df-tool-panel"><h2>${esc(tool.formTitle)}</h2><form class="df-tool-form" onsubmit="dayframeSaveEssentialsItem('${esc(tool.key)}', event)"><input id="${esc(inputId(tool.key, 'id'))}" type="hidden"><label>Type<select id="${esc(inputId(tool.key, 'type'))}">${optionHTML(tool)}</select></label><label>${esc(tool.itemLabel)}<input id="${esc(inputId(tool.key, 'title'))}" type="text" maxlength="120" placeholder="${esc(tool.placeholder)}"></label><label>${esc(tool.dateLabel)}<input id="${esc(inputId(tool.key, 'date'))}" type="date"></label>${referenceField}<label>Notes<textarea id="${esc(inputId(tool.key, 'notes'))}" maxlength="500" placeholder="Anything useful to remember."></textarea></label>${attachFieldHTML(tool)}<div class="df-tool-actions"><button type="button" onclick="dayframeClearEssentialsForm('${esc(tool.key)}')">Clear</button><button class="primary" type="submit">${esc(tool.save)}</button></div></form></section><section class="df-tool-panel"><div class="df-tool-list-head"><h2>${esc(tool.list)}</h2><span class="df-tool-count" id="df-${esc(tool.key)}-count"></span></div><div class="df-tool-list" id="df-${esc(tool.key)}-list"></div></section></div></section>`;
+    return `<section class="pg df-essentials-tool-page" id="pg-${esc(tool.page)}"><button class="life-back" type="button" onclick="go('driving')">&lt; Essentials</button><section class="df-tool-hero"><div class="df-tool-kicker">Essentials</div><h1>${esc(tool.label)}</h1><p>${esc(tool.desc)}</p></section><div class="df-tool-layout"><section class="df-tool-panel"><h2>${esc(tool.formTitle)}</h2><form class="df-tool-form" onsubmit="dayframeSaveEssentialsItem('${esc(tool.key)}', event)"><input id="${esc(inputId(tool.key, 'id'))}" type="hidden"><label>Type<select id="${esc(inputId(tool.key, 'type'))}">${optionHTML(tool)}</select></label><label>${esc(tool.itemLabel)}<input id="${esc(inputId(tool.key, 'title'))}" type="text" maxlength="120" placeholder="${esc(tool.placeholder)}"></label><label>${esc(tool.dateLabel)}<input id="${esc(inputId(tool.key, 'date'))}" type="date"></label>${referenceField}<label>Notes<textarea id="${esc(inputId(tool.key, 'notes'))}" maxlength="500" placeholder="Anything useful to remember."></textarea></label>${reminderFieldHTML(tool)}${attachFieldHTML(tool)}<div class="df-tool-actions"><button type="button" onclick="dayframeClearEssentialsForm('${esc(tool.key)}')">Clear</button><button class="primary" type="submit">${esc(tool.save)}</button></div></form></section><section class="df-tool-panel"><div class="df-tool-list-head"><h2>${esc(tool.list)}</h2><span class="df-tool-count" id="df-${esc(tool.key)}-count"></span></div><div class="df-tool-list" id="df-${esc(tool.key)}-list"></div></section></div></section>`;
   }
 
   function renderRealTool(tool) {
@@ -228,7 +261,7 @@
     } else {
       html = items.map((item) => {
         const details = [item.date ? prettyDate(item.date) : 'No date', item.notes].filter(Boolean).join(' - ');
-        return `<article class="df-tool-item"><div><strong>${esc(item.title)}</strong><span>${esc(details)}</span><div class="df-tool-meta"><span class="df-tool-type">${esc(typeLabel(tool, item.type))}</span>${referenceHTML(item.reference)}</div>${item.fileName ? `<span class="df-tool-item-file">${attachmentRowHTML(tool, item)}</span>` : ''}</div><div class="df-tool-item-actions"><button type="button" onclick="dayframeEditEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Edit</button><button type="button" onclick="dayframeDeleteEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Delete</button></div></article>`;
+        return `<article class="df-tool-item"><div><strong>${esc(item.title)}</strong><span>${esc(details)}</span><div class="df-tool-meta"><span class="df-tool-type">${esc(typeLabel(tool, item.type))}</span>${item.remind ? '<span class="df-tool-type">↻ Daily reminder</span>' : ''}${referenceHTML(item.reference)}</div>${item.fileName ? `<span class="df-tool-item-file">${attachmentRowHTML(tool, item)}</span>` : ''}</div><div class="df-tool-item-actions"><button type="button" onclick="dayframeEditEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Edit</button><button type="button" onclick="dayframeDeleteEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Delete</button></div></article>`;
       }).join('');
     }
     if (list.innerHTML !== html) list.innerHTML = html;
@@ -270,6 +303,10 @@
       const current = document.getElementById(inputId(tool.key, 'file-current'));
       if (current) current.innerHTML = '';
     }
+    if (tool.reminders) {
+      const remind = document.getElementById(inputId(tool.key, 'remind'));
+      if (remind) remind.checked = false;
+    }
   }
 
   function openRealTool(key, event) {
@@ -306,6 +343,10 @@
         const current = document.getElementById(inputId(key, 'file-current'));
         if (current) current.innerHTML = attachmentRowHTML(tool, item);
       }
+      if (tool.reminders) {
+        const remind = document.getElementById(inputId(key, 'remind'));
+        if (remind) remind.checked = Boolean(item.remind);
+      }
       document.getElementById(inputId(key, 'title'))?.focus();
     };
     window.dayframeDeleteEssentialsItem = async function dayframeDeleteEssentialsItem(key, id) {
@@ -318,6 +359,7 @@
       if (tool.attachments && item?.fileName && typeof window.dfStorageDelete === 'function') {
         window.dfStorageDelete(`${tool.store}/${id}`).catch(() => {});
       }
+      if (item?.taskId) syncReminderTask(item, item.title, false);
     };
     window.dayframeViewEssentialsAttachment = async function dayframeViewEssentialsAttachment(key, id) {
       const tool = realTool(key);
@@ -364,7 +406,13 @@
         fileName: existing?.fileName || '',
         fileSize: existing?.fileSize || 0,
         fileType: existing?.fileType || '',
+        remind: existing?.remind || false,
+        taskId: existing?.taskId || '',
       };
+      if (tool.reminders) {
+        next.remind = Boolean(document.getElementById(inputId(key, 'remind'))?.checked);
+        next.taskId = syncReminderTask(next, title, next.remind);
+      }
       const pickedFile = tool.attachments ? document.getElementById(inputId(key, 'file'))?.files?.[0] : null;
       const submitButton = event?.target?.querySelector?.('button[type="submit"]');
       if (pickedFile) {
