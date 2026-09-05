@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'flo-v12';
+  const VERSION = 'flo-v13';
   const FLAG = 'data-dayframe-essentials-flo';
   const LABEL = 'MyFlo';
   const DAY_MS = 86400000;
@@ -110,8 +110,35 @@
       lastReminders: raw.lastReminders && typeof raw.lastReminders === 'object' ? raw.lastReminders : {},
       contraception: typeof raw.contraception === 'string' ? raw.contraception : '',
       pillLog: Array.isArray(raw.pillLog) ? raw.pillLog.filter(isISO).slice(-90) : [],
+      pillReminder: raw.pillReminder === true,
+      pillReminderTaskId: raw.pillReminderTaskId || '',
       dayLogs,
     };
+  }
+  // Keeps a linked daily "Take your contraceptive pill" task in sync with
+  // the pill-reminder checkbox, the same pattern used for Health reminders.
+  function syncPillReminderTask(taskId, wantReminder) {
+    if (typeof window.hubLoad !== 'function' || typeof window.hubSave !== 'function') return taskId || '';
+    const d = window.hubLoad();
+    d.tasks = Array.isArray(d.tasks) ? d.tasks : [];
+    let id = taskId || '';
+    if (wantReminder) {
+      let t = id ? d.tasks.find((x) => String(x.id) === String(id)) : null;
+      if (!t) {
+        t = { id: Date.now(), title: '', date: '', area: 'Health & wellbeing', priority: 'Normal', repeat: 'daily', done: false };
+        d.tasks.unshift(t);
+      }
+      t.title = 'Take contraceptive pill';
+      t.area = 'Health & wellbeing';
+      t.repeat = 'daily';
+      t.date = '';
+      id = t.id;
+    } else if (id) {
+      d.tasks = d.tasks.filter((x) => String(x.id) !== String(id));
+      id = '';
+    }
+    window.hubSave(d);
+    return id;
   }
   const CONTRA_METHODS = ['', 'Combined pill', 'Progestogen-only pill', 'Contraceptive patch', 'Vaginal ring', 'Contraceptive implant', 'Hormonal coil (IUS)', 'Copper coil (IUD)', 'Contraceptive injection', 'Condoms only', 'Other'];
   const FLOW_LEVELS = ['light', 'medium', 'heavy'];
@@ -320,7 +347,7 @@
       let streak = 0;
       const walk = new Date();
       while (s.pillLog.includes(iso(walk)) && streak < 400) { streak += 1; walk.setDate(walk.getDate() - 1); }
-      daily = `<div class="df-myflo-pill"><button type="button" class="${takenToday ? 'on' : ''}" onclick="dayframeToggleMyFloPillToday()">${takenToday ? '✓ Taken today' : 'Mark today taken'}</button><div class="df-myflo-pill-dots" aria-hidden="true">${dots.join('')}</div><span>${streak ? `${streak}-day streak` : 'Last 7 days'}</span></div>`;
+      daily = `<div class="df-myflo-pill"><button type="button" class="${takenToday ? 'on' : ''}" onclick="dayframeToggleMyFloPillToday()">${takenToday ? '✓ Taken today' : 'Mark today taken'}</button><div class="df-myflo-pill-dots" aria-hidden="true">${dots.join('')}</div><span>${streak ? `${streak}-day streak` : 'Last 7 days'}</span></div><label class="df-myflo-pill-remind"><input type="checkbox" ${s.pillReminder ? 'checked' : ''} onchange="dayframeToggleMyFloPillReminder(this.checked)"> Remind me</label>`;
     }
     const removeBtn = s.contraception
       ? `<button type="button" class="df-myflo-contra-remove" onclick="dayframeRemoveMyFloContraception()">Remove method</button>`
@@ -419,9 +446,19 @@
     }
   };
   window.dayframeRemoveMyFloContraception = function dayframeRemoveMyFloContraception() {
-    if (savePeriod({ contraception: '', pillLog: [] })) {
+    const s = settings();
+    const clearedTaskId = s.pillReminderTaskId ? syncPillReminderTask(s.pillReminderTaskId, false) : '';
+    if (savePeriod({ contraception: '', pillLog: [], pillReminder: false, pillReminderTaskId: clearedTaskId })) {
       renderMyFlo();
       window.hubToast?.('Method removed');
+    }
+  };
+  window.dayframeToggleMyFloPillReminder = function dayframeToggleMyFloPillReminder(checked) {
+    const s = settings();
+    const taskId = syncPillReminderTask(s.pillReminderTaskId, Boolean(checked));
+    if (savePeriod({ pillReminder: Boolean(checked), pillReminderTaskId: taskId })) {
+      renderMyFlo();
+      window.hubToast?.(checked ? 'Reminder set' : 'Reminder removed');
     }
   };
   window.dayframeSetMyFloPeriodLength = function dayframeSetMyFloPeriodLength(delta) {
@@ -435,7 +472,9 @@
   };
   window.dayframeResetMyFlo = function dayframeResetMyFlo() {
     if (!window.confirm('Clear all your MyFlo data? This removes every logged day, symptom and note.')) return;
-    if (savePeriod({ lastStart: '', lastEnd: '', cycleLength: 28, periodLength: 5, notes: '', loggedStarts: [], loggedEnds: [], dayLogs: {} })) {
+    const s = settings();
+    if (s.pillReminderTaskId) syncPillReminderTask(s.pillReminderTaskId, false);
+    if (savePeriod({ lastStart: '', lastEnd: '', cycleLength: 28, periodLength: 5, notes: '', loggedStarts: [], loggedEnds: [], dayLogs: {}, contraception: '', pillLog: [], pillReminder: false, pillReminderTaskId: '' })) {
       calendarCursor = firstOfMonth(new Date());
       renderMyFlo();
       window.renderHome?.();
@@ -628,7 +667,7 @@
       #df-myflo-daypop .df-myflo-dp-sympwrap{border:1px solid #e7e0ea;border-radius:11px;background:#fff}#df-myflo-daypop .df-myflo-dp-sympwrap>summary{list-style:none;cursor:pointer;padding:8px 11px;font:800 10.5px var(--ff);color:#7a4fa0}#df-myflo-daypop .df-myflo-dp-sympwrap>summary::-webkit-details-marker{display:none}#df-myflo-daypop .df-myflo-dp-sympwrap>summary:before{content:"▸ ";font-size:9px}#df-myflo-daypop .df-myflo-dp-sympwrap[open]>summary:before{content:"▾ "}#df-myflo-daypop .df-myflo-dp-sympwrap .df-myflo-dp-symp{padding:0 9px 9px}
       #df-myflo-view{display:grid;gap:14px;padding:16px}.df-myflo-stats{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px}.df-myflo-stat{min-height:118px;border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.78);padding:16px;box-shadow:0 14px 28px rgba(42,54,84,.055)}.df-myflo-stat.is-main{background:linear-gradient(135deg,#fff 0%,#fff1f7 55%,#eefffb 100%);border-color:#f5cde2}.df-myflo-stat span,.df-myflo-section-head span,.df-myflo-calendar-head span,.df-myflo-form-title span,.df-myflo-actions span{display:block;color:#7c879a;font-size:9px;font-weight:900;text-transform:uppercase}.df-myflo-stat strong{display:block;margin:8px 0 7px;font-family:var(--fd);font-size:28px;line-height:1;color:#172033}.df-myflo-stat small{display:block;color:#6f7a8c;font-size:11px;line-height:1.45;font-weight:750}
       .df-myflo-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid #f3d8e8;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#fff3f8 58%,#effffc 100%);padding:15px 16px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-actions h3{margin:3px 0 4px;font-family:var(--fd);font-size:19px;color:#172033}.df-myflo-actions p{margin:0;color:#6f7a8c;font-size:11px;line-height:1.45;font-weight:750}.df-myflo-action-buttons{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.df-myflo-action-buttons button{height:38px;border:1px solid #f2bdd7;border-radius:999px;background:#fff;color:#d94382;font:850 11px var(--ff);padding:0 14px;cursor:pointer}.df-myflo-action-buttons button:first-child{background:#ff5d93;color:#fff;border-color:#ff5d93;box-shadow:0 10px 20px rgba(255,93,147,.18)}
-      .df-myflo-contra{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.84);padding:14px 16px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-contra-field{display:grid;gap:6px;color:#7b8495;font-size:9.5px;font-weight:850;max-width:340px}.df-myflo-contra-field select{height:38px;border:1px solid #e7eaf3;border-radius:12px;background:#f8f9fc;padding:0 10px;color:#172033;font:800 12px var(--ff)}.df-myflo-pill{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.df-myflo-pill button{height:38px;border:1px solid #f2bdd7;border-radius:999px;background:#fff;color:#d94382;font:850 11px var(--ff);padding:0 16px;cursor:pointer}.df-myflo-pill button.on{background:#ff5d93;color:#fff;border-color:#ff5d93;box-shadow:0 10px 20px rgba(255,93,147,.18)}.df-myflo-pill-dots{display:flex;gap:5px}.df-myflo-pill-dots b{width:10px;height:10px;border-radius:999px;background:#eceef4;display:inline-block}.df-myflo-pill-dots b.on{background:#ff5d93}.df-myflo-pill span{color:#7b8495;font-size:10.5px;font-weight:850}
+      .df-myflo-contra{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.84);padding:14px 16px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-contra-field{display:grid;gap:6px;color:#7b8495;font-size:9.5px;font-weight:850;max-width:340px}.df-myflo-contra-field select{height:38px;border:1px solid #e7eaf3;border-radius:12px;background:#f8f9fc;padding:0 10px;color:#172033;font:800 12px var(--ff)}.df-myflo-pill{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.df-myflo-pill button{height:38px;border:1px solid #f2bdd7;border-radius:999px;background:#fff;color:#d94382;font:850 11px var(--ff);padding:0 16px;cursor:pointer}.df-myflo-pill button.on{background:#ff5d93;color:#fff;border-color:#ff5d93;box-shadow:0 10px 20px rgba(255,93,147,.18)}.df-myflo-pill-dots{display:flex;gap:5px}.df-myflo-pill-dots b{width:10px;height:10px;border-radius:999px;background:#eceef4;display:inline-block}.df-myflo-pill-dots b.on{background:#ff5d93}.df-myflo-pill span{color:#7b8495;font-size:10.5px;font-weight:850}.df-myflo-pill-remind{display:flex;align-items:center;gap:7px;color:#7b8495;font-size:10.5px;font-weight:850;cursor:pointer}.df-myflo-pill-remind input{width:16px;height:16px;accent-color:#ff5d93}
       .df-myflo-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:14px;align-items:start}.df-myflo-calendar,.df-myflo-reminders{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.84);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.052)}.df-myflo-calendar-head,.df-myflo-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.df-myflo-calendar-head h3,.df-myflo-section-head h3,.df-myflo-form-title h3{margin:3px 0 0;font-family:var(--fd);font-size:18px;line-height:1.1;color:#172033}.df-myflo-calendar-head button,.df-myflo-section-head button,.df-myflo-reminder-bottom button{height:34px;border:1px solid #eadffc;border-radius:999px;background:#fff;color:#7161f1;font:850 11px var(--ff);padding:0 13px;cursor:pointer}.df-myflo-calendar-head button{width:34px;padding:0;font-size:18px}
       .df-myflo-months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.df-myflo-month{border:1px solid #f0edf5;border-radius:16px;background:#fff;padding:12px}.df-myflo-month h4{margin:0 0 11px;text-align:center;font-family:var(--fd);font-size:18px;color:#172033}.df-myflo-weekdays,.df-myflo-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.df-myflo-weekdays span{text-align:center;color:#8a94a4;font-size:9px;font-weight:900}.df-myflo-day{position:relative;display:grid;place-items:center;aspect-ratio:1;border:0;border-radius:999px;background:transparent;color:#172033;font:850 12px var(--ff);cursor:pointer}.df-myflo-day span{position:relative;z-index:2}.df-myflo-day i{position:absolute;left:50%;bottom:4px;display:flex;gap:2px;transform:translateX(-50%);font-style:normal}.df-myflo-day i b{width:4px;height:4px;border-radius:999px;background:#c6cdd8}.df-myflo-day.is-outside{color:#c4cad5}.df-myflo-day.is-period{background:#ff5d93;color:#fff;box-shadow:0 7px 16px rgba(255,93,147,.22)}.df-myflo-day.is-period:not(.is-logged){background:#fff1f6;color:#e84f87;border:1px dashed #f06fa1;box-shadow:none}.df-myflo-day.is-fertile:not(.is-period){background:#ecfffb;color:#10998f}.df-myflo-day.is-ovulation{outline:2px dotted #32b8ab;outline-offset:2px}.df-myflo-day.is-today:after{content:"";position:absolute;inset:2px;border:2px solid #7564f2;border-radius:999px}.df-myflo-day.is-logged{background:#ff5d93;color:#fff}
       .df-myflo-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;color:#7b8495;font-size:10px;font-weight:850}.df-myflo-legend span{display:inline-flex;align-items:center;gap:6px;border:1px solid #eef1f6;border-radius:999px;background:#fff;padding:6px 8px}.df-myflo-legend b{width:9px;height:9px;border-radius:999px;display:inline-block}.df-myflo-legend .period{background:#ff5d93}.df-myflo-legend .fertile{background:#48d5c2}.df-myflo-legend .ovulation{border:2px dotted #32b8ab}.df-myflo-legend .today{border:2px solid #7564f2}.df-myflo-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.df-myflo-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid #efe5f7;border-radius:999px;background:#fff;padding:8px 10px;color:#606c80;font-size:10.5px;font-weight:850;cursor:pointer}.df-myflo-chip input{accent-color:#ef5f9b}.df-myflo-chip:has(input:checked){background:#fff1f7;border-color:#f4b9d5;color:#d94382}.df-myflo-helper{margin:-3px 0 8px;color:#738095;font-size:10.5px;line-height:1.5;font-weight:750}.df-myflo-reminder-bottom{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:12px}.df-myflo-reminder-bottom label{display:grid;gap:5px;color:#7b8495;font-size:9.5px;font-weight:850}.df-myflo-reminder-bottom input{height:34px;border:1px solid #e7eaf3;border-radius:12px;background:#f8f9fc;padding:0 10px;color:#172033;font:800 12px var(--ff)}#df-period-panel .df-period-body.df-myflo-basics{display:block!important;padding:0 16px 16px!important}#df-period-panel .df-period-form{border:1px solid #edf0f7;border-radius:18px;background:rgba(255,255,255,.82);padding:14px;box-shadow:0 14px 28px rgba(42,54,84,.05)}

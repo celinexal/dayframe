@@ -2748,14 +2748,13 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
     </div>
     <div class="personal-hero-body">
       <div class="personal-hero-copy"><div class="personal-hero-eyebrow">My Car</div><h1>Keep the road admin simple.</h1><p>Save your vehicle details, renewal dates and important notes once, then let Dayframe keep them ready when you need them.</p></div>
-      <button class="personal-hero-action" onclick="toggleLifeForm('vehicle-form')"><span>✎</span>Add vehicle</button>
     </div>
     <div class="personal-hero-orbit orbit-a"></div><div class="personal-hero-orbit orbit-b"></div>
   </section>
 
   <div class="vehicle-switcher" id="vehicle-switcher"></div>
   <div class="life-metrics"><div class="life-metric"><div class="life-metric-label">Vehicle</div><div class="life-metric-value" id="vehicle-name">Not set</div><div class="life-metric-sub" id="vehicle-reg">Add your car details</div></div><div class="life-metric"><div class="life-metric-label">Next renewal</div><div class="life-metric-value" id="driving-next">—</div><div class="life-metric-sub" id="driving-next-label">No dates added</div></div><div class="life-metric"><div class="life-metric-label">Dates saved</div><div class="life-metric-value" id="driving-count">0</div><div class="life-metric-sub">MOT, tax, insurance, service</div></div><div class="life-metric"><div class="life-metric-label">Status</div><div class="life-metric-value" id="driving-status">Clear</div><div class="life-metric-sub">Based on your saved dates</div></div></div>
-  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Renewals & servicing</div><div class="life-card-sub">Tap edit to save each date</div></div><button type="button" class="life-card-action-remove" id="vehicle-delete-btn" onclick="deleteActiveVehicle()">Remove car</button></div><div class="life-card-body"><div class="life-form" id="vehicle-form"><div class="life-form-grid"><div class="life-field"><label>Vehicle name</label><input class="life-input" id="vehicle-name-input" placeholder="e.g. My car"></div><div class="life-field"><label>Registration</label><input class="life-input" id="vehicle-reg-input" placeholder="e.g. AB12 CDE"></div></div><div class="life-form-actions"><button class="life-btn-secondary" onclick="toggleLifeForm('vehicle-form',false)">Cancel</button><button class="life-btn-primary" onclick="saveVehicle()">Save vehicle</button></div></div><div class="renewal-grid" id="renewal-grid"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Driving notes</div><div class="life-card-sub">Add as many as you like, with a reminder if you want one</div></div></div><div class="life-card-body"><textarea class="life-input" id="driving-note-input" style="height:70px;padding:10px 11px;resize:vertical;line-height:1.5" placeholder="Garage details, tyre size, parking permit notes…"></textarea><label class="life-checkbox-field"><input type="checkbox" id="driving-note-remind"> Remind me about this note</label><div class="life-field" id="driving-note-remind-repeat-field"><label>How often</label><select class="life-input" id="driving-note-remind-repeat"><option value="daily">Every day</option><option value="weekly">Every week</option><option value="fortnightly">Every 2 weeks</option><option value="monthly">Every month</option><option value="quarterly">Every 3 months</option><option value="6-monthly">Every 6 months</option><option value="yearly">Every year</option></select></div><div class="life-form-actions"><button class="life-btn-secondary" id="driving-note-cancel-btn" onclick="cancelDrivingNoteEdit()" style="display:none">Cancel</button><button class="life-btn-primary" id="driving-note-save-btn" onclick="saveDrivingNote()">Add note</button></div><div id="driving-notes-list" style="margin-top:8px"></div></div></section></div></div>
+  <div class="life-grid"><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Renewals & servicing</div><div class="life-card-sub">Tap edit to save each date</div></div><button type="button" class="life-card-action-remove" id="vehicle-delete-btn" onclick="deleteActiveVehicle()">Remove car</button></div><div class="life-card-body"><div class="life-form open" id="vehicle-form"><div class="life-form-grid"><div class="life-field"><label>Vehicle name</label><input class="life-input" id="vehicle-name-input" placeholder="e.g. My car"></div><div class="life-field"><label>Registration</label><input class="life-input" id="vehicle-reg-input" placeholder="e.g. AB12 CDE"></div></div><div class="life-form-actions"><button class="life-btn-primary" onclick="saveVehicle()">Save vehicle</button></div></div><div class="renewal-grid" id="renewal-grid"></div></div></section></div><div><section class="life-card"><div class="life-card-head"><div><div class="life-card-title">Driving notes</div><div class="life-card-sub">Add as many as you like, with a reminder if you want one</div></div></div><div class="life-card-body"><textarea class="life-input" id="driving-note-input" style="height:70px;padding:10px 11px;resize:vertical;line-height:1.5" placeholder="Garage details, tyre size, parking permit notes…"></textarea><label class="life-checkbox-field"><input type="checkbox" id="driving-note-remind"> Remind me about this note</label><div class="life-field" id="driving-note-remind-repeat-field"><label>How often</label><select class="life-input" id="driving-note-remind-repeat"><option value="daily">Every day</option><option value="weekly">Every week</option><option value="fortnightly">Every 2 weeks</option><option value="monthly">Every month</option><option value="quarterly">Every 3 months</option><option value="6-monthly">Every 6 months</option><option value="yearly">Every year</option></select></div><div class="life-form-actions"><button class="life-btn-secondary" id="driving-note-cancel-btn" onclick="cancelDrivingNoteEdit()" style="display:none">Cancel</button><button class="life-btn-primary" id="driving-note-save-btn" onclick="saveDrivingNote()">Add note</button></div><div id="driving-notes-list" style="margin-top:8px"></div></div></section></div></div>
 </div></div>
 
 
@@ -7114,7 +7113,7 @@ function activeVehicle(d,createIfMissing){
 function switchVehicle(id){_activeVehicleId=id;renderDriving()}
 function addVehicle(){
  const d=hubLoad(),list=vehiclesOf(d),v={id:Date.now(),name:'',reg:'',dates:{},intervals:{},notes:''};
- list.push(v);hubSave(d);_activeVehicleId=v.id;renderDriving();toggleLifeForm('vehicle-form',true);
+ list.push(v);hubSave(d);_activeVehicleId=v.id;renderDriving();
  setTimeout(()=>document.getElementById('vehicle-name-input')?.focus(),50)
 }
 function vehicleNotesList(v){
@@ -7131,7 +7130,7 @@ function deleteActiveVehicle(){
  const d=hubLoad();d.vehicles=vehiclesOf(d).filter(x=>String(x.id)!==String(v.id));
  hubSave(d);_activeVehicleId=null;renderDriving();renderHome();hubToast('Car removed')
 }
-function saveVehicle(){const d=hubLoad(),v=activeVehicle(d,true);v.name=document.getElementById('vehicle-name-input').value.trim();v.reg=document.getElementById('vehicle-reg-input').value.trim().toUpperCase();v.dates=v.dates||{};hubSave(d);toggleLifeForm('vehicle-form',false);renderDriving();renderHome();hubToast('Vehicle saved')}
+function saveVehicle(){const d=hubLoad(),v=activeVehicle(d,true);v.name=document.getElementById('vehicle-name-input').value.trim();v.reg=document.getElementById('vehicle-reg-input').value.trim().toUpperCase();v.dates=v.dates||{};hubSave(d);renderDriving();renderHome();hubToast('Vehicle saved')}
 // Keeps a linked reminder task in sync with one driving note's checkbox +
 // frequency, mirroring the pattern used for Health reminders. Non-daily
 // repeats need a real due date to surface on the to-do list (daily bypasses
@@ -7243,7 +7242,7 @@ function editRenewal(type,event){
  let top=Math.max(10,Math.min(cy-ph/2,window.innerHeight-ph-10));
  pop.style.left=left+'px';pop.style.top=top+'px';
  const input=document.getElementById('renewal-datepop-input');
- setTimeout(()=>{try{input.focus();if(typeof input.showPicker==='function')input.showPicker()}catch(e){}},40);
+ try{input.focus();if(typeof input.showPicker==='function')input.showPicker()}catch(e){}
  setTimeout(()=>document.addEventListener('click',renewalPopOutside,true),0);
 }
 function renderDriving(){
