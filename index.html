@@ -5634,6 +5634,38 @@ async function loadHubFromSupabase(){
     const local=hubLoad();await syncHubToSupabase(local);
   }catch(e){console.log('Dayframe data load error',e)}
 }
+// ── FILE STORAGE (Supabase Storage) ──
+// Private per-user file attachments (e.g. Essentials > Documents). Objects
+// live at "<user_id>/<...>" so the storage.objects RLS policy can scope each
+// user to their own folder. See scripts/dayframe_storage_setup.sql for the
+// one-time bucket + policy setup this depends on.
+const DAYFRAME_STORAGE_BUCKET='dayframe-documents';
+async function dfStoragePath(fileKey){const s=await dfRefreshSession(false);if(!s?.access_token||!s?.user?.id)return null;return {session:s,path:s.user.id+'/'+fileKey}}
+async function dfStorageUpload(fileKey,file){
+  const ctx=await dfStoragePath(fileKey);if(!ctx)return {ok:false,error:'Not signed in'};
+  if(file.size>10*1024*1024)return {ok:false,error:'File is too large (max 10MB)'};
+  try{
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/'+DAYFRAME_STORAGE_BUCKET+'/'+ctx.path.split('/').map(encodeURIComponent).join('/'),{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+ctx.session.access_token,'Content-Type':file.type||'application/octet-stream','x-upsert':'true'},body:file});
+    if(!r.ok)return {ok:false,error:'Upload failed ('+r.status+')'};
+    return {ok:true};
+  }catch(e){return {ok:false,error:'Upload failed — check your connection'}}
+}
+async function dfStorageSignedUrl(fileKey,expiresIn=60){
+  const ctx=await dfStoragePath(fileKey);if(!ctx)return null;
+  try{
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/'+DAYFRAME_STORAGE_BUCKET+'/'+ctx.path.split('/').map(encodeURIComponent).join('/'),{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+ctx.session.access_token,'Content-Type':'application/json'},body:JSON.stringify({expiresIn})});
+    if(!r.ok)return null;
+    const j=await r.json().catch(()=>null);
+    return j?.signedURL?SUPABASE_URL+'/storage/v1'+j.signedURL:null;
+  }catch(e){return null}
+}
+async function dfStorageDelete(fileKey){
+  const ctx=await dfStoragePath(fileKey);if(!ctx)return false;
+  try{
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/'+DAYFRAME_STORAGE_BUCKET+'/'+ctx.path.split('/').map(encodeURIComponent).join('/'),{method:'DELETE',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+ctx.session.access_token}});
+    return r.ok;
+  }catch(e){return false}
+}
 function hubEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function hubMoney(v,digits=2){return new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Number(v)||0);}
 function hubDateISO(d=new Date()){const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10)}
