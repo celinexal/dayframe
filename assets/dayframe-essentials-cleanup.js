@@ -512,15 +512,6 @@
           <div class="df-life-space-grid">${spaces.map((item) => spaceToggle(item, !hidden.has(item.key))).join('')}</div>
         </section>
         <section class="df-life-editor-section">
-          <h3 class="df-life-section-title">Investing</h3>
-          <p class="df-life-section-copy">${setup.investingStage === 'active' ? 'Portfolio, research and sector themes stay visible.' : setup.investingStage === 'none' ? 'Investing is hidden from the main app.' : 'Lessons and plain-English research stay visible.'}</p>
-          <div class="df-life-segments">
-            ${optionButton('Learning', setup.investingStage === 'learning', "dayframeSetInvestingStage('learning')")}
-            ${optionButton('Active', setup.investingStage === 'active', "dayframeSetInvestingStage('active')")}
-            ${optionButton('Hide', setup.investingStage === 'none', "dayframeSetInvestingStage('none')")}
-          </div>
-        </section>
-        <section class="df-life-editor-section">
           <h3 class="df-life-section-title">Home layout</h3>
           <p class="df-life-section-copy">Choose what appears on Home and put the important spaces first.</p>
           <div class="df-life-home-list">${allModules.length ? allModules.map((item) => homeRow(item, pref, hidden.has(item.key), enabledKeys)).join('') : '<div class="df-life-note">Turn on a space above to add it back to Home.</div>'}</div>
