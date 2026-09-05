@@ -519,7 +519,9 @@ export default {
       if(url.pathname==='/api/bible/licensed')return request.method==='GET'?signedEndpoint(request,()=>getLicensedBibleChapter(url,env)):json({error:'Method not allowed'},405,{allow:'GET'});
       if(url.pathname==='/api/driving/theory-data'&&(request.method==='GET'||request.method==='POST'))return theoryData(request);
       if(url.pathname==='/api/driving/theory'&&request.method==='GET')return proxyTheoryTracker(request,env);
+      // Booleans only — says whether a secret is present, never what it is.
       if(url.pathname==='/api/files/status'&&request.method==='GET')return json({configured:!!env.SUPABASE_SERVICE_ROLE_KEY});
+      if(url.pathname==='/api/status/config'&&request.method==='GET')return json({service_role:!!env.SUPABASE_SERVICE_ROLE_KEY,push_cron:!!env.PUSH_CRON_SECRET,vapid:!!env.VAPID_PRIVATE_JWK});
       if(url.pathname==='/api/files/object'&&request.method==='POST')return filesUpload(request,env);
       if(url.pathname==='/api/files/sign'&&request.method==='POST')return filesSign(request,env);
       if(url.pathname==='/api/files/object'&&request.method==='DELETE')return filesDelete(request,env);
