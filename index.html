@@ -5589,6 +5589,13 @@ async function forceSyncNow(){
 // either a pull or a successful push. Seeded by loadHubFromSupabase() at
 // startup — see there.
 let _hubKnownRemoteTs='';
+// Timestamps arrive in two different shapes: the browser writes
+// "2026-09-05T14:22:31.412Z" while PostgREST returns the same instant as
+// "2026-09-05T14:22:31.412+00:00". Comparing those as strings is unreliable —
+// for the same second it reports the server copy as OLDER, because '0' sorts
+// before 'Z' — so the stale-write guard below could miss a genuine conflict.
+// Compare the actual instants instead.
+function hubTs(value){const ms=Date.parse(String(value||''));return Number.isFinite(ms)?ms:0}
 function syncHubToSupabase(data){
   const run=async()=>{
     let session=await dfRefreshSession(false);
@@ -5606,7 +5613,7 @@ function syncHubToSupabase(data){
       if(check.ok){
         const rows=await check.json().catch(()=>[]);
         const remote=rows?.[0],serverTs=String(remote?.updated_at||'');
-        if(remote?.hub_data&&serverTs&&_hubKnownRemoteTs&&serverTs!==_hubKnownRemoteTs&&serverTs>=stamp){
+        if(remote?.hub_data&&serverTs&&_hubKnownRemoteTs&&hubTs(serverTs)!==hubTs(_hubKnownRemoteTs)&&hubTs(serverTs)>=hubTs(stamp)){
           localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(Object.assign(hubDefault(),remote.hub_data)));
           localStorage.setItem(dfKey(HUB_STORE_KEY+'_ts'),serverTs);
           _hubKnownRemoteTs=serverTs;
@@ -5653,7 +5660,7 @@ async function loadHubFromSupabase(){
     if(!r.ok)return;const rows=await r.json();const remote=rows?.[0];
     if(remote?.hub_data){
       const localTs=hubLocalStamp(),remoteTs=String(remote.updated_at||'');
-      if(!localTs||(remoteTs&&remoteTs>localTs)){
+      if(!localTs||(remoteTs&&hubTs(remoteTs)>hubTs(localTs))){
         localStorage.setItem(dfKey(HUB_STORE_KEY),JSON.stringify(Object.assign(hubDefault(),remote.hub_data)));
         try{localStorage.setItem(dfKey(HUB_STORE_KEY+'_ts'),remoteTs||new Date().toISOString())}catch(e){}
         _hubKnownRemoteTs=remoteTs||hubLocalStamp();
@@ -6726,7 +6733,7 @@ function moneyBeginNewBudgetItem(){resetBudgetForm();moneyRenderCategoryOptions(
 function cancelBudgetEdit(){resetBudgetForm();toggleLifeForm('money-budget-form',false)}
 function editBudgetItem(id){const d=hubLoad(),b=d.budgets.find(x=>x.id===id);if(!b)return;_budgetEditingId=b.id;moneyRenderCategoryOptions(d);const cat=document.getElementById('money-budget-category'),lim=document.getElementById('money-budget-limit'),btn=document.getElementById('money-budget-save-button');if(cat)cat.value=b.category||'';if(lim)lim.value=b.limit??'';if(btn)btn.textContent='Update limit';toggleLifeForm('money-budget-form',true);moneyRenderBudgetCatQuick();budgetPreviewAllocation()}
 function addBudgetItem(){const raw=document.getElementById('money-budget-category').value,limit=Number(document.getElementById('money-budget-limit').value);if(!raw||!Number.isFinite(limit)||limit<=0)return hubToast('Add a category and monthly limit');const d=hubLoad(),category=moneyRememberCategory(d,raw);if(!_budgetEditingId&&category==='Credit Balance')return hubToast('Credit balances are tracked in your Credit Plan, not as an everyday category');const existing=_budgetEditingId?d.budgets.find(x=>x.id===_budgetEditingId):d.budgets.find(x=>moneyNormaliseCategory(x.category)===category);if(existing){existing.limit=limit;existing.category=category}else d.budgets.unshift({id:Date.now(),category,limit,source:'manual'});hubSave(d);resetBudgetForm();toggleLifeForm('money-budget-form',false);renderMoney();hubToast(existing?'Budget updated':'Budget saved')}
-function deleteBudgetItem(id){const d=hubLoad();d.budgets=d.budgets.filter(x=>x.id!==id);if(_budgetEditingId===id)resetBudgetForm();hubSave(d);renderMoney()}
+function deleteBudgetItem(id){if(!hubUsableId(id))return;const d=hubLoad();d.budgets=d.budgets.filter(x=>!hubSameId(x.id,id));if(hubSameId(_budgetEditingId,id))resetBudgetForm();hubSave(d);renderMoney()}
 function resetAllBudgets(){
  if(!confirm('Reset your whole budget? This clears income, bills, credit payment, saving & investing amounts, every pot and every category limit. Your bills list and credit payoff plans are untouched.'))return;
  const d=hubLoad(),startDay=moneyBudgetStartDay(d);
@@ -6783,7 +6790,7 @@ function addCreditPlan(){
 }
 function deleteCreditPlan(id){const d=hubLoad();d.creditPlans=d.creditPlans.filter(x=>String(x.id)!==String(id));d.payInThreeMatches=d.payInThreeMatches||{};Object.keys(d.payInThreeMatches).forEach(key=>{if(String(d.payInThreeMatches[key]?.plan_id)===String(id))delete d.payInThreeMatches[key]});hubSave(d);renderMoney();renderHome()}
 function addBillItem(){const name=document.getElementById('money-bill-name').value.trim(),amount=Number(document.getElementById('money-bill-amount').value),rawCategory=document.getElementById('money-bill-category').value,dueDay=Number(document.getElementById('money-bill-day').value);if(!name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(dueDay)||dueDay<1||dueDay>31)return hubToast('Add a bill name, amount and due day');const d=hubLoad(),category=moneyRememberCategory(d,rawCategory||'Other');d.bills.unshift({id:Date.now(),name,amount,category,dueDay});hubSave(d);['money-bill-name','money-bill-amount','money-bill-day','money-bill-category'].forEach(id=>document.getElementById(id).value='');toggleLifeForm('money-bill-form',false);renderMoney();renderHome();hubToast('Bill saved')}
-function deleteBillItem(id){const d=hubLoad();d.bills=d.bills.filter(x=>x.id!==id);hubSave(d);renderMoney();renderHome()}
+function deleteBillItem(id){if(!hubUsableId(id))return;const d=hubLoad();d.bills=d.bills.filter(x=>!hubSameId(x.id,id));hubSave(d);renderMoney();renderHome()}
 function toggleBillPaid(id){const d=hubLoad(),bill=d.bills.find(x=>x.id===id);if(!bill)return;const monthKey=moneyCurrentMonth();bill.paidMonth=bill.paidMonth===monthKey?'':monthKey;hubSave(d);renderMoney();renderHome();hubToast(bill.paidMonth?'Marked as paid':'Marked as unpaid')}
 function addMoneyItem(){
  const desc=document.getElementById('money-desc').value.trim(),amount=Number(document.getElementById('money-amount').value),type=document.getElementById('money-type').value,rawCategory=document.getElementById('money-category').value,accountId=String(document.getElementById('money-account-select')?.value||'');
@@ -6795,7 +6802,7 @@ function addMoneyItem(){
  hubSave(d);document.getElementById('money-desc').value='';document.getElementById('money-amount').value='';document.getElementById('money-category').value='';if(document.getElementById('money-account-select'))document.getElementById('money-account-select').value='';
  toggleLifeForm('money-form',false);renderMoney();renderHome();hubToast(account?'Transaction added to '+account.name:'Transaction saved')
 }
-function deleteMoney(id){const detailId=_moneyDetailAccountId,d=hubLoad(),item=(d.money||[]).find(x=>x.id===id);if(item&&Number(item.balance_effect||0)){const account=(d.accounts||[]).find(x=>String(x.id)===String(item.account_id||''));if(account)account.balance=Math.max(0,Number(account.balance||0)-Number(item.balance_effect||0))}d.money=d.money.filter(x=>x.id!==id);hubSave(d);renderMoney();renderHome();if(detailId)moneyOpenAccountDetail(detailId)}
+function deleteMoney(id){if(!hubUsableId(id))return;const detailId=_moneyDetailAccountId,d=hubLoad(),item=(d.money||[]).find(x=>hubSameId(x.id,id));if(item&&Number(item.balance_effect||0)){const account=(d.accounts||[]).find(x=>String(x.id)===String(item.account_id||''));if(account)account.balance=Math.max(0,Number(account.balance||0)-Number(item.balance_effect||0))}d.money=d.money.filter(x=>!hubSameId(x.id,id));hubSave(d);renderMoney();renderHome();if(detailId)moneyOpenAccountDetail(detailId)}
 function moneyPrettyMerchant(v){const raw=String(v||'').trim();if(!raw)return 'Bank transaction';if(raw===raw.toUpperCase()&&/[A-Z]/.test(raw)){let s=raw.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());return s.replace(/^Aa\b/,'AA').replace(/^Axa\b/,'AXA').replace(/\.Com\b/g,'.com')}return raw}
 function moneyIsTransferCategory(c){return ['Transfers','Savings & Investments'].includes(moneyNormaliseCategory(c))}
 function moneyDeduplicateTransactions(items){const seen=new Set();return items.filter(x=>{const k=x.bank&&x.raw_id?String(x.raw_id):null;if(!k)return true;if(seen.has(k))return false;seen.add(k);return true})}
@@ -7090,7 +7097,14 @@ function cancelTaskEdit(){resetTaskForm();toggleLifeForm('task-form',false)}
 function editTask(id){const d=hubLoad(),t=d.tasks.find(x=>x.id===id);if(!t)return;_taskEditingId=t.id;renderTaskAreaOptions(d);const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v==null?'':v};set('task-title',t.title);set('task-date',t.date);set('task-priority',t.priority||'Normal');set('task-repeat',t.repeat||'none');const areaSel=document.getElementById('task-area');if(areaSel){const known=[...areaSel.options].some(o=>o.text===t.area);if(known){areaSel.value=t.area}else{areaSel.value='custom';const ca=document.getElementById('task-custom-area');if(ca)ca.value=t.area}}taskAreaChanged();const b=document.getElementById('task-save-button');if(b)b.textContent='Update task';toggleLifeForm('task-form',true);document.getElementById('task-form')?.scrollIntoView({behavior:'smooth',block:'center'})}
 function addTask(){const title=document.getElementById('task-title').value.trim(),date=document.getElementById('task-date').value,areaChoice=document.getElementById('task-area').value,customArea=document.getElementById('task-custom-area')?.value.trim()||'',area=areaChoice==='custom'?customArea:areaChoice,priority=document.getElementById('task-priority').value,repeat=document.getElementById('task-repeat')?.value||'none';if(!title)return hubToast('Add a task name');if(!area)return hubToast('Name your task area');if(repeat!=='none'&&!date)return hubToast('Add a due date so it can repeat');const d=hubLoad();if(areaChoice==='custom'&&customArea){d.taskAreas=Array.isArray(d.taskAreas)?d.taskAreas:[];if(!d.taskAreas.some(a=>String(a).toLowerCase()===customArea.toLowerCase())&&!TASK_BASE_AREAS.some(a=>a.toLowerCase()===customArea.toLowerCase()))d.taskAreas.push(customArea)}const editing=_taskEditingId?d.tasks.find(x=>x.id===_taskEditingId):null;if(editing){editing.title=title;editing.date=date;editing.area=area;editing.priority=priority;editing.repeat=repeat}else{d.tasks.unshift({id:Date.now(),title,date,area,priority,repeat,done:false})}hubSave(d);resetTaskForm();toggleLifeForm('task-form',false);renderPlanner();renderHome();hubToast(editing?'Task updated':'Task added')}
 function toggleTask(id){const d=hubLoad(),t=d.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;if(t.done&&t.repeat&&t.repeat!=='none'&&t.date){const nextDate=hubNextDueDate(hubAddInterval(t.date,t.repeat),t.repeat);const dupe=d.tasks.some(x=>x!==t&&!x.done&&x.title===t.title&&x.area===t.area&&(x.repeat||'none')===t.repeat&&String(x.date)>=String(t.date));if(!dupe){d.tasks.unshift({id:Date.now(),title:t.title,date:nextDate,area:t.area,priority:t.priority,repeat:t.repeat,done:false});hubSave(d);renderPlanner();renderHome();hubToast('Repeats — next on '+hubPrettyDate(nextDate));return}}hubSave(d);renderPlanner();renderHome()}
-function deleteTask(id){const d=hubLoad();d.tasks=d.tasks.filter(x=>x.id!==id);if(_taskEditingId===id)resetTaskForm();hubSave(d);renderPlanner();renderHome()}
+// Deletes match on the id as text, and refuse to run without one. Comparing
+// raw values meant a row whose id was missing removed EVERY other row that
+// was also missing an id — one tap, several things gone — and a numeric id
+// arriving as a string matched nothing at all, so the delete silently did
+// nothing. Lookups elsewhere already compare with String(); these now agree.
+function hubSameId(a,b){return String(a)===String(b)}
+function hubUsableId(id){return id!==undefined&&id!==null&&String(id)!==''&&String(id)!=='undefined'}
+function deleteTask(id){if(!hubUsableId(id))return;const d=hubLoad();d.tasks=d.tasks.filter(x=>!hubSameId(x.id,id));if(hubSameId(_taskEditingId,id))resetTaskForm();hubSave(d);renderPlanner();renderHome()}
 function snoozeTask(id,days){const d=hubLoad(),t=d.tasks.find(x=>x.id===id);if(!t)return;const todayISO=hubDateISO();const base=(t.date&&t.date>todayISO)?t.date:todayISO;const nd=new Date(base+'T12:00:00');nd.setDate(nd.getDate()+(Number(days)||7));t.date=hubDateISO(nd);hubSave(d);renderPlanner();renderHome();hubToast('Moved to '+hubPrettyDate(t.date))}
 function openPlannerGoals(openForm=false){go('planner');setTimeout(()=>{document.getElementById('planner-goals')?.scrollIntoView({behavior:'smooth',block:'start'});if(openForm)toggleLifeForm('goal-form',true)},140)}
 function renderPlanner(){const d=hubLoad(),today=hubDateISO(),open=d.tasks.filter(x=>!x.done),weekEnd=new Date();weekEnd.setDate(weekEnd.getDate()+7);const weekEndISO=hubDateISO(weekEnd),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('planner-open',open.length);set('planner-today',open.filter(x=>x.date===today).length);set('planner-week',open.filter(x=>x.date>=today&&x.date<=weekEndISO).length);set('planner-done',d.tasks.filter(x=>x.done).length);const l=document.getElementById('task-list');if(l)l.innerHTML=d.tasks.length?d.tasks.slice().sort((a,b)=>(a.done-b.done)||((a.date||'9999').localeCompare(b.date||'9999'))).map(x=>`<div class="life-list-row" style="opacity:${x.done?.52:1}"><button class="hub-check" onclick="toggleTask(${x.id})" style="${x.done?'background:#4d82f3;border-color:#4d82f3;box-shadow:inset 0 0 0 4px #4d82f3':''}"></button><div class="life-list-main"><div class="life-list-title" style="${x.done?'text-decoration:line-through':''}">${hubEsc(x.title)}</div><div class="life-list-meta">${x.date?hubPrettyDate(x.date)+' · ':''}${hubEsc(x.area)}${x.priority==='High'?' · High priority':''}${x.repeat&&x.repeat!=='none'?' · ↻ '+hubRepeatLabel(x.repeat).toLowerCase():''}</div></div>${!x.done&&x.date&&x.date<today?`<button class="life-row-snooze" onclick="snoozeTask(${x.id},7)" title="Push forward a week">+1w</button>`:''}<button class="renewal-edit" onclick="editTask(${x.id})" title="Edit task" aria-label="Edit task">✎</button><button class="life-row-delete" onclick="deleteTask(${x.id})">×</button></div>`).join(''):'<div class="life-empty"><div class="life-empty-icon">✓</div><strong>Your list is clear</strong>Add anything you want to stop keeping in your head.</div>';const ws=document.getElementById('week-strip'),days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];if(ws){let out='';for(let i=0;i<7;i++){const x=new Date();x.setDate(x.getDate()+i);out+=`<div class="week-day ${i===0?'today':''}"><div class="week-name">${days[x.getDay()]}</div><div class="week-num">${x.getDate()}</div></div>`}ws.innerHTML=out}const wl=document.getElementById('planner-week-label');if(wl)wl.textContent='Starting '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long'});const wf=document.getElementById('planner-week-focus');if(wf){const weekTasks=open.filter(x=>x.date&&x.date<=weekEndISO).sort((a,b)=>String(a.date).localeCompare(String(b.date))).slice(0,5);wf.innerHTML=weekTasks.length?'<div class="planner-week-focus-title">Due this week</div>'+weekTasks.map(x=>{const state=x.date<today?'overdue':x.date===today?'today':'',label=x.date<today?'Overdue':x.date===today?'Today':new Date(x.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric'});return '<div class="planner-week-focus-row"><button class="planner-week-focus-check" onclick="toggleTask('+x.id+')" aria-label="Complete task"></button><span class="planner-week-focus-name">'+hubEsc(x.title)+'</span><span class="planner-week-focus-date '+state+'">'+label+'</span></div>'}).join(''):'<div class="planner-week-focus-empty">Nothing due this week. Add a date to a task and it will appear here.</div>'}renderTaskAreaOptions(d);renderGoals()}
@@ -7112,7 +7126,8 @@ function addDrivingCost(){
   hubToast('Driving cost saved');
 }
 function deleteDrivingCost(id){
-  const d=hubLoad();d.drivingCosts=(d.drivingCosts||[]).filter(x=>x.id!==id);hubSave(d);renderDrivingCosts();
+  if(!hubUsableId(id))return;
+  const d=hubLoad();d.drivingCosts=(d.drivingCosts||[]).filter(x=>!hubSameId(x.id,id));hubSave(d);renderDrivingCosts();
 }
 function renderDrivingCosts(){
   const d=hubLoad(),items=(d.drivingCosts||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
