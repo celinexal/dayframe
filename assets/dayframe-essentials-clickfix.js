@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v21';
+  const VERSION = 'clickfix-v22';
   const FLAG = 'data-dayframe-essentials-clickfix';
   const STYLE_ID = 'df-essentials-clickfix-style';
   const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}.df-tool-form select{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none;cursor:pointer}.df-tool-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}.df-tool-type{display:inline-flex;align-items:center;border-radius:999px;background:#f4f1ff;color:#6e5ff0;font-size:10px;font-weight:900;padding:6px 9px}.df-tool-reference{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:#effefa;color:#168a76;font-size:10px;font-weight:900;padding:6px 9px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.df-tool-empty{line-height:1.5}.df-tool-empty strong{display:block;color:#172033;font-size:14px;margin-bottom:4px}.df-tool-file-hint{display:block;margin-top:2px;color:#8a94a4;font-size:10px;font-weight:700;line-height:1.4}.df-tool-file-current{display:block;margin-top:2px;color:#4f5b70;font-size:11px;font-weight:750}.df-tool-file-current button,.df-tool-item-file button{border:0;background:transparent;color:#6e5ff0;font-size:10.5px;font-weight:850;padding:0;cursor:pointer;text-decoration:underline}.df-tool-item-file{display:block;margin-top:6px;color:#758094;font-size:10.5px}.df-tool-checkbox-field{display:flex!important;flex-direction:row!important;align-items:center;gap:9px;color:#4f5b70;font-size:11.5px;font-weight:750}.df-tool-checkbox-field input{width:17px;height:17px;accent-color:#7564f2;flex:0 0 auto}';
@@ -154,6 +154,7 @@
       fileSize: Number(item?.fileSize) || 0,
       fileType: String(item?.fileType || '').trim().slice(0, 100),
       remind: Boolean(item?.remind),
+      remindRepeat: REMINDER_REPEAT_LABELS[item?.remindRepeat] ? item.remindRepeat : 'daily',
       taskId: item?.taskId || '',
     })).filter((item) => item.title).sort((a, b) => {
       if (a.date && b.date) return a.date.localeCompare(b.date);
@@ -209,28 +210,39 @@
     return `<label>Attach a file (optional)<input id="${esc(inputId(tool.key, 'file'))}" type="file" accept="image/*,.pdf" onchange="dayframeEssentialsFilePicked('${esc(tool.key)}', event)"><span class="df-tool-file-hint">Photos or PDFs, up to 10MB. Stored privately — only you can view it.</span><span class="df-tool-file-current" id="${esc(inputId(tool.key, 'file-current'))}"></span></label>`;
   }
 
+  const REMINDER_REPEAT_OPTIONS = [['daily', 'Every day'], ['weekly', 'Every week'], ['fortnightly', 'Every 2 weeks'], ['monthly', 'Every month'], ['quarterly', 'Every 3 months'], ['6-monthly', 'Every 6 months'], ['yearly', 'Every year']];
+  const REMINDER_REPEAT_LABELS = Object.fromEntries(REMINDER_REPEAT_OPTIONS);
   function reminderFieldHTML(tool) {
     if (!tool.reminders) return '';
-    return `<label class="df-tool-checkbox-field"><input type="checkbox" id="${esc(inputId(tool.key, 'remind'))}"> Remind me every day (adds a daily task to Plans)</label>`;
+    const opts = REMINDER_REPEAT_OPTIONS.map(([val, lab]) => `<option value="${val}">${esc(lab)}</option>`).join('');
+    return `<label class="df-tool-checkbox-field"><input type="checkbox" id="${esc(inputId(tool.key, 'remind'))}"> Remind me — adds a repeating task to Plans</label><label>How often<select id="${esc(inputId(tool.key, 'remind-repeat'))}">${opts}</select></label>`;
   }
 
-  // Keeps a linked "Take X" daily task in sync with a health item's reminder
-  // checkbox. Runs as its own hubLoad/hubSave round trip so the task list is
-  // updated atomically, independent of when the health item itself saves.
-  function syncReminderTask(item, title, wantReminder) {
+  // Keeps a linked "Take X" repeating task in sync with a health item's
+  // reminder checkbox + frequency. Runs as its own hubLoad/hubSave round trip
+  // so the task list updates atomically, independent of when the health item
+  // itself saves. Non-daily repeats need a real due date to surface on the
+  // to-do list (daily tasks show regardless, per the planner's own logic) —
+  // reset to today whenever the frequency changes or the task is new, but
+  // leave an unchanged frequency's date alone so an in-progress cycle isn't
+  // reset by an unrelated edit.
+  function syncReminderTask(item, title, wantReminder, repeat) {
     if (typeof window.hubLoad !== 'function' || typeof window.hubSave !== 'function') return item.taskId || '';
     const d = window.hubLoad();
     d.tasks = Array.isArray(d.tasks) ? d.tasks : [];
     let taskId = item.taskId || '';
     if (wantReminder) {
       let t = taskId ? d.tasks.find((x) => String(x.id) === String(taskId)) : null;
+      const repeatChanged = !t || t.repeat !== repeat;
       if (!t) {
         t = { id: Date.now(), title: '', date: '', area: 'Health & wellbeing', priority: 'Normal', repeat: 'daily', done: false };
         d.tasks.unshift(t);
       }
       t.title = `Take ${title}`;
       t.area = 'Health & wellbeing';
-      t.repeat = 'daily';
+      t.repeat = repeat;
+      if (repeat !== 'daily' && (repeatChanged || !t.date)) t.date = typeof window.hubDateISO === 'function' ? window.hubDateISO() : new Date().toISOString().slice(0, 10);
+      if (repeat === 'daily') t.date = '';
       taskId = t.id;
     } else if (taskId) {
       d.tasks = d.tasks.filter((x) => String(x.id) !== String(taskId));
@@ -261,7 +273,7 @@
     } else {
       html = items.map((item) => {
         const details = [item.date ? prettyDate(item.date) : 'No date', item.notes].filter(Boolean).join(' - ');
-        return `<article class="df-tool-item"><div><strong>${esc(item.title)}</strong><span>${esc(details)}</span><div class="df-tool-meta"><span class="df-tool-type">${esc(typeLabel(tool, item.type))}</span>${item.remind ? '<span class="df-tool-type">↻ Daily reminder</span>' : ''}${referenceHTML(item.reference)}</div>${item.fileName ? `<span class="df-tool-item-file">${attachmentRowHTML(tool, item)}</span>` : ''}</div><div class="df-tool-item-actions"><button type="button" onclick="dayframeEditEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Edit</button><button type="button" onclick="dayframeDeleteEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Delete</button></div></article>`;
+        return `<article class="df-tool-item"><div><strong>${esc(item.title)}</strong><span>${esc(details)}</span><div class="df-tool-meta"><span class="df-tool-type">${esc(typeLabel(tool, item.type))}</span>${item.remind ? `<span class="df-tool-type">↻ ${esc(REMINDER_REPEAT_LABELS[item.remindRepeat] || 'Every day')}</span>` : ''}${referenceHTML(item.reference)}</div>${item.fileName ? `<span class="df-tool-item-file">${attachmentRowHTML(tool, item)}</span>` : ''}</div><div class="df-tool-item-actions"><button type="button" onclick="dayframeEditEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Edit</button><button type="button" onclick="dayframeDeleteEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Delete</button></div></article>`;
       }).join('');
     }
     if (list.innerHTML !== html) list.innerHTML = html;
@@ -306,6 +318,8 @@
     if (tool.reminders) {
       const remind = document.getElementById(inputId(tool.key, 'remind'));
       if (remind) remind.checked = false;
+      const repeat = document.getElementById(inputId(tool.key, 'remind-repeat'));
+      if (repeat) repeat.value = 'daily';
     }
   }
 
@@ -346,6 +360,8 @@
       if (tool.reminders) {
         const remind = document.getElementById(inputId(key, 'remind'));
         if (remind) remind.checked = Boolean(item.remind);
+        const repeat = document.getElementById(inputId(key, 'remind-repeat'));
+        if (repeat) repeat.value = item.remindRepeat || 'daily';
       }
       document.getElementById(inputId(key, 'title'))?.focus();
     };
@@ -407,11 +423,13 @@
         fileSize: existing?.fileSize || 0,
         fileType: existing?.fileType || '',
         remind: existing?.remind || false,
+        remindRepeat: existing?.remindRepeat || 'daily',
         taskId: existing?.taskId || '',
       };
       if (tool.reminders) {
         next.remind = Boolean(document.getElementById(inputId(key, 'remind'))?.checked);
-        next.taskId = syncReminderTask(next, title, next.remind);
+        next.remindRepeat = REMINDER_REPEAT_LABELS[document.getElementById(inputId(key, 'remind-repeat'))?.value] ? document.getElementById(inputId(key, 'remind-repeat')).value : 'daily';
+        next.taskId = syncReminderTask(next, title, next.remind, next.remindRepeat);
       }
       const pickedFile = tool.attachments ? document.getElementById(inputId(key, 'file'))?.files?.[0] : null;
       const submitButton = event?.target?.querySelector?.('button[type="submit"]');
