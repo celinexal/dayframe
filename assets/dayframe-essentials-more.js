@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'more-v13';
+  const VERSION = 'more-v14';
   const FLAG = 'data-dayframe-essentials-more';
   if (document.documentElement.getAttribute(FLAG) === VERSION) return;
   document.documentElement.setAttribute(FLAG, VERSION);
@@ -232,28 +232,6 @@
     });
   }
 
-  function rowHTML(key, index, current) {
-    const widget = WIDGET_MAP.get(key);
-    if (!widget) return '';
-    const visible = !current.hidden.includes(key);
-    return `<article class="df-widget-row ${visible ? '' : 'is-off'}" data-widget-row="${esc(key)}"><div><strong>${esc(widget.label)}</strong><span>${esc(widget.desc)}</span></div><div class="df-widget-actions"><button type="button" onclick="dayframeMoveEssentialsWidget('${esc(key)}', -1, event)" aria-label="Move ${esc(widget.label)} up" ${index === 0 ? 'disabled' : ''}>Up</button><button type="button" onclick="dayframeMoveEssentialsWidget('${esc(key)}', 1, event)" aria-label="Move ${esc(widget.label)} down" ${index === current.order.length - 1 ? 'disabled' : ''}>Down</button><button type="button" class="df-widget-toggle" aria-pressed="${visible ? 'true' : 'false'}" onclick="dayframeToggleEssentialsWidget('${esc(key)}', event)">${visible ? 'Shown' : 'Hidden'}</button></div></article>`;
-  }
-
-  function ensureCustomizer() {
-    const hero = $('pg-driving')?.querySelector('.driving-hub-hero');
-    if (!hero) return;
-    let panel = $('df-essentials-widget-panel');
-    if (!panel) {
-      panel = document.createElement('section');
-      panel.id = 'df-essentials-widget-panel';
-      panel.className = 'df-essentials-widget-panel';
-      panel.hidden = true;
-      hero.insertAdjacentElement('afterend', panel);
-    }
-    const current = prefs();
-    panel.innerHTML = `<div class="df-widget-panel-head"><div><span>Essentials</span><h2>Choose what shows</h2></div><button type="button" onclick="dayframeCloseEssentialsCustomise(event)">Done</button></div><div class="df-widget-list">${current.order.map((key, index) => rowHTML(key, index, current)).join('')}</div>`;
-  }
-
   function ensureEmpty(grid) {
     let empty = $('df-essentials-empty');
     if (!empty) {
@@ -470,7 +448,11 @@
     ensureSideNav();
     ensureCards();
     ensurePages();
-    ensureCustomizer();
+    // ensureCustomizer() used to rebuild #df-essentials-widget-panel here too,
+    // racing dayframe-essentials-customise.js's newer version of the same
+    // panel (same element, different markup) — whichever file's periodic
+    // re-render fired last would silently replace the other's rows. That
+    // panel is now owned entirely by dayframe-essentials-customise.js.
     installClickHandler();
     TOOLS.forEach(renderTool);
     syncWidgets();
