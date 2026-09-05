@@ -369,7 +369,7 @@ replace_all(
     [
         ("const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260830-current-sector-themes';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';"),
         ("const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260831-clickfix-v13';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260905-medication-reminders-v3';"),
-        ("const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';"),
+        ("const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260831-customise-v1';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260905-disabled-superseded-by-bible-v1';"),
         (".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)", ".replace(/\\/assets\\/dayframe-essentials\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-more\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_MORE_SRC)\n    .replace(/\\/assets\\/dayframe-essentials-clickfix\\.js\\?v=[^\"']+/g, DAYFRAME_ESSENTIALS_CLICKFIX_SRC)"),
         (".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC);", ".replace(/\\/assets\\/dayframe-myflo-calendar-actions\\.js\\?v=[^\"']+/g, DAYFRAME_MYFLO_CALENDAR_ACTIONS_SRC)\n    .replace(/\\/assets\\/dayframe-sector-themes-current\\.js\\?v=[^\"']+/g, DAYFRAME_SECTOR_THEMES_CURRENT_SRC);"),
     ],
@@ -389,7 +389,7 @@ replace_regex("sw.js", r"const DAYFRAME_CACHE\s*=\s*'dayframe-shell-v\d+';", "co
 replace_regex("sw.js", r"const DAYFRAME_SECTOR_THEMES_CURRENT_SRC\s*=\s*'[^']+';", "const DAYFRAME_SECTOR_THEMES_CURRENT_SRC = '/assets/dayframe-sector-themes-current.js?v=20260901-sector-clarity-v1';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_MORE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_MORE_SRC = '/assets/dayframe-essentials-more.js?v=20260905-duplicate-customise-panel-fix-v1';", required=False)
 replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CLICKFIX_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CLICKFIX_SRC = '/assets/dayframe-essentials-clickfix.js?v=20260905-medication-reminders-v3';", required=False)
-replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260901-customise-v3';", required=False)
+replace_regex("sw.js", r"const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC\s*=\s*'[^']+';", "const DAYFRAME_ESSENTIALS_CUSTOMISE_SRC = '/assets/dayframe-essentials-customise.js?v=20260905-disabled-superseded-by-bible-v1';", required=False)
 append_once(
     "sw.js",
     "data-dayframe-skip-waiting-handler-v1",
