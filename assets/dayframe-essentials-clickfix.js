@@ -1,10 +1,10 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v13';
+  const VERSION = 'clickfix-v20';
   const FLAG = 'data-dayframe-essentials-clickfix';
   const STYLE_ID = 'df-essentials-clickfix-style';
-  const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}.df-tool-form select{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none;cursor:pointer}.df-tool-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}.df-tool-type{display:inline-flex;align-items:center;border-radius:999px;background:#f4f1ff;color:#6e5ff0;font-size:10px;font-weight:900;padding:6px 9px}.df-tool-reference{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:#effefa;color:#168a76;font-size:10px;font-weight:900;padding:6px 9px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.df-tool-empty{line-height:1.5}.df-tool-empty strong{display:block;color:#172033;font-size:14px;margin-bottom:4px}';
+  const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}.df-tool-form select{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none;cursor:pointer}.df-tool-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}.df-tool-type{display:inline-flex;align-items:center;border-radius:999px;background:#f4f1ff;color:#6e5ff0;font-size:10px;font-weight:900;padding:6px 9px}.df-tool-reference{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:#effefa;color:#168a76;font-size:10px;font-weight:900;padding:6px 9px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.df-tool-empty{line-height:1.5}.df-tool-empty strong{display:block;color:#172033;font-size:14px;margin-bottom:4px}.df-tool-file-hint{display:block;margin-top:2px;color:#8a94a4;font-size:10px;font-weight:700;line-height:1.4}.df-tool-file-current{display:block;margin-top:2px;color:#4f5b70;font-size:11px;font-weight:750}.df-tool-file-current button,.df-tool-item-file button{border:0;background:transparent;color:#6e5ff0;font-size:10.5px;font-weight:850;padding:0;cursor:pointer;text-decoration:underline}.df-tool-item-file{display:block;margin-top:6px;color:#758094;font-size:10.5px}';
   const WIDGET_LABELS = {
     car: 'My Car',
     myflo: 'MyFlo',
@@ -15,7 +15,7 @@
   };
   const DEFAULT_WIDGET_ORDER = ['car', 'myflo', 'documents', 'health', 'home', 'work-study'];
   const REAL_TOOLS = {
-    documents: { page: 'driving-documents', label: 'Documents', desc: 'IDs, expiry dates and where each document is kept.', tags: ['ID', 'Passport', 'Licence', 'Renewals'], types: ['ID', 'Passport', 'Licence', 'Renewal', 'Insurance', 'Other'], empty: 'No documents saved', emptyHint: 'Save a passport expiry, licence renewal or the place you keep an important document.', list: 'Saved documents', formTitle: 'Add a document', itemLabel: 'Document name', dateLabel: 'Expiry or renewal date', placeholder: 'Passport, provisional licence, railcard or insurance document.', referenceLabel: 'Saved at / link', referencePlaceholder: 'iCloud folder, Drive link, photo album or where you keep it.', save: 'Save document', saved: 'Document saved', deleted: 'Document deleted', store: 'documents' },
+    documents: { page: 'driving-documents', label: 'Documents', desc: 'IDs, expiry dates and where each document is kept.', tags: ['ID', 'Passport', 'Licence', 'Renewals'], types: ['ID', 'Passport', 'Licence', 'Renewal', 'Insurance', 'Other'], empty: 'No documents saved', emptyHint: 'Save a passport expiry, licence renewal or the place you keep an important document.', list: 'Saved documents', formTitle: 'Add a document', itemLabel: 'Document name', dateLabel: 'Expiry or renewal date', placeholder: 'Passport, provisional licence, railcard or insurance document.', referenceLabel: 'Saved at / link', referencePlaceholder: 'iCloud folder, Drive link, photo album or where you keep it.', save: 'Save document', saved: 'Document saved', deleted: 'Document deleted', store: 'documents', attachments: true },
     health: { page: 'driving-health', label: 'Health', desc: 'Dentist, GP, prescriptions and checkups.', tags: ['Dentist', 'GP', 'Optician', 'Medication'], types: ['Dentist', 'GP', 'Optician', 'Medication', 'Checkup', 'Other'], empty: 'No health reminders saved', emptyHint: 'Add the next appointment, prescription refill or checkup date.', list: 'Health reminders', formTitle: 'Add a health reminder', itemLabel: 'What is it?', dateLabel: 'Date', placeholder: 'Dentist appointment, GP call, prescription refill or eye test.', save: 'Save reminder', saved: 'Reminder saved', deleted: 'Reminder deleted', store: 'health' },
     home: { page: 'driving-home-admin', label: 'Home & Rent', desc: 'Rent dates, tenancy notes and moving tasks.', tags: ['Rent date', 'Tenancy', 'Deposit', 'Moving'], types: ['Rent date', 'Tenancy', 'Deposit', 'Moving', 'Utility', 'Other'], empty: 'No home or rent reminders saved', emptyHint: 'Keep rent dates, tenancy renewals, deposit notes or moving tasks here.', list: 'Home and rent', formTitle: 'Add a home reminder', itemLabel: 'What needs tracking?', dateLabel: 'Date', placeholder: 'Rent review, tenancy end, deposit note or moving task.', save: 'Save reminder', saved: 'Home reminder saved', deleted: 'Home reminder deleted', store: 'home' },
     'work-study': { page: 'driving-work-study', label: 'Work & Study', desc: 'Shifts, applications, courses and deadlines.', tags: ['Shifts', 'Courses', 'Applications', 'Certificates'], types: ['Shift', 'Course', 'Application', 'Interview', 'Certificate', 'Deadline', 'Other'], empty: 'No work or study dates saved', emptyHint: 'Add a shift, interview, deadline, course date or certificate renewal.', list: 'Work and study dates', formTitle: 'Add a work or study date', itemLabel: 'What is it?', dateLabel: 'Date', placeholder: 'Shift, course date, application, interview or certificate.', save: 'Save date', saved: 'Date saved', deleted: 'Date deleted', store: 'workStudy' },
@@ -150,6 +150,9 @@
       date: /^\d{4}-\d{2}-\d{2}$/.test(String(item?.date || '')) ? String(item.date) : '',
       reference: String(item?.reference || item?.location || item?.link || '').trim().slice(0, 240),
       notes: String(item?.notes || '').trim().slice(0, 500),
+      fileName: String(item?.fileName || '').trim().slice(0, 200),
+      fileSize: Number(item?.fileSize) || 0,
+      fileType: String(item?.fileType || '').trim().slice(0, 100),
     })).filter((item) => item.title).sort((a, b) => {
       if (a.date && b.date) return a.date.localeCompare(b.date);
       if (a.date) return -1;
@@ -175,9 +178,38 @@
     return items.length === 1 ? '1 saved' : `${items.length} saved`;
   }
 
+  function formatFileSize(bytes) {
+    const n = Number(bytes) || 0;
+    if (n <= 0) return '';
+    if (n < 1024 * 1024) return `${Math.max(1, Math.round(n / 1024))}KB`;
+    return `${(n / (1024 * 1024)).toFixed(1)}MB`;
+  }
+
+  function attachmentRowHTML(tool, item, { pending } = {}) {
+    if (!item.fileName) return '';
+    const size = formatFileSize(item.fileSize);
+    const label = pending ? 'Will be saved with this item' : 'Attached';
+    const actions = pending ? '' : ` · <button type="button" onclick="dayframeViewEssentialsAttachment('${esc(tool.key)}','${esc(item.id)}')">View</button> · <button type="button" onclick="dayframeRemoveEssentialsAttachment('${esc(tool.key)}','${esc(item.id)}')">Remove</button>`;
+    return `${esc(label)}: ${esc(item.fileName)}${size ? ` (${size})` : ''}${actions}`;
+  }
+
+  window.dayframeEssentialsFilePicked = function dayframeEssentialsFilePicked(key, event) {
+    const tool = realTool(key);
+    if (!tool) return;
+    const file = event?.target?.files?.[0];
+    const current = document.getElementById(inputId(key, 'file-current'));
+    if (!current) return;
+    current.innerHTML = file ? attachmentRowHTML(tool, { id: '', fileName: file.name, fileSize: file.size }, { pending: true }) : '';
+  };
+
+  function attachFieldHTML(tool) {
+    if (!tool.attachments) return '';
+    return `<label>Attach a file (optional)<input id="${esc(inputId(tool.key, 'file'))}" type="file" accept="image/*,.pdf" onchange="dayframeEssentialsFilePicked('${esc(tool.key)}', event)"><span class="df-tool-file-hint">Photos or PDFs, up to 10MB. Stored privately — only you can view it.</span><span class="df-tool-file-current" id="${esc(inputId(tool.key, 'file-current'))}"></span></label>`;
+  }
+
   function realPageHTML(tool) {
     const referenceField = tool.referenceLabel ? `<label>${esc(tool.referenceLabel)}<input id="${esc(inputId(tool.key, 'reference'))}" type="text" maxlength="240" placeholder="${esc(tool.referencePlaceholder || '')}"></label>` : '';
-    return `<section class="pg df-essentials-tool-page" id="pg-${esc(tool.page)}"><button class="life-back" type="button" onclick="go('driving')">&lt; Essentials</button><section class="df-tool-hero"><div class="df-tool-kicker">Essentials</div><h1>${esc(tool.label)}</h1><p>${esc(tool.desc)}</p></section><div class="df-tool-layout"><section class="df-tool-panel"><h2>${esc(tool.formTitle)}</h2><form class="df-tool-form" onsubmit="dayframeSaveEssentialsItem('${esc(tool.key)}', event)"><input id="${esc(inputId(tool.key, 'id'))}" type="hidden"><label>Type<select id="${esc(inputId(tool.key, 'type'))}">${optionHTML(tool)}</select></label><label>${esc(tool.itemLabel)}<input id="${esc(inputId(tool.key, 'title'))}" type="text" maxlength="120" placeholder="${esc(tool.placeholder)}"></label><label>${esc(tool.dateLabel)}<input id="${esc(inputId(tool.key, 'date'))}" type="date"></label>${referenceField}<label>Notes<textarea id="${esc(inputId(tool.key, 'notes'))}" maxlength="500" placeholder="Anything useful to remember."></textarea></label><div class="df-tool-actions"><button type="button" onclick="dayframeClearEssentialsForm('${esc(tool.key)}')">Clear</button><button class="primary" type="submit">${esc(tool.save)}</button></div></form></section><section class="df-tool-panel"><div class="df-tool-list-head"><h2>${esc(tool.list)}</h2><span class="df-tool-count" id="df-${esc(tool.key)}-count"></span></div><div class="df-tool-list" id="df-${esc(tool.key)}-list"></div></section></div></section>`;
+    return `<section class="pg df-essentials-tool-page" id="pg-${esc(tool.page)}"><button class="life-back" type="button" onclick="go('driving')">&lt; Essentials</button><section class="df-tool-hero"><div class="df-tool-kicker">Essentials</div><h1>${esc(tool.label)}</h1><p>${esc(tool.desc)}</p></section><div class="df-tool-layout"><section class="df-tool-panel"><h2>${esc(tool.formTitle)}</h2><form class="df-tool-form" onsubmit="dayframeSaveEssentialsItem('${esc(tool.key)}', event)"><input id="${esc(inputId(tool.key, 'id'))}" type="hidden"><label>Type<select id="${esc(inputId(tool.key, 'type'))}">${optionHTML(tool)}</select></label><label>${esc(tool.itemLabel)}<input id="${esc(inputId(tool.key, 'title'))}" type="text" maxlength="120" placeholder="${esc(tool.placeholder)}"></label><label>${esc(tool.dateLabel)}<input id="${esc(inputId(tool.key, 'date'))}" type="date"></label>${referenceField}<label>Notes<textarea id="${esc(inputId(tool.key, 'notes'))}" maxlength="500" placeholder="Anything useful to remember."></textarea></label>${attachFieldHTML(tool)}<div class="df-tool-actions"><button type="button" onclick="dayframeClearEssentialsForm('${esc(tool.key)}')">Clear</button><button class="primary" type="submit">${esc(tool.save)}</button></div></form></section><section class="df-tool-panel"><div class="df-tool-list-head"><h2>${esc(tool.list)}</h2><span class="df-tool-count" id="df-${esc(tool.key)}-count"></span></div><div class="df-tool-list" id="df-${esc(tool.key)}-list"></div></section></div></section>`;
   }
 
   function renderRealTool(tool) {
@@ -196,7 +228,7 @@
     } else {
       html = items.map((item) => {
         const details = [item.date ? prettyDate(item.date) : 'No date', item.notes].filter(Boolean).join(' - ');
-        return `<article class="df-tool-item"><div><strong>${esc(item.title)}</strong><span>${esc(details)}</span><div class="df-tool-meta"><span class="df-tool-type">${esc(typeLabel(tool, item.type))}</span>${referenceHTML(item.reference)}</div></div><div class="df-tool-item-actions"><button type="button" onclick="dayframeEditEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Edit</button><button type="button" onclick="dayframeDeleteEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Delete</button></div></article>`;
+        return `<article class="df-tool-item"><div><strong>${esc(item.title)}</strong><span>${esc(details)}</span><div class="df-tool-meta"><span class="df-tool-type">${esc(typeLabel(tool, item.type))}</span>${referenceHTML(item.reference)}</div>${item.fileName ? `<span class="df-tool-item-file">${attachmentRowHTML(tool, item)}</span>` : ''}</div><div class="df-tool-item-actions"><button type="button" onclick="dayframeEditEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Edit</button><button type="button" onclick="dayframeDeleteEssentialsItem('${esc(tool.key)}','${esc(item.id)}')">Delete</button></div></article>`;
       }).join('');
     }
     if (list.innerHTML !== html) list.innerHTML = html;
@@ -232,6 +264,12 @@
     });
     const type = document.getElementById(inputId(tool.key, 'type'));
     if (type) type.value = normalizeType(tool, tool.tags?.[0]);
+    if (tool.attachments) {
+      const file = document.getElementById(inputId(tool.key, 'file'));
+      if (file) file.value = '';
+      const current = document.getElementById(inputId(tool.key, 'file-current'));
+      if (current) current.innerHTML = '';
+    }
   }
 
   function openRealTool(key, event) {
@@ -262,22 +300,59 @@
       const reference = document.getElementById(inputId(key, 'reference'));
       if (reference) reference.value = item.reference || '';
       document.getElementById(inputId(key, 'notes')).value = item.notes;
+      if (tool.attachments) {
+        const file = document.getElementById(inputId(key, 'file'));
+        if (file) file.value = '';
+        const current = document.getElementById(inputId(key, 'file-current'));
+        if (current) current.innerHTML = attachmentRowHTML(tool, item);
+      }
       document.getElementById(inputId(key, 'title'))?.focus();
     };
-    window.dayframeDeleteEssentialsItem = function dayframeDeleteEssentialsItem(key, id) {
+    window.dayframeDeleteEssentialsItem = async function dayframeDeleteEssentialsItem(key, id) {
       const tool = realTool(key);
       if (!tool) return;
-      saveRealItems(tool, realItems(tool).filter((item) => item.id !== id));
+      const item = realItems(tool).find((entry) => entry.id === id);
+      saveRealItems(tool, realItems(tool).filter((entry) => entry.id !== id));
       renderRealTool(tool);
       window.hubToast?.(tool.deleted);
+      if (tool.attachments && item?.fileName && typeof window.dfStorageDelete === 'function') {
+        window.dfStorageDelete(`${tool.store}/${id}`).catch(() => {});
+      }
     };
-    window.dayframeSaveEssentialsItem = function dayframeSaveEssentialsItem(key, event) {
+    window.dayframeViewEssentialsAttachment = async function dayframeViewEssentialsAttachment(key, id) {
+      const tool = realTool(key);
+      if (!tool || typeof window.dfStorageSignedUrl !== 'function') return;
+      const win = window.open('', '_blank');
+      const url = await window.dfStorageSignedUrl(`${tool.store}/${id}`).catch(() => null);
+      if (!url) {
+        if (win) win.close();
+        window.hubToast?.('Could not open that file — try again in a moment');
+        return;
+      }
+      if (win) win.location = url;
+      else window.location.href = url;
+    };
+    window.dayframeRemoveEssentialsAttachment = async function dayframeRemoveEssentialsAttachment(key, id) {
+      const tool = realTool(key);
+      if (!tool) return;
+      const items = realItems(tool);
+      const item = items.find((entry) => entry.id === id);
+      if (!item) return;
+      if (typeof window.dfStorageDelete === 'function') await window.dfStorageDelete(`${tool.store}/${id}`).catch(() => {});
+      saveRealItems(tool, items.map((entry) => (entry.id === id ? { ...entry, fileName: '', fileSize: 0, fileType: '' } : entry)));
+      renderRealTool(tool);
+      const current = document.getElementById(inputId(key, 'file-current'));
+      if (current && document.getElementById(inputId(key, 'id'))?.value === id) current.innerHTML = '';
+      window.hubToast?.('File removed');
+    };
+    window.dayframeSaveEssentialsItem = async function dayframeSaveEssentialsItem(key, event) {
       event?.preventDefault?.();
       const tool = realTool(key);
       if (!tool) return;
       const title = document.getElementById(inputId(key, 'title'))?.value.trim() || '';
       if (!title) return window.hubToast?.('Add a name first');
       const id = safeId(document.getElementById(inputId(key, 'id'))?.value || `item-${Date.now()}`);
+      const existing = realItems(tool).find((item) => item.id === id);
       const next = {
         id,
         title,
@@ -286,7 +361,24 @@
         reference: document.getElementById(inputId(key, 'reference'))?.value || '',
         notes: document.getElementById(inputId(key, 'notes'))?.value || '',
         updatedAt: new Date().toISOString(),
+        fileName: existing?.fileName || '',
+        fileSize: existing?.fileSize || 0,
+        fileType: existing?.fileType || '',
       };
+      const pickedFile = tool.attachments ? document.getElementById(inputId(key, 'file'))?.files?.[0] : null;
+      const submitButton = event?.target?.querySelector?.('button[type="submit"]');
+      if (pickedFile) {
+        if (submitButton) { submitButton.disabled = true; submitButton.textContent = 'Uploading…'; }
+        const result = await (window.dfStorageUpload?.(`${tool.store}/${id}`, pickedFile) ?? Promise.resolve({ ok: false, error: 'Upload unavailable' }));
+        if (submitButton) { submitButton.disabled = false; submitButton.textContent = tool.save; }
+        if (result.ok) {
+          next.fileName = pickedFile.name.slice(0, 200);
+          next.fileSize = pickedFile.size;
+          next.fileType = pickedFile.type || '';
+        } else {
+          window.hubToast?.(result.error || 'Could not attach that file — the rest was saved');
+        }
+      }
       const items = realItems(tool).filter((item) => item.id !== id);
       items.push(next);
       saveRealItems(tool, items);
