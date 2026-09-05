@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'clickfix-v22';
+  const VERSION = 'clickfix-v23';
   const FLAG = 'data-dayframe-essentials-clickfix';
   const STYLE_ID = 'df-essentials-clickfix-style';
   const HIDDEN_STYLE = '#pg-driving .driving-home-card.df-widget-hidden,#pg-driving .driving-home-grid>.df-widget-hidden,.driving-side-nav .df-widget-hidden{display:none!important}.df-tool-form select{width:100%;border:1px solid #e5e9f2;border-radius:13px;background:#f8f9fc;color:#172033;font:750 12px var(--ff);padding:11px;outline:none;cursor:pointer}.df-tool-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}.df-tool-type{display:inline-flex;align-items:center;border-radius:999px;background:#f4f1ff;color:#6e5ff0;font-size:10px;font-weight:900;padding:6px 9px}.df-tool-reference{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;background:#effefa;color:#168a76;font-size:10px;font-weight:900;padding:6px 9px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.df-tool-empty{line-height:1.5}.df-tool-empty strong{display:block;color:#172033;font-size:14px;margin-bottom:4px}.df-tool-file-hint{display:block;margin-top:2px;color:#8a94a4;font-size:10px;font-weight:700;line-height:1.4}.df-tool-file-current{display:block;margin-top:2px;color:#4f5b70;font-size:11px;font-weight:750}.df-tool-file-current button,.df-tool-item-file button{border:0;background:transparent;color:#6e5ff0;font-size:10.5px;font-weight:850;padding:0;cursor:pointer;text-decoration:underline}.df-tool-item-file{display:block;margin-top:6px;color:#758094;font-size:10.5px}.df-tool-checkbox-field{display:flex!important;flex-direction:row!important;align-items:center;gap:9px;color:#4f5b70;font-size:11.5px;font-weight:750}.df-tool-checkbox-field input{width:17px;height:17px;accent-color:#7564f2;flex:0 0 auto}';
@@ -215,7 +215,7 @@
   function reminderFieldHTML(tool) {
     if (!tool.reminders) return '';
     const opts = REMINDER_REPEAT_OPTIONS.map(([val, lab]) => `<option value="${val}">${esc(lab)}</option>`).join('');
-    return `<label class="df-tool-checkbox-field"><input type="checkbox" id="${esc(inputId(tool.key, 'remind'))}"> Remind me — adds a repeating task to Plans</label><label>How often<select id="${esc(inputId(tool.key, 'remind-repeat'))}">${opts}</select></label>`;
+    return `<label class="df-tool-checkbox-field"><input type="checkbox" id="${esc(inputId(tool.key, 'remind'))}"> Remind me</label><label>How often<select id="${esc(inputId(tool.key, 'remind-repeat'))}">${opts}</select></label>`;
   }
 
   // Keeps a linked "Take X" repeating task in sync with a health item's
