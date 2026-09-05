@@ -2414,7 +2414,7 @@ button.df-user-pill{border:0;font:inherit;cursor:pointer}.security-wrap{padding-
         <div class="hub-panel-body" id="home-todo-list"></div>
       </section>
       <section class="hub-panel home-glance-panel home-coming-panel" data-home-widget="coming">
-        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">◷</span><div><div class="hub-panel-title">Coming up</div><div class="home-panel-sub">Tasks and bills in the next 5 days, plus anything expiring soon</div></div></div></div>
+        <div class="hub-panel-head"><div class="hub-panel-heading"><span class="home-panel-icon">◷</span><div><div class="hub-panel-title">Coming up</div></div></div></div>
         <div class="hub-panel-body" id="home-coming-up"></div>
       </section>
       <section class="hub-panel home-glance-panel home-goal-panel" data-home-widget="goals">
@@ -5687,7 +5687,7 @@ const DF_HOME_MODULES=[
 ];
 const DF_HOME_WIDGETS=[
  {key:'todo',label:'To do',note:'Today’s tasks and daily habits'},
- {key:'coming',label:'Coming up',note:'Bills, renewals and dated tasks — next 5 days'},
+ {key:'coming',label:'Coming up',note:'Bills and renewals — next 5 days'},
  {key:'goals',label:'Goal progress',note:'Your first active goal'},
  {key:'diary',label:'Diary prompt',note:'A gentle daily check-in'}
 ];
@@ -5837,12 +5837,11 @@ function renderHome(){
   ...docItems.filter(it=>it&&/^\d{4}-\d{2}-\d{2}$/.test(String(it.date||''))).map(it=>({title:String(it.title||'Document').slice(0,80),date:String(it.date),type:'Expiring soon',kind:'expiry'}))
  ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n>=-31&&n<=92});
  const upcoming=[
-  ...open.filter(t=>t.date&&t.date>today).map(t=>({title:t.title,date:t.date,type:t.area||'Task',kind:'task'})),
   ...dueBillItems.map(x=>({title:x.bill.name||'Bill due',date:x.meta.dateISO,type:'Money',kind:'bill'})),
   ...(nextPeriodISO?[{title:'Period estimated',date:nextPeriodISO,type:'MyFlo',kind:'flo'}]:[])
  ].filter(x=>{const n=hubDaysUntil(x.date);return n!==null&&n<=5}).concat(expiring).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
  const cu=document.getElementById('home-coming-up');
- if(cu)cu.innerHTML=upcoming.length?upcoming.map(comingRow).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Nothing coming up</strong><span>Dated tasks, bills and anything expiring soon show up here.</span></div>';
+ if(cu)cu.innerHTML=upcoming.length?upcoming.map(comingRow).join(''):'<div class="hub-empty home-rich-empty"><span class="home-empty-emoji">☁</span><strong>Nothing coming up</strong><span>Bills and anything expiring soon show up here.</span></div>';
  const todoW=document.getElementById('home-todo-list');
  if(todoW){
    const seenTodo={};
